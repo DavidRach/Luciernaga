@@ -1,3 +1,17 @@
+#' Utility_Luciernaga
+#'
+#' @param LuciernagaData A data.frame
+#' @param LuciernagaVariables  The data.frame column that contains your flourophores (ex. "Samples" -> "APCFire750")
+#' @param LuciernagaClusters The data.frame column that contains your clusters (ex. "Clusters" -> "R01_10-R02_10-R03_10")
+#' @param outfolder The location that you want to save the .pdf output to.
+#' @param filename The name you want to save your .pdf file as.
+#'
+#' @return NULL
+#' @export NULL
+#'
+#' @examples NULL
+#'
+
 Utility_Luciernaga <- function(LuciernagaData, LuciernagaVariables, LuciernagaClusters, outfolder, filename){
   Items <- data.frame(table(LuciernagaData[[LuciernagaVariables]])) %>% pull(Var1) %>% as.character(.)
 
