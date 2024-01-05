@@ -1,3 +1,15 @@
+#' Unmix your .fcs samples.
+#'
+#' @param fs A flowSet object (ex. fs or fs[[1]])
+#' @param control The output of controlData
+#' @param unmixMethod Choice of unmixing method
+#' @param multiplier Value unmixed values are multiplied by for better visualization
+#' @param outpath Location the unmixed .fcs files are returned to.
+#'
+#' @return NULL
+#' @export NULL
+#'
+#' @examples NULL
 unmix_ff <- function(fs, control, unmixMethod, multiplier, outpath) {
   expresionData<-exprs(fs)
   expresionData<-as.data.frame(expresionData)

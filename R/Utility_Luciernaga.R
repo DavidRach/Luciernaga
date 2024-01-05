@@ -1,4 +1,4 @@
-#' Utility_Luciernaga
+#' Converts the Luciernaga outputs into .pdf plots.
 #'
 #' @param LuciernagaData A data.frame
 #' @param LuciernagaVariables  The data.frame column that contains your flourophores (ex. "Samples" -> "APCFire750")

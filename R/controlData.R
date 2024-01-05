@@ -1,3 +1,12 @@
+#' Prepare Luciernaga .fcs outputs as Control Inputs for Unmixing
+#'
+#' @param cs A flowSet (ex. cs or cs[[1]])
+#' @param removestrings Portions of the single color names you want removed (Ex. c("DR_ILT_2023_", ".FCS")
+#'
+#' @return NULL
+#' @export NULL
+#'
+#' @examples NULL
 controlData <- function(cs, removestrings) {
   Control_Spectrums<-fsApply(cs,each_col,median)
   Control_Spectrums<-as.data.frame(Control_Spectrums)

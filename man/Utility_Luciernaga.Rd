@@ -2,7 +2,7 @@
 % Please edit documentation in R/Utility_Luciernaga.R
 \name{Utility_Luciernaga}
 \alias{Utility_Luciernaga}
-\title{Utility_Luciernaga}
+\title{Converts the Luciernaga outputs into .pdf plots.}
 \usage{
 Utility_Luciernaga(
   LuciernagaData,
@@ -24,7 +24,7 @@ Utility_Luciernaga(
 \item{filename}{The name you want to save your .pdf file as.}
 }
 \description{
-Utility_Luciernaga
+Converts the Luciernaga outputs into .pdf plots.
 }
 \examples{
 NULL
