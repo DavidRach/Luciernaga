@@ -1,3 +1,13 @@
+#' Forming a pdf to plot Luciernaga returns
+#'
+#' @param x A list of plots
+#' @param filename Name of the generated .pdf
+#' @param outfolder Location to store the .pdf
+#'
+#' @return NULL
+#' @export NULL
+#'
+#' @examples NULL
 Utility_SCPatchwork <- function(x, filename, outfolder){
   theList <- x
   #theList <- Filter(Negate(is.null), theList)

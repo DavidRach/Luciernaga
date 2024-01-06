@@ -1,3 +1,28 @@
+#' Main Luciernaga Function, normalized on individual cell level
+#'
+#' @param x A Gating Set object (ex. gs or gs[[1]])
+#' @param subsets The Gating Hierarchy level you will be sampling at
+#' @param sample.name Keyword variable which samples are stored (ex. "GUID")
+#' @param group.name Keyword variable which groups are stored (ex. "GROUPNAME")
+#' @param experiment Provide directly experiment name (ex. "JAN2024")
+#' @param experiment.name Keyword variable which experiment information is stored (ex. "TUBENAME")
+#' @param stats Whether to take "mean" or "median"
+#' @param Kept Whether "Raw" or "Normalized" values are retained in the Luciernaga object.
+#' @param external An external autofluorescence to subtract from single colors.
+#' @param sourcelocation Location where .fcs creation file is stored
+#' @param outpath  Location where created .fcs and .csv files are sent
+#' @param artificial Whether an artificial 0 population should be added for a background autofluorescence stand in.
+#' @param fcsexport Whether to export .fcs files, TRUE or FALSE
+#' @param mainAF Main Autofluorescence Detector (ex. "V7-A")
+#' @param AFOverlap Name of data.frame containing the Autofluorescence overlap of individual fluorophores for exclusion
+#' @param Beads  Whether the sample is Beads.
+#' @param Brightness Whether sum of detectors should be returned.
+#' @param Unstained Whether the sample is Unstained.
+#'
+#' @return NULL
+#' @export NULL
+#'
+#' @examples NULL
 Utility_SingleColorQC <- function(x, subsets, sample.name, group.name, experiment = NULL, experiment.name = NULL, stats, Kept, external, sourcelocation, outpath, artificial, fcsexport, mainAF, AFOverlap, Beads, Brightness, Unstained){
 
   gc()

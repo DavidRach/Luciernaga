@@ -1,3 +1,21 @@
+#' Plot Individual Fluorophore Gates, take the MFI, return the values.
+#'
+#' @param x A GatingSet type object (ex. gs or gs[[1]])
+#' @param sample.name Keyword variable under which samples indentity is stored (ex. "GUID")
+#' @param experiment Provide directly the experiment label (ex. "Jan2024")
+#' @param experiment.date Keyword variable under which experiment is stored in absence of Experiment
+#' @param rootlevel Gating Hierarchy node under which new gates will be constructed
+#' @param samplinglevel Gating Hierarchy level from which MFI will be taken
+#' @param bins When plotting, how many bins resolution
+#' @param stats Whether to use "mean" or "median"
+#' @param outpath Location which to save output
+#' @param source  Whether to export for plotting
+#' @param sourcelocation Location where source plotting file is stored.
+#'
+#' @return NULL
+#' @export NULL
+#'
+#' @examples NULL
 Utility_SingleColors <- function(x, sample.name, experiment = NULL, experiment.date, rootlevel, samplinglevel, bins, stats = NULL, outpath, source, sourcelocation){
   x <- x
   name <- keyword(x, sample.name)

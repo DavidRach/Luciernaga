@@ -1,3 +1,11 @@
+#' Helper function splits Cluster into individual components
+#'
+#' @param x A data.frame containing column Cluster
+#'
+#' @return NULL
+#' @export NULL
+#'
+#' @examples NULL
 Utility_RelativeBrightness <- function(x){
   Regular <- x %>% filter(!str_detect(Cluster, "-$"))
 
