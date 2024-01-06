@@ -1,3 +1,11 @@
+#' Check identical clusters for individual variability across experiments.
+#'
+#' @param data The nested portion of the data.frame, containing the detectors and the experiment column
+#'
+#' @return NULL
+#' @export NULL
+#'
+#' @examples NULL
 subClusters <- function(data){
   data$experiment <- factor(data$experiment)
   numbers <- data %>% select(2:ncol(data))

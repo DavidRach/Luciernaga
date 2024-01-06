@@ -1,3 +1,11 @@
+#' Internal function for relative brightness
+#'
+#' @param x The data.frame object passed by relative brightness
+#'
+#' @return NULL
+#' @export NULL
+#'
+#' @examples NULL
 Utility_Fill <- function(x){
   colnames(x) <- gsub("-A", "",  colnames(x))
 

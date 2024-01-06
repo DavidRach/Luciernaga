@@ -1,3 +1,16 @@
+#' Detecting Fluorophore Peak Detectors by Local Maxima
+#'
+#' @param theX A vector of detectors from 1:n
+#' @param theY The corresponding y values corresponding to the measurements of theX
+#' @param therepeats Additional values to temporarily add to the edges to allow for peak detection
+#' @param w The span around which rolling will happen
+#' @param alternatename The cleaned up name passed to the plots (internal)
+#' @param ... Additional arguments passed to zoo package
+#'
+#' @return NULL
+#' @export NULL
+#'
+#' @examples NULL
 Utility_LocalMaxima <- function(theX, theY, therepeats, w, alternatename, ...){
 
   #Adding Margins

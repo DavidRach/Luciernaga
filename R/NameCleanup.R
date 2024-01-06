@@ -1,3 +1,12 @@
+#' Polish up single color names before unmixing
+#'
+#' @param name Original name
+#' @param removestrings Strings to be removed from name (ex. c("DTR_ILT_", "cord"))
+#'
+#' @return NULL
+#' @export NULL
+#'
+#' @examples NULL
 NameCleanUp <- function(name, removestrings){
   for(i in removestrings){
     name <- str_replace_all(name, i, "")

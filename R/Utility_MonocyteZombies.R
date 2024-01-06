@@ -1,3 +1,13 @@
+#' Adds additional gates for monocytes, dead cells, or their respective unstained negatives
+#'
+#' @param x A Gating Set object (ex. gs or gs[[1]])
+#' @param sample.name Keyword for which sample name is stored
+#' @param bins Number of bins resulting ggplot2 object should be plotted with
+#'
+#' @return NULL
+#' @export NULL
+#'
+#' @examples NULL
 Utility_MonocyteZombies <- function(x, sample.name, bins){
   x <- x
   name <- keyword(x, sample.name)
