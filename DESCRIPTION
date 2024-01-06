@@ -2,10 +2,11 @@ Package: Luciernaga
 Type: Package
 Title: Quality control of single color and unstained controls for Spectral Flow Cytometry
 Version: 0.1.0
-Author: David Rach
-Maintainer: David Rach <drach@som.umaryland.edu>
+Authors@R: 
+    person("David", "Rach", , "drach@som.umaryland.edu", role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0003-2235-5585"))
 Description: How stable are your single colors and unstained controls? Let's find out. 
-License: AGPL-3.0-or-later
+License: AGPL (>= 3)
 Encoding: UTF-8
 LazyData: FALSE
 URL: https://github.com/DavidRach/Luciernaga
