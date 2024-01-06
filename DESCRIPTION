@@ -12,3 +12,20 @@ LazyData: FALSE
 URL: https://github.com/DavidRach/Luciernaga
 BugReports: https://github.com/DavidRach/Luciernaga/issues
 RoxygenNote: 7.2.3
+Imports: 
+    data.table,
+    dplyr,
+    flowCore,
+    flowWorkspace,
+    ggcyto,
+    ggplot2,
+    lsa,
+    openCyto,
+    patchwork,
+    purrr,
+    reshape2,
+    stringr,
+    tidyr,
+    zoo
+Suggests: 
+    viridis
