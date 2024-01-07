@@ -47,3 +47,6 @@ SingleColorPlots(
 \description{
 Plot the Gating Hierarchy to make sure the gating was appropiate
 }
+\examples{
+NULL
+}

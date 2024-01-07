@@ -14,7 +14,7 @@
 #' @param sourcelocation Location of the file for individual or all NxN plotting.
 #'
 #' @return NULL
-#' @export NULL
+#' @export
 #'
 #' @examples NULL
 Utility_NbyNPlots <- function(x, sample.name, removestrings, experiment = NULL, experiment.name = NULL,  outpath, marginsubset, gatesubset, ycolumn, bins, clearance, sourcelocation){

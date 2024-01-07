@@ -5,7 +5,7 @@
 #' @param outfolder Location to store the .pdf
 #'
 #' @return NULL
-#' @export NULL
+#' @export
 #'
 #' @examples NULL
 Utility_SCPatchwork <- function(x, filename, outfolder){

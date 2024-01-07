@@ -3,7 +3,7 @@
 #' @param x A data.frame containing column Cluster
 #'
 #' @return NULL
-#' @export NULL
+#' @export
 #'
 #' @examples NULL
 Utility_RelativeBrightness <- function(x){

@@ -4,7 +4,7 @@
 #' @param removestrings Strings to be removed from name (ex. c("DTR_ILT_", "cord"))
 #'
 #' @return NULL
-#' @export NULL
+#' @export
 #'
 #' @examples NULL
 NameCleanUp <- function(name, removestrings){

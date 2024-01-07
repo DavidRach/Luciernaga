@@ -13,7 +13,7 @@
 #' @param sourcelocation Location where source plotting file is stored.
 #'
 #' @return NULL
-#' @export NULL
+#' @export
 #'
 #' @examples NULL
 Utility_SingleColors <- function(x, sample.name, experiment = NULL, experiment.date, rootlevel, samplinglevel, bins, stats = NULL, outpath, source, sourcelocation){

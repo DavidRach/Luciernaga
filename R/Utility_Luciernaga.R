@@ -7,7 +7,7 @@
 #' @param filename The name you want to save your .pdf file as.
 #'
 #' @return NULL
-#' @export NULL
+#' @export
 #'
 #' @examples NULL
 #'

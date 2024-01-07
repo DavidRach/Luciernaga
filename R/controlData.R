@@ -4,7 +4,7 @@
 #' @param removestrings Portions of the single color names you want removed (Ex. c("DR_ILT_2023_", ".FCS")
 #'
 #' @return NULL
-#' @export NULL
+#' @export
 #'
 #' @examples NULL
 controlData <- function(cs, removestrings) {

@@ -19,8 +19,13 @@
 #' @param Brightness Whether sum of detectors should be returned.
 #' @param Unstained Whether the sample is Unstained.
 #'
+#' @import dplyr
+#' @import stringr
+#' @importFrom flowCore exprs
+#' @importFrom dplyr filter
+#'
 #' @return NULL
-#' @export NULL
+#' @export
 #'
 #' @examples NULL
 Utility_SingleColorQC <- function(x, subsets, sample.name, group.name, experiment = NULL, experiment.name = NULL, stats, Kept, external, sourcelocation, outpath, artificial, fcsexport, mainAF, AFOverlap, Beads, Brightness, Unstained){

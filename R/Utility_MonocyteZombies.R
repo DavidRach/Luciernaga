@@ -5,7 +5,7 @@
 #' @param bins Number of bins resulting ggplot2 object should be plotted with
 #'
 #' @return NULL
-#' @export NULL
+#' @export
 #'
 #' @examples NULL
 Utility_MonocyteZombies <- function(x, sample.name, bins){

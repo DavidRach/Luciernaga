@@ -3,7 +3,7 @@
 #' @param x The data.frame object passed by relative brightness
 #'
 #' @return NULL
-#' @export NULL
+#' @export
 #'
 #' @examples NULL
 Utility_Fill <- function(x){

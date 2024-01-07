@@ -3,7 +3,7 @@
 #' @param data The nested portion of the data.frame, containing the detectors and the experiment column
 #'
 #' @return NULL
-#' @export NULL
+#' @export
 #'
 #' @examples NULL
 subClusters <- function(data){

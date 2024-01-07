@@ -8,7 +8,6 @@
 #' @param ... Additional arguments passed to zoo package
 #'
 #' @return NULL
-#' @export NULL
 #'
 #' @examples NULL
 Utility_LocalMaxima <- function(theX, theY, therepeats, w, alternatename, ...){

@@ -14,7 +14,7 @@
 #' @param sourcelocation Location where the .csv for openCyto gating is stored.
 #'
 #' @return NULL
-#' @export NULL
+#' @export
 #'
 #' @examples NULL
 SingleColorPlots <- function(x, subsets, column, sample.name, experiment = NULL, experiment.name = NULL, condition = NULL, condition.name = NULL, bins, clearance, outpath, sourcelocation){

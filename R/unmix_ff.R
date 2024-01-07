@@ -7,7 +7,7 @@
 #' @param outpath Location the unmixed .fcs files are returned to.
 #'
 #' @return NULL
-#' @export NULL
+#' @export
 #'
 #' @examples NULL
 unmix_ff <- function(fs, control, unmixMethod, multiplier, outpath) {
