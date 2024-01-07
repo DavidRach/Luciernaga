@@ -19,10 +19,10 @@
 #' @param Brightness Whether sum of detectors should be returned.
 #' @param Unstained Whether the sample is Unstained.
 #'
-#' @import dplyr
-#' @import stringr
-#' @importFrom flowCore exprs
+#' @importFrom dplyr select
 #' @importFrom dplyr filter
+#' @importFrom flowCore keyword
+#' @importFrom BiocGenerics nrow
 #'
 #' @return NULL
 #' @export
@@ -62,7 +62,7 @@ Utility_SingleColorQC <- function(x, subsets, sample.name, group.name, experimen
   #Retrieving the exprs data for the target population
   ff <- gs_pop_get_data(x, subsets)
   startingcells <- nrow(ff)[[1]]
-  df <- flowCore::exprs(ff[[1]])
+  df <- exprs(ff[[1]])
   DF <- as.data.frame(df, check.names = FALSE)
 
   #For Future Column Reordering
@@ -102,7 +102,7 @@ Utility_SingleColorQC <- function(x, subsets, sample.name, group.name, experimen
   MainAF <- mainAF
   MainAF <- gsub("-A", "", MainAF)
 
-  This <- WorkAround %>% dplyr::filter(.data[[MainAF]] == 1) %>% select(all_of(1:ColsN))
+  This <- WorkAround %>% filter(.data[[MainAF]] == 1) %>% select(all_of(1:ColsN))
 
   if(stats == "mean"){Samples <- This %>% summarize_all(mean) #%>% select(-Backups)
   } else if (stats == "median"){Samples <- This %>% summarize_all(median) #%>% select(-Backups)

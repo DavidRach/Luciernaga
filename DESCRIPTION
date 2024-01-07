@@ -13,6 +13,7 @@ URL: https://github.com/DavidRach/Luciernaga
 BugReports: https://github.com/DavidRach/Luciernaga/issues
 RoxygenNote: 7.2.3
 Imports: 
+    BiocGenerics,
     data.table,
     dplyr,
     flowCore,
