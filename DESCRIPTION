@@ -29,4 +29,7 @@ Imports:
     tidyr,
     zoo
 Suggests: 
+    knitr,
+    rmarkdown,
     viridis
+VignetteBuilder: knitr
