@@ -84,7 +84,7 @@ if (length(files) < 1) {
 
 ```
 
-Now it's time to load the fcs files and gate with the specified gates. 
+Now it's time to load the fcs files and gate with the specified gates.
 
 ```{r}
 # FCS to Gating Set
@@ -159,7 +159,6 @@ tryCatch({
         bind_rows()
 })
 ```
-
 
 ```{r}
 #### Single Colors ####
@@ -337,7 +336,6 @@ Curated <- Curated %>%
  write.csv(Curated, CuratedPath, row.names = FALSE)
 ```
 
-
 ```{r}
 #Combining Outputs
 if(exists("BUV737")){TestTryThis <- rbind(SingleColors, Unstained, BV510, 
@@ -368,4 +366,3 @@ TheData$sample <- gsub("ND050_13INF", "INF", TheData$sample)
         outfolder = ReturnFolder)
 
 ```
-
