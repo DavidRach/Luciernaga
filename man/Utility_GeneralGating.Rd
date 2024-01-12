@@ -23,6 +23,8 @@ Utility_GeneralGating(
 
 \item{yValue}{What wanted on the yaxis}
 
+\item{bins}{Bins for which the plotted cells will be divided into providing granularity}
+
 \item{columnlist}{list all channels with x removed}
 
 \item{TheDF}{the external limits settings}
@@ -30,6 +32,8 @@ Utility_GeneralGating(
 \item{gatelines}{whether to plot the ModernCutoffLines from reference dataframe}
 
 \item{reference}{location ModernCutoff dataframe.}
+
+\item{ycolumn}{The ycolumn that you want to see everything plotted by (ex. "APC-A") or ALL to see all comparisons}
 }
 \description{
 Generate ggplot2s for different channels
