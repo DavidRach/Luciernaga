@@ -13,6 +13,9 @@
 #' @param clearance The additional ratio added to the margins to avoid clipping main population but exclude outliers.
 #' @param sourcelocation Location of the file for individual or all NxN plotting.
 #'
+#' @import flowCore
+#' @import flowWorkspace
+#'
 #' @return NULL
 #' @export
 #'
