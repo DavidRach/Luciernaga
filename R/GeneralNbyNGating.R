@@ -8,10 +8,9 @@
 #' @param gatelines whether to plot the ModernCutoffLines from reference dataframe
 #' @param reference location ModernCutoff dataframe.
 #'
-#' @import flowCore
-#' @import flowWorkspace
-#' @import ggcyto
-#' @import ggplot2
+#' @importFrom flowCore keyword
+#' @importFrom ggcyto ggcyto
+#' @importFrom ggcyto as.ggplot
 #'
 #' @return NULL
 #' @export
