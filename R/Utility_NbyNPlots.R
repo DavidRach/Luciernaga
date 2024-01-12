@@ -13,8 +13,8 @@
 #' @param clearance The additional ratio added to the margins to avoid clipping main population but exclude outliers.
 #' @param sourcelocation Location of the file for individual or all NxN plotting.
 #'
-#' @import flowCore
-#' @import flowWorkspace
+#' @importFrom flowCore keyword
+#' @importFrom flowCore exprs
 #'
 #' @return NULL
 #' @export
@@ -24,7 +24,7 @@
 Utility_NbyNPlots <- function(x, sample.name, removestrings, experiment = NULL, experiment.name = NULL, condition = NULL, condition.name = NULL,
                               marginsubset, gatesubset, ycolumn, bins, clearance, gatelines, reference = NULL, outpath){
   x <- x
-  name <- keyword(x, sample.name)
+  name <- flowCore::keyword(x, sample.name)
 
   name <- NameCleanUp(name = name, removestrings)
 
