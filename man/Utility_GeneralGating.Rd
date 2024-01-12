@@ -8,6 +8,8 @@ Utility_GeneralGating(
   x,
   ff,
   yValue,
+  clearance,
+  bins,
   columnlist,
   TheDF,
   gatelines,

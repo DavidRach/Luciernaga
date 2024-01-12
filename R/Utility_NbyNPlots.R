@@ -23,16 +23,17 @@
 
 Utility_NbyNPlots <- function(x, sample.name, removestrings, experiment = NULL, experiment.name = NULL, condition = NULL, condition.name = NULL,
                               marginsubset, gatesubset, ycolumn, bins, clearance, gatelines, reference = NULL, outpath){
+  ycolumn <- ycolumn
   x <- x
   name <- flowCore::keyword(x, sample.name)
 
   name <- NameCleanUp(name = name, removestrings)
 
   if(!is.null(experiment)){experiment <- experiment
-  } else {experiment <- keyword(x, experiment.name)}
+  } else {experiment <- flowCore::keyword(x, experiment.name)}
 
   if(!is.null(condition)){condition <- condition
-  } else {condition <- keyword(x, condition.name)}
+  } else {condition <- flowCore::keyword(x, condition.name)}
 
   AggregateName <- paste(name, experiment, sep = "_") #Additional for condition (we need to think this through)
   StorageLocation <- paste(outpath, AggregateName, sep = "/", collapse = NULL)
@@ -48,7 +49,7 @@ Utility_NbyNPlots <- function(x, sample.name, removestrings, experiment = NULL, 
   } else {
     columnlist <- DFNames[DFNames != ycolumn]
     Plots <- map(.x = columnlist, .f = Utility_GeneralGating, ff = ff, yValue = ycolumn, columnlist = DFNames,
-                 TheDF = TheDF, gatelines = gatelines, reference = reference)
+                 TheDF = TheDF, gatelines = gatelines, reference = reference, clearance, bins)
   }
   return(Plots)
 }

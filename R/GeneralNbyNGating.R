@@ -16,9 +16,9 @@
 #' @export
 #'
 #' @examples NULL
-Utility_GeneralGating <- function(x, ff, yValue, columnlist, TheDF, gatelines, reference = NULL) {
+Utility_GeneralGating <- function(x, ff, yValue, clearance, bins, columnlist, TheDF, gatelines, reference = NULL) {
 
-  if (ycolumn == x){stop("Error: x equals ycolumn and can't be plotted")}
+  if (yValue == x){stop("Error: x equals yValue and can't be plotted")}
 
   xValue <- x
 
