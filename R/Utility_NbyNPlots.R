@@ -48,7 +48,7 @@ Utility_NbyNPlots <- function(x, sample.name, removestrings, experiment = NULL, 
   if (ycolumn == "ALL"){print("run ComprehensiveNxNPlot fctn")
   } else {
     columnlist <- DFNames[DFNames != ycolumn]
-    Plots <- map(.x = columnlist, .f = Utility_GeneralGating, ff = ff, yValue = ycolumn, columnlist = DFNames,
+    Plots <- map(.x = columnlist, .f = Utility_GeneralGating, name = name, ff = ff, yValue = ycolumn, columnlist = DFNames,
                  TheDF = TheDF, gatelines = gatelines, reference = reference, clearance, bins)
   }
   return(Plots)

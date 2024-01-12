@@ -1,6 +1,7 @@
 #' Generate ggplot2s for different channels
 #'
 #' @param x Passed channel
+#' @param name The name that matches to the data.frame and gs object, ex. altered.name
 #' @param ff The dataframe data for that sample
 #' @param yValue What wanted on the yaxis
 #' @param ycolumn The ycolumn that you want to see everything plotted by (ex. "APC-A") or ALL to see all comparisons
@@ -18,7 +19,7 @@
 #' @export
 #'
 #' @examples NULL
-Utility_GeneralGating <- function(x, ff, yValue, clearance, bins, columnlist, TheDF, gatelines, reference = NULL) {
+Utility_GeneralGating <- function(x, name, ff, yValue, clearance, bins, columnlist, TheDF, gatelines, reference = NULL) {
 
   if (yValue == x){stop("Error: x equals yValue and can't be plotted")}
 

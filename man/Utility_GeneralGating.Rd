@@ -6,6 +6,7 @@
 \usage{
 Utility_GeneralGating(
   x,
+  name,
   ff,
   yValue,
   clearance,
@@ -18,6 +19,8 @@ Utility_GeneralGating(
 }
 \arguments{
 \item{x}{Passed channel}
+
+\item{name}{The name that matches to the data.frame and gs object, ex. altered.name}
 
 \item{ff}{The dataframe data for that sample}
 
