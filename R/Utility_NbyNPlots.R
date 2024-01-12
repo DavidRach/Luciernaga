@@ -17,26 +17,21 @@
 #' @export
 #'
 #' @examples NULL
-Utility_NbyNPlots <- function(x, sample.name, removestrings, experiment = NULL, experiment.name = NULL,  outpath, marginsubset, gatesubset, ycolumn, bins, clearance, sourcelocation){
-  #library(flowCore); #library(dplyr)
+
+Utility_NbyNPlots <- function(x, sample.name, removestrings, experiment = NULL, experiment.name = NULL, condition = NULL, condition.name = NULL,
+                              marginsubset, gatesubset, ycolumn, bins, clearance, gatelines, reference = NULL, outpath){
   x <- x
   name <- keyword(x, sample.name)
 
-  NameCleanUp <- function(name, removestrings){
-    for(i in removestrings){
-      name <- str_replace_all(name, i, "")
-    }
-    return(name)
-  }
+  name <- NameCleanUp(name = name, removestrings)
 
-  name <- NameCleanUp(name = name, removestrings = remove_strings)
-
-  #Retrieving Experiment Info #Switched to an exist statement.
   if(!is.null(experiment)){experiment <- experiment
   } else {experiment <- keyword(x, experiment.name)}
-  #suppressWarnings(rm(experiment)) #Being Used Somewhere
 
-  AggregateName <- paste(name, experiment, sep = "_")
+  if(!is.null(condition)){condition <- condition
+  } else {condition <- keyword(x, condition.name)}
+
+  AggregateName <- paste(name, experiment, sep = "_") #Additional for condition (we need to think this through)
   StorageLocation <- paste(outpath, AggregateName, sep = "/", collapse = NULL)
 
   mff <- gs_pop_get_data(x, marginsubset)
@@ -46,5 +41,20 @@ Utility_NbyNPlots <- function(x, sample.name, removestrings, experiment = NULL, 
 
   ff <- gs_pop_get_data(x, gatesubset)
 
-  source(sourcelocation, local = TRUE)
+  if (ycolumn == "ALL"){print("run ComprehensiveNxNPlot fctn")
+  } else {
+    columnlist <- DFNames[DFNames != ycolumn]
+    Plots <- map(.x = columnlist, .f = Utility_GeneralGating, ff = ff, yValue = ycolumn, columnlist = DFNames,
+                 TheDF = TheDF, gatelines = gatelines, reference = reference)
+  }
+  return(Plots)
 }
+
+
+
+
+
+
+
+
+
