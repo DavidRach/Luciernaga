@@ -13,7 +13,7 @@ NameCleanUp <- function(name, removestrings){
   }
 
   #This Section Below Should Be Removed Long Term, Provide a Additional Arguments Wrapper Instead.
-  name <- gsub("_.*", "", name)
+  #name <- gsub("_.*", "", name)
   name <- gsub("BUV", "_BUV", gsub("BV", "_BV", gsub("APC", "_APC", gsub("PE", "_PE", gsub(
     "Per", "_Per", gsub("FITC", "_FITC", gsub("Spark", "_Spark", gsub("Alexa", "_Alexa", gsub(
       "Pacific", "_Pacific", gsub("Zombie", "_Zombie", name))))))))))

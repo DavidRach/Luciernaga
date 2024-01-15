@@ -19,7 +19,8 @@ Utility_NbyNPlots(
   clearance,
   gatelines,
   reference = NULL,
-  outpath
+  outpath,
+  pdf
 )
 }
 \arguments{
@@ -45,7 +46,7 @@ Utility_NbyNPlots(
 
 \item{outpath}{Location for which to store the generated .pdf}
 
-\item{sourcelocation}{Location of the file for individual or all NxN plotting.}
+\item{pdf}{Prints default NxN plot, TRUE or FALSE.}
 }
 \description{
 Generate NxN plots for one or all fluorophores.

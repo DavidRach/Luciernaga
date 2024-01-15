@@ -11,10 +11,12 @@
 #' @param ycolumn The ycolumn that you want to see everything plotted by (ex. "APC-A") or ALL to see all comparisons
 #' @param bins Bins for which the plotted cells will be divided into providing granularity
 #' @param clearance The additional ratio added to the margins to avoid clipping main population but exclude outliers.
-#' @param sourcelocation Location of the file for individual or all NxN plotting.
+#' @param pdf Prints default NxN plot, TRUE or FALSE.
 #'
 #' @importFrom flowCore keyword
 #' @importFrom flowCore exprs
+#' @importFrom patchwork wrap_plots
+#' @importFrom patchwork plot_spacer
 #'
 #' @return NULL
 #' @export
@@ -22,7 +24,7 @@
 #' @examples NULL
 
 Utility_NbyNPlots <- function(x, sample.name, removestrings, experiment = NULL, experiment.name = NULL, condition = NULL, condition.name = NULL,
-                              marginsubset, gatesubset, ycolumn, bins, clearance, gatelines, reference = NULL, outpath){
+                              marginsubset, gatesubset, ycolumn, bins, clearance, gatelines, reference = NULL, outpath, pdf){
   ycolumn <- ycolumn
   x <- x
   name <- flowCore::keyword(x, sample.name)
@@ -42,6 +44,7 @@ Utility_NbyNPlots <- function(x, sample.name, removestrings, experiment = NULL, 
   df <- flowCore::exprs(mff[[1]])
   TheDF <- data.frame(df, check.names = FALSE)
   DFNames <- colnames(TheDF[,-grep("Time|FS|SC|SS|Original|W$|H$", names(TheDF))])
+  PlotNumber <- length(DFNames)
 
   ff <- gs_pop_get_data(x, gatesubset)
 
@@ -51,7 +54,39 @@ Utility_NbyNPlots <- function(x, sample.name, removestrings, experiment = NULL, 
     Plots <- map(.x = columnlist, .f = Utility_GeneralGating, name = name, ff = ff, yValue = ycolumn, columnlist = DFNames,
                  TheDF = TheDF, gatelines = gatelines, reference = reference, clearance, bins)
   }
-  return(Plots)
+
+  if (pdf == TRUE){
+
+    theList <- Plots
+    theListLength <- length(Plots)
+
+    thecolumns <- 4
+    therows <- 3
+    theoreticalitems <- therows*thecolumns
+
+    DecimalLeftover <- (PlotNumber/theoreticalitems) %% 1
+    AdditionalSpaces <- theoreticalitems*DecimalLeftover
+
+    split_list <- function(input_list, chunk_size) {
+      split(input_list, ceiling(seq_along(input_list) / chunk_size))
+    }
+
+    sublists <- split_list(theList, theoreticalitems)
+    #length(sublists)
+
+    #sublists[[length(sublists)]] <- c(sublists[[length(sublists)]], rep(plot_spacer(), AdditionalSpaces))
+
+    pdf(file = paste(StorageLocation, ".pdf", sep = "", collapse = NULL), width = 9, height = 7) #Optional Adjustments for Second
+
+    for(i in sublists){p <- wrap_plots(i, ncol = thecolumns, nrow = therows, widths = 0.8, heights = 0.8)
+    print(p)
+    }
+
+    dev.off()
+
+  }
+
+    return(Plots)
 }
 
 
