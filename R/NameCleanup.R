@@ -1,24 +1,22 @@
-#' Polish up single color names before unmixing
+#' Shorten a variable name
 #'
-#' @param name Original name
-#' @param removestrings Strings to be removed from name (ex. c("DTR_ILT_", "cord"))
-#'
-#' @return NULL
+#' @param name The variable that you wish to shorten.
+#' @param removestrings A list of strings to be sequentially removed from the name.
+#'  An example: removestrings = c("ReferenceGroup_", ".fcs")
+#' @param substitutestrings A data.frame containing two columns, Original and Substitute.
+#'  When a row of Original is recognized, it's replaced with substitute value.
+#' @return The shortened variable
 #' @export
 #'
 #' @examples NULL
-NameCleanUp <- function(name, removestrings){
+
+NameCleanUp <- function(name, removestrings, substitutestrings){
+#InternalDevToDoList: The for-loop is iterating in place, don't believe its subject to replacing
+# Rather than specifying everything, provide a data.frame for substitutions. Have it iterate afterwards.
+
   for(i in removestrings){
     name <- str_replace_all(name, i, "")
   }
-
-  #This Section Below Should Be Removed Long Term, Provide a Additional Arguments Wrapper Instead.
-  #name <- gsub("_.*", "", name)
-  name <- gsub("BUV", "_BUV", gsub("BV", "_BV", gsub("APC", "_APC", gsub("PE", "_PE", gsub(
-    "Per", "_Per", gsub("FITC", "_FITC", gsub("Spark", "_Spark", gsub("Alexa", "_Alexa", gsub(
-      "Pacific", "_Pacific", gsub("Zombie", "_Zombie", name))))))))))
-  name <- gsub("Samples", "Unstained", gsub("FITCC", "C", name))
-
 
   return(name)
 }

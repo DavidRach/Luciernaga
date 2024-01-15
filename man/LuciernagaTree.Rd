@@ -2,17 +2,20 @@
 % Please edit documentation in R/LuciernagaTree.R
 \name{LuciernagaTree}
 \alias{LuciernagaTree}
-\title{Pick fcs files for unmixing}
+\title{Select candidate Luciernaga output .fcs files for future use in unmixing.}
 \usage{
 LuciernagaTree(x, data)
 }
 \arguments{
-\item{x}{A vector of the fluorophores in the data}
+\item{x}{A vector of the fluorophores found in data.}
 
-\item{data}{The data.frame of the Luciernaga outputs to filter}
+\item{data}{The data.frame of Luciernaga outputs used to candidate .fcs files for unmixing.}
+}
+\value{
+A data.frame listing the candidate .fcs files for future unmixing use.
 }
 \description{
-Pick fcs files for unmixing
+Select candidate Luciernaga output .fcs files for future use in unmixing.
 }
 \examples{
 NULL

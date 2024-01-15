@@ -1,10 +1,10 @@
 
-#' Pick fcs files for unmixing
+#' Select candidate Luciernaga output .fcs files for future use in unmixing.
 #'
-#' @param x A vector of the fluorophores in the data
-#' @param data  The data.frame of the Luciernaga outputs to filter
+#' @param x A vector of the fluorophores found in data.
+#' @param data  The data.frame of Luciernaga outputs used to candidate .fcs files for unmixing.
 #'
-#' @return NULL
+#' @return A data.frame listing the candidate .fcs files for future unmixing use.
 #' @export
 #'
 #' @examples NULL

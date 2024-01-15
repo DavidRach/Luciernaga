@@ -2,17 +2,21 @@
 % Please edit documentation in R/BrightnessPlots.R
 \name{BrightnessPlots}
 \alias{BrightnessPlots}
-\title{Visualize raw brightness of single color .fcs files}
+\title{Visualize MFI of raw .fcs files to evaluate single color controls.}
 \usage{
 BrightnessPlots(thedata, input)
 }
 \arguments{
-\item{thedata}{A .csv file containing columns Fluorophore and Detector.}
+\item{thedata}{A data.frame with columns Fluorophore and Detector.}
 
-\item{input}{A path location to where the .fcs files are stored.}
+\item{input}{The location where the .fcs files are stored.}
+}
+\value{
+Visualized ggplots for each fluorophore. If multiple .fcs files of same fluorophore are
+ present in the same folder, it overlays them.
 }
 \description{
-Visualize raw brightness of single color .fcs files
+Visualize MFI of raw .fcs files to evaluate single color controls.
 }
 \examples{
 NULL
