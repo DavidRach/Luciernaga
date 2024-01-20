@@ -74,8 +74,8 @@ BrightnessPlots <- function(thedata, input, Downsample = NULL){
     # TheDataFrames %>% group_by(Cluster) %>% summarize(Lowest = quantile(.data[[Value]], 0.05, na.rm = TRUE))
 
 
-    theXmin <- TheDataFrames[,1] %>% quantile(., 0.05)
-    theXmax <- TheDataFrames[,1] %>% quantile(., 0.95)
+    theXmin <- TheDataFrames[,1] %>% quantile(., 0.01)
+    theXmax <- TheDataFrames[,1] %>% quantile(., 0.99)
     theXmin <- theXmin - abs((0.02*theXmin))
     theXmax <- theXmax + (0.02*theXmax)
 
