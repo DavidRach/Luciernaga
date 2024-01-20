@@ -3,6 +3,12 @@
 #' @param thedata A data.frame with columns Fluorophore and Detector.
 #' @param input The location where the .fcs files are stored.
 #' @param Downsample Reduce all clusters to just the same amount cells least represented cluster.
+#' @param Scaled Transform from raw values to Logicle transformed ones.
+#'
+#'
+#' @importFrom flowWorkspace logicle_trans
+#' @importFrom ggcyto scale_x_logicle
+#'
 #'
 #' @return Visualized ggplots for each fluorophore. If multiple .fcs files of same fluorophore are
 #'  present in the same folder, it overlays them.
@@ -10,7 +16,7 @@
 #'
 #' @examples NULL
 
-BrightnessPlots <- function(thedata, input, Downsample = NULL){
+BrightnessPlots <- function(thedata, input, Downsample = NULL, Scaled = NULL){
   data <- thedata
   data$Fluorophore <- gsub("-A$", "", data$Fluorophore)
   data$Fluorophore <- gsub(".", "", fixed = TRUE, data$Fluorophore)
@@ -85,9 +91,11 @@ BrightnessPlots <- function(thedata, input, Downsample = NULL){
     TheDataFrames <- as.data.frame(TheDataFrames)
     }
 
-    plot <- ggplot(TheDataFrames, aes(x =.data[[TheDetector]], fill = Cluster)) +
+    if (Scaled == TRUE){plot <- ggplot(TheDataFrames, aes(x =.data[[TheDetector]], fill = Cluster)) + ggcyto::scale_x_logicle() +
       geom_density(alpha = 0.5) + theme_bw() + coord_cartesian(xlim = c(theXmin, theXmax)) +
-      labs(title = thex, x = TheDetector, y = "Frequency")
+      labs(title = thex, x = TheDetector, y = "Frequency")} else {plot <- ggplot(TheDataFrames, aes(x =.data[[TheDetector]], fill = Cluster)) +
+        geom_density(alpha = 0.5) + theme_bw() + coord_cartesian(xlim = c(theXmin, theXmax)) +
+        labs(title = thex, x = TheDetector, y = "Frequency")}
 
     theplotlist[[thex]] <- plot
   }
