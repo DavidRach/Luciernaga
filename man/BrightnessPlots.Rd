@@ -4,12 +4,14 @@
 \alias{BrightnessPlots}
 \title{Visualize raw brightness of single color .fcs files}
 \usage{
-BrightnessPlots(thedata, input)
+BrightnessPlots(thedata, input, Downsample = NULL)
 }
 \arguments{
 \item{thedata}{A .csv file containing columns Fluorophore and Detector.}
 
 \item{input}{A path location to where the .fcs files are stored.}
+
+\item{Downsample}{Reduce all clusters to just the same amount cells least represented cluster.}
 }
 \description{
 Visualize raw brightness of single color .fcs files
