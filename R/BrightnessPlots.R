@@ -68,21 +68,22 @@ BrightnessPlots <- function(thedata, input, Downsample = NULL){
     TheDataFrames <- map(.x = cs, .f = InternalExprs2, thex2 = thex) %>% bind_rows()
     TheDataFrames$Cluster <- factor(TheDataFrames$Cluster)
 
-    if (Downsample == TRUE){ TheDataFrames <- TheDataFrames %>% group_by(Cluster) %>%
-      slice_sample(n = min(table(TheDataFrames$Cluster), na.rm = TRUE), replace = FALSE) %>% ungroup()
-
-    TheDataFrames <- as.data.frame(TheDataFrames)
-    }
-
     #Value <- colnames(TheDataFrames)[1]
     #TheDataFrames %>% group_by(Cluster) %>% summarize(Highest = quantile(.data[[Value]], 0.95, na.rm = TRUE)) %>%
     #  slice_max(order_by = Lowest) %>% pull(Lowest)
     # TheDataFrames %>% group_by(Cluster) %>% summarize(Lowest = quantile(.data[[Value]], 0.05, na.rm = TRUE))
 
-    theXmin <- TheDataFrames[,1] %>% quantile(., 0.01)
-    theXmax <- TheDataFrames[,1] %>% quantile(., 0.99)
+
+    theXmin <- TheDataFrames[,1] %>% quantile(., 0.05)
+    theXmax <- TheDataFrames[,1] %>% quantile(., 0.95)
     theXmin <- theXmin - abs((0.02*theXmin))
     theXmax <- theXmax + (0.02*theXmax)
+
+    if (Downsample == TRUE){ TheDataFrames <- TheDataFrames %>% group_by(Cluster) %>%
+      slice_sample(n = min(table(TheDataFrames$Cluster), na.rm = TRUE), replace = FALSE) %>% ungroup()
+
+    TheDataFrames <- as.data.frame(TheDataFrames)
+    }
 
     plot <- ggplot(TheDataFrames, aes(x =.data[[TheDetector]], fill = Cluster)) +
       geom_density(alpha = 0.5) + theme_bw() + coord_cartesian(xlim = c(theXmin, theXmax)) +
