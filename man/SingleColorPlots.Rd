@@ -2,7 +2,7 @@
 % Please edit documentation in R/SingleColorPlots.R
 \name{SingleColorPlots}
 \alias{SingleColorPlots}
-\title{Plot the Gating Hierarchy to make sure the gating was appropiate}
+\title{Visualize Gating Hierarchy for each .fcs file to check the gating.}
 \usage{
 SingleColorPlots(
   x,
@@ -44,8 +44,11 @@ SingleColorPlots(
 
 \item{sourcelocation}{Location where the .csv for openCyto gating is stored.}
 }
+\value{
+A pdf of the visualized ggplots.
+}
 \description{
-Plot the Gating Hierarchy to make sure the gating was appropiate
+Visualize Gating Hierarchy for each .fcs file to check the gating.
 }
 \examples{
 NULL

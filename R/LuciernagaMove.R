@@ -1,13 +1,13 @@
 
 
-#' Move the LuciernaTree selected fcs files to a new location
+#' Transfer the .fcs files selected by LuciernagaTree to a new location
 #'
-#' @param x A vector of fluorophores in the data
-#' @param data The data.frame output of LuciernagaTree
-#' @param input The location of the fcs stored files
-#' @param output The location to move the selected files
+#' @param x A vector containing fluorophore names found within data.
+#' @param data The data.frame output of LuciernagaTree listing files to be moved.
+#' @param input The path to the current storage location of the .fcs files.
+#' @param output The path to the desired future storage location of the selected files.
 #'
-#' @return NULL
+#' @return No return, .fcs files are moved desired folder.
 #' @export
 #'
 #' @examples NULL

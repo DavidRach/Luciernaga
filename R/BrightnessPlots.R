@@ -1,10 +1,11 @@
-#' Visualize raw brightness of single color .fcs files
+#' Visualize MFI of raw .fcs files to evaluate single color controls.
 #'
-#' @param thedata A .csv file containing columns Fluorophore and Detector.
-#' @param input A path location to where the .fcs files are stored.
+#' @param thedata A data.frame with columns Fluorophore and Detector.
+#' @param input The location where the .fcs files are stored.
 #' @param Downsample Reduce all clusters to just the same amount cells least represented cluster.
 #'
-#' @return NULL
+#' @return Visualized ggplots for each fluorophore. If multiple .fcs files of same fluorophore are
+#'  present in the same folder, it overlays them.
 #' @export
 #'
 #' @examples NULL

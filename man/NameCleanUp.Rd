@@ -2,17 +2,24 @@
 % Please edit documentation in R/NameCleanup.R
 \name{NameCleanUp}
 \alias{NameCleanUp}
-\title{Polish up single color names before unmixing}
+\title{Shorten a variable name}
 \usage{
-NameCleanUp(name, removestrings)
+NameCleanUp(name, removestrings, substitutestrings)
 }
 \arguments{
-\item{name}{Original name}
+\item{name}{The variable that you wish to shorten.}
 
-\item{removestrings}{Strings to be removed from name (ex. c("DTR_ILT_", "cord"))}
+\item{removestrings}{A list of strings to be sequentially removed from the name.
+An example: removestrings = c("ReferenceGroup_", ".fcs")}
+
+\item{substitutestrings}{A data.frame containing two columns, Original and Substitute.
+When a row of Original is recognized, it's replaced with substitute value.}
+}
+\value{
+The shortened variable
 }
 \description{
-Polish up single color names before unmixing
+Shorten a variable name
 }
 \examples{
 NULL

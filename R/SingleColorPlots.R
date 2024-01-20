@@ -1,4 +1,4 @@
-#' Plot the Gating Hierarchy to make sure the gating was appropiate
+#' Visualize Gating Hierarchy for each .fcs file to check the gating.
 #'
 #' @param x  A Gating Set object (example, gs or gs[[1]])
 #' @param subsets The Gating Hierarchy node of cells to be plotted (ex. "root")
@@ -13,7 +13,7 @@
 #' @param outpath Location where the generated .pdf should be stored.
 #' @param sourcelocation Location where the .csv for openCyto gating is stored.
 #'
-#' @return NULL
+#' @return A pdf of the visualized ggplots.
 #' @export
 #'
 #' @examples NULL

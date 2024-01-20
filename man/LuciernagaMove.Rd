@@ -2,21 +2,24 @@
 % Please edit documentation in R/LuciernagaMove.R
 \name{LuciernagaMove}
 \alias{LuciernagaMove}
-\title{Move the LuciernaTree selected fcs files to a new location}
+\title{Transfer the .fcs files selected by LuciernagaTree to a new location}
 \usage{
 LuciernagaMove(x, data, input, output)
 }
 \arguments{
-\item{x}{A vector of fluorophores in the data}
+\item{x}{A vector containing fluorophore names found within data.}
 
-\item{data}{The data.frame output of LuciernagaTree}
+\item{data}{The data.frame output of LuciernagaTree listing files to be moved.}
 
-\item{input}{The location of the fcs stored files}
+\item{input}{The path to the current storage location of the .fcs files.}
 
-\item{output}{The location to move the selected files}
+\item{output}{The path to the desired future storage location of the selected files.}
+}
+\value{
+No return, .fcs files are moved desired folder.
 }
 \description{
-Move the LuciernaTree selected fcs files to a new location
+Transfer the .fcs files selected by LuciernagaTree to a new location
 }
 \examples{
 NULL

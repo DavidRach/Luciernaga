@@ -10,13 +10,17 @@ Utility_NbyNPlots(
   removestrings,
   experiment = NULL,
   experiment.name = NULL,
-  outpath,
+  condition = NULL,
+  condition.name = NULL,
   marginsubset,
   gatesubset,
   ycolumn,
   bins,
   clearance,
-  sourcelocation
+  gatelines,
+  reference = NULL,
+  outpath,
+  pdf
 )
 }
 \arguments{
@@ -30,8 +34,6 @@ Utility_NbyNPlots(
 
 \item{experiment.name}{Keyword for which experiment name is stored (ex. "GROUPNAME")}
 
-\item{outpath}{Location for which to store the generated .pdf}
-
 \item{marginsubset}{The Gating Hierarchy level from which values will be used to estimate the plot margins (ex. "nonDebris")}
 
 \item{gatesubset}{The Gating Hierarchy level of the cells that you want to see plotted (ex. "lymph")}
@@ -42,7 +44,9 @@ Utility_NbyNPlots(
 
 \item{clearance}{The additional ratio added to the margins to avoid clipping main population but exclude outliers.}
 
-\item{sourcelocation}{Location of the file for individual or all NxN plotting.}
+\item{outpath}{Location for which to store the generated .pdf}
+
+\item{pdf}{Prints default NxN plot, TRUE or FALSE.}
 }
 \description{
 Generate NxN plots for one or all fluorophores.
