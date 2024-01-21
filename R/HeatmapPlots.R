@@ -79,10 +79,13 @@ HeatmapPlots <- function(thedata, input, stats = NULL){
 
     BarChartData <- TableData %>% mutate(Ratio = round(Freq/sum(Freq), 2)) %>% mutate(sample = "")
 
-    plot <- ggplot(BarChartData, aes(x= sample, y = Cluster, fill = Ratio)) + geom_tile() +
-      geom_text(aes(label = Ratio)) + theme_bw() + scale_fill_gradient(name = "Ratio", low = "#FFFFFF", high = "#FF0000", limits = c(0, NA)) +
-      theme(plot.title = element_text(hjust = 0.5), panel.grid.minor = element_line(linetype = "blank"), axis.title = element_text(size = 10), axis.title.y = element_blank(),
-            axis.title.x = element_blank(), axis.line = element_blank(), axis.ticks = element_blank(), legend.key.size = unit(0.4, "cm"))  + coord_fixed(ratio = 1.1)
+    plot <- ggplot(BarChartData, aes(x= sample, y = Cluster, fill = Ratio)) + geom_tile() + geom_text(aes(label = Ratio)) +
+      scale_fill_gradient(name = "Ratio", low = "#FFFFFF", high = "#FF0000", limits = c(0, NA)) + coord_fixed(ratio = 1.1) +
+      theme_bw() + theme(axis.title.x = element_blank(),
+                         axis.title.y = element_blank(),
+                         panel.grid.major = element_blank(),
+                         panel.grid.minor = element_blank()
+      )
 
     theplotlist[[thex]] <- plot
   }

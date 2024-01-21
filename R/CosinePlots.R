@@ -117,14 +117,16 @@ CosinePlots <- function(thedata, input, stats = NULL){
       cormat <- reorder_cormat(CosineMatrix)
       melted_cormat <- reshape2::melt(cormat)
 
-      #Generate a Red to Blue Heatmap
-      plot <- ggplot(melted_cormat, aes(Var2, Var1, fill = value)) + geom_tile(color = "white") +
-        scale_fill_gradient2(low = "lightblue", high = "orange", mid = "white", midpoint = 0.7, limit = c(0.4,1), space = "Lab", name="Cosine\nSimilarity") +
-        theme_bw() + geom_text(aes(Var2, Var1, label = value), color = "black", size = 2) + coord_fixed(ratio = 1.3) +
-        theme(axis.title.x = element_blank(), axis.title.y = element_blank(), panel.grid.major = element_blank(), panel.border = element_blank(),
-              panel.background = element_blank(), axis.ticks = element_blank(), legend.position = c(1.2, 0.5),
-              legend.direction = "vertical", axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1, size = 6), axis.text.y = element_text(size = 6),legend.key.size = unit(0.4, "cm")) #+ labs(title = "Cosine Similarity: Fluorophores")
-
+      #Generate a Heatmap
+      plot <- ggplot(melted_cormat, aes(Var2, Var1, fill = value)) + geom_tile(color = "white") + geom_text(aes(Var2, Var1, label = value), color = "black", size = 2) +
+        scale_fill_gradient2(low = "lightblue", high = "orange", mid = "white", midpoint = 0.7, limit = c(0.4,1),
+                             space = "Lab", name="Cosine\nSimilarity") + coord_fixed(ratio = 1.3) +
+        theme_bw() + theme(
+          axis.title.x = element_blank(),
+          axis.title.y = element_blank(),
+          panel.grid.major = element_blank(),
+          panel.grid.minor = element_blank()
+        )
 
     theplotlist[[thex]] <- plot
 
@@ -142,13 +144,15 @@ CosinePlots <- function(thedata, input, stats = NULL){
 
       Melted1 <- data.frame(Melted)
 
-      plot <- ggplot(Melted1, aes(x = Detector, y = value, group = Cluster, color = Cluster)) + geom_line() + ylim(min = Low, max = High) +
-        labs(title = "Fluorophores", x = "Detectors", y = "Normalized Values") + theme_bw() + scale_color_hue(direction = 1) + theme_linedraw() +
-        theme(plot.title = element_text(size = 16L, face = "plain", hjust = 0.5), axis.title.y = element_text(size = 11L, face = "plain"),
-              axis.title.x = element_text(size = 11L, face = "plain"), panel.grid.major = element_line(colour = "gray95", linetype = "twodash"),
-              panel.grid.minor = element_line(colour = "gray95", linetype = "longdash"), panel.background = element_rect(fill = NA),
-              plot.background = element_rect(colour = NA), legend.background = element_rect(fill = NA),
-              axis.text.x = element_text(size = 5, angle = 45, hjust = 1))
+      plot <- ggplot(Melted1, aes(x = Detector, y = value, group = Cluster, color = Cluster)) + geom_line() +
+        ylim(min = Low, max = High) + scale_color_hue(direction = 1) +
+        labs(title = thex, x = "Detectors", y = "Normalized Values") + theme_linedraw() + theme_bw() +
+        theme(axis.title.x = element_text(face = "plain"),
+              axis.title.y = element_text(face = "plain", margin = margin(r = -100)),
+              axis.text.x = element_text(size = 5, angle = 45, hjust = 1),
+              panel.grid.major = element_blank(),
+              panel.grid.minor = element_blank()
+        )
 
       theplotlist[[thex]] <- plot
     }

@@ -91,11 +91,21 @@ BrightnessPlots <- function(thedata, input, Downsample = NULL, Scaled = NULL){
     TheDataFrames <- as.data.frame(TheDataFrames)
     }
 
-    if (Scaled == TRUE){plot <- ggplot(TheDataFrames, aes(x =.data[[TheDetector]], fill = Cluster)) + ggcyto::scale_x_logicle() +
-      geom_density(alpha = 0.5) + theme_bw() + coord_cartesian(xlim = c(theXmin, theXmax)) +
-      labs(title = thex, x = TheDetector, y = "Frequency")} else {plot <- ggplot(TheDataFrames, aes(x =.data[[TheDetector]], fill = Cluster)) +
-        geom_density(alpha = 0.5) + theme_bw() + coord_cartesian(xlim = c(theXmin, theXmax)) +
-        labs(title = thex, x = TheDetector, y = "Frequency")}
+    if (Scaled == TRUE){plot <- ggplot(TheDataFrames, aes(x =.data[[TheDetector]], fill = Cluster)) + geom_density(alpha = 0.5) +
+      ggcyto::scale_x_logicle() + coord_cartesian(xlim = c(theXmin, theXmax))  +
+      labs(title = thex, x = TheDetector, y = "Frequency") + theme_bw() +
+      theme(axis.title.x = element_text(face = "plain"),
+            axis.title.y = element_text(face = "plain", margin = margin(r = -100)),
+            panel.grid.major = element_blank(),
+            panel.grid.minor = element_blank()
+      )} else {plot <- ggplot(TheDataFrames, aes(x =.data[[TheDetector]], fill = Cluster)) + geom_density(alpha = 0.5) +
+        coord_cartesian(xlim = c(theXmin, theXmax))  +
+        labs(title = thex, x = TheDetector, y = "Frequency") + theme_bw() +
+        theme(axis.title.x = element_text(face = "plain"),
+              axis.title.y = element_text(face = "plain", margin = margin(r = -100)),
+              panel.grid.major = element_blank(),
+              panel.grid.minor = element_blank()
+        )}
 
     theplotlist[[thex]] <- plot
   }

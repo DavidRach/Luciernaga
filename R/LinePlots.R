@@ -109,13 +109,15 @@ LinePlots <- function(thedata, input, stats = NULL){
 
     Melted1 <- data.frame(Melted)
 
-    plot <- ggplot(Melted1, aes(x = Detector, y = value, group = Cluster, color = Cluster)) + geom_line() + ylim(min = Low, max = High) +
-      labs(title = "Fluorophores", x = "Detectors", y = "Normalized Values") + theme_bw() + scale_color_hue(direction = 1) + theme_linedraw() +
-      theme(plot.title = element_text(size = 16L, face = "plain", hjust = 0.5), axis.title.y = element_text(size = 11L, face = "plain"),
-            axis.title.x = element_text(size = 11L, face = "plain"), panel.grid.major = element_line(colour = "gray95", linetype = "twodash"),
-            panel.grid.minor = element_line(colour = "gray95", linetype = "longdash"), panel.background = element_rect(fill = NA),
-            plot.background = element_rect(colour = NA), legend.background = element_rect(fill = NA),
-            axis.text.x = element_text(size = 5, angle = 45, hjust = 1))
+    plot <- ggplot(Melted1, aes(x = Detector, y = value, group = Cluster, color = Cluster)) + geom_line() +
+      ylim(min = Low, max = High) + scale_color_hue(direction = 1) +
+      labs(title = thex, x = "Detectors", y = "Normalized Values") + theme_linedraw() + theme_bw() +
+      theme(axis.title.x = element_text(face = "plain"),
+            axis.title.y = element_text(face = "plain", margin = margin(r = -100)),
+            axis.text.x = element_text(size = 5, angle = 45, hjust = 1),
+            panel.grid.major = element_blank(),
+            panel.grid.minor = element_blank()
+      )
 
     theplotlist[[thex]] <- plot
   }
