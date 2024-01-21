@@ -2,6 +2,7 @@
 
 export(BrightnessPlots)
 export(CosinePlots)
+export(HeatmapPlots)
 export(LinePlots)
 export(LuciernagaMove)
 export(LuciernagaTree)

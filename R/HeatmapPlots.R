@@ -1,4 +1,4 @@
-#' Visualize normalized spectra of raw .fcs files to evaluate single color controls.
+#' Returns a heatmap of subclusters proportion by Fluorophore.
 #'
 #' @param thedata A data.frame with columns Fluorophore and Detector.
 #' @param input The location where the .fcs files are stored.
@@ -13,7 +13,7 @@
 #'
 #' @examples NULL
 
-LinePlots <- function(thedata, input, stats = NULL){
+HeatmapPlots <- function(thedata, input, stats = NULL){
   data <- thedata
   data$Fluorophore <- gsub("-A$", "", data$Fluorophore)
   data$Fluorophore <- gsub(".", "", fixed = TRUE, data$Fluorophore)
@@ -74,48 +74,15 @@ LinePlots <- function(thedata, input, stats = NULL){
     TheDataFrames <- TheDataFrames %>% mutate(Summed = rowSums(select_if(., is.numeric), na.rm = TRUE))
     TheDataFrames <- TheDataFrames %>% filter(!Summed == 0) %>% select(-Summed)
 
-    #Normalizing
-    BackupNames <- colnames(TheDataFrames)
-    BackupClusters <- TheDataFrames %>% select(Cluster)
-    n <- TheDataFrames[,2:length(TheDataFrames)]
+    TableData <- data.frame(table(TheDataFrames$Cluster))
+    colnames(TableData)[1] <- "Cluster"
 
-    #Normalizing By Peak Detector
-    n[n < 0] <- 0
-    A <- do.call(pmax, n)
-    Normalized <- n/A
-    Normalized <- round(Normalized, 1)
-    detector_order <- colnames(Normalized)
-    LinePlotData <- cbind(BackupClusters, Normalized)
-    LinePlotData$Cluster <- factor(LinePlotData$Cluster)
+    BarChartData <- TableData %>% mutate(Ratio = round(Freq/sum(Freq), 2)) %>% mutate(sample = "")
 
-    if(stats == "mean"){Samples <- LinePlotData %>% group_by(Cluster) %>%  nest(data = where(is.numeric)) %>%
-      mutate(mean_data = map(data, ~ summarise_all(., ~ round(mean(., na.rm = TRUE),2)))) %>% select(Cluster, mean_data) %>% unnest(mean_data)
-    } else if (stats == "median"){Samples <- LinePlotData %>% group_by(Cluster) %>%  nest(data = where(is.numeric)) %>%
-      mutate(median_data = map(data, ~ summarise_all(., ~ round(median(., na.rm = TRUE),2)))) %>% select(Cluster, median_data) %>% unnest(median_data)
-    } else(print("NA"))
-
-    #Samples
-
-    LineCols <- ncol(Samples)
-
-    Melted <- gather(Samples, key = "Detector", value = "value", all_of(2:LineCols)) #Gather is my New Best Friend
-
-    Melted$Detector <- factor(Melted$Detector, levels = detector_order)
-    Melted$Cluster <- factor(Melted$Cluster)
-
-    #Change this in case raw values provided instead of normalized?
-    Low <- 0
-    High <- 1.1
-
-    Melted1 <- data.frame(Melted)
-
-    plot <- ggplot(Melted1, aes(x = Detector, y = value, group = Cluster, color = Cluster)) + geom_line() + ylim(min = Low, max = High) +
-      labs(title = "Fluorophores", x = "Detectors", y = "Normalized Values") + theme_bw() + scale_color_hue(direction = 1) + theme_linedraw() +
-      theme(plot.title = element_text(size = 16L, face = "plain", hjust = 0.5), axis.title.y = element_text(size = 11L, face = "plain"),
-            axis.title.x = element_text(size = 11L, face = "plain"), panel.grid.major = element_line(colour = "gray95", linetype = "twodash"),
-            panel.grid.minor = element_line(colour = "gray95", linetype = "longdash"), panel.background = element_rect(fill = NA),
-            plot.background = element_rect(colour = NA), legend.background = element_rect(fill = NA),
-            axis.text.x = element_text(size = 5, angle = 45, hjust = 1))
+    plot <- ggplot(BarChartData, aes(x= sample, y = Cluster, fill = Ratio)) + geom_tile() +
+      geom_text(aes(label = Ratio)) + theme_bw() + scale_fill_gradient(name = "Ratio", low = "#FFFFFF", high = "#FF0000", limits = c(0, NA)) +
+      theme(plot.title = element_text(hjust = 0.5), panel.grid.minor = element_line(linetype = "blank"), axis.title = element_text(size = 10), axis.title.y = element_blank(),
+            axis.title.x = element_blank(), axis.line = element_blank(), axis.ticks = element_blank(), legend.key.size = unit(0.4, "cm"))  + coord_fixed(ratio = 1.1)
 
     theplotlist[[thex]] <- plot
   }

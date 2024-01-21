@@ -70,6 +70,10 @@ CosinePlots <- function(thedata, input, stats = NULL){
 
     TheDataFrames <- map(.x = cs, .f = InternalExprs2, thex2 = thex) %>% bind_rows()
 
+    #Removing the artificial negatives
+    TheDataFrames <- TheDataFrames %>% mutate(Summed = rowSums(select_if(., is.numeric), na.rm = TRUE))
+    TheDataFrames <- TheDataFrames %>% filter(!Summed == 0) %>% select(-Summed)
+
     #Normalizing
     BackupNames <- colnames(TheDataFrames)
     BackupClusters <- TheDataFrames %>% select(Cluster)
