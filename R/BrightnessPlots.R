@@ -95,14 +95,14 @@ BrightnessPlots <- function(thedata, input, Downsample = NULL, Scaled = NULL){
       ggcyto::scale_x_logicle() + coord_cartesian(xlim = c(theXmin, theXmax))  +
       labs(title = thex, x = TheDetector, y = "Frequency") + theme_bw() +
       theme(axis.title.x = element_text(face = "plain"),
-            axis.title.y = element_text(face = "plain", margin = margin(r = -100)),
+            axis.title.y = element_text(face = "plain", margin = margin(r = -150)),
             panel.grid.major = element_blank(),
             panel.grid.minor = element_blank()
       )} else {plot <- ggplot(TheDataFrames, aes(x =.data[[TheDetector]], fill = Cluster)) + geom_density(alpha = 0.5) +
         coord_cartesian(xlim = c(theXmin, theXmax))  +
         labs(title = thex, x = TheDetector, y = "Frequency") + theme_bw() +
         theme(axis.title.x = element_text(face = "plain"),
-              axis.title.y = element_text(face = "plain", margin = margin(r = -100)),
+              axis.title.y = element_text(face = "plain", margin = margin(r = -150)),
               panel.grid.major = element_blank(),
               panel.grid.minor = element_blank()
         )}
