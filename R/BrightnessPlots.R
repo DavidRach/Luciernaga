@@ -2,6 +2,13 @@
 #'
 #' @param thedata A data.frame with columns Fluorophore and Detector.
 #' @param input The location where the .fcs files are stored.
+#' @param Downsample Reduce all clusters to just the same amount cells least represented cluster.
+#' @param Scaled Transform from raw values to Logicle transformed ones.
+#'
+#'
+#' @importFrom flowWorkspace logicle_trans
+#' @importFrom ggcyto scale_x_logicle
+#'
 #'
 #' @return Visualized ggplots for each fluorophore. If multiple .fcs files of same fluorophore are
 #'  present in the same folder, it overlays them.
@@ -9,7 +16,7 @@
 #'
 #' @examples NULL
 
-BrightnessPlots <- function(thedata, input){
+BrightnessPlots <- function(thedata, input, Downsample = NULL, Scaled = NULL){
   data <- thedata
   data$Fluorophore <- gsub("-A$", "", data$Fluorophore)
   data$Fluorophore <- gsub(".", "", fixed = TRUE, data$Fluorophore)
@@ -39,7 +46,7 @@ BrightnessPlots <- function(thedata, input){
 
   theplotlist <- list()
 
-  #thex <- Present[1]
+  #thex <- Present[2]
 
   InternalExprs <- function(thex, data, inputfiles){
     TheDetector <- data %>% filter(Fluorophore %in% thex) %>% pull(Detector)
@@ -67,14 +74,38 @@ BrightnessPlots <- function(thedata, input){
     TheDataFrames <- map(.x = cs, .f = InternalExprs2, thex2 = thex) %>% bind_rows()
     TheDataFrames$Cluster <- factor(TheDataFrames$Cluster)
 
+    #Value <- colnames(TheDataFrames)[1]
+    #TheDataFrames %>% group_by(Cluster) %>% summarize(Highest = quantile(.data[[Value]], 0.95, na.rm = TRUE)) %>%
+    #  slice_max(order_by = Lowest) %>% pull(Lowest)
+    # TheDataFrames %>% group_by(Cluster) %>% summarize(Lowest = quantile(.data[[Value]], 0.05, na.rm = TRUE))
+
+
     theXmin <- TheDataFrames[,1] %>% quantile(., 0.01)
     theXmax <- TheDataFrames[,1] %>% quantile(., 0.99)
     theXmin <- theXmin - abs((0.02*theXmin))
     theXmax <- theXmax + (0.02*theXmax)
 
-    plot <- ggplot(TheDataFrames, aes(x =.data[[TheDetector]], fill = Cluster)) +
-      geom_density(alpha = 0.5) + theme_bw() + coord_cartesian(xlim = c(theXmin, theXmax)) +
-      labs(title = thex, x = TheDetector, y = "Frequency")
+    if (Downsample == TRUE){ TheDataFrames <- TheDataFrames %>% group_by(Cluster) %>%
+      slice_sample(n = min(table(TheDataFrames$Cluster), na.rm = TRUE), replace = FALSE) %>% ungroup()
+
+    TheDataFrames <- as.data.frame(TheDataFrames)
+    }
+
+    if (Scaled == TRUE){plot <- ggplot(TheDataFrames, aes(x =.data[[TheDetector]], fill = Cluster)) + geom_density(alpha = 0.5) +
+      ggcyto::scale_x_logicle() + coord_cartesian(xlim = c(theXmin, theXmax))  +
+      labs(title = thex, x = TheDetector, y = "Frequency") + theme_bw() +
+      theme(axis.title.x = element_text(face = "plain"),
+            axis.title.y = element_text(face = "plain", margin = margin(r = -150)),
+            panel.grid.major = element_blank(),
+            panel.grid.minor = element_blank()
+      )} else {plot <- ggplot(TheDataFrames, aes(x =.data[[TheDetector]], fill = Cluster)) + geom_density(alpha = 0.5) +
+        coord_cartesian(xlim = c(theXmin, theXmax))  +
+        labs(title = thex, x = TheDetector, y = "Frequency") + theme_bw() +
+        theme(axis.title.x = element_text(face = "plain"),
+              axis.title.y = element_text(face = "plain", margin = margin(r = -150)),
+              panel.grid.major = element_blank(),
+              panel.grid.minor = element_blank()
+        )}
 
     theplotlist[[thex]] <- plot
   }

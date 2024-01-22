@@ -4,12 +4,16 @@
 \alias{BrightnessPlots}
 \title{Visualize MFI of raw .fcs files to evaluate single color controls.}
 \usage{
-BrightnessPlots(thedata, input)
+BrightnessPlots(thedata, input, Downsample = NULL, Scaled = NULL)
 }
 \arguments{
 \item{thedata}{A data.frame with columns Fluorophore and Detector.}
 
 \item{input}{The location where the .fcs files are stored.}
+
+\item{Downsample}{Reduce all clusters to just the same amount cells least represented cluster.}
+
+\item{Scaled}{Transform from raw values to Logicle transformed ones.}
 }
 \value{
 Visualized ggplots for each fluorophore. If multiple .fcs files of same fluorophore are
