@@ -51,8 +51,12 @@ BrightnessPlots <- function(thedata, input, Downsample = NULL, Scaled = NULL){
   InternalExprs <- function(thex, data, inputfiles){
     TheDetector <- data %>% filter(Fluorophore %in% thex) %>% pull(Detector)
 
+    if (thex %in% c("PE", "APC")){thex <- paste0(thex, "_")}
+
     fcs_files <- inputfiles[str_detect(basename(inputfiles), thex) &
                               str_detect(basename(inputfiles), ".fcs$")]
+
+    if (thex %in% c("PE_", "APC_")){thex <- gsub("_", "", thex)}
 
     cs <- load_cytoset_from_fcs(fcs_files, truncate_max_range = FALSE, transform = FALSE)
 
