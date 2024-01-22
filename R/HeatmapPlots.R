@@ -85,7 +85,7 @@ HeatmapPlots <- function(thedata, input, stats = NULL){
     BarChartData <- TableData %>% mutate(Ratio = round(Freq/sum(Freq), 2)) %>% mutate(sample = "")
 
     plot <- ggplot(BarChartData, aes(x= sample, y = Cluster, fill = Ratio)) + geom_tile() + geom_text(aes(label = Ratio)) +
-      scale_fill_gradient(name = "Ratio", low = "#FFFFFF", high = "#FF0000", limits = c(0, NA)) + coord_fixed(ratio = 1.1) +
+      scale_fill_gradient(name = "Ratio", low = "#FFFFFF", high = "#FF0000", limits = c(0, NA)) +
       theme_bw() + theme(axis.title.x = element_blank(),
                          axis.title.y = element_blank(),
                          panel.grid.major = element_blank(),

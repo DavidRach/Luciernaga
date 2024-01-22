@@ -107,7 +107,7 @@ BrightnessPlots <- function(thedata, input, Downsample = NULL, Scaled = NULL){
         coord_cartesian(xlim = c(theXmin, theXmax))  +
         labs(title = thex, x = TheDetector, y = "Frequency") + theme_bw() +
         theme(axis.title.x = element_text(face = "plain"),
-              axis.title.y = element_text(face = "plain", margin = margin(r = -150)),
+              axis.title.y = element_text(face = "plain", margin = margin(r = -120)),
               panel.grid.major = element_blank(),
               panel.grid.minor = element_blank()
         )}

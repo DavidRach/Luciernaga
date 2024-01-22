@@ -118,7 +118,7 @@ LinePlots <- function(thedata, input, stats = NULL){
       ylim(min = Low, max = High) + scale_color_hue(direction = 1) +
       labs(title = thex, x = "Detectors", y = "Normalized Values") + theme_linedraw() + theme_bw() +
       theme(axis.title.x = element_text(face = "plain"),
-            axis.title.y = element_text(face = "plain", margin = margin(r = -150)),
+            axis.title.y = element_text(face = "plain", margin = margin(r = -120)),
             axis.text.x = element_text(size = 5, angle = 45, hjust = 1),
             panel.grid.major = element_blank(),
             panel.grid.minor = element_blank()

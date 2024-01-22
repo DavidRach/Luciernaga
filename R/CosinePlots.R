@@ -127,7 +127,7 @@ CosinePlots <- function(thedata, input, stats = NULL){
       #Generate a Heatmap
       plot <- ggplot(melted_cormat, aes(Var2, Var1, fill = value)) + geom_tile(color = "white") + geom_text(aes(Var2, Var1, label = value), color = "black", size = 2) +
         scale_fill_gradient2(low = "lightblue", high = "orange", mid = "white", midpoint = 0.7, limit = c(0.4,1),
-                             space = "Lab", name="Cosine\nSimilarity") + coord_fixed(ratio = 1.3) +
+                             space = "Lab", name="Cosine\nSimilarity") +
         theme_bw() + theme(
           axis.title.x = element_blank(),
           axis.title.y = element_blank(),
