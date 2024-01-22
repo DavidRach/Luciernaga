@@ -2,7 +2,7 @@
 #'
 #' @param i A row of the data.frame object
 #' @param Data A data.frame object
-#' @import dplyr
+#' @importFrom dplyr filter
 #'
 #' @return NULL
 #' @export
