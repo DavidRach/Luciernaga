@@ -16,9 +16,10 @@
 LinePlots <- function(thedata, input, stats = NULL){
   data <- thedata
   data$Fluorophore <- gsub("-A$", "", data$Fluorophore)
-  data$Fluorophore <- gsub(".", "", fixed = TRUE, data$Fluorophore)
+  #data$Fluorophore <- gsub(".", "", fixed = TRUE, data$Fluorophore)
   data$Fluorophore <- gsub("-", "", data$Fluorophore)
   data$Fluorophore <- gsub("_", "", data$Fluorophore)
+  data$Fluorophore <- gsub(" ", "", data$Fluorophore)
 
   data$Detector <- gsub("-A$", "", data$Detector)
   data$Detector <- gsub(" ", "", data$Detector)

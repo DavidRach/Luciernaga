@@ -16,9 +16,10 @@
 CosinePlots <- function(thedata, input, stats = NULL){
   data <- thedata
   data$Fluorophore <- gsub("-A$", "", data$Fluorophore)
-  data$Fluorophore <- gsub(".", "", fixed = TRUE, data$Fluorophore)
+  #data$Fluorophore <- gsub(".", "", fixed = TRUE, data$Fluorophore)
   data$Fluorophore <- gsub("-", "", data$Fluorophore)
   data$Fluorophore <- gsub("_", "", data$Fluorophore)
+  data$Fluorophore <- gsub(" ", "", data$Fluorophore)
 
   data$Detector <- gsub("-A$", "", data$Detector)
   data$Detector <- gsub(" ", "", data$Detector)
@@ -131,7 +132,8 @@ CosinePlots <- function(thedata, input, stats = NULL){
           axis.title.x = element_blank(),
           axis.title.y = element_blank(),
           panel.grid.major = element_blank(),
-          panel.grid.minor = element_blank()
+          panel.grid.minor = element_blank(),
+          axis.text.x = element_text(angle = 25, hjust = 1)
         )
 
     theplotlist[[thex]] <- plot
