@@ -97,7 +97,7 @@ BrightnessPlots <- function(thedata, input, Downsample = NULL, Scaled = NULL){
     }
 
     if (Scaled == TRUE){plot <- ggplot(TheDataFrames, aes(x =.data[[TheDetector]], fill = Cluster)) + geom_density(alpha = 0.5) +
-      ggcyto::scale_x_logicle() + coord_cartesian(xlim = c(theXmin, theXmax))  +
+      ggcyto::scale_x_logicle(w = 1.5, t = 4200000, m = 5.62) +
       labs(title = thex, x = TheDetector, y = "Frequency") + theme_bw() +
       theme(axis.title.x = element_text(face = "plain"),
             axis.title.y = element_text(face = "plain", margin = margin(r = -150)),
