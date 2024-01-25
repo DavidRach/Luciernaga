@@ -2,6 +2,16 @@
 #'
 #' @param x A data.frame containing column Cluster
 #'
+#' @importFrom dplyr filter
+#' @importFrom stringr str_detect
+#' @importFrom stringr str_split
+#' @importFrom dplyr relocate
+#' @importFrom dplyr mutate
+#' @importFrom dplyr rename_with
+#' @importFrom tidyr unnest_wider
+#' @importFrom tidyr starts_with
+#'
+#'
 #' @return NULL
 #' @export
 #'

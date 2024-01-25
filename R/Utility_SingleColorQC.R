@@ -21,8 +21,21 @@
 #'
 #' @importFrom dplyr select
 #' @importFrom dplyr filter
-#' @importFrom flowCore keyword
+#' @importFrom dplyr mutate
+#' @importFrom dplyr summarize_all
+#' @importFrom dplyr pull
+#' @importFrom dplyr arrange
+#' @importFrom dplyr relocate
+#' @importFrom dplyr left_join
+#' @importFrom dplyr case_when
+#' @importFrom dplyr rename
 #' @importFrom BiocGenerics nrow
+#' @importFrom flowWorkspace keyword
+#' @importFrom stringr str_detect
+#' @importFrom stringr str_split
+#' @importFrom flowWorkspace gs_pop_get_data
+#' @importFrom flowCore exprs
+#'
 #'
 #' @return NULL
 #' @export

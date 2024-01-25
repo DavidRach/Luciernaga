@@ -12,6 +12,16 @@
 #' @param source  Whether to export for plotting
 #' @param sourcelocation Location where source plotting file is stored.
 #'
+#' @importFrom flowWorkspace keyword
+#' @importFrom stringr str_detect
+#' @importFrom ggcyto as.ggplot
+#' @import ggplot2
+#' @importFrom openCyto gs_add_gating_method
+#' @importFrom flowWorkspace gs_get_leaf_nodes
+#' @importFrom flowWorkspace gs_pop_get_data
+#' @importFrom dplyr summarize_all
+#' @importFrom flowCore exprs
+#'
 #' @return NULL
 #' @export
 #'

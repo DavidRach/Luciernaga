@@ -4,6 +4,12 @@
 #' @param sample.name Keyword for which sample name is stored
 #' @param bins Number of bins resulting ggplot2 object should be plotted with
 #'
+#' @importFrom flowWorkspace keyword
+#' @importFrom stringr str_detect
+#' @importFrom openCyto gs_add_gating_method
+#' @importFrom ggcyto as.ggplot
+#' @import ggplot2
+#'
 #' @return NULL
 #' @export
 #'

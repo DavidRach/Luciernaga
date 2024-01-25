@@ -4,6 +4,8 @@
 #' @param filename Name of the generated .pdf
 #' @param outfolder Location to store the .pdf
 #'
+#' @importFrom patchwork wrap_plots
+#'
 #' @return NULL
 #' @export
 #'
