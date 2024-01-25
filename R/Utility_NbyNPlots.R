@@ -13,10 +13,12 @@
 #' @param clearance The additional ratio added to the margins to avoid clipping main population but exclude outliers.
 #' @param pdf Prints default NxN plot, TRUE or FALSE.
 #'
-#' @importFrom flowCore keyword
+#' @importFrom flowWorkspace keyword
+#' @importFrom flowWorkspace gs_pop_get_data
 #' @importFrom flowCore exprs
 #' @importFrom patchwork wrap_plots
 #' @importFrom patchwork plot_spacer
+#' @importFrom purrr map
 #'
 #' @return NULL
 #' @export

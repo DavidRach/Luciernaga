@@ -3,6 +3,8 @@
 #' @param cs A flowSet (ex. cs or cs[[1]])
 #' @param removestrings Portions of the single color names you want removed (Ex. c("DR_ILT_2023_", ".FCS")
 #'
+#' @importFrom flowCore fsApply
+#'
 #' @return NULL
 #' @export
 #'

@@ -7,6 +7,12 @@
 #' @param alternatename The cleaned up name passed to the plots (internal)
 #' @param ... Additional arguments passed to zoo package
 #'
+#' @importFrom dplyr filter
+#' @importFrom dplyr select
+#' @importFrom stats loess
+#' @importFrom zoo rollapply
+#' @import ggplot2
+#'
 #' @return NULL
 #'
 #' @examples NULL
@@ -27,7 +33,6 @@ Utility_LocalMaxima <- function(theX, theY, therepeats, w, alternatename, ...){
   y <- NewY
 
   ##Local Maxima Functions
-  require(zoo)
   n <- length(y)
   #y.smooth <- loess(y ~ x)$fitted
   y.smooth <- loess(y ~ x, ...)$fitted

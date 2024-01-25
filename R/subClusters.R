@@ -2,6 +2,12 @@
 #'
 #' @param data The nested portion of the data.frame, containing the detectors and the experiment column
 #'
+#' @importFrom dplyr select
+#' @importFrom dplyr mutate
+#' @importFrom dplyr relocate
+#' @importFrom lsa cosine
+#'
+#'
 #' @return NULL
 #' @export
 #'

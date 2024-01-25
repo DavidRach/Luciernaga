@@ -13,6 +13,11 @@
 #' @param outpath Location where the generated .pdf should be stored.
 #' @param sourcelocation Location where the .csv for openCyto gating is stored.
 #'
+#' @importFrom flowWorkspace keyword
+#' @importFrom flowWorkspace gs_pop_get_data
+#' @importFrom flowCore exprs
+#'
+#'
 #' @return A pdf of the visualized ggplots.
 #' @export
 #'

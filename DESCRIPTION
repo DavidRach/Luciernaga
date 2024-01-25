@@ -14,17 +14,21 @@ BugReports: https://github.com/DavidRach/Luciernaga/issues
 RoxygenNote: 7.2.3
 Imports: 
     BiocGenerics,
-    data.table,
     dplyr,
     flowCore,
     flowWorkspace,
     ggcyto,
     ggplot2,
+    htmltools,
     lsa,
+    MASS,
+    nnls,
     openCyto,
     patchwork,
+    plotly,
     purrr,
     reshape2,
+    stats,
     stringr,
     tidyr,
     zoo

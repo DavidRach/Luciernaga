@@ -6,6 +6,18 @@
 #' @param outfolder The location that you want to save the .pdf output to.
 #' @param filename The name you want to save your .pdf file as.
 #'
+#' @importFrom dplyr pull
+#' @importFrom dplyr filter
+#' @importFrom dplyr select
+#' @importFrom dplyr mutate
+#' @importFrom dplyr select_if
+#' @importFrom tidyr gather
+#' @import ggplot2
+#' @importFrom lsa cosine
+#' @importFrom reshape2 melt
+#' @importFrom purrr flatten
+#'
+#'
 #' @return NULL
 #' @export
 #'

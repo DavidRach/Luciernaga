@@ -2,6 +2,12 @@
 #'
 #' @param x The data.frame object passed by relative brightness
 #'
+#' @importFrom dplyr select
+#' @importFrom dplyr pull
+#' @importFrom dplyr filter
+#' @importFrom dplyr mutate
+#' @importFrom dplyr coalesce
+#'
 #' @return NULL
 #' @export
 #'

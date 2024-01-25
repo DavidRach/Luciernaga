@@ -2,7 +2,11 @@
 #'
 #' @param i A row of the data.frame object
 #' @param Data A data.frame object
+#'
 #' @importFrom dplyr filter
+#' @importFrom stringr str_detect
+#' @importFrom dplyr mutate
+#' @importFrom dplyr relocate
 #'
 #' @return NULL
 #' @export

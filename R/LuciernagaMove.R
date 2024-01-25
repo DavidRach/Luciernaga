@@ -7,6 +7,10 @@
 #' @param input The path to the current storage location of the .fcs files.
 #' @param output The path to the desired future storage location of the selected files.
 #'
+#' @importFrom dplyr filter
+#' @importFrom dplyr pull
+#' @importFrom stringr str_detect
+#'
 #' @return No return, .fcs files are moved desired folder.
 #' @export
 #'

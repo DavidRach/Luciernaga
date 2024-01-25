@@ -5,6 +5,9 @@
 #'  An example: removestrings = c("ReferenceGroup_", ".fcs")
 #' @param substitutestrings A data.frame containing two columns, Original and Substitute.
 #'  When a row of Original is recognized, it's replaced with substitute value.
+#'
+#' @importFrom stringr str_replace_all
+#'
 #' @return The shortened variable
 #' @export
 #'

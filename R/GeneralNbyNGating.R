@@ -11,9 +11,12 @@
 #' @param gatelines whether to plot the ModernCutoffLines from reference dataframe
 #' @param reference location ModernCutoff dataframe.
 #'
+#' @importFrom dplyr select
+#' @importFrom dplyr pull
 #' @importFrom flowCore keyword
 #' @importFrom ggcyto ggcyto
 #' @importFrom ggcyto as.ggplot
+#' @import ggplot2
 #'
 #' @return NULL
 #' @export

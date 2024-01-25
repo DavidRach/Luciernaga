@@ -4,6 +4,13 @@
 #' @param x A vector of the fluorophores found in data.
 #' @param data  The data.frame of Luciernaga outputs used to candidate .fcs files for unmixing.
 #'
+#' @importFrom dplyr filter
+#' @importFrom dplyr arrange
+#' @importFrom dplyr mutate
+#' @importFrom dplyr pull
+#' @importFrom dplyr row_number
+#' @importFrom dplyr relocate
+#'
 #' @return A data.frame listing the candidate .fcs files for future unmixing use.
 #' @export
 #'

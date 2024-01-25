@@ -6,6 +6,14 @@
 #' @param multiplier Value unmixed values are multiplied by for better visualization
 #' @param outpath Location the unmixed .fcs files are returned to.
 #'
+#' @importFrom flowCore exprs
+#' @importFrom stats lsfit
+#' @importFrom MASS ginv
+#' @importFrom nnls nnls
+#' @importFrom flowCore fr_append_cols
+#' @importFrom flowCore write.FCS
+#'
+#'
 #' @return NULL
 #' @export
 #'
