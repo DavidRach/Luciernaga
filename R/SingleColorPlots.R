@@ -23,7 +23,7 @@
 #'
 #' @examples NULL
 SingleColorPlots <- function(x, subsets, column, sample.name, experiment = NULL, experiment.name = NULL, condition = NULL, condition.name = NULL, bins, clearance, outpath, sourcelocation){
-  #library(flowCore); #library(dplyr)
+
   x <- x
   name <- keyword(x, sample.name)
   name <- gsub(".fcs$", "", name)
