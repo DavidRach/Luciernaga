@@ -61,12 +61,5 @@ MyGatingSet[[1]]
 The applied gates on the individual .fcs files can be checked using Luciernaga's SingleColorPlots. We can use the purrr package's map function to generate pdfs for every .fcs file containing within the GatingSet. Alternately, we can specify based on individual files using [[2]], [[3]], etc.
 
 ```{r}
-
-
-
-map(gs[[1]], SingleColorPlots, sample.name = "GUID",
-        experiment.name = "GROUPNAME", subsets = "root", bins = 270,
-        clearance = 0.2, outpath = OutPath, sourcelocation = "GeneralGating.R")
-})
-
+library(purrr)
 ```
