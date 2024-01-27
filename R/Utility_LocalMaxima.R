@@ -11,6 +11,7 @@
 #' @importFrom dplyr select
 #' @importFrom stats loess
 #' @importFrom zoo rollapply
+#' @importFrom zoo zoo
 #' @import ggplot2
 #'
 #' @return NULL

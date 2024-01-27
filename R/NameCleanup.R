@@ -7,6 +7,7 @@
 #'  When a row of Original is recognized, it's replaced with substitute value.
 #'
 #' @importFrom stringr str_replace_all
+#' @importFrom stringr fixed
 #'
 #' @return The shortened variable
 #' @export

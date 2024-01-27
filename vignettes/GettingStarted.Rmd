@@ -24,6 +24,7 @@ library(openCyto)
 library(data.table)
 library(dplyr)
 library(ggcyto)
+library(purrr)
 ```
 
 To start, you will first need to provide the location on your computer where your .fcs files of interest are stored. The code chunk below is an example that accesses the .fcs files that are part of the Luciernaga package's extdata folder. You can modify this example to access files on your own computer in a similar way.  
@@ -60,18 +61,42 @@ gt_gating(MyGatingTemplate, MyGatingSet)
 MyGatingSet[[1]]
 ```
 
-The applied gates on the individual .fcs files can be checked using Luciernaga's SingleColorPlots. We can use the purrr package's map function to generate pdfs for every .fcs file containing within the GatingSet. Alternately, we can specify based on individual files using [[2]], [[3]], etc.
+We can visualize the gates on the individual .fcs files using Luciernaga's Utility_GatingPlots function. This can be done individually (by specifying MyGatingSet[[1]]), or using the purrr packages map function on all objects in the GatingSet (MyGatingSet). The export option will store the image as a .pdf in the location specified by outpath. 
 
 ```{r}
-library(purrr)
-```
-
-```{r Plot the Rgated fcs files, eval = FALSE, echo = FALSE}
-#x <- MyGatingSet[[1]]
-#sample.name <- "GUID"
 removestrings <-  c("DR_", " (Cells).fcs", "-", " ")
-#subsets = "root"
 
-map(MyGatingSet, .f = Utility_GatingPlots, sample.name = "GUID", removestrings = removestrings, experiment = "Test", experiment.name = NULL,
-    condition = "Test", condition.name = NULL, subset = "root", bins = 270, clearance = 0.2, gtFile = MyGates, outpath = MyOutPath, export = FALSE)
+AssembledPlot <- map(MyGatingSet[[1]], .f = Utility_GatingPlots, sample.name = "GUID", removestrings = removestrings, experiment = "Test", experiment.name = NULL, condition = "Test", condition.name = NULL, subset = "root", bins = 270, clearance = 0.2, gtFile = MyGates, outpath = NULL, export = FALSE)
+AssembledPlot[[1]]
 ```
+
+The working unit for most of Luciernaga's functions is a GatingSet object. Let's now workthrough the main Luciernaga function to characterize single color reference controls. First, let's provide a .csv file to provide information about where to expect to have overlapping autofluorescent signatures with fluorophore signatures. 
+
+```{r}
+FileLocation <- system.file("extdata", package = "Luciernaga")
+AutofluorescentOverlaps <- fread(file.path(path = FileLocation, pattern = "AutofluorescentOverlaps.csv"))
+AutofluorescentOverlaps
+```
+
+This in turn allows us to run the main Luciernaga Function. 
+
+```{r}
+    Unstained <- map(MyGatingSet[3], Utility_SingleColorQC, subsets = "lymphocytes",
+        sample.name = "GUID", group.name = "GROUPNAME", experiment = NULL,
+        experiment.name = "$DATE", stats = "median", Kept = "Normalized",
+        external = NULL, sourcelocation = NULL, outpath = MainOutPath,
+        artificial = FALSE, fcsexport = FALSE, mainAF = "V7-A",
+        AFOverlap = AutofluorescentOverlaps, Beads = FALSE, Brightness = TRUE, 
+        Unstained = FALSE) %>%
+        bind_rows()
+```
+This also returns:
+
+```{r}
+Unstained
+```
+
+This in turn can be filtered using dplyr package for additional information:
+
+
+

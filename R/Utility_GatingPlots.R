@@ -107,9 +107,8 @@ Utility_GatingPlots <- function(x, sample.name, removestrings, experiment = NULL
 
   CompiledPlots <- map(.x = TheXYZgates, .f = GatePlot, gtFile = gtFile)
 
-  if (export == TRUE){
   theList <- CompiledPlots
-  theListLength <- length(theplots)
+  theListLength <- length(theList)
 
   thecolumns <- 2
   therows <- 3
@@ -120,19 +119,19 @@ Utility_GatingPlots <- function(x, sample.name, removestrings, experiment = NULL
   }
 
   sublists <- split_list(theList, theoreticalitems)
-  #length(sublists)
 
+  AssembledPlots <- map(.x = sublists, .f = wrap_plots, ncol = thecolumns, nrow = therows, widths = 0.8, heights = 0.8)
+
+  if (export == TRUE){
   MergedName <- StorageLocation
 
   pdf(file = paste(MergedName, ".pdf", sep = "", collapse = NULL), width = 9, height = 7) #Optional Adjustments for Second
 
-  for(i in sublists){p <- wrap_plots(i, ncol = thecolumns, nrow = therows, widths = 0.8, heights = 0.8)
-  print(p)
-  }
+  AssembledPlots
 
   dev.off()
 
   }
 
-  return(CompiledPlots)
+  return(AssembledPlots)
 }
