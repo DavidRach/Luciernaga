@@ -1,12 +1,7 @@
-# This file is part of the standard setup for testthat.
-# It is recommended that you do not modify it.
-#
-# Where should you do additional test configuration?
-# Learn more about the roles of various files in:
-# * https://r-pkgs.org/testing-design.html#sec-tests-files-overview
-# * https://testthat.r-lib.org/articles/special-files.html
-
 library(testthat)
 library(Luciernaga)
 
 test_check("Luciernaga")
+
+# "Hi! Are you also trying to figure out how to write your first unit-test? Me too!"
+# "Where do I stick the data for the test?... TBD"

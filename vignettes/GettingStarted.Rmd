@@ -1,0 +1,72 @@
+---
+title: "GettingStarted"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{GettingStarted}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+First off, make sure that you have all the required R packages installed, then load the libraries. 
+
+```{r setup}
+library(Luciernaga)
+library(flowCore)
+library(flowWorkspace)
+library(openCyto)
+library(data.table)
+```
+
+To start, you will first need to provide the location on your computer where your .fcs files of interest are stored. The code chunk below is an example that accesses the .fcs files that are part of the Luciernaga package's extdata folder. You can modify this example to access files on your own computer in a similar way.  
+
+```{r Access Package Data}
+FileLocation <- system.file("extdata", package = "Luciernaga")
+fcsFilePattern <- ".fcs$"
+myFCSfiles <- list.files(path = FileLocation, pattern = fcsFilePattern, full.names = TRUE, recursive = TRUE)
+myFCSfiles
+```
+
+Once we have a list of .fcs files and the paths to their locations, we use the flowWorkspace package to bring all of these individual .fcs files into a GatingSet object we can then add our gates to.  
+
+```{r}
+MyCytoSet <- load_cytoset_from_fcs(myFCSfiles, truncate_max_range = FALSE, transform = FALSE)
+MyGatingSet <- GatingSet(MyCytoSet)
+MyGatingSet
+```
+
+To gate our cells, we read in a .csv file using the data.table package and provide the information containing our desired gates to the openCyto package. An example is provided in the MyGates.csv, found within Luciernaga's extdata folder, which provides the appropriate gate for the .fcs files also stored in that folder.
+
+Individual gates can be modified, removed or added to match the requirements needed for your own .fcs files, for additional details, please refer to the openCyto packages vignettes. 
+
+```{r}
+FileLocation <- system.file("extdata", package = "Luciernaga")
+MyGates <- fread(file.path(path = FileLocation, pattern = 'MyGates.csv'))
+```
+
+Now that we have access to the gates detailed in the .csv file, we can add them to a GatingTemplate and then attach them to the GatingSet. 
+
+```{r}
+MyGatingTemplate <- gatingTemplate(MyGates)
+gt_gating(MyGatingTemplate, MyGatingSet)
+MyGatingSet[[1]]
+```
+
+The applied gates on the individual .fcs files can be checked using Luciernaga's SingleColorPlots. We can use the purrr package's map function to generate pdfs for every .fcs file containing within the GatingSet. Alternately, we can specify based on individual files using [[2]], [[3]], etc.
+
+```{r}
+
+
+
+map(gs[[1]], SingleColorPlots, sample.name = "GUID",
+        experiment.name = "GROUPNAME", subsets = "root", bins = 270,
+        clearance = 0.2, outpath = OutPath, sourcelocation = "GeneralGating.R")
+})
+
+```
