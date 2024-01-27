@@ -5,6 +5,29 @@
 #' @param stats Whether to use the median or mean measurement for MFI
 #'
 #' @importFrom tidyr nest
+#' @importFrom stringr str_detect
+#' @importFrom flowCore exprs
+#' @importFrom flowWorkspace keyword
+#' @importFrom flowWorkspace load_cytoset_from_fcs
+#' @importFrom dplyr select
+#' @importFrom dplyr pull
+#' @importFrom dplyr filter
+#' @importFrom dplyr mutate
+#' @importFrom dplyr relocate
+#' @importFrom dplyr select_if
+#' @importFrom dplyr bind_rows
+#' @importFrom dplyr group_by
+#' @importFrom dplyr ungroup
+#' @importFrom dplyr summarise_all
+#' @importFrom tidyr nest
+#' @importFrom tidyr unnest
+#' @importFrom purrr map
+#' @importFrom lsa cosine
+#' @importFrom reshape2 melt
+#' @import ggplot2
+#' @importFrom stats as.dist
+#' @importFrom stats hclust
+#'
 #'
 #'
 #' @return Visualized ggplots for each fluorophore.
@@ -110,7 +133,7 @@ CosinePlots <- function(thedata, input, stats = NULL){
 
       NumericsT <- data.matrix(NumericsT)
 
-      CosineMatrix <- lsa::cosine(NumericsT)
+      CosineMatrix <- cosine(NumericsT)
       CosineMatrix <- round(CosineMatrix, 2)
 
       # Reorder By Similarity
@@ -122,7 +145,7 @@ CosinePlots <- function(thedata, input, stats = NULL){
 
       # Reorder the correlation matrix
       cormat <- reorder_cormat(CosineMatrix)
-      melted_cormat <- reshape2::melt(cormat)
+      melted_cormat <- melt(cormat)
 
       #Generate a Heatmap
       plot <- ggplot(melted_cormat, aes(Var2, Var1, fill = value)) + geom_tile(color = "white") + geom_text(aes(Var2, Var1, label = value), color = "black", size = 2) +

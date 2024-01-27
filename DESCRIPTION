@@ -14,7 +14,6 @@ BugReports: https://github.com/DavidRach/Luciernaga/issues
 RoxygenNote: 7.2.3
 Imports: 
     BiocGenerics,
-    data.table,
     dplyr,
     flowCore,
     flowWorkspace,
@@ -37,6 +36,7 @@ Suggests:
     knitr,
     rmarkdown,
     testthat (>= 3.0.0),
+    data.table,
     viridis
 VignetteBuilder: knitr
 Config/testthat/edition: 3

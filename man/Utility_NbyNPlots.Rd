@@ -34,6 +34,10 @@ Utility_NbyNPlots(
 
 \item{experiment.name}{Keyword for which experiment name is stored (ex. "GROUPNAME")}
 
+\item{condition}{Provide a condition name}
+
+\item{condition.name}{The keyword in the .fcs file storing the condition.name}
+
 \item{marginsubset}{The Gating Hierarchy level from which values will be used to estimate the plot margins (ex. "nonDebris")}
 
 \item{gatesubset}{The Gating Hierarchy level of the cells that you want to see plotted (ex. "lymph")}
@@ -43,6 +47,10 @@ Utility_NbyNPlots(
 \item{bins}{Bins for which the plotted cells will be divided into providing granularity}
 
 \item{clearance}{The additional ratio added to the margins to avoid clipping main population but exclude outliers.}
+
+\item{gatelines}{Whether to add estimated gate cutoff lines}
+
+\item{reference}{Reference for the gate cutoff lines}
 
 \item{outpath}{Location for which to store the generated .pdf}
 

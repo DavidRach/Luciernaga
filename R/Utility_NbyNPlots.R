@@ -12,6 +12,10 @@
 #' @param bins Bins for which the plotted cells will be divided into providing granularity
 #' @param clearance The additional ratio added to the margins to avoid clipping main population but exclude outliers.
 #' @param pdf Prints default NxN plot, TRUE or FALSE.
+#' @param condition Provide a condition name
+#' @param condition.name The keyword in the .fcs file storing the condition.name
+#' @param gatelines Whether to add estimated gate cutoff lines
+#' @param reference Reference for the gate cutoff lines
 #'
 #' @importFrom flowWorkspace keyword
 #' @importFrom flowWorkspace gs_pop_get_data

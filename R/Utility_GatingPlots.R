@@ -13,6 +13,7 @@
 #' @param bins Number of geom hexbins to bin the plotted data for visualization.
 #' @param clearance Area around edge
 #' @param outpath The location to send the generated .pdf file
+#' @param export Whether to export as a .pdf file to the outpath, TRUE, FALSE
 #'
 #' @importFrom flowWorkspace keyword
 #' @importFrom flowWorkspace gs_pop_get_data
@@ -26,6 +27,9 @@
 #' @import ggplot2
 #' @importFrom purrr map
 #' @importFrom patchwork wrap_plots
+#' @importFrom grDevices dev.off
+#' @importFrom grDevices pdf
+#' @importFrom stats quantile
 #'
 #' @return NULL
 #' @export

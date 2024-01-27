@@ -4,8 +4,8 @@
 #' @param name The name that matches to the data.frame and gs object, ex. altered.name
 #' @param ff The dataframe data for that sample
 #' @param yValue What wanted on the yaxis
-#' @param ycolumn The ycolumn that you want to see everything plotted by (ex. "APC-A") or ALL to see all comparisons
 #' @param bins Bins for which the plotted cells will be divided into providing granularity
+#' @param clearance Space around the plot
 #' @param columnlist list all channels with x removed
 #' @param TheDF the external limits settings
 #' @param gatelines whether to plot the ModernCutoffLines from reference dataframe

@@ -47,6 +47,8 @@ Utility_GatingPlots(
 \item{clearance}{Area around edge}
 
 \item{outpath}{The location to send the generated .pdf file}
+
+\item{export}{Whether to export as a .pdf file to the outpath, TRUE, FALSE}
 }
 \description{
 Check gate placement for individual .fcs files
