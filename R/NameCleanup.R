@@ -18,7 +18,7 @@ NameCleanUp <- function(name, removestrings, substitutestrings){
 # Rather than specifying everything, provide a data.frame for substitutions. Have it iterate afterwards.
 
   for(i in removestrings){
-    name <- str_replace_all(name, i, "")
+    name <- str_replace_all(name, fixed(i), "")
   }
 
   return(name)

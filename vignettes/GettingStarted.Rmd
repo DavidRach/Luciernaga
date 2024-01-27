@@ -22,6 +22,8 @@ library(flowCore)
 library(flowWorkspace)
 library(openCyto)
 library(data.table)
+library(dplyr)
+library(ggcyto)
 ```
 
 To start, you will first need to provide the location on your computer where your .fcs files of interest are stored. The code chunk below is an example that accesses the .fcs files that are part of the Luciernaga package's extdata folder. You can modify this example to access files on your own computer in a similar way.  
@@ -62,4 +64,14 @@ The applied gates on the individual .fcs files can be checked using Luciernaga's
 
 ```{r}
 library(purrr)
+```
+
+```{r Plot the Rgated fcs files, eval = FALSE, echo = FALSE}
+#x <- MyGatingSet[[1]]
+#sample.name <- "GUID"
+removestrings <-  c("DR_", " (Cells).fcs", "-", " ")
+#subsets = "root"
+
+map(MyGatingSet, .f = Utility_GatingPlots, sample.name = "GUID", removestrings = removestrings, experiment = "Test", experiment.name = NULL,
+    condition = "Test", condition.name = NULL, subset = "root", bins = 270, clearance = 0.2, gtFile = MyGates, outpath = MyOutPath, export = FALSE)
 ```
