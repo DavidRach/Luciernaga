@@ -36,6 +36,7 @@ Imports:
     stringr,
     tidyr,
     zoo
+Depends: R (>= 4.0.0)
 Suggests: 
     BiocStyle,
     knitr,

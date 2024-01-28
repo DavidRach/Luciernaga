@@ -29,8 +29,11 @@ The Luciernaga package promises to do these following things...
 # Installing Luciernaga
 
 ```{r setup}
-#install.packages("devtools")
-#devtools::install_github("https://github.com/DavidRach/Luciernaga")
+# install.packages("devtools")
+# devtools::install_github("https://github.com/DavidRach/Luciernaga")
+
+#install.packages("BiocManager")
+#BiocManager::install("Luciernaga")
 
 library(Luciernaga)
 ```
@@ -41,6 +44,19 @@ library(Luciernaga)
 
 First off, make sure that you have all the required R packages installed, then
 load the libraries. 
+
+```{r, echo=FALSE, results = "hide", warning=FALSE}
+suppressPackageStartupMessages({
+library(Luciernaga)
+library(flowCore)
+library(flowWorkspace)
+library(openCyto)
+library(data.table)
+library(dplyr)
+library(ggcyto)
+library(purrr)  
+})
+```
 
 ```{r Libraries}
 library(Luciernaga)
