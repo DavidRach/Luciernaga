@@ -8,15 +8,16 @@ output:
 
 <!-- To modify Package/Title/Description/Authors fields, edit the DESCRIPTION file -->
 
+
+<!-- badges: start -->
+[![R build status](https://github.com/DavidRach/Luciernaga/workflows/rworkflows/badge.svg)](https://github.com/DavidRach/Luciernaga/actions)
 [![License: AGPL (>= 3)](https://img.shields.io/badge/license-AGPL (>= 3)-blue.svg)](https://cran.r-project.org/web/licenses/AGPL (>= 3))
 [![](https://img.shields.io/badge/devel%20version-0.1.0-black.svg)](https://github.com/DavidRach/Luciernaga)
 [![](https://img.shields.io/github/languages/code-size/DavidRach/Luciernaga.svg)](https://github.com/DavidRach/Luciernaga)
 [![](https://img.shields.io/github/last-commit/DavidRach/Luciernaga.svg)](https://github.com/DavidRach/Luciernaga/commits/master)
 <br>
-[![R build status](https://github.com/DavidRach/Luciernaga/workflows/rworkflows/badge.svg)](https://github.com/DavidRach/Luciernaga/actions)
-[![](https://codecov.io/gh/DavidRach/Luciernaga/branch/master/graph/badge.svg)](https://app.codecov.io/gh/DavidRach/Luciernaga)
-<br>
-<a href="https://app.codecov.io/gh/DavidRach/Luciernaga/tree/master" target='_blank'><img src="https://codecov.io/gh/DavidRach/Luciernaga/branch/master/graphs/icicle.svg" title="Codecov icicle graph" width="200" height="50" style="vertical-align: top;"></a>[1] "NULL\n[![License: AGPL (>= 3)](https://img.shields.io/badge/license-AGPL (>= 3)-blue.svg)](https://cran.r-project.org/web/licenses/AGPL (>= 3))\n[![](https://img.shields.io/badge/devel%20version-0.1.0-black.svg)](https://github.com/DavidRach/Luciernaga)\n[![](https://img.shields.io/github/languages/code-size/DavidRach/Luciernaga.svg)](https://github.com/DavidRach/Luciernaga)\n[![](https://img.shields.io/github/last-commit/DavidRach/Luciernaga.svg)](https://github.com/DavidRach/Luciernaga/commits/master)\n<br>\n[![R build status](https://github.com/DavidRach/Luciernaga/workflows/rworkflows/badge.svg)](https://github.com/DavidRach/Luciernaga/actions)\n[![](https://codecov.io/gh/DavidRach/Luciernaga/branch/master/graph/badge.svg)](https://app.codecov.io/gh/DavidRach/Luciernaga)\n<br>\n<a href=\"https://app.codecov.io/gh/DavidRach/Luciernaga/tree/master\" target='_blank'><img src=\"https://codecov.io/gh/DavidRach/Luciernaga/branch/master/graphs/icicle.svg\" title=\"Codecov icicle graph\" width=\"200\" height=\"50\" style=\"vertical-align: top;\"></a>"
+<!-- badges: end -->
+
 
 ```{r, echo=FALSE, include=FALSE}
 pkg <- read.dcf("DESCRIPTION", fields = "Package")[1]
