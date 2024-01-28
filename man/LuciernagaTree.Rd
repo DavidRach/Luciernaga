@@ -9,7 +9,8 @@ LuciernagaTree(x, data)
 \arguments{
 \item{x}{A vector of the fluorophores found in data.}
 
-\item{data}{The data.frame of Luciernaga outputs used to candidate .fcs files for unmixing.}
+\item{data}{The data.frame of Luciernaga outputs used to candidate .fcs files
+for unmixing.}
 }
 \value{
 A data.frame listing the candidate .fcs files for future unmixing use.

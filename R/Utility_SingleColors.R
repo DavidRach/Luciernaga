@@ -1,10 +1,13 @@
 #' Plot Individual Fluorophore Gates, take the MFI, return the values.
 #'
 #' @param x A GatingSet type object (ex. gs or gs[[1]])
-#' @param sample.name Keyword variable under which samples indentity is stored (ex. "GUID")
+#' @param sample.name Keyword variable under which samples indentity is stored
+#'  (ex. "GUID")
 #' @param experiment Provide directly the experiment label (ex. "Jan2024")
-#' @param experiment.date Keyword variable under which experiment is stored in absence of Experiment
-#' @param rootlevel Gating Hierarchy node under which new gates will be constructed
+#' @param experiment.date Keyword variable under which experiment is stored in
+#' absence of Experiment
+#' @param rootlevel Gating Hierarchy node under which new gates will be
+#'  constructed
 #' @param samplinglevel Gating Hierarchy level from which MFI will be taken
 #' @param bins When plotting, how many bins resolution
 #' @param stats Whether to use "mean" or "median"
@@ -22,19 +25,25 @@
 #' @importFrom dplyr summarize_all
 #' @importFrom flowCore exprs
 #'
-#' @return NULL
+#' @return A value to be defined later
 #' @export
 #'
 #' @examples NULL
-Utility_SingleColors <- function(x, sample.name, experiment = NULL, experiment.date, rootlevel, samplinglevel, bins, stats = NULL, outpath, source, sourcelocation){
+Utility_SingleColors <- function(x, sample.name, experiment = NULL,
+  experiment.date, rootlevel, samplinglevel, bins, stats = NULL,
+  outpath, source, sourcelocation){
   x <- x
   name <- keyword(x, sample.name)
 
-  if(str_detect(name, "(Cells)")){Type <- "Cells"} else if(str_detect(name, "(Beads)")){Type <- "Beads"} else(Type <- NULL)
+  if(str_detect(name, "(Cells)")){Type <- "Cells"} else if(str_detect(name,
+                      "(Beads)")){Type <- "Beads"} else(Type <- NULL)
 
-  name <- gsub(".fcs", "", gsub(" (Cells)", "", fixed = TRUE, gsub(" (Beads)", "", fixed = TRUE,name)))
+  name <- gsub(".fcs", "", gsub(" (Cells)", "", fixed = TRUE, gsub(" (Beads)",
+                                            "", fixed = TRUE,name)))
   alternate.name <- name
-  alternate.name <- gsub(".fcs", "", gsub(" ", "", gsub("(", "", fixed = TRUE, gsub(")", "", fixed = TRUE, gsub("_", "", fixed = TRUE, gsub("-", "", fixed = TRUE, alternate.name))))))
+  alternate.name <- gsub(".fcs", "", gsub(" ", "", gsub("(", "", fixed = TRUE,
+      gsub(")", "", fixed = TRUE, gsub("_", "", fixed = TRUE, gsub(
+        "-", "", fixed = TRUE, alternate.name))))))
 
   if(!is.null(experiment)){Experiment <- experiment
   } else {experiment <- keyword(x, experiment.date)
@@ -46,47 +55,101 @@ Utility_SingleColors <- function(x, sample.name, experiment = NULL, experiment.d
 
   #Unstained
   if (str_detect(name, "Unstained")){
-    SingleColor <- as.ggplot(ggcyto(x, aes(x = "FSC-A", y = "SSC-A"), subset = "nonDebris") + geom_hex(bins=bins) + geom_gate("lymph") + theme_bw() + labs(title = NULL) + theme(strip.background = element_blank(), strip.text.x = element_blank(), panel.grid.major = element_line(linetype = "blank"), panel.grid.minor = element_line(linetype = "blank"), axis.title = element_text(size = 10, face = "bold"), legend.position = "none"))
+    SingleColor <- as.ggplot(ggcyto(x, aes(x = "FSC-A", y = "SSC-A"),
+        subset = "nonDebris") + geom_hex(bins=bins) + geom_gate("lymph") +
+          theme_bw() + labs(title = NULL) + theme(
+            strip.background = element_blank(), strip.text.x = element_blank(),
+            panel.grid.major = element_line(linetype = "blank"),
+            panel.grid.minor = element_line(linetype = "blank"),
+            axis.title = element_text(size = 10, face = "bold"),
+            legend.position = "none"))
     cells <- "lymph"
     if(source == TRUE){source(sourcelocation, local = TRUE)}
 
   } else if (str_detect(name, "BUV395")){
     testthis <- gs_get_leaf_nodes(x)
-    if(!str_detect(testthis, "BUV395")){gs_add_gating_method(x, parent = rootlevel, pop = "+", alias = "BUV395", gating_method = "flowClust.1d", gating_args = "K=2", dims = "UV2-A")}
+    if(!str_detect(testthis, "BUV395")){gs_add_gating_method(
+      x, parent = rootlevel, pop = "+", alias = "BUV395",
+      gating_method = "flowClust.1d", gating_args = "K=2", dims = "UV2-A")}
     cells <- "BUV395"
-    SingleColor <- as.ggplot(ggcyto(x, aes(x = "UV2-A", y = "SSC-A"), subset = rootlevel) + geom_hex(bins=bins) + geom_gate(cells) + scale_x_flowjo_biexp() + theme_bw() + labs(title = NULL) + theme(strip.background = element_blank(), strip.text.x = element_blank(), panel.grid.major = element_line(linetype = "blank"), panel.grid.minor = element_line(linetype = "blank"), axis.title = element_text(size = 10, face = "bold"), legend.position = "none"))
+    SingleColor <- as.ggplot(ggcyto(x, aes(x = "UV2-A", y = "SSC-A"),
+        subset = rootlevel) + geom_hex(bins=bins) + geom_gate(cells) +
+          scale_x_flowjo_biexp() + theme_bw() + labs(title = NULL) +
+          theme(strip.background = element_blank(),
+                strip.text.x = element_blank(),
+                panel.grid.major = element_line(linetype = "blank"),
+                panel.grid.minor = element_line(linetype = "blank"),
+                axis.title = element_text(size = 10, face = "bold"),
+                legend.position = "none"))
     if(source == TRUE){source(sourcelocation, local = TRUE)}
 
 
   } else if (str_detect(name, "BUV496")){
     testthis <- gs_get_leaf_nodes(x)
-    if(!str_detect(testthis, "BUV496")){gs_add_gating_method(x, parent = rootlevel, pop = "+", alias = "BUV496", gating_method = "flowClust", gating_args = "K=2", dims = "UV7-A")}
+    if(!str_detect(testthis, "BUV496")){gs_add_gating_method(x,
+          parent = rootlevel, pop = "+", alias = "BUV496",
+          gating_method = "flowClust", gating_args = "K=2", dims = "UV7-A")}
     cells <- "BUV496"
-    SingleColor <- as.ggplot(ggcyto(x, aes(x = "UV7-A", y = "FSC-A"), subset = rootlevel) + geom_hex(bins=bins) + geom_gate(cells) + scale_x_flowjo_biexp() + theme_bw() + labs(title = NULL) + theme(strip.background = element_blank(), strip.text.x = element_blank(), panel.grid.major = element_line(linetype = "blank"), panel.grid.minor = element_line(linetype = "blank"), axis.title = element_text(size = 10, face = "bold"), legend.position = "none"))
+    SingleColor <- as.ggplot(ggcyto(x, aes(x = "UV7-A", y = "FSC-A"),
+        subset = rootlevel) + geom_hex(bins=bins) + geom_gate(cells) +
+          scale_x_flowjo_biexp() + theme_bw() + labs(title = NULL) +
+          theme(strip.background = element_blank(), strip.text.x = element_blank(),
+          panel.grid.major = element_line(linetype = "blank"),
+          panel.grid.minor = element_line(linetype = "blank"),
+          axis.title = element_text(size = 10, face = "bold"),
+          legend.position = "none"))
     if(source == TRUE){source(sourcelocation, local = TRUE)}
 
 
   } else if (str_detect(name, "BUV563")){
     testthis <- gs_get_leaf_nodes(x)
-    if(!str_detect(testthis, "BUV563")){gs_add_gating_method(x, parent = rootlevel, pop = "+", alias = "BUV563", gating_method = "flowClust.1d", gating_args = "K=2", dims = "UV9-A")}
+    if(!str_detect(testthis, "BUV563")){gs_add_gating_method(x,
+    parent = rootlevel, pop = "+", alias = "BUV563",
+    gating_method = "flowClust.1d", gating_args = "K=2", dims = "UV9-A")}
     cells <- "BUV563"
-    SingleColor <- as.ggplot(ggcyto(x, aes(x = "UV9-A", y = "SSC-A"), subset = rootlevel) + geom_hex(bins=bins) + geom_gate(cells) + scale_x_flowjo_biexp() + theme_bw() + labs(title = NULL) + theme(strip.background = element_blank(), strip.text.x = element_blank(), panel.grid.major = element_line(linetype = "blank"), panel.grid.minor = element_line(linetype = "blank"), axis.title = element_text(size = 10, face = "bold"), legend.position = "none"))
+    SingleColor <- as.ggplot(ggcyto(x, aes(x = "UV9-A", y = "SSC-A"),
+      subset = rootlevel) + geom_hex(bins=bins) +
+        geom_gate(cells) + scale_x_flowjo_biexp() + theme_bw() +
+        labs(title = NULL) + theme(strip.background = element_blank(),
+        strip.text.x = element_blank(), panel.grid.major = element_line(
+      linetype = "blank"), panel.grid.minor = element_line(linetype = "blank"),
+      axis.title = element_text(size = 10, face = "bold"),
+      legend.position = "none"))
     if(source == TRUE){source(sourcelocation, local = TRUE)}
 
 
   } else if(str_detect(name, "BUV615")){
     testthis <- gs_get_leaf_nodes(x)
-    if(!str_detect(testthis, "/BUV615")){gs_add_gating_method(x, parent = rootlevel, pop = "+", alias = "BUV615", gating_method = "flowClust.1d", gating_args = "K=2", dims = "UV10-A")}
+    if(!str_detect(testthis, "/BUV615")){gs_add_gating_method(x,
+     parent = rootlevel, pop = "+", alias = "BUV615",
+     gating_method = "flowClust.1d", gating_args = "K=2", dims = "UV10-A")}
     cells <- "BUV615"
-    SingleColor <- as.ggplot(ggcyto(x, aes(x = "UV10-A", y = "SSC-A"), subset = rootlevel) + geom_hex(bins=bins) + geom_gate(cells) + scale_x_flowjo_biexp() + theme_bw() + labs(title = NULL) + theme(strip.background = element_blank(), strip.text.x = element_blank(), panel.grid.major = element_line(linetype = "blank"), panel.grid.minor = element_line(linetype = "blank"), axis.title = element_text(size = 10, face = "bold"), legend.position = "none"))
+    SingleColor <- as.ggplot(ggcyto(x, aes(x = "UV10-A", y = "SSC-A"),
+    subset = rootlevel) + geom_hex(bins=bins) + geom_gate(cells) +
+      scale_x_flowjo_biexp() + theme_bw() + labs(title = NULL) +
+      theme(strip.background = element_blank(), strip.text.x = element_blank(),
+            panel.grid.major = element_line(linetype = "blank"),
+           panel.grid.minor = element_line(linetype = "blank"),
+           axis.title = element_text(size = 10, face = "bold"),
+           legend.position = "none"))
     if(source == TRUE){source(sourcelocation, local = TRUE)}
 
 
   } else if (str_detect(name, "BUV661")){
     testthis <- gs_get_leaf_nodes(x)
-    if(!str_detect(testthis, "BUV661")){gs_add_gating_method(x, parent = rootlevel, pop = "+", alias = "BUV661", gating_method = "gate_quantile", gating_args = "probs = 0.94", dims = "UV11-A")}
+    if(!str_detect(testthis, "BUV661")){gs_add_gating_method(x,
+      parent = rootlevel, pop = "+", alias = "BUV661",
+      gating_method = "gate_quantile", gating_args = "probs = 0.94",
+      dims = "UV11-A")}
     cells <- "BUV661"
-    SingleColor <- as.ggplot(ggcyto(x, aes(x = "UV11-A", y = "SSC-A"), subset = rootlevel) + geom_hex(bins=bins) + geom_gate(cells) + scale_x_flowjo_biexp() + theme_bw() + labs(title = NULL) + theme(strip.background = element_blank(), strip.text.x = element_blank(), panel.grid.major = element_line(linetype = "blank"), panel.grid.minor = element_line(linetype = "blank"), axis.title = element_text(size = 10, face = "bold"), legend.position = "none"))
+    SingleColor <- as.ggplot(ggcyto(x, aes(x = "UV11-A", y = "SSC-A"),
+     subset = rootlevel) + geom_hex(bins=bins) + geom_gate(cells) +
+       scale_x_flowjo_biexp() + theme_bw() + labs(title = NULL) +
+       theme(strip.background = element_blank(), strip.text.x = element_blank(),
+             panel.grid.major = element_line(linetype = "blank"),
+             panel.grid.minor = element_line(linetype = "blank"),
+             axis.title = element_text(size = 10, face = "bold"),
+             legend.position = "none"))
     if(source == TRUE){source(sourcelocation, local = TRUE)}
 
 

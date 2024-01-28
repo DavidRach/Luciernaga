@@ -5,7 +5,8 @@
 #' @param x A vector containing fluorophore names found within data.
 #' @param data The data.frame output of LuciernagaTree listing files to be moved.
 #' @param input The path to the current storage location of the .fcs files.
-#' @param output The path to the desired future storage location of the selected files.
+#' @param output The path to the desired future storage location of the selected
+#' files.
 #'
 #' @importFrom dplyr filter
 #' @importFrom dplyr pull

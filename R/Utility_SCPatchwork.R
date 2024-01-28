@@ -6,7 +6,7 @@
 #'
 #' @importFrom patchwork wrap_plots
 #'
-#' @return NULL
+#' @return A value to be determined later
 #' @export
 #'
 #' @examples NULL
@@ -29,8 +29,10 @@ Utility_SCPatchwork <- function(x, filename, outfolder){
 
   MergedName <- paste(outfolder, filename, sep = "/")
 
-  pdf(file = paste(MergedName, ".pdf", sep = "", collapse = NULL), width = 11, height = 8.5) #Optional Adjustments for Second
-  #pdf(file = paste(MergedName, ".pdf", sep = "", collapse = NULL), width = 8.5, height = 11) #Optional Adjustments for Second
+  pdf(file = paste(MergedName, ".pdf", sep = "", collapse = NULL),
+      width = 11, height = 8.5) #Optional Adjustments for Second
+  #pdf(file = paste(MergedName, ".pdf", sep = "", collapse = NULL),
+  #width = 8.5, height = 11) #Optional Adjustments for Second
 
   spacer <- plot_spacer()
 

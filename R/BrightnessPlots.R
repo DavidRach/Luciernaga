@@ -2,7 +2,8 @@
 #'
 #' @param thedata A data.frame with columns Fluorophore and Detector.
 #' @param input The location where the .fcs files are stored.
-#' @param Downsample Reduce all clusters to just the same amount cells least represented cluster.
+#' @param Downsample Reduce all clusters to just the same amount cells least
+#'  represented cluster.
 #' @param Scaled Transform from raw values to Logicle transformed ones.
 #'
 #'
@@ -10,7 +11,8 @@
 #' @importFrom ggcyto scale_x_logicle
 #'
 #'
-#' @return Visualized ggplots for each fluorophore. If multiple .fcs files of same fluorophore are
+#' @return Visualized ggplots for each fluorophore. If multiple .fcs files of
+#'  same fluorophore are
 #'  present in the same folder, it overlays them.
 #' @export
 #'
@@ -59,7 +61,8 @@ BrightnessPlots <- function(thedata, input, Downsample = NULL, Scaled = NULL){
 
     if (thex %in% c("PE_", "APC_")){thex <- gsub("_", "", thex)}
 
-    cs <- load_cytoset_from_fcs(fcs_files, truncate_max_range = FALSE, transform = FALSE)
+    cs <- load_cytoset_from_fcs(fcs_files, truncate_max_range = FALSE,
+                                transformation = FALSE)
 
     InternalExprs2 <- function(x, thex2){
       they <- x
@@ -76,38 +79,38 @@ BrightnessPlots <- function(thedata, input, Downsample = NULL, Scaled = NULL){
       DFNames
     }
 
-    TheDataFrames <- map(.x = cs, .f = InternalExprs2, thex2 = thex) %>% bind_rows()
+    TheDataFrames <- map(.x = cs, .f = InternalExprs2, thex2 = thex) %>%
+      bind_rows()
     TheDataFrames$Cluster <- factor(TheDataFrames$Cluster)
-
-    #Value <- colnames(TheDataFrames)[1]
-    #TheDataFrames %>% group_by(Cluster) %>% summarize(Highest = quantile(.data[[Value]], 0.95, na.rm = TRUE)) %>%
-    #  slice_max(order_by = Lowest) %>% pull(Lowest)
-    # TheDataFrames %>% group_by(Cluster) %>% summarize(Lowest = quantile(.data[[Value]], 0.05, na.rm = TRUE))
-
 
     theXmin <- TheDataFrames[,1] %>% quantile(., 0.01)
     theXmax <- TheDataFrames[,1] %>% quantile(., 0.99)
     theXmin <- theXmin - abs((0.02*theXmin))
     theXmax <- theXmax + (0.02*theXmax)
 
-    if (Downsample == TRUE){ TheDataFrames <- TheDataFrames %>% group_by(Cluster) %>%
-      slice_sample(n = min(table(TheDataFrames$Cluster), na.rm = TRUE), replace = FALSE) %>% ungroup()
+    if (Downsample == TRUE){ TheDataFrames <- TheDataFrames %>%
+      group_by(Cluster) %>%
+      slice_sample(n = min(table(TheDataFrames$Cluster), na.rm = TRUE),
+                   replace = FALSE) %>% ungroup()
 
     TheDataFrames <- as.data.frame(TheDataFrames)
     }
 
-    if (Scaled == TRUE){plot <- ggplot(TheDataFrames, aes(x =.data[[TheDetector]], fill = Cluster)) + geom_density(alpha = 0.5) +
+    if (Scaled == TRUE){plot <- ggplot(TheDataFrames, aes(x =.data[[TheDetector]],
+      fill = Cluster)) + geom_density(alpha = 0.5) +
       ggcyto::scale_x_logicle(w = 1.5, t = 4200000, m = 5.62) +
       labs(title = thex, x = TheDetector, y = "Frequency") + theme_bw() +
       theme(axis.title.x = element_text(face = "plain"),
             axis.title.y = element_text(face = "plain", margin = margin(r = -150)),
             panel.grid.major = element_blank(),
             panel.grid.minor = element_blank()
-      )} else {plot <- ggplot(TheDataFrames, aes(x =.data[[TheDetector]], fill = Cluster)) + geom_density(alpha = 0.5) +
+      )} else {plot <- ggplot(TheDataFrames, aes(x =.data[[TheDetector]],
+          fill = Cluster)) + geom_density(alpha = 0.5) +
         coord_cartesian(xlim = c(theXmin, theXmax))  +
         labs(title = thex, x = TheDetector, y = "Frequency") + theme_bw() +
         theme(axis.title.x = element_text(face = "plain"),
-              axis.title.y = element_text(face = "plain", margin = margin(r = -120)),
+              axis.title.y = element_text(face = "plain",
+              margin = margin(r = -120)),
               panel.grid.major = element_blank(),
               panel.grid.minor = element_blank()
         )}
@@ -115,7 +118,8 @@ BrightnessPlots <- function(thedata, input, Downsample = NULL, Scaled = NULL){
     theplotlist[[thex]] <- plot
   }
 
-  PlotTwist <- map(.x = Present, .f = InternalExprs, data = InternalData, inputfiles = inputfiles)
+  PlotTwist <- map(.x = Present, .f = InternalExprs, data = InternalData,
+                   inputfiles = inputfiles)
 
   return(PlotTwist)
 }

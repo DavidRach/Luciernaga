@@ -9,6 +9,9 @@ Utility_RelativeBrightness(x)
 \arguments{
 \item{x}{A data.frame containing column Cluster}
 }
+\value{
+A value to be determined later
+}
 \description{
 Helper function splits Cluster into individual components
 }

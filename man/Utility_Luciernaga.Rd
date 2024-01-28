@@ -15,13 +15,18 @@ Utility_Luciernaga(
 \arguments{
 \item{LuciernagaData}{A data.frame}
 
-\item{LuciernagaVariables}{The data.frame column that contains your flourophores (ex. "Samples" -> "APCFire750")}
+\item{LuciernagaVariables}{The data.frame column that contains your
+flourophores (ex. "Samples" -> "APCFire750")}
 
-\item{LuciernagaClusters}{The data.frame column that contains your clusters (ex. "Clusters" -> "R01_10-R02_10-R03_10")}
+\item{LuciernagaClusters}{The data.frame column that contains your
+clusters (ex. "Clusters" -> "R01_10-R02_10-R03_10")}
 
 \item{outfolder}{The location that you want to save the .pdf output to.}
 
 \item{filename}{The name you want to save your .pdf file as.}
+}
+\value{
+A value to be determined later
 }
 \description{
 Converts the Luciernaga outputs into .pdf plots.

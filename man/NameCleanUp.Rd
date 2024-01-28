@@ -12,8 +12,9 @@ NameCleanUp(name, removestrings, substitutestrings)
 \item{removestrings}{A list of strings to be sequentially removed from the name.
 An example: removestrings = c("ReferenceGroup_", ".fcs")}
 
-\item{substitutestrings}{A data.frame containing two columns, Original and Substitute.
-When a row of Original is recognized, it's replaced with substitute value.}
+\item{substitutestrings}{A data.frame containing two columns, Original and
+Substitute.
+ When a row of Original is recognized, it's replaced with substitute value.}
 }
 \value{
 The shortened variable

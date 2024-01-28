@@ -7,7 +7,11 @@
 subClusters(data)
 }
 \arguments{
-\item{data}{The nested portion of the data.frame, containing the detectors and the experiment column}
+\item{data}{The nested portion of the data.frame, containing the detectors
+and the experiment column}
+}
+\value{
+A variable to be defined later
 }
 \description{
 Check identical clusters for individual variability across experiments.

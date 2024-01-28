@@ -3,18 +3,21 @@
 #' @param fs A flowSet object (ex. fs or fs[[1]])
 #' @param control The output of controlData
 #' @param unmixMethod Choice of unmixing method
-#' @param multiplier Value unmixed values are multiplied by for better visualization
+#' @param multiplier Value unmixed values are multiplied by for better
+#'  visualization
 #' @param outpath Location the unmixed .fcs files are returned to.
 #'
 #' @importFrom flowCore exprs
 #' @importFrom stats lsfit
+#' @importFrom stats .lm.fit
+#' @importFrom stats lm
 #' @importFrom MASS ginv
 #' @importFrom nnls nnls
 #' @importFrom flowCore fr_append_cols
 #' @importFrom flowCore write.FCS
 #'
 #'
-#' @return NULL
+#' @return A value to be elaborated
 #' @export
 #'
 #' @examples NULL
@@ -23,7 +26,8 @@ unmix_ff <- function(fs, control, unmixMethod, multiplier, outpath) {
   expresionData<-as.data.frame(expresionData)
   expresionData<-expresionData[,-grep("SC|SS|FS", names(expresionData))]
   expresionData<-expresionData[,grep("-A", names(expresionData))]
-  control<-control[names(expresionData)] #Reorder data to match the expression data - vital if using exported data from FlowJo
+  control<-control[names(expresionData)] #Reorder data to match the
+  #expression data - vital if using exported data from FlowJo
 
   if(unmixMethod=="lsfit") {
     ls_corr <- lsfit(x = t(control), y = t(expresionData), intercept = FALSE)
@@ -52,7 +56,8 @@ unmix_ff <- function(fs, control, unmixMethod, multiplier, outpath) {
     unmixResult<-as.matrix(unmixResult)
   }
   else if(unmixMethod=="crosspod"){
-    crspod<-solve(crossprod(as.matrix(t(control)))) %*% crossprod(as.matrix(t(control)),as.matrix(t(expresionData)))
+    crspod<-solve(crossprod(as.matrix(t(control)))) %*% crossprod(
+      as.matrix(t(control)),as.matrix(t(expresionData)))
     crspod<-crspod*multiplier
     crspod<-data.frame(t(crspod))
     colnames(crspod)<-rownames(control)
@@ -60,14 +65,16 @@ unmix_ff <- function(fs, control, unmixMethod, multiplier, outpath) {
   }
   else if(unmixMethod=="nnls"){
     expresionData2<-as.matrix(expresionData)
-    system.time({nnlsunmixed<-apply(expresionData2, 1, function(x)nnls(as.matrix(t(control)), x)$x)})
+    system.time({nnlsunmixed<-apply(expresionData2, 1, function(x)nnls(
+      as.matrix(t(control)), x)$x)})
     nnlsunmixed<-nnlsunmixed*multiplier
     nnlsunmixed<-data.frame(t(nnlsunmixed))
     colnames(nnlsunmixed)<-rownames(control)
     unmixResult<-as.matrix(nnlsunmixed)
   }
   else if(unmixMethod=="baselm"){
-    system.time({lmbase<-apply(expresionData, 1, function(x)lm (x ~ t(control))$coefficients)})
+    system.time({lmbase<-apply(expresionData, 1, function(x)lm (x ~ t(
+      control))$coefficients)})
     lmbase<-lmbase*multiplier
     lmbase<-data.frame(t(lmbase))
     ncol(lmbase)

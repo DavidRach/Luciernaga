@@ -2,7 +2,8 @@
 % Please edit documentation in R/CosinePlots.R
 \name{CosinePlots}
 \alias{CosinePlots}
-\title{Visualize cosine similarity of raw .fcs files to evaluate single color controls.}
+\title{Visualize cosine similarity of raw .fcs files to evaluate single color
+controls.}
 \usage{
 CosinePlots(thedata, input, stats = NULL)
 }
@@ -17,7 +18,8 @@ CosinePlots(thedata, input, stats = NULL)
 Visualized ggplots for each fluorophore.
 }
 \description{
-Visualize cosine similarity of raw .fcs files to evaluate single color controls.
+Visualize cosine similarity of raw .fcs files to evaluate single color
+controls.
 }
 \examples{
 NULL

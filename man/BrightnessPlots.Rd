@@ -11,12 +11,14 @@ BrightnessPlots(thedata, input, Downsample = NULL, Scaled = NULL)
 
 \item{input}{The location where the .fcs files are stored.}
 
-\item{Downsample}{Reduce all clusters to just the same amount cells least represented cluster.}
+\item{Downsample}{Reduce all clusters to just the same amount cells least
+represented cluster.}
 
 \item{Scaled}{Transform from raw values to Logicle transformed ones.}
 }
 \value{
-Visualized ggplots for each fluorophore. If multiple .fcs files of same fluorophore are
+Visualized ggplots for each fluorophore. If multiple .fcs files of
+ same fluorophore are
  present in the same folder, it overlays them.
 }
 \description{

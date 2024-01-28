@@ -1,6 +1,7 @@
 #' Check identical clusters for individual variability across experiments.
 #'
-#' @param data The nested portion of the data.frame, containing the detectors and the experiment column
+#' @param data The nested portion of the data.frame, containing the detectors
+#'  and the experiment column
 #'
 #' @importFrom dplyr select
 #' @importFrom dplyr mutate
@@ -8,7 +9,7 @@
 #' @importFrom lsa cosine
 #'
 #'
-#' @return NULL
+#' @return A variable to be defined later
 #' @export
 #'
 #' @examples NULL
@@ -24,7 +25,8 @@ subClusters <- function(data){
     NumericsT <- data.matrix(NumericsT)
     CosineMatrix <- lsa::cosine(NumericsT)
     CosineMatrix <- round(CosineMatrix, 2)
-    data <- data %>% mutate(subCosine = CosineMatrix[,1]) %>% relocate(subCosine, .after = experiment)
+    data <- data %>% mutate(subCosine = CosineMatrix[,1]) %>% relocate(
+      subCosine, .after = experiment)
   } else {data <- data %>% mutate(subCosine = 1)}
 
   return(data)

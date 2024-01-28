@@ -1,4 +1,5 @@
-#' Visualize cosine similarity of raw .fcs files to evaluate single color controls.
+#' Visualize cosine similarity of raw .fcs files to evaluate single color
+#' controls.
 #'
 #' @param thedata A data.frame with columns Fluorophore and Detector.
 #' @param input The location where the .fcs files are stored.
@@ -81,7 +82,8 @@ CosinePlots <- function(thedata, input, stats = NULL){
 
     if (thex %in% c("PE_", "APC_")){thex <- gsub("_", "", thex)}
 
-    cs <- load_cytoset_from_fcs(fcs_files, truncate_max_range = FALSE, transform = FALSE)
+    cs <- load_cytoset_from_fcs(fcs_files, truncate_max_range = FALSE,
+                                transformation = FALSE)
 
     InternalExprs2 <- function(x, thex2){
       they <- x
@@ -94,14 +96,17 @@ CosinePlots <- function(thedata, input, stats = NULL){
       TheDF <- data.frame(df, check.names = FALSE)
       TheDF <- TheDF[,-grep("Time|FS|SC|SS|Original|W$|H$", names(TheDF))]
       colnames(TheDF) <- gsub("-A$", "", colnames(TheDF))
-      DFNames <- TheDF %>% mutate(Cluster = filename) %>% relocate(Cluster, .before = 1)
+      DFNames <- TheDF %>% mutate(Cluster = filename) %>% relocate(Cluster,
+          .before = 1)
       return(DFNames)
     }
 
-    TheDataFrames <- map(.x = cs, .f = InternalExprs2, thex2 = thex) %>% bind_rows()
+    TheDataFrames <- map(.x = cs, .f = InternalExprs2, thex2 = thex) %>%
+      bind_rows()
 
     #Removing the artificial negatives
-    TheDataFrames <- TheDataFrames %>% mutate(Summed = rowSums(select_if(., is.numeric), na.rm = TRUE))
+    TheDataFrames <- TheDataFrames %>% mutate(Summed = rowSums(select_if(.,
+              is.numeric), na.rm = TRUE))
     TheDataFrames <- TheDataFrames %>% filter(!Summed == 0) %>% select(-Summed)
 
     #Normalizing
@@ -117,10 +122,16 @@ CosinePlots <- function(thedata, input, stats = NULL){
     detector_order <- colnames(Normalized)
     LinePlotData <- cbind(BackupClusters, Normalized)
 
-    if(stats == "mean"){Samples <- LinePlotData %>% group_by(Cluster) %>%  nest(data = where(is.numeric)) %>%
-      mutate(mean_data = map(data, ~ summarise_all(., ~ round(mean(., na.rm = TRUE),2)))) %>% select(Cluster, mean_data) %>% unnest(mean_data) %>% ungroup()
-    } else if (stats == "median"){Samples <- LinePlotData %>% group_by(Cluster) %>%  nest(data = where(is.numeric)) %>%
-      mutate(median_data = map(data, ~ summarise_all(., ~ round(median(., na.rm = TRUE),2)))) %>% select(Cluster, median_data) %>% unnest(median_data) %>% ungroup()
+    if(stats == "mean"){Samples <- LinePlotData %>% group_by(Cluster) %>%
+      nest(data = where(is.numeric)) %>%
+      mutate(mean_data = map(data, ~ summarise_all(., ~ round(mean(.,
+          na.rm = TRUE),2)))) %>% select(Cluster, mean_data) %>%
+      unnest(mean_data) %>% ungroup()
+    } else if (stats == "median"){Samples <- LinePlotData %>%
+      group_by(Cluster) %>%  nest(data = where(is.numeric)) %>%
+      mutate(median_data = map(data, ~ summarise_all(., ~ round(median(.,
+        na.rm = TRUE),2)))) %>% select(Cluster, median_data) %>%
+      unnest(median_data) %>% ungroup()
     } else(print("NA"))
 
     if (!nrow(Samples) == 1){
@@ -148,8 +159,11 @@ CosinePlots <- function(thedata, input, stats = NULL){
       melted_cormat <- melt(cormat)
 
       #Generate a Heatmap
-      plot <- ggplot(melted_cormat, aes(Var2, Var1, fill = value)) + geom_tile(color = "white") + geom_text(aes(Var2, Var1, label = value), color = "black", size = 2) +
-        scale_fill_gradient2(low = "lightblue", high = "orange", mid = "white", midpoint = 0.7, limit = c(0.4,1),
+      plot <- ggplot(melted_cormat, aes(Var2, Var1, fill = value)) +
+        geom_tile(color = "white") + geom_text(aes(Var2, Var1, label = value),
+        color = "black", size = 2) +
+        scale_fill_gradient2(low = "lightblue", high = "orange", mid = "white",
+                             midpoint = 0.7, limit = c(0.4,1),
                              space = "Lab", name="Cosine\nSimilarity") +
         theme_bw() + theme(
           axis.title.x = element_blank(),
@@ -164,7 +178,8 @@ CosinePlots <- function(thedata, input, stats = NULL){
     } else {
       LineCols <- ncol(Samples)
 
-      Melted <- gather(Samples, key = "Detector", value = "value", all_of(2:LineCols)) #Gather is my New Best Friend
+      Melted <- gather(Samples, key = "Detector", value = "value",
+                       all_of(2:LineCols)) #Gather is my New Best Friend
 
       Melted$Detector <- factor(Melted$Detector, levels = detector_order)
       Melted$Cluster <- factor(Melted$Cluster)
@@ -175,9 +190,11 @@ CosinePlots <- function(thedata, input, stats = NULL){
 
       Melted1 <- data.frame(Melted)
 
-      plot <- ggplot(Melted1, aes(x = Detector, y = value, group = Cluster, color = Cluster)) + geom_line() +
+      plot <- ggplot(Melted1, aes(x = Detector, y = value, group = Cluster,
+                                  color = Cluster)) + geom_line() +
         ylim(min = Low, max = High) + scale_color_hue(direction = 1) +
-        labs(title = thex, x = "Detectors", y = "Normalized Values") + theme_linedraw() + theme_bw() +
+        labs(title = thex, x = "Detectors", y = "Normalized Values") +
+        theme_linedraw() + theme_bw() +
         theme(axis.title.x = element_text(face = "plain"),
               axis.title.y = element_blank(),
               axis.text.x = element_text(size = 5, angle = 45, hjust = 1),
@@ -189,7 +206,8 @@ CosinePlots <- function(thedata, input, stats = NULL){
     }
   }
 
-  PlotTwist <- map(.x = Present, .f = InternalExprs, data = InternalData, inputfiles = inputfiles)
+  PlotTwist <- map(.x = Present, .f = InternalExprs, data = InternalData,
+                   inputfiles = inputfiles)
 
   return(PlotTwist)
 }

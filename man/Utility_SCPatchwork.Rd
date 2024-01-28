@@ -13,6 +13,9 @@ Utility_SCPatchwork(x, filename, outfolder)
 
 \item{outfolder}{Location to store the .pdf}
 }
+\value{
+A value to be determined later
+}
 \description{
 Forming a pdf to plot Luciernaga returns
 }

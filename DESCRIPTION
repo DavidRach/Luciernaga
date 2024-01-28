@@ -5,7 +5,10 @@ Version: 0.1.0
 Authors@R: 
     person("David", "Rach", , "drach@som.umaryland.edu", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0003-2235-5585"))
-Description: How stable are your single colors and unstained controls? Let's find out. 
+Description: How stable are your single colors and unstained controls? 
+    Let's find out. By identifying peaks, we can subclassify the fluorescence,
+    and then compare across each other for additional insights into the quality
+    of spectral flow cytometry single color reference controls. 
 License: AGPL (>= 3)
 Encoding: UTF-8
 LazyData: FALSE
@@ -19,6 +22,7 @@ Imports:
     flowWorkspace,
     ggcyto,
     ggplot2,
+    grDevices,
     htmltools,
     lsa,
     MASS,
@@ -33,10 +37,12 @@ Imports:
     tidyr,
     zoo
 Suggests: 
+    BiocStyle,
     knitr,
     rmarkdown,
     testthat (>= 3.0.0),
     data.table,
     viridis
+biocViews: FlowCytometry, Preprocessing, QualityControl, Software
 VignetteBuilder: knitr
 Config/testthat/edition: 3

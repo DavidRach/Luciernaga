@@ -21,13 +21,16 @@ Utility_SingleColors(
 \arguments{
 \item{x}{A GatingSet type object (ex. gs or gs[[1]])}
 
-\item{sample.name}{Keyword variable under which samples indentity is stored (ex. "GUID")}
+\item{sample.name}{Keyword variable under which samples indentity is stored
+(ex. "GUID")}
 
 \item{experiment}{Provide directly the experiment label (ex. "Jan2024")}
 
-\item{experiment.date}{Keyword variable under which experiment is stored in absence of Experiment}
+\item{experiment.date}{Keyword variable under which experiment is stored in
+absence of Experiment}
 
-\item{rootlevel}{Gating Hierarchy node under which new gates will be constructed}
+\item{rootlevel}{Gating Hierarchy node under which new gates will be
+constructed}
 
 \item{samplinglevel}{Gating Hierarchy level from which MFI will be taken}
 
@@ -40,6 +43,9 @@ Utility_SingleColors(
 \item{source}{Whether to export for plotting}
 
 \item{sourcelocation}{Location where source plotting file is stored.}
+}
+\value{
+A value to be defined later
 }
 \description{
 Plot Individual Fluorophore Gates, take the MFI, return the values.

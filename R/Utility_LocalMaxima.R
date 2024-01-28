@@ -1,8 +1,10 @@
 #' Detecting Fluorophore Peak Detectors by Local Maxima
 #'
 #' @param theX A vector of detectors from 1:n
-#' @param theY The corresponding y values corresponding to the measurements of theX
-#' @param therepeats Additional values to temporarily add to the edges to allow for peak detection
+#' @param theY The corresponding y values corresponding to the measurements
+#' of theX
+#' @param therepeats Additional values to temporarily add to the edges to
+#' allow for peak detection
 #' @param w The span around which rolling will happen
 #' @param alternatename The cleaned up name passed to the plots (internal)
 #' @param ... Additional arguments passed to zoo package
@@ -14,7 +16,7 @@
 #' @importFrom zoo zoo
 #' @import ggplot2
 #'
-#' @return NULL
+#' @return A value to be determined later
 #'
 #' @examples NULL
 Utility_LocalMaxima <- function(theX, theY, therepeats, w, alternatename, ...){
@@ -40,7 +42,8 @@ Utility_LocalMaxima <- function(theX, theY, therepeats, w, alternatename, ...){
   y.max <- rollapply(zoo(y.smooth), 2*w+1, max, align="center")
   delta <- y.max - y.smooth[-c(1:w, n+1-1:w)]
   i.max <- which(delta <= 0) + w
-  peaks <- list(x=x[i.max]-therepeats, i=i.max-therepeats, y.hat=y.smooth[(therepeats + 1):(length(y.smooth) - therepeats)])
+  peaks <- list(x=x[i.max]-therepeats, i=i.max-therepeats,
+                y.hat=y.smooth[(therepeats + 1):(length(y.smooth) - therepeats)])
 
   peak_points <- peaks$x
 
@@ -48,7 +51,17 @@ Utility_LocalMaxima <- function(theX, theY, therepeats, w, alternatename, ...){
 
   PointData <- MainData %>% filter(x %in% peak_points)
 
-  Views <- ggplot(MainData, aes(x = x, y = y)) + geom_point(size = 2, color = "Gray") + geom_line(aes(y = yhat), linewidth = 1) + geom_point(data = PointData, aes(x, yhat), color = "Red", shape = 19, size = 2) + geom_segment(data = PointData, aes(x = x, xend = x, y = 0, yend = yhat), color = "Red", linewidth = 1, linetype = "dashed") + labs(title = alternatename) + theme_bw() +  theme(plot.title = element_text(hjust = 0.5), axis.title.x = element_blank(), axis.title.y = element_blank(), panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+  Views <- ggplot(MainData, aes(x = x, y = y)) +
+    geom_point(size = 2, color = "Gray") +
+    geom_line(aes(y = yhat), linewidth = 1) +
+    geom_point(data = PointData, aes(x, yhat),
+               color = "Red", shape = 19, size = 2) +
+    geom_segment(data = PointData, aes(x = x, xend = x, y = 0, yend = yhat),
+                 color = "Red", linewidth = 1, linetype = "dashed") +
+    labs(title = alternatename) + theme_bw() +
+    theme(plot.title = element_text(hjust = 0.5),
+          axis.title.x = element_blank(), axis.title.y = element_blank(),
+          panel.grid.major = element_blank(), panel.grid.minor = element_blank())
   print(Views)
 
   PointData <- PointData %>% select(-y)

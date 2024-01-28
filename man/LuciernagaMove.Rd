@@ -13,7 +13,8 @@ LuciernagaMove(x, data, input, output)
 
 \item{input}{The path to the current storage location of the .fcs files.}
 
-\item{output}{The path to the desired future storage location of the selected files.}
+\item{output}{The path to the desired future storage location of the selected
+files.}
 }
 \value{
 No return, .fcs files are moved desired folder.

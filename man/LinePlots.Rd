@@ -2,7 +2,8 @@
 % Please edit documentation in R/LinePlots.R
 \name{LinePlots}
 \alias{LinePlots}
-\title{Visualize normalized spectra of raw .fcs files to evaluate single color controls.}
+\title{Visualize normalized spectra of raw .fcs files to evaluate single color
+controls.}
 \usage{
 LinePlots(thedata, input, stats = NULL)
 }
@@ -17,7 +18,8 @@ LinePlots(thedata, input, stats = NULL)
 Visualized ggplots for each fluorophore.
 }
 \description{
-Visualize normalized spectra of raw .fcs files to evaluate single color controls.
+Visualize normalized spectra of raw .fcs files to evaluate single color
+controls.
 }
 \examples{
 NULL

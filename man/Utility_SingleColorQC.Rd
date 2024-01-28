@@ -36,11 +36,13 @@ Utility_SingleColorQC(
 
 \item{experiment}{Provide directly experiment name (ex. "JAN2024")}
 
-\item{experiment.name}{Keyword variable which experiment information is stored (ex. "TUBENAME")}
+\item{experiment.name}{Keyword variable which experiment information
+is stored (ex. "TUBENAME")}
 
 \item{stats}{Whether to take "mean" or "median"}
 
-\item{Kept}{Whether "Raw" or "Normalized" values are retained in the Luciernaga object.}
+\item{Kept}{Whether "Raw" or "Normalized" values are retained in the
+Luciernaga object.}
 
 \item{external}{An external autofluorescence to subtract from single colors.}
 
@@ -48,19 +50,24 @@ Utility_SingleColorQC(
 
 \item{outpath}{Location where created .fcs and .csv files are sent}
 
-\item{artificial}{Whether an artificial 0 population should be added for a background autofluorescence stand in.}
+\item{artificial}{Whether an artificial 0 population should be added for
+a background autofluorescence stand in.}
 
 \item{fcsexport}{Whether to export .fcs files, TRUE or FALSE}
 
 \item{mainAF}{Main Autofluorescence Detector (ex. "V7-A")}
 
-\item{AFOverlap}{Name of data.frame containing the Autofluorescence overlap of individual fluorophores for exclusion}
+\item{AFOverlap}{Name of data.frame containing the Autofluorescence
+overlap of individual fluorophores for exclusion}
 
 \item{Beads}{Whether the sample is Beads.}
 
 \item{Brightness}{Whether sum of detectors should be returned.}
 
 \item{Unstained}{Whether the sample is Unstained.}
+}
+\value{
+Additional information to be added
 }
 \description{
 Main Luciernaga Function, normalized on individual cell level

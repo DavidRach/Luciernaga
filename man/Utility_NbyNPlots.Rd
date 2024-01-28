@@ -56,6 +56,9 @@ Utility_NbyNPlots(
 
 \item{pdf}{Prints default NxN plot, TRUE or FALSE.}
 }
+\value{
+A value to be determined later
+}
 \description{
 Generate NxN plots for one or all fluorophores.
 }

@@ -9,15 +9,20 @@ Utility_LocalMaxima(theX, theY, therepeats, w, alternatename, ...)
 \arguments{
 \item{theX}{A vector of detectors from 1:n}
 
-\item{theY}{The corresponding y values corresponding to the measurements of theX}
+\item{theY}{The corresponding y values corresponding to the measurements
+of theX}
 
-\item{therepeats}{Additional values to temporarily add to the edges to allow for peak detection}
+\item{therepeats}{Additional values to temporarily add to the edges to
+allow for peak detection}
 
 \item{w}{The span around which rolling will happen}
 
 \item{alternatename}{The cleaned up name passed to the plots (internal)}
 
 \item{...}{Additional arguments passed to zoo package}
+}
+\value{
+A value to be determined later
 }
 \description{
 Detecting Fluorophore Peak Detectors by Local Maxima

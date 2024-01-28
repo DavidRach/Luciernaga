@@ -9,6 +9,9 @@ Utility_Fill(x)
 \arguments{
 \item{x}{The data.frame object passed by relative brightness}
 }
+\value{
+Additional information to be added
+}
 \description{
 Internal function for relative brightness
 }

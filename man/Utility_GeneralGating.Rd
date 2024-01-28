@@ -20,7 +20,8 @@ Utility_GeneralGating(
 \arguments{
 \item{x}{Passed channel}
 
-\item{name}{The name that matches to the data.frame and gs object, ex. altered.name}
+\item{name}{The name that matches to the data.frame and gs object,
+ex. altered.name}
 
 \item{ff}{The dataframe data for that sample}
 
@@ -28,15 +29,20 @@ Utility_GeneralGating(
 
 \item{clearance}{Space around the plot}
 
-\item{bins}{Bins for which the plotted cells will be divided into providing granularity}
+\item{bins}{Bins for which the plotted cells will be divided into
+providing granularity}
 
 \item{columnlist}{list all channels with x removed}
 
 \item{TheDF}{the external limits settings}
 
-\item{gatelines}{whether to plot the ModernCutoffLines from reference dataframe}
+\item{gatelines}{whether to plot the ModernCutoffLines from reference
+dataframe}
 
 \item{reference}{location ModernCutoff dataframe.}
+}
+\value{
+A value to be determined later
 }
 \description{
 Generate ggplot2s for different channels

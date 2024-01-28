@@ -7,7 +7,8 @@
 LuciernagaPlot(ListOfList, PlotType, ReturnFolder, CurrentExperiment)
 }
 \arguments{
-\item{ListOfList}{A list containing the list (BrightnessPlot, LinePlot, HeatmapPlot, CosinePlot)}
+\item{ListOfList}{A list containing the list (BrightnessPlot, LinePlot,
+HeatmapPlot, CosinePlot)}
 
 \item{PlotType}{Whether "html" or "pdf"}
 

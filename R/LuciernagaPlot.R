@@ -1,6 +1,7 @@
 #' Generate Luciernaga plot outputs from List of List
 #'
-#' @param ListOfList A list containing the list (BrightnessPlot, LinePlot, HeatmapPlot, CosinePlot)
+#' @param ListOfList A list containing the list (BrightnessPlot, LinePlot,
+#' HeatmapPlot, CosinePlot)
 #' @param PlotType Whether "html" or "pdf"
 #' @param ReturnFolder Location to store file
 #' @param CurrentExperiment Name of Current Experiment
@@ -46,8 +47,10 @@ LuciernagaPlot <- function(ListOfList, PlotType, ReturnFolder, CurrentExperiment
                 CCC#DD
                 "
 
-      Patchworked <- wrap_plots(Components, design = layout, heights = c(1, 1, 2), widths = c(1, 1, 1, 1, 1, 1))
-      Patchworked <- Patchworked + plot_annotation(caption = "Made with Luciernaga")
+      Patchworked <- wrap_plots(Components, design = layout, heights = c(1, 1, 2),
+                                widths = c(1, 1, 1, 1, 1, 1))
+      Patchworked <- Patchworked + plot_annotation(caption =
+                                                     "Made with Luciernaga")
       print(Patchworked)
     }
 

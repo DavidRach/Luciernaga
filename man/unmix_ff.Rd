@@ -13,9 +13,13 @@ unmix_ff(fs, control, unmixMethod, multiplier, outpath)
 
 \item{unmixMethod}{Choice of unmixing method}
 
-\item{multiplier}{Value unmixed values are multiplied by for better visualization}
+\item{multiplier}{Value unmixed values are multiplied by for better
+visualization}
 
 \item{outpath}{Location the unmixed .fcs files are returned to.}
+}
+\value{
+A value to be elaborated
 }
 \description{
 Unmix your .fcs samples.

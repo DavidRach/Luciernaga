@@ -31,13 +31,15 @@
 #' @importFrom grDevices pdf
 #' @importFrom stats quantile
 #'
-#' @return NULL
+#' @return Additional information to be added
 #' @export
 #'
 #' @examples NULL
 
-Utility_GatingPlots <- function(x, sample.name, removestrings, experiment = NULL, experiment.name = NULL, condition = NULL, condition.name = NULL,
-                                subsets, gtFile, column, bins, clearance, outpath, export = NULL){
+Utility_GatingPlots <- function(x, sample.name, removestrings,
+    experiment = NULL, experiment.name = NULL, condition = NULL,
+    condition.name = NULL, subsets, gtFile, column, bins, clearance,
+    outpath, export = NULL){
 
   name <- keyword(x, sample.name)
   name <- NameCleanUp(name = name, removestrings)
@@ -48,11 +50,13 @@ Utility_GatingPlots <- function(x, sample.name, removestrings, experiment = NULL
   if(!is.null(condition)){condition <- condition
   } else {condition <- keyword(x, condition.name)}
 
-  AggregateName <- paste0(name, experiment) #Additional for condition (we need to think this through)
+  AggregateName <- paste0(name, experiment) #Additional for condition
+  #(we need to think this through)
   StorageLocation <- paste(outpath, AggregateName, sep = "/", collapse = NULL)
 
   ff <- gs_pop_get_data(x, subsets)
-  df <- exprs(ff[[1]]) #Is the one necessary in this case? Unclear how works with lapply...
+  df <- exprs(ff[[1]]) #Is the one necessary in this case? Unclear
+  #how works with lapply...
   TheDF <- data.frame(df, check.names = FALSE)
 
   TheXYZgates <- gtFile %>% pull(alias)
@@ -73,37 +77,44 @@ Utility_GatingPlots <- function(x, sample.name, removestrings, experiment = NULL
     yValue <- theParameters[[2]]
     } else if (length(theParameters) == 1){xValue <- theParameters[[1]]
     yValue <- "SSC-A" #or an alternate variable specify
-    } else {message("Plotting Parameters for Axis were not 1 or 2, please check the .csv file")}
+    } else {message(
+      "Plotting Parameters for Axis were not 1 or 2, please check the .csv file")}
+
 
     #Please Note, All the Below Are Raw Values With No Transforms Yet Applied.
 
-    if (!grepl("FSC|SSC", xValue)) {ExprsData <- TheDF %>% select(all_of(xValue)) %>% pull()
+    if (!grepl("FSC|SSC", xValue)) {ExprsData <- TheDF %>%
+      select(all_of(xValue)) %>% pull()
     theXmin <- ExprsData %>% quantile(., 0.001)
     theXmax <- ExprsData %>% quantile(., 0.999)
     theXmin <- theXmin - abs((clearance*theXmin))
     theXmax <- theXmax + (clearance*theXmax)}
-    if (!grepl("FSC|SSC", yValue)) {ExprsData <- TheDF %>% select(all_of(yValue)) %>% pull()
+    if (!grepl("FSC|SSC", yValue)) {ExprsData <- TheDF %>%
+      select(all_of(yValue)) %>% pull()
     theYmin <- ExprsData %>% quantile(., 0.001)
     theYmax <- ExprsData %>% quantile(., 0.999)
     theYmin <- theYmin - abs((clearance*theYmin))
     theYmax <- theYmax + (clearance*theYmax)}
 
     if (!exists("theYmax") || !exists("theXmax")){
-      Plot <- as.ggplot(ggcyto(x2, aes(x = .data[[xValue]], y = .data[[yValue]]), subset = theSubset) +
-                          geom_hex(bins=bins) + geom_gate(theGate) + theme_bw() + labs(title = NULL) +
-                          theme(strip.background = element_blank(), strip.text.x = element_blank(),
-                                panel.grid.major = element_line(linetype = "blank"),
-                                panel.grid.minor = element_line(linetype = "blank"),
-                                axis.title = element_text(size = 10, face = "bold"),
-                                legend.position = "none"))
+      Plot <- as.ggplot(ggcyto(x2, aes(x = .data[[xValue]], y = .data[[yValue]]),
+         subset = theSubset) + geom_hex(bins=bins) + geom_gate(theGate) +
+           theme_bw() + labs(title = NULL) + theme(
+             strip.background = element_blank(), strip.text.x = element_blank(),
+             panel.grid.major = element_line(linetype = "blank"),
+             panel.grid.minor = element_line(linetype = "blank"),
+             axis.title = element_text(size = 10, face = "bold"),
+             legend.position = "none"))
 
-    } else {Plot <- as.ggplot(ggcyto(x2, aes(x = .data[[xValue]], y = .data[[yValue]]), subset = theSubset) + geom_hex(bins=bins) +
-                                coord_cartesian(xlim = c(theXmin, theXmax), ylim = c(theYmin, theYmax), default = TRUE) +
-                                geom_gate(theGate) + theme_bw() + labs(title = NULL) +
-                                theme(strip.background = element_blank(), strip.text.x = element_blank(),
-                                      panel.grid.major = element_line(linetype = "blank"),
-                                      panel.grid.minor = element_line(linetype = "blank"),
-                                      axis.title = element_text(size = 10, face = "bold"),
+    } else {Plot <- as.ggplot(ggcyto(x2, aes(
+      x = .data[[xValue]], y = .data[[yValue]]), subset = theSubset) +
+        geom_hex(bins=bins) + coord_cartesian(xlim = c(theXmin, theXmax),
+       ylim = c(theYmin, theYmax), default = TRUE) + geom_gate(theGate) +
+        theme_bw() + labs(title = NULL) + theme(strip.background = element_blank(),
+       strip.text.x = element_blank(), panel.grid.major = element_line(
+         linetype = "blank"), panel.grid.minor = element_line(
+           linetype = "blank"), axis.title = element_text(size = 10,
+                                                          face = "bold"),
                                       legend.position = "none"))
 
     tryCatch({rm("theXmin", "theXmax", "theYmin", "theYmax")})}
@@ -124,12 +135,14 @@ Utility_GatingPlots <- function(x, sample.name, removestrings, experiment = NULL
 
   sublists <- split_list(theList, theoreticalitems)
 
-  AssembledPlots <- map(.x = sublists, .f = wrap_plots, ncol = thecolumns, nrow = therows, widths = 0.8, heights = 0.8)
+  AssembledPlots <- map(.x = sublists, .f = wrap_plots, ncol = thecolumns,
+                        nrow = therows, widths = 0.8, heights = 0.8)
 
   if (export == TRUE){
   MergedName <- StorageLocation
 
-  pdf(file = paste(MergedName, ".pdf", sep = "", collapse = NULL), width = 9, height = 7) #Optional Adjustments for Second
+  pdf(file = paste(MergedName, ".pdf", sep = "", collapse = NULL),
+      width = 9, height = 7) #Optional Adjustments for Second
 
   AssembledPlots
 

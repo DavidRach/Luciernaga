@@ -50,6 +50,9 @@ Utility_GatingPlots(
 
 \item{export}{Whether to export as a .pdf file to the outpath, TRUE, FALSE}
 }
+\value{
+Additional information to be added
+}
 \description{
 Check gate placement for individual .fcs files
 }

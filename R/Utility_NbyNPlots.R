@@ -24,7 +24,7 @@
 #' @importFrom patchwork plot_spacer
 #' @importFrom purrr map
 #'
-#' @return NULL
+#' @return A value to be determined later
 #' @export
 #'
 #' @examples NULL

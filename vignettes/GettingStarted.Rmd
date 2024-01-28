@@ -1,8 +1,16 @@
 ---
 title: "GettingStarted"
-output: rmarkdown::html_vignette
-vignette: >
-  %\VignetteIndexEntry{GettingStarted}
+author:
+- name: David Rach
+  affiliation: University of Maryland, Baltimore
+  email: drach@som.umaryland.edu
+package: Luciernaga
+output:
+  BiocStyle::html_document
+abstract: |
+  How to set up Luciernaga
+vignette: |
+  %\VignetteIndexEntry{Getting Started}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -14,9 +22,27 @@ knitr::opts_chunk$set(
 )
 ```
 
-First off, make sure that you have all the required R packages installed, then load the libraries. 
+# Introduction
+
+The Luciernaga package promises to do these following things...
+
+# Installing Luciernaga
 
 ```{r setup}
+#install.packages("devtools")
+#devtools::install_github("https://github.com/DavidRach/Luciernaga")
+
+library(Luciernaga)
+```
+
+
+# How to Begin
+
+
+First off, make sure that you have all the required R packages installed, then
+load the libraries. 
+
+```{r Libraries}
 library(Luciernaga)
 library(flowCore)
 library(flowWorkspace)
@@ -27,7 +53,11 @@ library(ggcyto)
 library(purrr)
 ```
 
-To start, you will first need to provide the location on your computer where your .fcs files of interest are stored. The code chunk below is an example that accesses the .fcs files that are part of the Luciernaga package's extdata folder. You can modify this example to access files on your own computer in a similar way.  
+To start, you will first need to provide the location on your computer where
+your .fcs files of interest are stored. The code chunk below is an example that
+accesses the .fcs files that are part of the Luciernaga package's extdata folder.
+You can modify this example to access files on your own computer in a similar
+way.  
 
 ```{r Access Package Data}
 FileLocation <- system.file("extdata", package = "Luciernaga")
@@ -36,7 +66,9 @@ myFCSfiles <- list.files(path = FileLocation, pattern = fcsFilePattern, full.nam
 myFCSfiles
 ```
 
-Once we have a list of .fcs files and the paths to their locations, we use the flowWorkspace package to bring all of these individual .fcs files into a GatingSet object we can then add our gates to.  
+Once we have a list of .fcs files and the paths to their locations, we use the
+flowWorkspace package to bring all of these individual .fcs files into a
+GatingSet object we can then add our gates to.  
 
 ```{r}
 MyCytoSet <- load_cytoset_from_fcs(myFCSfiles, truncate_max_range = FALSE, transform = FALSE)
@@ -44,16 +76,23 @@ MyGatingSet <- GatingSet(MyCytoSet)
 MyGatingSet
 ```
 
-To gate our cells, we read in a .csv file using the data.table package and provide the information containing our desired gates to the openCyto package. An example is provided in the MyGates.csv, found within Luciernaga's extdata folder, which provides the appropriate gate for the .fcs files also stored in that folder.
+To gate our cells, we read in a .csv file using the `r CRANpkg("data.table")`
+package and provide the information containing our desired gates to the 
+`r Biocpkg("openCyto")` package. An example is provided in the MyGates.csv,
+found within Luciernaga's extdata folder, which provides the appropriate gate
+for the .fcs files also stored in that folder.
 
-Individual gates can be modified, removed or added to match the requirements needed for your own .fcs files, for additional details, please refer to the openCyto packages vignettes. 
+Individual gates can be modified, removed or added to match the requirements
+needed for your own .fcs files, for additional details, please refer to the
+openCyto packages vignettes. 
 
 ```{r}
 FileLocation <- system.file("extdata", package = "Luciernaga")
 MyGates <- fread(file.path(path = FileLocation, pattern = 'MyGates.csv'))
 ```
 
-Now that we have access to the gates detailed in the .csv file, we can add them to a GatingTemplate and then attach them to the GatingSet. 
+Now that we have access to the gates detailed in the .csv file, we can add them
+to a GatingTemplate and then attach them to the GatingSet. 
 
 ```{r}
 MyGatingTemplate <- gatingTemplate(MyGates)
@@ -61,7 +100,11 @@ gt_gating(MyGatingTemplate, MyGatingSet)
 MyGatingSet[[1]]
 ```
 
-We can visualize the gates on the individual .fcs files using Luciernaga's Utility_GatingPlots function. This can be done individually (by specifying MyGatingSet[[1]]), or using the purrr packages map function on all objects in the GatingSet (MyGatingSet). The export option will store the image as a .pdf in the location specified by outpath. 
+We can visualize the gates on the individual .fcs files using Luciernaga's
+Utility_GatingPlots function. This can be done individually (by specifying
+MyGatingSet[[1]]), or using the purrr packages map function on all objects in the
+GatingSet (MyGatingSet). The export option will store the image as a .pdf in the
+location specified by outpath. 
 
 ```{r}
 removestrings <-  c("DR_", " (Cells).fcs", "-", " ")
@@ -70,7 +113,11 @@ AssembledPlot <- map(MyGatingSet[[1]], .f = Utility_GatingPlots, sample.name = "
 AssembledPlot[[1]]
 ```
 
-The working unit for most of Luciernaga's functions is a GatingSet object. Let's now workthrough the main Luciernaga function to characterize single color reference controls. First, let's provide a .csv file to provide information about where to expect to have overlapping autofluorescent signatures with fluorophore signatures. 
+The working unit for most of Luciernaga's functions is a GatingSet object. Let's
+now workthrough the main Luciernaga function to characterize single color
+reference controls. First, let's provide a .csv file to provide information about
+where to expect to have overlapping autofluorescent signatures with fluorophore
+signatures. 
 
 ```{r}
 FileLocation <- system.file("extdata", package = "Luciernaga")
@@ -98,5 +145,6 @@ Unstained
 
 This in turn can be filtered using dplyr package for additional information:
 
-
-
+```{r sessionInfo, echo = FALSE}
+sessionInfo()
+```

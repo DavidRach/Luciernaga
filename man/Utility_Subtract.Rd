@@ -11,6 +11,9 @@ Utility_Subtract(i, Data)
 
 \item{Data}{A data.frame object}
 }
+\value{
+A variable to be defined later
+}
 \description{
 Originial Subtract Autofluorescence from Median Single Colors
 }

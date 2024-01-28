@@ -9,7 +9,11 @@ controlData(cs, removestrings)
 \arguments{
 \item{cs}{A flowSet (ex. cs or cs[[1]])}
 
-\item{removestrings}{Portions of the single color names you want removed (Ex. c("DR_ILT_2023_", ".FCS")}
+\item{removestrings}{Portions of the single color names you want removed (
+Ex. c("DR_ILT_2023_", ".FCS")}
+}
+\value{
+A variable to be defined later
 }
 \description{
 Prepare Luciernaga .fcs outputs as Control Inputs for Unmixing

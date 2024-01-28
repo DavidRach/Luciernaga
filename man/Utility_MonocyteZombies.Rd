@@ -13,6 +13,9 @@ Utility_MonocyteZombies(x, sample.name, bins)
 
 \item{bins}{Number of bins resulting ggplot2 object should be plotted with}
 }
+\value{
+A value to be determined later
+}
 \description{
 Adds additional gates for monocytes, dead cells, or their respective unstained negatives
 }

@@ -56,7 +56,8 @@ HeatmapPlots <- function(thedata, input, stats = NULL){
 
     if (thex %in% c("PE_", "APC_")){thex <- gsub("_", "", thex)}
 
-    cs <- load_cytoset_from_fcs(fcs_files, truncate_max_range = FALSE, transform = FALSE)
+    cs <- load_cytoset_from_fcs(fcs_files, truncate_max_range = FALSE,
+                                transformation = FALSE)
 
     InternalExprs2 <- function(x, thex2){
       they <- x
@@ -69,23 +70,29 @@ HeatmapPlots <- function(thedata, input, stats = NULL){
       TheDF <- data.frame(df, check.names = FALSE)
       TheDF <- TheDF[,-grep("Time|FS|SC|SS|Original|W$|H$", names(TheDF))]
       colnames(TheDF) <- gsub("-A$", "", colnames(TheDF))
-      DFNames <- TheDF %>% mutate(Cluster = filename) %>% relocate(Cluster, .before = 1)
+      DFNames <- TheDF %>% mutate(Cluster = filename) %>%
+        relocate(Cluster, .before = 1)
       return(DFNames)
     }
 
-    TheDataFrames <- map(.x = cs, .f = InternalExprs2, thex2 = thex) %>% bind_rows()
+    TheDataFrames <- map(.x = cs, .f = InternalExprs2, thex2 = thex) %>%
+      bind_rows()
 
     #Removing the artificial negatives
-    TheDataFrames <- TheDataFrames %>% mutate(Summed = rowSums(select_if(., is.numeric), na.rm = TRUE))
+    TheDataFrames <- TheDataFrames %>% mutate(Summed = rowSums(
+      select_if(., is.numeric), na.rm = TRUE))
     TheDataFrames <- TheDataFrames %>% filter(!Summed == 0) %>% select(-Summed)
 
     TableData <- data.frame(table(TheDataFrames$Cluster))
     colnames(TableData)[1] <- "Cluster"
 
-    BarChartData <- TableData %>% mutate(Ratio = round(Freq/sum(Freq), 2)) %>% mutate(sample = "")
+    BarChartData <- TableData %>% mutate(Ratio = round(Freq/sum(Freq), 2)) %>%
+      mutate(sample = "")
 
-    plot <- ggplot(BarChartData, aes(x= sample, y = Cluster, fill = Ratio)) + geom_tile() + geom_text(aes(label = Ratio)) +
-      scale_fill_gradient(name = "Ratio", low = "#FFFFFF", high = "#FF0000", limits = c(0, NA)) +
+    plot <- ggplot(BarChartData, aes(x= sample, y = Cluster, fill = Ratio)) +
+      geom_tile() + geom_text(aes(label = Ratio)) +
+      scale_fill_gradient(name = "Ratio", low = "#FFFFFF", high = "#FF0000",
+                          limits = c(0, NA)) +
       theme_bw() + theme(axis.title.x = element_blank(),
                          axis.title.y = element_blank(),
                          panel.grid.major = element_blank(),
@@ -95,7 +102,8 @@ HeatmapPlots <- function(thedata, input, stats = NULL){
     theplotlist[[thex]] <- plot
   }
 
-  PlotTwist <- map(.x = Present, .f = InternalExprs, data = InternalData, inputfiles = inputfiles)
+  PlotTwist <- map(.x = Present, .f = InternalExprs, data = InternalData,
+                   inputfiles = inputfiles)
 
   return(PlotTwist)
 }

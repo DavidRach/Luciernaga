@@ -5,16 +5,20 @@
 #' @param sample.name Keyword variable which samples are stored (ex. "GUID")
 #' @param group.name Keyword variable which groups are stored (ex. "GROUPNAME")
 #' @param experiment Provide directly experiment name (ex. "JAN2024")
-#' @param experiment.name Keyword variable which experiment information is stored (ex. "TUBENAME")
+#' @param experiment.name Keyword variable which experiment information
+#' is stored (ex. "TUBENAME")
 #' @param stats Whether to take "mean" or "median"
-#' @param Kept Whether "Raw" or "Normalized" values are retained in the Luciernaga object.
+#' @param Kept Whether "Raw" or "Normalized" values are retained in the
+#' Luciernaga object.
 #' @param external An external autofluorescence to subtract from single colors.
 #' @param sourcelocation Location where .fcs creation file is stored
 #' @param outpath  Location where created .fcs and .csv files are sent
-#' @param artificial Whether an artificial 0 population should be added for a background autofluorescence stand in.
+#' @param artificial Whether an artificial 0 population should be added for
+#'  a background autofluorescence stand in.
 #' @param fcsexport Whether to export .fcs files, TRUE or FALSE
 #' @param mainAF Main Autofluorescence Detector (ex. "V7-A")
-#' @param AFOverlap Name of data.frame containing the Autofluorescence overlap of individual fluorophores for exclusion
+#' @param AFOverlap Name of data.frame containing the Autofluorescence
+#' overlap of individual fluorophores for exclusion
 #' @param Beads  Whether the sample is Beads.
 #' @param Brightness Whether sum of detectors should be returned.
 #' @param Unstained Whether the sample is Unstained.
@@ -37,11 +41,15 @@
 #' @importFrom flowCore exprs
 #'
 #'
-#' @return NULL
+#' @return Additional information to be added
 #' @export
 #'
 #' @examples NULL
-Utility_SingleColorQC <- function(x, subsets, sample.name, group.name, experiment = NULL, experiment.name = NULL, stats, Kept, external, sourcelocation, outpath, artificial, fcsexport, mainAF, AFOverlap, Beads, Brightness, Unstained){
+Utility_SingleColorQC <- function(x, subsets, sample.name, group.name,
+                                  experiment = NULL, experiment.name = NULL,
+                                  stats, Kept, external, sourcelocation, outpath,
+                                  artificial, fcsexport, mainAF, AFOverlap, Beads,
+                                  Brightness, Unstained){
 
   gc()
   x <- x
@@ -56,14 +64,18 @@ Utility_SingleColorQC <- function(x, subsets, sample.name, group.name, experimen
   group <- keyword(x, group.name)
 
   # Guessing Type
-  if(str_detect(name, "(Cells)")){Type <- "Cells"} else if(str_detect(name, "(Beads)")){Type <- "Beads"} else {Type <- "NULL"}
+  if(str_detect(name, "(Cells)")){Type <- "Cells"} else if(
+    str_detect(name, "(Beads)")){Type <- "Beads"} else {Type <- "NULL"}
 
   #Additional Name Cleanup #Using Cytek Reference Control Output Names
-  name <- gsub(" (Cells)", "", fixed = TRUE, gsub(" (Beads)", "", fixed = TRUE,name))
+  name <- gsub(" (Cells)", "", fixed = TRUE, gsub(" (Beads)", "", fixed = TRUE,
+                                                  name))
 
   #Setting Up an Alternate Name #Removing All Separators
   alternate.name <- name #Before Removing Spaces et al
-  alternate.name <- gsub(" ", "", gsub("(", "", fixed = TRUE, gsub(")", "", fixed = TRUE, gsub("_", "", fixed = TRUE, gsub("-", "", fixed = TRUE, alternate.name)))))
+  alternate.name <- gsub(" ", "", gsub("(", "", fixed = TRUE, gsub(")", "",
+    fixed = TRUE, gsub("_", "", fixed = TRUE, gsub("-", "", fixed = TRUE,
+                                                   alternate.name)))))
 
   #Retrieving Experiment Info #Switched to an exist statement.
   if(!is.null(experiment)){Experiment <- experiment
@@ -115,10 +127,12 @@ Utility_SingleColorQC <- function(x, subsets, sample.name, group.name, experimen
   MainAF <- mainAF
   MainAF <- gsub("-A", "", MainAF)
 
-  This <- WorkAround %>% filter(.data[[MainAF]] == 1) %>% select(all_of(1:ColsN))
+  This <- WorkAround %>% filter(.data[[MainAF]] == 1) %>%
+    select(all_of(1:ColsN))
 
-  if(stats == "mean"){Samples <- This %>% summarize_all(mean) #%>% select(-Backups)
-  } else if (stats == "median"){Samples <- This %>% summarize_all(median) #%>% select(-Backups)
+  if(stats == "mean"){Samples <- This %>% summarize_all(mean)
+  } else if (stats == "median"){Samples <- This %>%
+    summarize_all(median) #%>% select(-Backups)
   } else(print("NA"))
 
   #Deriving Peak Detector Counts and Detectors of Interest
@@ -128,13 +142,15 @@ Utility_SingleColorQC <- function(x, subsets, sample.name, group.name, experimen
   PeakDetectorCounts <- data.frame(Fluors = names(Counts), Counts = Counts)
   rownames(PeakDetectorCounts) <- NULL
   cutoff <- startingcells*0.0075
-  Detectors <- PeakDetectorCounts %>% filter(Counts > cutoff) %>% arrange(desc(Counts))
+  Detectors <- PeakDetectorCounts %>% filter(Counts > cutoff) %>%
+    arrange(desc(Counts))
 
   ###################################################################
   # This is the very much cell and machine specific filter criteria #
   ###################################################################
   AFData <- AFOverlap
-  AFChannels <- AFData %>% filter(Fluorophore %in% "Unstained") %>% pull(MainDetector) %>% str_split(",", simplify = TRUE)
+  AFChannels <- AFData %>% filter(Fluorophore %in% "Unstained") %>%
+    pull(MainDetector) %>% str_split(",", simplify = TRUE)
   AFChannels <- AFChannels[1,]
   AFChannels <- gsub("-A", "", AFChannels)
 
@@ -143,7 +159,8 @@ Utility_SingleColorQC <- function(x, subsets, sample.name, group.name, experimen
   TroubleChannels <- SCData %>% pull(Fluorophore)
 
   results <- list()
-  for(w in TroubleChannels){Internal <- SCData %>% filter(Fluorophore %in% w) %>% pull(MainDetector)
+  for(w in TroubleChannels){Internal <- SCData %>%
+    filter(Fluorophore %in% w) %>% pull(MainDetector)
   Internal <- gsub("-A", "", Internal)
   Exclusion <- setdiff(AFChannels, Internal)
   results[[w]] <- Exclusion
@@ -152,8 +169,10 @@ Utility_SingleColorQC <- function(x, subsets, sample.name, group.name, experimen
   matching_names <- names(results)[str_detect(name, names(results))]
   if (length(matching_names) > 0) {ExclusionList <- results[[matching_names[1]]]
   Retained <- Detectors %>% filter(!Fluors %in% ExclusionList) %>% pull(Fluors)
-  } else if (str_detect(name, "Unstained")){Retained <- Detectors %>% pull(Fluors)
-  } else {Retained <- Detectors %>% filter(!Fluors %in% AFChannels) %>% pull(Fluors)}
+  } else if (str_detect(name, "Unstained")){Retained <- Detectors %>%
+    pull(Fluors)
+  } else {Retained <- Detectors %>% filter(!Fluors %in% AFChannels) %>%
+    pull(Fluors)}
 
   #Retained
 
@@ -177,12 +196,15 @@ Utility_SingleColorQC <- function(x, subsets, sample.name, group.name, experimen
     #i
     for(i in Retained){
       # Filter Normalized Data and Bin It
-      WorkAround1 <- WorkAround %>% mutate(Backups = Backups$Backups) %>% relocate(Backups, .before = 1)
+      WorkAround1 <- WorkAround %>% mutate(Backups = Backups$Backups) %>%
+        relocate(Backups, .before = 1)
       MySubset <- WorkAround1 %>% dplyr::filter(.data[[i]] == 1.000)
       StashedIDs <- MySubset %>% select(Backups)
       MySubset <- MySubset %>% select(-Backups)
       DetectorName <- i
-      MyData <- MySubset %>% select(all_of(StartNormalizedMergedCol:EndNormalizedMergedCol)) %>% mutate(across(where(is.numeric), ~ ceiling(. / 0.2) * 0.2))
+      MyData <- MySubset %>% select(all_of(
+        StartNormalizedMergedCol:EndNormalizedMergedCol)) %>%
+        mutate(across(where(is.numeric), ~ ceiling(. / 0.2) * 0.2))
       MyRawData <- MySubset %>% select(all_of(1:ColsN))
 
       #Preparation for Local Maxima
@@ -192,10 +214,13 @@ Utility_SingleColorQC <- function(x, subsets, sample.name, group.name, experimen
 
       #Preparing Detector Stand Ins for left_join
       Decoys <- Conversion %>% select(Detectors)
-      Decoys <- Decoys %>% mutate(TheDetector = 1:nrow(Decoys)) %>% relocate(TheDetector, .before = Detectors)
+      Decoys <- Decoys %>% mutate(TheDetector = 1:nrow(Decoys)) %>%
+        relocate(TheDetector, .before = Detectors)
 
       #Deriving an average y-vector for local maxima
-      Conversion <- Conversion %>% mutate(TheSums = rowSums(.[2:ncol(.)], na.rm = TRUE) /(ncol(Conversion) - 1)) %>% relocate(TheSums, .after = Detectors)
+      Conversion <- Conversion %>% mutate(TheSums = rowSums(.[2:ncol(.)],
+            na.rm = TRUE) /(ncol(Conversion) - 1)) %>% relocate(TheSums,
+                  .after = Detectors)
       Conversion$Detectors <- 1:nrow(Conversion)
       LocalX <- Conversion$Detectors
       LocalY <- Conversion$TheSums
@@ -203,14 +228,16 @@ Utility_SingleColorQC <- function(x, subsets, sample.name, group.name, experimen
       #Local Maxima
       Newest <- data.frame()
 
-      PointData <- Utility_LocalMaxima(theX = LocalX, theY = LocalY, therepeats = 3, w = 3, span = 0.11, alternatename = alternate.name)
+      PointData <- Utility_LocalMaxima(theX = LocalX, theY = LocalY,
+          therepeats = 3, w = 3, span = 0.11, alternatename = alternate.name)
 
       for(l in PointData$x){Infinite <- PointData %>% filter(x %in% l)
       TheDetector <- Infinite %>% pull(x)
       TheHeight <- Infinite %>% pull(yhat)
       Measurement <- cbind(TheDetector, TheHeight)
       Newest <- rbind(Newest, Measurement)}
-      Newest2 <- Newest %>% filter(TheHeight > 0.15) %>% arrange(desc(TheHeight))
+      Newest2 <- Newest %>% filter(TheHeight > 0.15) %>%
+        arrange(desc(TheHeight))
 
       #Detector Cascade
       Assembled <- left_join(Newest2, Decoys, by = "TheDetector")
@@ -233,26 +260,40 @@ Utility_SingleColorQC <- function(x, subsets, sample.name, group.name, experimen
 
       MyData$Cluster <- paste(DetectorName, "10-", sep = "_")
 
-      tryCatch({second <- These[[1]]}, error = function(e) {cat("Error occurred:", conditionMessage(e), "\n")})
+      tryCatch({second <- These[[1]]}, error = function(e) {
+        cat("Error occurred:", conditionMessage(e), "\n")})
 
       if(exists("second")){MyData <- MyData %>% mutate(Cluster = case_when(
-        near(MyData[[second]], 0.0) ~ paste(MyData$Cluster, second, "_00-", sep = "", collapse = NULL),
-        near(MyData[[second]], 0.2) ~ paste(MyData$Cluster, second, "_02-", sep = "", collapse = NULL),
-        near(MyData[[second]], 0.4) ~ paste(MyData$Cluster, second, "_04-", sep = "", collapse = NULL),
-        near(MyData[[second]], 0.6) ~ paste(MyData$Cluster, second, "_06-", sep = "", collapse = NULL),
-        near(MyData[[second]], 0.8) ~ paste(MyData$Cluster, second, "_08-", sep = "", collapse = NULL),
-        near(MyData[[second]], 1.0) ~ paste(MyData$Cluster, second, "_10-", sep = "", collapse = NULL)))
+        near(MyData[[second]], 0.0) ~ paste(MyData$Cluster, second, "_00-",
+                                            sep = "", collapse = NULL),
+        near(MyData[[second]], 0.2) ~ paste(MyData$Cluster, second, "_02-",
+                                            sep = "", collapse = NULL),
+        near(MyData[[second]], 0.4) ~ paste(MyData$Cluster, second, "_04-",
+                                            sep = "", collapse = NULL),
+        near(MyData[[second]], 0.6) ~ paste(MyData$Cluster, second, "_06-",
+                                            sep = "", collapse = NULL),
+        near(MyData[[second]], 0.8) ~ paste(MyData$Cluster, second, "_08-",
+                                            sep = "", collapse = NULL),
+        near(MyData[[second]], 1.0) ~ paste(MyData$Cluster, second, "_10-",
+                                            sep = "", collapse = NULL)))
       }
 
-      tryCatch({third <- These[[2]]}, error = function(e) {cat("Error occurred:", conditionMessage(e), "\n")})
+      tryCatch({third <- These[[2]]}, error = function(e) {
+        cat("Error occurred:", conditionMessage(e), "\n")})
 
       if(exists("third")){MyData <- MyData %>% mutate(Cluster = case_when(
-        near(MyData[[third]], 0.0) ~ paste(MyData$Cluster, third, "_00", sep = "", collapse = NULL),
-        near(MyData[[third]], 0.2) ~ paste(MyData$Cluster, third, "_02", sep = "", collapse = NULL),
-        near(MyData[[third]], 0.4) ~ paste(MyData$Cluster, third, "_04", sep = "", collapse = NULL),
-        near(MyData[[third]], 0.6) ~ paste(MyData$Cluster, third, "_06", sep = "", collapse = NULL),
-        near(MyData[[third]], 0.8) ~ paste(MyData$Cluster, third, "_08", sep = "", collapse = NULL),
-        near(MyData[[third]], 1.0) ~ paste(MyData$Cluster, third, "_10", sep = "", collapse = NULL)))
+        near(MyData[[third]], 0.0) ~ paste(MyData$Cluster, third, "_00",
+                                           sep = "", collapse = NULL),
+        near(MyData[[third]], 0.2) ~ paste(MyData$Cluster, third, "_02",
+                                           sep = "", collapse = NULL),
+        near(MyData[[third]], 0.4) ~ paste(MyData$Cluster, third, "_04",
+                                           sep = "", collapse = NULL),
+        near(MyData[[third]], 0.6) ~ paste(MyData$Cluster, third, "_06",
+                                           sep = "", collapse = NULL),
+        near(MyData[[third]], 0.8) ~ paste(MyData$Cluster, third, "_08",
+                                           sep = "", collapse = NULL),
+        near(MyData[[third]], 1.0) ~ paste(MyData$Cluster, third, "_10",
+                                           sep = "", collapse = NULL)))
       }
 
       RetainedDF <- rbind(RetainedDF, MyData)
@@ -269,7 +310,8 @@ Utility_SingleColorQC <- function(x, subsets, sample.name, group.name, experimen
     #i
     for(i in Retained){
       # Filter Normalized Data and Bin It
-      WorkAround1 <- WorkAround %>% mutate(Backups = Backups$Backups) %>% relocate(Backups, .before = 1)
+      WorkAround1 <- WorkAround %>% mutate(Backups = Backups$Backups) %>%
+        relocate(Backups, .before = 1)
       MySubset <- WorkAround1 %>% dplyr::filter(.data[[i]] == 1.000)
       StashedIDs <- MySubset %>% select(Backups)
       MySubset <- MySubset %>% select(-Backups)
@@ -294,7 +336,8 @@ Utility_SingleColorQC <- function(x, subsets, sample.name, group.name, experimen
         WorkAround2 <- cbind(MySubset, Normalized2)
 
         if (any(str_detect(name, names(results)))){
-          WorkAround3 <- WorkAround2 %>% mutate(Backups = StashedIDs$Backups) %>% relocate(Backups, .before = 1)
+          WorkAround3 <- WorkAround2 %>% mutate(Backups = StashedIDs$Backups) %>%
+            relocate(Backups, .before = 1)
           WorkAroundInt <- WorkAround3 %>% dplyr::filter(.data[[i]] == 1.000)
           StashedIDs <- WorkAroundInt %>% select(Backups)
           WorkAround2 <- WorkAroundInt %>% select(-Backups)
@@ -319,7 +362,8 @@ Utility_SingleColorQC <- function(x, subsets, sample.name, group.name, experimen
         WorkAround2 <- cbind(MySubset, Normalized2)
 
         if (any(str_detect(name, names(results)))){
-          WorkAround3 <- WorkAround2 %>% mutate(Backups = StashedIDs$Backups) %>% relocate(Backups, .before = 1)
+          WorkAround3 <- WorkAround2 %>% mutate(Backups = StashedIDs$Backups) %>%
+            relocate(Backups, .before = 1)
           WorkAroundInt <- WorkAround3 %>% dplyr::filter(.data[[i]] == 1.000)
           StashedIDs <- WorkAroundInt %>% select(Backups)
           WorkAround2 <- WorkAroundInt %>% select(-Backups)
@@ -329,7 +373,9 @@ Utility_SingleColorQC <- function(x, subsets, sample.name, group.name, experimen
       }
 
 
-      MyData <- WorkAround2 %>% select(all_of(StartNormalizedMergedCol:EndNormalizedMergedCol)) %>% mutate(across(where(is.numeric), ~ ceiling(. / 0.2) * 0.2))
+      MyData <- WorkAround2 %>% select(all_of(
+        StartNormalizedMergedCol:EndNormalizedMergedCol)) %>%
+        mutate(across(where(is.numeric), ~ ceiling(. / 0.2) * 0.2))
       MyRawData <- WorkAround2 %>% select(all_of(1:ColsN))
 
       #Preparation for Local Maxima
@@ -339,10 +385,13 @@ Utility_SingleColorQC <- function(x, subsets, sample.name, group.name, experimen
 
       #Preparing Detector Stand Ins for left_join
       Decoys <- Conversion %>% select(Detectors)
-      Decoys <- Decoys %>% mutate(TheDetector = 1:nrow(Decoys)) %>% relocate(TheDetector, .before = Detectors)
+      Decoys <- Decoys %>% mutate(TheDetector = 1:nrow(Decoys)) %>% relocate(
+        TheDetector, .before = Detectors)
 
       #Deriving an average y-vector for local maxima
-      Conversion <- Conversion %>% mutate(TheSums = rowSums(.[2:ncol(.)], na.rm = TRUE) /(ncol(Conversion) - 1)) %>% relocate(TheSums, .after = Detectors)
+      Conversion <- Conversion %>% mutate(TheSums = rowSums(.[2:ncol(.)],
+          na.rm = TRUE) /(ncol(Conversion) - 1)) %>% relocate(
+            TheSums, .after = Detectors)
       Conversion$Detectors <- 1:nrow(Conversion)
       LocalX <- Conversion$Detectors
       LocalY <- Conversion$TheSums
@@ -350,7 +399,8 @@ Utility_SingleColorQC <- function(x, subsets, sample.name, group.name, experimen
       #Local Maxima
       Newest <- data.frame()
 
-      PointData <- Utility_LocalMaxima(theX = LocalX, theY = LocalY, therepeats = 3, w = 3, span = 0.11, alternatename = alternate.name)
+      PointData <- Utility_LocalMaxima(theX = LocalX, theY = LocalY,
+        therepeats = 3, w = 3, span = 0.11, alternatename = alternate.name)
 
       for(l in PointData$x){Infinite <- PointData %>% filter(x %in% l)
       TheDetector <- Infinite %>% pull(x)
@@ -384,26 +434,40 @@ Utility_SingleColorQC <- function(x, subsets, sample.name, group.name, experimen
 
       MyData$Cluster <- paste(DetectorName, "10-", sep = "_")
 
-      tryCatch({seconded <- These[[1]]}, error = function(e) {cat("Error occurred:", conditionMessage(e), "\n")})
+      tryCatch({seconded <- These[[1]]}, error = function(e) {
+        cat("Error occurred:", conditionMessage(e), "\n")})
 
       if(exists("seconded")){MyData <- MyData %>% mutate(Cluster = case_when(
-        near(MyData[[seconded]], 0.0) ~ paste(MyData$Cluster, seconded, "_00-", sep = "", collapse = NULL),
-        near(MyData[[seconded]], 0.2) ~ paste(MyData$Cluster, seconded, "_02-", sep = "", collapse = NULL),
-        near(MyData[[seconded]], 0.4) ~ paste(MyData$Cluster, seconded, "_04-", sep = "", collapse = NULL),
-        near(MyData[[seconded]], 0.6) ~ paste(MyData$Cluster, seconded, "_06-", sep = "", collapse = NULL),
-        near(MyData[[seconded]], 0.8) ~ paste(MyData$Cluster, seconded, "_08-", sep = "", collapse = NULL),
-        near(MyData[[seconded]], 1.0) ~ paste(MyData$Cluster, seconded, "_10-", sep = "", collapse = NULL)))
+        near(MyData[[seconded]], 0.0) ~ paste(MyData$Cluster, seconded, "_00-",
+                                              sep = "", collapse = NULL),
+        near(MyData[[seconded]], 0.2) ~ paste(MyData$Cluster, seconded, "_02-",
+                                              sep = "", collapse = NULL),
+        near(MyData[[seconded]], 0.4) ~ paste(MyData$Cluster, seconded, "_04-",
+                                              sep = "", collapse = NULL),
+        near(MyData[[seconded]], 0.6) ~ paste(MyData$Cluster, seconded, "_06-",
+                                              sep = "", collapse = NULL),
+        near(MyData[[seconded]], 0.8) ~ paste(MyData$Cluster, seconded, "_08-",
+                                              sep = "", collapse = NULL),
+        near(MyData[[seconded]], 1.0) ~ paste(MyData$Cluster, seconded, "_10-",
+                                              sep = "", collapse = NULL)))
       }
 
-      tryCatch({thirded <- These[[2]]}, error = function(e) {cat("Error occurred:", conditionMessage(e), "\n")})
+      tryCatch({thirded <- These[[2]]}, error = function(e) {
+        cat("Error occurred:", conditionMessage(e), "\n")})
 
       if(exists("thirded")){MyData <- MyData %>% mutate(Cluster = case_when(
-        near(MyData[[thirded]], 0.0) ~ paste(MyData$Cluster, thirded, "_00", sep = "", collapse = NULL),
-        near(MyData[[thirded]], 0.2) ~ paste(MyData$Cluster, thirded, "_02", sep = "", collapse = NULL),
-        near(MyData[[thirded]], 0.4) ~ paste(MyData$Cluster, thirded, "_04", sep = "", collapse = NULL),
-        near(MyData[[thirded]], 0.6) ~ paste(MyData$Cluster, thirded, "_06", sep = "", collapse = NULL),
-        near(MyData[[thirded]], 0.8) ~ paste(MyData$Cluster, thirded, "_08", sep = "", collapse = NULL),
-        near(MyData[[thirded]], 1.0) ~ paste(MyData$Cluster, thirded, "_10", sep = "", collapse = NULL)))
+        near(MyData[[thirded]], 0.0) ~ paste(MyData$Cluster, thirded, "_00",
+                                             sep = "", collapse = NULL),
+        near(MyData[[thirded]], 0.2) ~ paste(MyData$Cluster, thirded, "_02",
+                                             sep = "", collapse = NULL),
+        near(MyData[[thirded]], 0.4) ~ paste(MyData$Cluster, thirded, "_04",
+                                             sep = "", collapse = NULL),
+        near(MyData[[thirded]], 0.6) ~ paste(MyData$Cluster, thirded, "_06",
+                                             sep = "", collapse = NULL),
+        near(MyData[[thirded]], 0.8) ~ paste(MyData$Cluster, thirded, "_08",
+                                             sep = "", collapse = NULL),
+        near(MyData[[thirded]], 1.0) ~ paste(MyData$Cluster, thirded, "_10",
+                                             sep = "", collapse = NULL)))
       }
 
       RetainedDF <- rbind(RetainedDF, MyData)
@@ -425,7 +489,8 @@ Utility_SingleColorQC <- function(x, subsets, sample.name, group.name, experimen
   #OriginalColumnsVector
   NormalizedColumns <- colnames(Normalized)
   ClusterCol <- "Cluster"
-  RearrangedColumns <- c(BackupsCol, OriginalColumnsVector, NormalizedColumns, ClusterCol)
+  RearrangedColumns <- c(BackupsCol, OriginalColumnsVector, NormalizedColumns,
+                         ClusterCol)
 
   OriginalStart <- length(BackupsCol) + 1
   OriginalEnd <- length(BackupsCol) + length(OriginalColumnsVector)
@@ -458,11 +523,15 @@ Utility_SingleColorQC <- function(x, subsets, sample.name, group.name, experimen
   #k <- "V5_10-UV7_00-"
   for(k in TheOutputs){
 
-    if(Kept == "Raw"){RetainedSubset <- RetainedDF %>% filter(Cluster %in% k) %>% select(-Backups) %>% select(all_of(1:ColsN))
-    } else if(Kept == "Normalized"){RetainedSubset <- RetainedDF %>% filter(Cluster %in% k) %>% select(-Backups) %>% select(all_of(StartNormalizedMergedCol:EndNormalizedMergedCol))}
+    if(Kept == "Raw"){RetainedSubset <- RetainedDF %>% filter(Cluster %in% k) %>%
+      select(-Backups) %>% select(all_of(1:ColsN))
+    } else if(Kept == "Normalized"){RetainedSubset <- RetainedDF %>% filter(
+      Cluster %in% k) %>% select(-Backups) %>% select(all_of(
+        StartNormalizedMergedCol:EndNormalizedMergedCol))}
 
     if(stats == "mean"){RetainedSamples <- RetainedSubset %>% summarize_all(mean)
-    } else if (stats == "median"){RetainedSamples <- RetainedSubset %>% summarize_all(median)
+    } else if (stats == "median"){RetainedSamples <- RetainedSubset %>%
+      summarize_all(median)
     } else(print("NA"))
 
     Cluster <- k

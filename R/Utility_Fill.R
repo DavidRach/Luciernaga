@@ -8,7 +8,7 @@
 #' @importFrom dplyr mutate
 #' @importFrom dplyr coalesce
 #'
-#' @return NULL
+#' @return Additional information to be added
 #' @export
 #'
 #' @examples NULL
@@ -21,7 +21,8 @@ Utility_Fill <- function(x){
 
   for(k in TheClusters){IndividualCluster <- x %>% filter(Cluster %in% k)
   IndividualCluster <- data.frame(IndividualCluster, check.names = FALSE)
-  Detectors <- IndividualCluster %>% select(Detector1, Detector2, Detector3) %>% unlist() %>% as.vector()
+  Detectors <- IndividualCluster %>% select(Detector1, Detector2, Detector3) %>%
+    unlist() %>% as.vector()
 
   #Detectors <- Detectors[!is.na(Detectors)]
 
@@ -33,9 +34,13 @@ Utility_Fill <- function(x){
   D2Value <- IndividualCluster %>% pull(all_of(D2))
 
   if (!is.na(D3)){D3Value <- IndividualCluster %>% pull(all_of(D3))
-  FilledCluster <- IndividualCluster %>% mutate(Detector1Raw = coalesce(Detector1Raw, D1Value), Detector2Raw = coalesce(Detector2Raw, D2Value),
-                                                Detector3Raw = coalesce(Detector3Raw, D3Value))
-  } else {FilledCluster <- IndividualCluster %>% mutate(Detector1Raw = coalesce(Detector1Raw, D1Value), Detector2Raw = coalesce(Detector2Raw, D2Value))}
+  FilledCluster <- IndividualCluster %>% mutate(
+    Detector1Raw = coalesce(Detector1Raw, D1Value),
+    Detector2Raw = coalesce(Detector2Raw, D2Value),
+    Detector3Raw = coalesce(Detector3Raw, D3Value))
+  } else {FilledCluster <- IndividualCluster %>%
+    mutate(Detector1Raw = coalesce(Detector1Raw, D1Value),
+           Detector2Raw = coalesce(Detector2Raw, D2Value))}
 
   Generated <- rbind(Generated, FilledCluster)
   }

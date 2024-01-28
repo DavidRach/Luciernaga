@@ -1,4 +1,5 @@
-#' Visualize normalized spectra of raw .fcs files to evaluate single color controls.
+#' Visualize normalized spectra of raw .fcs files to evaluate single color
+#' controls.
 #'
 #' @param thedata A data.frame with columns Fluorophore and Detector.
 #' @param input The location where the .fcs files are stored.
@@ -56,7 +57,8 @@ LinePlots <- function(thedata, input, stats = NULL){
 
     if (thex %in% c("PE_", "APC_")){thex <- gsub("_", "", thex)}
 
-    cs <- load_cytoset_from_fcs(fcs_files, truncate_max_range = FALSE, transform = FALSE)
+    cs <- load_cytoset_from_fcs(fcs_files, truncate_max_range = FALSE,
+                                transformation = FALSE)
 
     InternalExprs2 <- function(x, thex2){
       they <- x
@@ -69,14 +71,17 @@ LinePlots <- function(thedata, input, stats = NULL){
       TheDF <- data.frame(df, check.names = FALSE)
       TheDF <- TheDF[,-grep("Time|FS|SC|SS|Original|W$|H$", names(TheDF))]
       colnames(TheDF) <- gsub("-A$", "", colnames(TheDF))
-      DFNames <- TheDF %>% mutate(Cluster = filename) %>% relocate(Cluster, .before = 1)
+      DFNames <- TheDF %>% mutate(Cluster = filename) %>% relocate(Cluster,
+                                                                   .before = 1)
       return(DFNames)
     }
 
-    TheDataFrames <- map(.x = cs, .f = InternalExprs2, thex2 = thex) %>% bind_rows()
+    TheDataFrames <- map(.x = cs, .f = InternalExprs2, thex2 = thex) %>%
+      bind_rows()
 
     #Removing the artificial negatives
-    TheDataFrames <- TheDataFrames %>% mutate(Summed = rowSums(select_if(., is.numeric), na.rm = TRUE))
+    TheDataFrames <- TheDataFrames %>% mutate(Summed = rowSums(select_if(.,
+                                is.numeric), na.rm = TRUE))
     TheDataFrames <- TheDataFrames %>% filter(!Summed == 0) %>% select(-Summed)
 
     #Normalizing
@@ -93,17 +98,24 @@ LinePlots <- function(thedata, input, stats = NULL){
     LinePlotData <- cbind(BackupClusters, Normalized)
     LinePlotData$Cluster <- factor(LinePlotData$Cluster)
 
-    if(stats == "mean"){Samples <- LinePlotData %>% group_by(Cluster) %>%  nest(data = where(is.numeric)) %>%
-      mutate(mean_data = map(data, ~ summarise_all(., ~ round(mean(., na.rm = TRUE),2)))) %>% select(Cluster, mean_data) %>% unnest(mean_data)
-    } else if (stats == "median"){Samples <- LinePlotData %>% group_by(Cluster) %>%  nest(data = where(is.numeric)) %>%
-      mutate(median_data = map(data, ~ summarise_all(., ~ round(median(., na.rm = TRUE),2)))) %>% select(Cluster, median_data) %>% unnest(median_data)
+    if(stats == "mean"){Samples <- LinePlotData %>% group_by(Cluster) %>%
+      nest(data = where(is.numeric)) %>%
+      mutate(mean_data = map(data, ~ summarise_all(., ~ round(mean(.,
+            na.rm = TRUE),2)))) %>% select(Cluster, mean_data) %>%
+      unnest(mean_data)
+    } else if (stats == "median"){Samples <- LinePlotData %>%
+      group_by(Cluster) %>%  nest(data = where(is.numeric)) %>%
+      mutate(median_data = map(data, ~ summarise_all(., ~ round(
+        median(., na.rm = TRUE),2)))) %>% select(Cluster, median_data) %>%
+      unnest(median_data)
     } else(print("NA"))
 
     #Samples
 
     LineCols <- ncol(Samples)
 
-    Melted <- gather(Samples, key = "Detector", value = "value", all_of(2:LineCols)) #Gather is my New Best Friend
+    Melted <- gather(Samples, key = "Detector", value = "value", all_of(
+      2:LineCols)) #Gather is my New Best Friend
 
     Melted$Detector <- factor(Melted$Detector, levels = detector_order)
     Melted$Cluster <- factor(Melted$Cluster)
@@ -114,11 +126,14 @@ LinePlots <- function(thedata, input, stats = NULL){
 
     Melted1 <- data.frame(Melted)
 
-    plot <- ggplot(Melted1, aes(x = Detector, y = value, group = Cluster, color = Cluster)) + geom_line() +
+    plot <- ggplot(Melted1, aes(x = Detector, y = value, group = Cluster,
+                                color = Cluster)) + geom_line() +
       ylim(min = Low, max = High) + scale_color_hue(direction = 1) +
-      labs(title = thex, x = "Detectors", y = "Normalized Values") + theme_linedraw() + theme_bw() +
+      labs(title = thex, x = "Detectors", y = "Normalized Values") +
+      theme_linedraw() + theme_bw() +
       theme(axis.title.x = element_text(face = "plain"),
-            axis.title.y = element_text(face = "plain", margin = margin(r = -120)),
+            axis.title.y = element_text(face = "plain",
+                                        margin = margin(r = -120)),
             axis.text.x = element_text(size = 5, angle = 45, hjust = 1),
             panel.grid.major = element_blank(),
             panel.grid.minor = element_blank()
@@ -127,7 +142,8 @@ LinePlots <- function(thedata, input, stats = NULL){
     theplotlist[[thex]] <- plot
   }
 
-  PlotTwist <- map(.x = Present, .f = InternalExprs, data = InternalData, inputfiles = inputfiles)
+  PlotTwist <- map(.x = Present, .f = InternalExprs, data = InternalData,
+                   inputfiles = inputfiles)
 
   return(PlotTwist)
 }
