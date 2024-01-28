@@ -18,6 +18,7 @@ output:
 <br>
 <!-- badges: end -->
 
+![](inst/hex/hex.png){width="50%" align="center"}
 
 ```{r, echo=FALSE, include=FALSE}
 pkg <- read.dcf("DESCRIPTION", fields = "Package")[1]

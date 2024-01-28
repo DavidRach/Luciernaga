@@ -17,6 +17,8 @@ status](https://github.com/DavidRach/Luciernaga/workflows/rworkflows/badge.svg)]
 [![](https://img.shields.io/github/last-commit/DavidRach/Luciernaga.svg)](https://github.com/DavidRach/Luciernaga/commits/master)
 <br> <!-- badges: end -->
 
+<img src="inst/hex/hex.png" style="width:50.0%" data-align="center" />
+
 ## `Luciernaga`: Quality control of single color and unstained controls for Spectral Flow Cytometry
 
 ### How stable are your single colors and unstained controls?
