@@ -18,7 +18,10 @@ output:
 <br>
 <!-- badges: end -->
 
-![](inst/hex/hex.png){width="50%" align="center"}
+```{r,echo=FALSE, out.width='50%', fig.width=3, fig.height=3, fig.align="center"}
+knitr::include_graphics("inst/hex/hex.png")
+```
+
 
 ```{r, echo=FALSE, include=FALSE}
 pkg <- read.dcf("DESCRIPTION", fields = "Package")[1]
