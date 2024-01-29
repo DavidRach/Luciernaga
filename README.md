@@ -15,6 +15,7 @@ status](https://github.com/DavidRach/Luciernaga/workflows/rworkflows/badge.svg)]
 [![](https://img.shields.io/badge/devel%20version-0.1.0-black.svg)](https://github.com/DavidRach/Luciernaga)
 [![](https://img.shields.io/github/languages/code-size/DavidRach/Luciernaga.svg)](https://github.com/DavidRach/Luciernaga)
 [![](https://img.shields.io/github/last-commit/DavidRach/Luciernaga.svg)](https://github.com/DavidRach/Luciernaga/commits/master)
+[![codecov](https://codecov.io/gh/DavidRach/Luciernaga/graph/badge.svg?token=GHWZ3NJ7IK)](https://codecov.io/gh/DavidRach/Luciernaga)
 <br> <!-- badges: end -->
 
 <img src="inst/hex/hex.png" width="50%" style="display: block; margin: auto;" />
