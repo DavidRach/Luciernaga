@@ -79,7 +79,7 @@ BrightnessPlots <- function(thedata, input, Downsample = NULL, Scaled = NULL){
       DFNames
     }
 
-    TheDataFrames <- map(.x = cs, .f = InternalExprs2, thex2 = thex) %>%
+    TheDataFrames <- map(.x=cs, .f=InternalExprs2, thex2=thex) %>%
       bind_rows()
     TheDataFrames$Cluster <- factor(TheDataFrames$Cluster)
 
@@ -96,30 +96,27 @@ BrightnessPlots <- function(thedata, input, Downsample = NULL, Scaled = NULL){
     TheDataFrames <- as.data.frame(TheDataFrames)
     }
 
-    if (Scaled == TRUE){plot <- ggplot(TheDataFrames, aes(x =.data[[TheDetector]],
-      fill = Cluster)) + geom_density(alpha = 0.5) +
-      ggcyto::scale_x_logicle(w = 1.5, t = 4200000, m = 5.62) +
-      labs(title = thex, x = TheDetector, y = "Frequency") + theme_bw() +
-      theme(axis.title.x = element_text(face = "plain"),
-            axis.title.y = element_text(face = "plain", margin = margin(r = -150)),
-            panel.grid.major = element_blank(),
-            panel.grid.minor = element_blank()
-      )} else {plot <- ggplot(TheDataFrames, aes(x =.data[[TheDetector]],
-          fill = Cluster)) + geom_density(alpha = 0.5) +
-        coord_cartesian(xlim = c(theXmin, theXmax))  +
-        labs(title = thex, x = TheDetector, y = "Frequency") + theme_bw() +
-        theme(axis.title.x = element_text(face = "plain"),
-              axis.title.y = element_text(face = "plain",
-              margin = margin(r = -120)),
-              panel.grid.major = element_blank(),
-              panel.grid.minor = element_blank()
-        )}
+    if (Scaled == TRUE){
+      plot <- ggplot(TheDataFrames, aes(x=.data[[TheDetector]], fill=Cluster)) +
+      geom_density(alpha=0.5) + ggcyto::scale_x_logicle(w=1.5, t=4200000, m=5.62) +
+      labs(title=thex, x=TheDetector, y="Frequency") + theme_bw() + theme(
+      axis.title.x=element_text(face="plain"), axis.title.y=element_text(
+      face="plain", margin=margin(r=-150)), panel.grid.major=element_blank(),
+      panel.grid.minor=element_blank())
+      } else {plot <- ggplot(TheDataFrames, aes(x=.data[[TheDetector]],
+            fill=Cluster)) + geom_density(alpha = 0.5) + coord_cartesian(
+            xlim=c(theXmin, theXmax))  + labs(title=thex, x=TheDetector,
+            y="Frequency") + theme_bw() + theme(axis.title.x=element_text(
+            face="plain"), axis.title.y=element_text(face="plain",
+            margin=margin(r=-120)), panel.grid.major=element_blank(),
+            panel.grid.minor=element_blank())
+      }
 
     theplotlist[[thex]] <- plot
   }
 
-  PlotTwist <- map(.x = Present, .f = InternalExprs, data = InternalData,
-                   inputfiles = inputfiles)
+  PlotTwist <- map(.x=Present, .f=InternalExprs, data=InternalData,
+                   inputfiles=inputfiles)
 
   return(PlotTwist)
 }
