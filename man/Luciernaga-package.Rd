@@ -7,7 +7,6 @@
 \title{Luciernaga: Quality control of single color and unstained controls for Spectral Flow Cytometry}
 \description{
 To learn more about how to use Luciernaga, please start by browsing the vignettes:
-#' @keywords internal
 }
 \seealso{
 Useful links:
@@ -21,3 +20,4 @@ Useful links:
 \strong{Maintainer}: David Rach \email{drach@som.umaryland.edu} (\href{https://orcid.org/0000-0003-2235-5585}{ORCID})
 
 }
+\keyword{internal}

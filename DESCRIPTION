@@ -43,7 +43,8 @@ Suggests:
     rmarkdown,
     testthat (>= 3.0.0),
     data.table,
-    viridis
+    viridis,
+    gt
 biocViews: FlowCytometry, Preprocessing, QualityControl, Software
 VignetteBuilder: knitr
 Config/testthat/edition: 3
