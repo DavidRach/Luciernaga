@@ -33,21 +33,21 @@ Utility_NbyNPlots <- function(x, sample.name, removestrings, experiment = NULL, 
                               marginsubset, gatesubset, ycolumn, bins, clearance, gatelines, reference = NULL, outpath, pdf){
   ycolumn <- ycolumn
   x <- x
-  name <- flowCore::keyword(x, sample.name)
+  name <- keyword(x, sample.name)
 
   name <- NameCleanUp(name = name, removestrings)
 
   if(!is.null(experiment)){experiment <- experiment
-  } else {experiment <- flowCore::keyword(x, experiment.name)}
+  } else {experiment <- keyword(x, experiment.name)}
 
   if(!is.null(condition)){condition <- condition
-  } else {condition <- flowCore::keyword(x, condition.name)}
+  } else {condition <- keyword(x, condition.name)}
 
   AggregateName <- paste(name, experiment, sep = "_") #Additional for condition (we need to think this through)
   StorageLocation <- paste(outpath, AggregateName, sep = "/", collapse = NULL)
 
   mff <- gs_pop_get_data(x, marginsubset)
-  df <- flowCore::exprs(mff[[1]])
+  df <- exprs(mff[[1]])
   TheDF <- data.frame(df, check.names = FALSE)
   DFNames <- colnames(TheDF[,-grep("Time|FS|SC|SS|Original|W$|H$", names(TheDF))])
   PlotNumber <- length(DFNames)
