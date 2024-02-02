@@ -71,7 +71,7 @@ Utility_GatingPlots <- function(x, sample.name, removestrings,
     theGate <- RowData %>% pull(alias)
     theParameters <- RowData %>% pull(dims) %>% str_split(",", simplify = TRUE)
 
-    theParameters <- gsub(" ", "", theParameters)
+    theParameters <- gsub("^\\s+|\\s+$", "", theParameters)
 
     if(length(theParameters) == 2){xValue <- theParameters[[1]]
     yValue <- theParameters[[2]]
