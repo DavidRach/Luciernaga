@@ -144,11 +144,9 @@ Utility_GatingPlots <- function(x, sample.name, removestrings,
   pdf(file = paste(MergedName, ".pdf", sep = "", collapse = NULL),
       width = 9, height = 7) #Optional Adjustments for Second
 
-  AssembledPlots
+  print(AssembledPlots)
 
   dev.off()
 
-  }
-
-  return(AssembledPlots)
+  } else {return(AssembledPlots)}
 }

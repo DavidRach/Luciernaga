@@ -88,6 +88,10 @@ library(dplyr)
 library(ggcyto)
 library(purrr)
 library(gt)
+library(plotly)
+library(htmltools)
+library(ggplot2)
+library(stringr)
 ```
 
 To start, you will first need to provide the location on your computer where
@@ -125,7 +129,7 @@ openCyto packages vignettes.
 
 ```{r}
 FileLocation <- system.file("extdata", package = "Luciernaga")
-MyGates <- fread(file.path(path = FileLocation, pattern = 'MyGates.csv'))
+MyGates <- fread(file.path(path = FileLocation, pattern = 'Gates.csv'))
 ```
 
 Now that we have access to the gates detailed in the .csv file, we can add them
@@ -204,6 +208,12 @@ gt(head(Unstained))
 ```
 
 This in turn can be filtered using dplyr package for additional information. 
+
+```{r, echo = FALSE}
+FileLocation <- system.file("extdata", package = "Luciernaga")
+Panel <- fread(file.path(path = FileLocation, pattern = "Panel.csv"))
+```
+
 
 
 
