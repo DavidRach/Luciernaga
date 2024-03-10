@@ -16,6 +16,7 @@ URL: https://github.com/DavidRach/Luciernaga
 BugReports: https://github.com/DavidRach/Luciernaga/issues
 RoxygenNote: 7.2.3
 Imports: 
+    basilisk,
     BiocGenerics,
     dplyr,
     flowCore,
@@ -32,6 +33,7 @@ Imports:
     plotly,
     purrr,
     reshape2,
+    reticulate,
     stats,
     stringr,
     tidyr,
@@ -48,3 +50,4 @@ Suggests:
 biocViews: FlowCytometry, Preprocessing, QualityControl, Software
 VignetteBuilder: knitr
 Config/testthat/edition: 3
+StagedInstall: no
