@@ -6,6 +6,7 @@
 #' @param subsets The subset of interest from gating hierarchy
 #' @param columns A subset of columns to pass instead
 #' @param subsample If downsampling is wanted.
+#' @param outpath Location to store new .fcs files
 #'
 #' @importFrom basilisk basiliskStart
 #' @importFrom basilisk basiliskStop
@@ -15,6 +16,7 @@
 #' @importFrom flowWorkspace keyword
 #' @importFrom flowWorkspace gs_pop_get_data
 #' @importFrom flowCore exprs
+#' @importFrom flowCore write.fcs
 #' @importFrom dplyr slice_sample
 #' @importFrom dplyr mutate
 #' @importFrom dplyr select
@@ -24,68 +26,61 @@
 #'
 #' @examples Not applicable
 
-Utility_PaCMAP <- function(x, sample.name, removestrings, subsets, columns, subsample){
-  #Python Environment Startup # Early in Case of Failure
-  proc <- basiliskStart(env1)
-  on.exit(basiliskStop(proc))
+Utility_PaCMAP <- function(x, sample.name, removestrings, subsets, columns, subsample, outpath){
+    #Python Environment Startup # Early in Case of Failure
+    proc <- basiliskStart(env1)
+    on.exit(basiliskStop(proc))
 
-  # Retrieving the metadata # the abbreviated version
-  name <- keyword(x, sample.name)
-  alternatename <- NameCleanUp(name, removestrings)
+    # Retrieving the metadata # the abbreviated version
+    name <- keyword(x, sample.name)
+    alternatename <- NameCleanUp(name, removestrings)
 
-  #Retrieving the exprs data for my subset population of interest
-  ff <- gs_pop_get_data(x, subsets)
-  startingcells <- nrow(ff)[[1]] # For Ratio Calculation, may not be needed here
-  df <- exprs(ff[[1]])
-  DF <- as.data.frame(df, check.names = FALSE)
+    #Retrieving the exprs data for my subset population of interest
+    ff <- gs_pop_get_data(x, subsets)
+    newff <- realize_view(ff)
 
-  # If down-sampling is specified
-  if(!is.null(subsample)){DF <- slice_sample(DF, n = subsample,
-                                             replace = FALSE)
-  } else{DF <- DF}
+    startingcells <- nrow(ff)[[1]] # For Ratio Calculation, may not be needed here
+    df <- exprs(ff[[1]])
+    DF <- as.data.frame(df, check.names = FALSE)
 
-  # Saving Columns for future column reordering
-  OriginalColumnsVector <- colnames(DF)
-  OriginalColumns <- colnames(DF)
-  OriginalColumns <- data.frame(OriginalColumns)
-  OriginalColumnsIndex <- OriginalColumns %>% mutate(IndexLocation = 1:nrow(.))
+    # If down-sampling is specified
+    if(!is.null(subsample)){DF <- slice_sample(DF, n = subsample,
+                                               replace = FALSE)
+    } else{DF <- DF}
 
-  # Adding Backups for future row reordering
-  Backups <- DF %>% mutate(Backups = 1:nrow(DF)) %>% select(Backups)
+    # Saving Columns for future column reordering
+    OriginalColumnsVector <- colnames(DF)
+    OriginalColumns <- colnames(DF)
+    OriginalColumns <- data.frame(OriginalColumns)
+    OriginalColumnsIndex <- OriginalColumns %>% mutate(IndexLocation = 1:nrow(.))
 
-  #Stashing Away Time FSC SSC For Later Use
-  StashedDF <- DF[,grep("Time|FS|SC|SS|Original|W$|H$", names(DF))]
-  StashedDF <- cbind(Backups, StashedDF)
+    # Adding Backups for future row reordering
+    Backups <- DF %>% mutate(Backups = 1:nrow(DF)) %>% select(Backups)
 
-  #Consolidating Columns Going Forward
-  CleanedDF <- DF[,-grep("Time|FS|SC|SS|Original|W$|H$", names(DF))]
-  BackupNames <- colnames(CleanedDF)
+    #Stashing Away Time FSC SSC For Later Use
+    StashedDF <- DF[,grep("Time|FS|SC|SS|Original|W$|H$", names(DF))]
+    StashedDF <- cbind(Backups, StashedDF)
 
-  # If external columns interest specified
-  if (!is.null(columns)){CleanedDF1 <- CleanedDF %>% select(all_of(columns))
-  } else {CleanedDF1 <- CleanedDF}
+    #Consolidating Columns Going Forward
+    CleanedDF <- DF[,-grep("Time|FS|SC|SS|Original|W$|H$", names(DF))]
+    BackupNames <- colnames(CleanedDF)
 
-  X <- CleanedDF1
+    # If external columns interest specified
+    if (!is.null(columns)){CleanedDF1 <- CleanedDF %>% select(all_of(columns))
+    } else {CleanedDF1 <- CleanedDF}
 
-  MyDimVis <- basiliskRun(proc, .Internal_PaCMAP, X=X)
+    X <- CleanedDF1
 
-  return(MyDimVis)
-}
+    ThePaCMAP <- basiliskRun(proc, .Internal_PaCMAP, X=X)
 
-.Internal_PaCMAP <-  function(X, ...){
-  pacmap <- import("pacmap")
-  np <- import("numpy")
-  pd <- import("pandas", convert = TRUE)
+    colnames(ThePaCMAP) <- c("PaCMAP_1", "PaCMAP_2")
+    DimViz <- data.frame(ThePaCMAP)
 
-  # Converting r.x to a pandas DataFrame
-  df <- pd$DataFrame(X)
-  X <- np$asarray(df)
+    preFCS <- Utility_ColAppend(ff=newff, DF=DF, columnframe=DimViz)
 
-  # Initializing the pacmap instance
-  embedding <- pacmap$PaCMAP(n_components = as.integer(2), n_neighbors=as.integer(15), MN_ratio=0.5, FP_ratio=2.0)
+    TheFileName <- paste0(alternatename, "_DR.fcs")
 
-  # Fit the data (The index of transformed data corresponds to the index of the original data)
-  X_transformed <- embedding$fit_transform(X, init="pca")
+    fileSpot <- file.path(outpath, TheFileName)
 
-  return(X_transformed)
+    write.FCS(new_fcs, filename = fileSpot, delimiter="#")
 }

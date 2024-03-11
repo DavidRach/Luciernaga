@@ -4,7 +4,15 @@
 \alias{Utility_PaCMAP}
 \title{Runs PaCMAP via Basilisk}
 \usage{
-Utility_PaCMAP(x, sample.name, removestrings, subsets, columns, subsample)
+Utility_PaCMAP(
+  x,
+  sample.name,
+  removestrings,
+  subsets,
+  columns,
+  subsample,
+  outpath
+)
 }
 \arguments{
 \item{x}{A gating set object}
@@ -18,6 +26,8 @@ Utility_PaCMAP(x, sample.name, removestrings, subsets, columns, subsample)
 \item{columns}{A subset of columns to pass instead}
 
 \item{subsample}{If downsampling is wanted.}
+
+\item{outpath}{Location to store new .fcs files}
 }
 \value{
 Numbers
