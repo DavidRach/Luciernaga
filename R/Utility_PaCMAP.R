@@ -16,7 +16,7 @@
 #' @importFrom flowWorkspace keyword
 #' @importFrom flowWorkspace gs_pop_get_data
 #' @importFrom flowCore exprs
-#' @importFrom flowCore write.fcs
+#' @importFrom flowCore write.FCS
 #' @importFrom dplyr slice_sample
 #' @importFrom dplyr mutate
 #' @importFrom dplyr select
@@ -76,11 +76,27 @@ Utility_PaCMAP <- function(x, sample.name, removestrings, subsets, columns, subs
     colnames(ThePaCMAP) <- c("PaCMAP_1", "PaCMAP_2")
     DimViz <- data.frame(ThePaCMAP)
 
-    preFCS <- Utility_ColAppend(ff=newff, DF=DF, columnframe=DimViz)
+    new_fcs <- Utility_ColAppend(ff=newff, DF=DF, columnframe=DimViz)
 
     TheFileName <- paste0(alternatename, "_DR.fcs")
 
     fileSpot <- file.path(outpath, TheFileName)
 
     write.FCS(new_fcs, filename = fileSpot, delimiter="#")
+}
+
+.Internal_PaCMAP <-  function(X, ...){
+  pacmap <- import("pacmap")
+  np <- import("numpy")
+  pd <- import("pandas", convert = TRUE)
+
+  # Converting r.x to a pandas DataFrame
+  df <- pd$DataFrame(X)
+  X <- np$asarray(df)
+
+  # Initializing the pacmap instance
+  embedding <- pacmap$PaCMAP(n_components = as.integer(2), n_neighbors=as.integer(15), MN_ratio=0.5, FP_ratio=2.0)
+
+  # Fit the data (The index of transformed data corresponds to the index of the original data)
+  X_transformed <- embedding$fit_transform(X, init="pca")
 }
