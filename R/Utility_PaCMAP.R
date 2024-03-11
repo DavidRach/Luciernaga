@@ -75,7 +75,6 @@ Utility_PaCMAP <- function(x, sample.name, removestrings, subsets, columns, subs
 .Internal_PaCMAP <-  function(X, ...){
   pacmap <- import("pacmap")
   np <- import("numpy")
-  plt <- import("matplotlib.pyplot")
   pd <- import("pandas", convert = TRUE)
 
   # Converting r.x to a pandas DataFrame
@@ -83,10 +82,10 @@ Utility_PaCMAP <- function(x, sample.name, removestrings, subsets, columns, subs
   X <- np$asarray(df)
 
   # Initializing the pacmap instance
-  embedding <- pacmap$PaCMAP(n_components = 2, n_neighbors=15, MN_ratio=0.5, FP_ratio=2.0)
+  embedding <- pacmap$PaCMAP(n_components = as.integer(2), n_neighbors=as.integer(15), MN_ratio=0.5, FP_ratio=2.0)
 
   # Fit the data (The index of transformed data corresponds to the index of the original data)
   X_transformed <- embedding$fit_transform(X, init="pca")
 
-  X_transformed <- py_to_r(X_transformed)
+  return(X_transformed)
 }
