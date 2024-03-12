@@ -37,6 +37,7 @@ Imports:
     stats,
     stringr,
     tidyr,
+    uwot,
     zoo
 Depends: R (>= 4.0.0)
 Suggests: 
