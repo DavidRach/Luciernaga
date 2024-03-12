@@ -16,7 +16,7 @@
 #'
 #' @importFrom flowWorkspace keyword
 #' @importFrom flowWorkspace gs_pop_get_data
-#' @importFrom flowWorkspace exprs
+#' @importFrom flowCore exprs
 #' @importFrom patchwork wrap_plots
 #' @importFrom patchwork plot_spacer
 #' @importFrom purrr map
@@ -78,6 +78,7 @@ Utility_ParallelNbyNPlots <- function(x, y, sample.name, removestrings, marginsu
   Y_PlotNumber <- length(Y_DFNames)
 
   if (all(X_DFNames == Y_DFNames)){DFNames <- X_DFNames
+                                   PlotNumber <- X_PlotNumber
   } else (stop("The two fcs files do not have matching column parameters"))
 
   TheDF <- rbind(TheXDF, TheYDF) # Merge the two margin data frames
@@ -92,7 +93,8 @@ Utility_ParallelNbyNPlots <- function(x, y, sample.name, removestrings, marginsu
 
     Plots <- map(.x = columnlist, .f = .Internal_ParallelGating, x_ff=x_ff, y_ff=y_ff,
                  TheDF=TheDF, yValue=ycolumn, columnlist=DFNames, gatelines=gatelines,
-                 reference=reference, clearance=clearance, bins=bins) #Name
+                 reference=reference, clearance=clearance, bins=bins, AltNameX=AltNameX,
+                 AltNameY=AltNameY) #Name
     }
 
   if (pdf == TRUE){
@@ -130,7 +132,7 @@ Utility_ParallelNbyNPlots <- function(x, y, sample.name, removestrings, marginsu
 }
 
 .Internal_ParallelGating <- function(x, x_ff, y_ff, TheDF, yValue, columnlist, gatelines,
-                                     reference, clearance, bins) {
+                                     reference, clearance, bins, AltNameX, AltNameY) {
 
   if (yValue == x){stop("x equals yValue and can't be plotted")}
 
