@@ -5,3 +5,5 @@ env1 <- BasiliskEnvironment("env1", pkgname="Luciernaga",
 env2 <- BasiliskEnvironment("env2", pkgname="Luciernaga",
                             packages=c("pandas==2.2.1", "numpy==1.26.4", "phate==1.0.11"))
 
+env3 <- BasiliskEnvironment("env3", pkgname="Luciernaga",
+                            packages=c("pandas==2.2.1", "numpy==1.26.4", "opentsne==1.0.1"))
