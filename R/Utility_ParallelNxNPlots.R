@@ -1,5 +1,38 @@
-Utility_ParallelNbyNPlots <- function(x, sample.name, removestrings, marginsubset,
-    gatesubset, ycolumn, bins, clearance, gatelines, reference = NULL, outpath, fileName, pdf){
+#' Overlay plot two .fcs files from two different gs.
+#'
+#' @param x The first gs object
+#' @param y The second gs object
+#' @param sample.name The keyword under which sample names are stored
+#' @param removestrings A list of values to remove from sample names
+#' @param marginsubset The gs subset that defines the plot margin
+#' @param gatesubset The gs subset of interest
+#' @param ycolumn The desired y-column for the comparisons
+#' @param bins Desired number of hex bins
+#' @param clearance A multiplication factor for margin wiggle room (0.2)
+#' @param gatelines Whether to plot .csv specified gate lines
+#' @param reference Reference for .csv specified gate lines
+#' @param outpath Location which to store the output
+#' @param pdf Whether to return as a pdf
+#'
+#' @importFrom flowWorkspace keyword
+#' @importFrom flowWorkspace gs_pop_get_data
+#' @importFrom flowWorkspace exprs
+#' @importFrom patchwork wrap_plots
+#' @importFrom patchwork plot_spacer
+#' @importFrom purrr map
+#' @importFrom dplyr select
+#' @importFrom dplyr pull
+#' @importFrom dplyr mutate
+#' @importFrom ggplot2 ggplot
+#'
+#'
+#' @return Either list ggplot objects or a pdf object
+#' @export
+#'
+#' @examples Not at this time
+
+Utility_ParallelNbyNPlots <- function(x, y, sample.name, removestrings, marginsubset,
+    gatesubset, ycolumn, bins, clearance, gatelines, reference = NULL, outpath, pdf){
 
   # The Marker everything is plotted against
   ycolumn <- ycolumn
@@ -14,17 +47,21 @@ Utility_ParallelNbyNPlots <- function(x, sample.name, removestrings, marginsubse
   nameY <- keyword(y, sample.name)
   AltNameY <- NameCleanUp(name = nameY, removestrings)
 
+  AlternateName <- paste(AltNameX, AltNameY, sep="_")
+  AlternateName <- gsub("-", "", gsub(" ", "", AlternateName))
+
   #if(!is.null(experiment)){experiment <- experiment
   #} else {experiment <- keyword(x, experiment.name)}
 
   #if(!is.null(condition)){condition <- condition
   #} else {condition <- keyword(x, condition.name)}
 
-  #AggregateName <- paste(name, experiment, sep = "_") #Additional for condition (we need to think this through)
+  #AggregateName <- paste(name, experiment, sep = "_")
+  #Additional for condition (we need to think this through)
   #StorageLocation <- paste(outpath, AggregateName, sep = "/", collapse = NULL)
 
   # Name and Location of Final PDF
-  StorageLocation <- file.path(outpath, fileName)
+  StorageLocation <- file.path(outpath, AlternateName)
 
   # Retrieving margin info for the x specimen
   xMargin <- gs_pop_get_data(x, marginsubset)
@@ -92,8 +129,8 @@ Utility_ParallelNbyNPlots <- function(x, sample.name, removestrings, marginsubse
   return(Plots)
 }
 
-.Internal_ParallelGating <- function(x, name, ff, yValue, clearance, bins,
-                                  columnlist, TheDF, gatelines, reference = NULL) {
+.Internal_ParallelGating <- function(x, x_ff, y_ff, TheDF, yValue, columnlist, gatelines,
+                                     reference, clearance, bins) {
 
   if (yValue == x){stop("x equals yValue and can't be plotted")}
 
@@ -115,26 +152,39 @@ Utility_ParallelNbyNPlots <- function(x, sample.name, removestrings, marginsubse
 
 
   if (!exists("theYmax") || !exists("theXmax")){
-     stop("Either theYmax or theXmax didn't exist, and since I didn't think it relavant to
-          duplicate this code in the parallel NxN plot when coding, the function now crashed ")
+     stop("Either theYmax or theXmax didn't exist, and since I didn't think
+     it relavant to duplicate this code in the parallel NxN plot when coding,
+          the function now crashed ")
     } else {
 
-      Plot <- as.ggplot(ggcyto(ff, aes(x = .data[[xValue]],
-                                           y = .data[[yValue]]), subset = "root") + geom_hex(bins=bins) +
-                              coord_cartesian(xlim = c(theXmin, theXmax), ylim = c(theYmin, theYmax),
-                                              default = TRUE) + theme_bw() + labs(title = NULL) +
-                              theme(strip.background = element_blank(),
-                                    strip.text.x = element_blank(), panel.grid.major = element_line(
-                                      linetype = "blank"),
-                                    panel.grid.minor = element_line(linetype = "blank"),
-                                    axis.title = element_text(size = 10, face = "bold"), legend.position = "none"))
+      x_ffXdata <- exprs(x_ff[[1]]) %>% data.frame(check.names = FALSE) %>% select(all_of(xValue))
+      x_ffYdata <- exprs(x_ff[[1]]) %>% data.frame(check.names = FALSE) %>% select(all_of(yValue))
+      Thex_ff <- cbind(x_ffXdata, x_ffYdata) %>% mutate(specimen = AltNameX)
 
-  if (gatelines == TRUE){Value <- reference[reference$specimen == name, xValue]
-  Plot <- Plot + geom_vline(xintercept = c(seq(0,200,25)), colour = "gray") +
-    geom_vline(xintercept = Value, colour = "red")}
+      y_ffXdata <- exprs(y_ff[[1]]) %>% data.frame(check.names = FALSE) %>% select(all_of(xValue))
+      y_ffYdata <- exprs(y_ff[[1]]) %>% data.frame(check.names = FALSE) %>% select(all_of(yValue))
+      They_ff <- cbind(y_ffXdata, y_ffYdata) %>% mutate(specimen = AltNameY)
+
+      TheData <- rbind(Thex_ff, They_ff)
+      TheData$specimen <- as.factor(TheData$specimen)
+
+      specimen_counts <- table(TheData$specimen)
+      sorted_specimens <- names(sort(desc(specimen_counts)))
+      TheData$specimen <- factor(TheData$specimen, levels = sorted_specimens)
+
+      Plot <- ggplot(TheData, aes(x=.data[[xValue]], y = .data[[yValue]], fill = specimen)) +
+        geom_hex(bins=bins, alpha = 0.5) + scale_fill_manual(values = c("lightblue", "orange")) +
+        coord_cartesian(xlim = c(theXmin, theXmax), ylim = c(theYmin, theYmax)) + theme_bw() +
+        labs(title = NULL) + theme(strip.background = element_blank(),
+              strip.text.x = element_blank(), panel.grid.major = element_line(linetype = "blank"),
+              panel.grid.minor = element_line(linetype = "blank"),
+              axis.title = element_text(size = 10, face = "bold"),
+              legend.position = "none")
+
+  #if (gatelines == TRUE){Value <- reference[reference$specimen == name, xValue]
+  #Plot <- Plot + geom_vline(xintercept = c(seq(0,200,25)), colour = "gray") +
+  #  geom_vline(xintercept = Value, colour = "red")}
   }
-
-  tryCatch({rm("theXmin", "theXmax", "theYmin", "theYmax")})
 
   return(Plot)
 }
