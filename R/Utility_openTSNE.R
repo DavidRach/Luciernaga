@@ -96,7 +96,7 @@ Utility_openTSNE <- function(x, sample.name, removestrings, subsets, columns, no
   df <- pd$DataFrame(X)
   X <- np$asarray(df)
 
-  tsne_operator <- openTSNE$TSNE()
+  tsne_operator <- openTSNE$TSNE(perplexity = as.integer(30), metric="euclidean", verbose = TRUE)
 
   X_tsne <- tsne_operator$fit(X)
 
