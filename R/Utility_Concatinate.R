@@ -14,27 +14,28 @@
 #' @examples Not applicable at this time
 
 Utility_Concatinate <- function(gs, sample.name, removestrings, subsets, subsample, newName, outpath){
-  gs <- gs
-  removestrings <- removestrings
-  subsample <- subsample
+gs <- gs
+sample.name <- sample.name
+removestrings <- removestrings
+subsample <- subsample
 
 ConcatenatedFile <- map(gs, .f=.Internal_Downsample, sample.name=sample.name, removestrings=removestrings,
                         subsets=subsets, subsample=subsample) %>% bind_rows
 
-ConcatenadMatrix <- as.matrix(ConcatenatedFile)
+#ConcatenatedMatrix <- as.matrix(ConcatenatedFile)
 
 ConcatenatedExtra <- ConcatenatedFile %>% select(specimen)
 ConcatenatedMain <- ConcatenatedFile %>% select(-specimen)
 ExtraMatrix <- as.matrix(ConcatenatedExtra)
 MainMatrix <- as.matrix(ConcatenatedFile)
 
-ff <- gs_pop_get_data(x, subsets)
+ff <- gs_pop_get_data(gs, subsets)
 FlowFrameTest <- ff[[1, returnType = "flowFrame"]]
 original_p <- parameters(FlowFrameTest)
 original_d <- keyword(FlowFrameTest)
 
-#new_fcs <- new("flowFrame", exprs=MainMatrix, parameters=original_p, description=original_d)
-new_fcs <- new("flowFrame", exprs=ConcatenatedMatrix, parameters=original_p, description=original_d)
+new_fcs <- new("flowFrame", exprs=MainMatrix, parameters=original_p, description=original_d)
+#new_fcs <- new("flowFrame", exprs=ConcatenatedMatrix, parameters=original_p, description=original_d)
 
 fr <- new_fcs
 cols <- ExtraMatrix
@@ -72,7 +73,8 @@ fileSpot <- file.path(outpath, TheFileName)
 write.FCS(new_fcs, filename = fileSpot, delimiter="#")
 }
 
-.Internal_Downsample <- function(x, ...){
+.Internal_Downsample <- function(x, sample.name, removestrings,
+                                 subsets, subsample){
   name <- keyword(x, sample.name)
   alternatename <- NameCleanUp(name, removestrings)
 

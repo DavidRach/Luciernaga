@@ -5,6 +5,7 @@
 #' @param removestrings A list of things to remove from sample.name
 #' @param subsets The subset of interest from gating hierarchy
 #' @param columns A subset of columns to pass instead
+#' @param notcolumns A subset of columns to remove
 #' @param subsample If downsampling is wanted.
 #' @param outpath Location to store new .fcs files
 #'
@@ -26,7 +27,7 @@
 #'
 #' @examples Not applicable
 
-Utility_PaCMAP <- function(x, sample.name, removestrings, subsets, columns, subsample, outpath){
+Utility_PaCMAP <- function(x, sample.name, removestrings, subsets, columns, notcolumns, subsample, export, outpath){
     #Python Environment Startup # Early in Case of Failure
     proc <- basiliskStart(env1)
     on.exit(basiliskStop(proc))
@@ -69,20 +70,21 @@ Utility_PaCMAP <- function(x, sample.name, removestrings, subsets, columns, subs
     if (!is.null(columns)){CleanedDF1 <- CleanedDF %>% select(all_of(columns))
     } else {CleanedDF1 <- CleanedDF}
 
+    if (!is.null(notcolumns)){CleanedDF1 <- CleanedDF1 %>% select(-all_of(columns))
+    } else {CleanedDF1 <- CleanedDF1}
+
     X <- CleanedDF1
 
     ThePaCMAP <- basiliskRun(proc, .Internal_PaCMAP, X=X)
 
-    colnames(ThePaCMAP) <- c("PaCMAP_1", "PaCMAP_2")
-    DimViz <- data.frame(ThePaCMAP)
-
-    new_fcs <- Utility_ColAppend(ff=newff, DF=DF, columnframe=DimViz)
+    new_fcs <- Utility_ColAppend(ff=newff, DF=DF, columnframe=ThePaCMAP)
 
     TheFileName <- paste0(alternatename, "_DR.fcs")
 
     fileSpot <- file.path(outpath, TheFileName)
 
-    write.FCS(new_fcs, filename = fileSpot, delimiter="#")
+    if(export == TRUE){write.FCS(new_fcs, filename = fileSpot, delimiter="#")
+      }else{return(new_fcs)}
 }
 
 .Internal_PaCMAP <-  function(X, ...){
@@ -99,4 +101,7 @@ Utility_PaCMAP <- function(x, sample.name, removestrings, subsets, columns, subs
 
   # Fit the data (The index of transformed data corresponds to the index of the original data)
   X_transformed <- embedding$fit_transform(X, init="pca")
+
+  colnames(X_transformed) <- c("PaCMAP_1", "PaCMAP_2")
+  ThePaCMAP <- data.frame(X_transformed)
 }
