@@ -9,6 +9,8 @@
 #' @param ycolumn The desired y-column for the comparisons
 #' @param bins Desired number of hex bins
 #' @param clearance A multiplication factor for margin wiggle room (0.2)
+#' @param colorX Color for the x gs
+#' @param colorY Color for the y gs
 #' @param gatelines Whether to plot .csv specified gate lines
 #' @param reference Reference for .csv specified gate lines
 #' @param outpath Location which to store the output
@@ -32,7 +34,7 @@
 #' @examples Not at this time
 
 Utility_ParallelNbyNPlots <- function(x, y, sample.name, removestrings, marginsubset,
-    gatesubset, ycolumn, bins, clearance, gatelines, reference = NULL, outpath, pdf){
+    gatesubset, ycolumn, bins, clearance, colorX, colorY, gatelines, reference = NULL, outpath, pdf){
 
   # The Marker everything is plotted against
   ycolumn <- ycolumn
@@ -87,14 +89,40 @@ Utility_ParallelNbyNPlots <- function(x, y, sample.name, removestrings, marginsu
   x_ff <- gs_pop_get_data(x, gatesubset) #Sends cytoset forward
   y_ff <- gs_pop_get_data(y, gatesubset)
 
-  if (ycolumn == "ALL"){message("Running all Y axis combinations has not yet been coded ")
+  if (ycolumn == "ALL"){
+
+    .UniversalIterator <- function(x, x_ff, y_ff,
+                                  TheDF, yValue, columnlist, gatelines,
+                                  reference, clearance, bins, AltNameX,
+                                  AltNameY, colorX, colorY){
+
+      columnlist <- DFNames[DFNames != x] # Remove the universal Y value
+
+      Plots <- map(.x = columnlist, .f = .Internal_ParallelGating, x_ff=x_ff, y_ff=y_ff,
+                   TheDF=TheDF, yValue=x, columnlist=DFNames, gatelines=gatelines,
+                   reference=reference, clearance=clearance, bins=bins, AltNameX=AltNameX,
+                   AltNameY=AltNameY, colorX=colorX, colorY=colorY) #Name
+      #Plots <- flatten(Plots)
+
+      #Plots1 <- Plots
+      Plots <- flatten(Plots)
+      return(Plots)
+    }
+
+    Plots <- map(.x=DFNames, .f = .UniversalIterator, x_ff=x_ff, y_ff=y_ff,
+                 TheDF=TheDF, yValue=ycolumn, columnlist=DFNames, gatelines=gatelines,
+                 reference=reference, clearance=clearance, bins=bins, AltNameX=AltNameX,
+                 AltNameY=AltNameY, colorX=colorX, colorY=colorY)
+
+    return(Plots)
+
   } else {
     columnlist <- DFNames[DFNames != ycolumn] # Remove the universal Y value
 
     Plots <- map(.x = columnlist, .f = .Internal_ParallelGating, x_ff=x_ff, y_ff=y_ff,
                  TheDF=TheDF, yValue=ycolumn, columnlist=DFNames, gatelines=gatelines,
                  reference=reference, clearance=clearance, bins=bins, AltNameX=AltNameX,
-                 AltNameY=AltNameY) #Name
+                 AltNameY=AltNameY, colorX=colorX, colorY=colorY) #Name
     }
 
   if (pdf == TRUE){
@@ -118,6 +146,7 @@ Utility_ParallelNbyNPlots <- function(x, y, sample.name, removestrings, marginsu
 
     #sublists[[length(sublists)]] <- c(sublists[[length(sublists)]], rep(plot_spacer(), AdditionalSpaces))
 
+
     pdf(file = paste(StorageLocation, ".pdf", sep = "", collapse = NULL), width = 9, height = 7) #Optional Adjustments for Second
 
     for(i in sublists){p <- wrap_plots(i, ncol = thecolumns, nrow = therows, widths = 0.8, heights = 0.8)
@@ -132,7 +161,7 @@ Utility_ParallelNbyNPlots <- function(x, y, sample.name, removestrings, marginsu
 }
 
 .Internal_ParallelGating <- function(x, x_ff, y_ff, TheDF, yValue, columnlist, gatelines,
-                                     reference, clearance, bins, AltNameX, AltNameY) {
+                                     reference, clearance, bins, AltNameX, AltNameY, colorX, colorY) {
 
   if (yValue == x){stop("x equals yValue and can't be plotted")}
 
@@ -174,8 +203,18 @@ Utility_ParallelNbyNPlots <- function(x, y, sample.name, removestrings, marginsu
       sorted_specimens <- names(sort(desc(specimen_counts)))
       TheData$specimen <- factor(TheData$specimen, levels = sorted_specimens)
 
+      # Attempted Work Around for Specifying Colors while adjusting what population is displayed forward.
+      Xscheme <- cbind(AltNameX, colorX)
+      Yscheme <- cbind(AltNameY, colorY)
+      ColorFrame <- rbind(Xscheme, Yscheme)
+      ColorFrame <- data.frame(ColorFrame, check.names = FALSE) %>% rename(specimen = AltNameX)
+      ColorFrame$specimen <- factor(ColorFrame$specimen, levels = sorted_specimens)
+      ColorFrame <- ColorFrame[order(ColorFrame$specimen), ]
+      color1 <- ColorFrame[1,2]
+      color2 <- ColorFrame[2,2]
+
       Plot <- ggplot(TheData, aes(x=.data[[xValue]], y = .data[[yValue]], fill = specimen)) +
-        geom_hex(bins=bins, alpha = 0.5) + scale_fill_manual(values = c("lightblue", "orange")) +
+        geom_hex(bins=bins, alpha = 0.5) + scale_fill_manual(values = c(color1, color2)) +
         coord_cartesian(xlim = c(theXmin, theXmax), ylim = c(theYmin, theYmax)) + theme_bw() +
         labs(title = NULL) + theme(strip.background = element_blank(),
               strip.text.x = element_blank(), panel.grid.major = element_line(linetype = "blank"),

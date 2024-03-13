@@ -14,6 +14,8 @@ Utility_ParallelNbyNPlots(
   ycolumn,
   bins,
   clearance,
+  colorX,
+  colorY,
   gatelines,
   reference = NULL,
   outpath,
@@ -38,6 +40,10 @@ Utility_ParallelNbyNPlots(
 \item{bins}{Desired number of hex bins}
 
 \item{clearance}{A multiplication factor for margin wiggle room (0.2)}
+
+\item{colorX}{Color for the x gs}
+
+\item{colorY}{Color for the y gs}
 
 \item{gatelines}{Whether to plot .csv specified gate lines}
 
