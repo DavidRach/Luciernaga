@@ -47,6 +47,11 @@ CytekQCPlots <- function(x, FailedFlag, pdf, path, filename){
     } else if (str_detect(yValue, "^B\\d{1,2}(-[A-Za-z% ]+)?$")){mycolor <- "blue"
     } else if (str_detect(yValue, "^YG\\d{1,2}(-[A-Za-z% ]+)?$")){mycolor <- "darkgreen"
     } else if (str_detect(yValue, "^R\\d{1,2}(-[A-Za-z% ]+)?$")){mycolor <- "darkred"
+    } else if (str_detect(yValue, "^Change_UV\\d{1,2}(-[A-Za-z% ]+)?$")){mycolor <- "purple"
+    } else if (str_detect(yValue, "^Change_V\\d{1,2}(-[A-Za-z% ]+)?$")){mycolor <- "violet"
+    } else if (str_detect(yValue, "^Change_B\\d{1,2}(-[A-Za-z% ]+)?$")){mycolor <- "blue"
+    } else if (str_detect(yValue, "^Change_YG\\d{1,2}(-[A-Za-z% ]+)?$")){mycolor <- "darkgreen"
+    } else if (str_detect(yValue, "^Change_R\\d{1,2}(-[A-Za-z% ]+)?$")){mycolor <- "darkred"
     } else {mycolor <- "black"}
 
     if (FailedFlag == TRUE){
