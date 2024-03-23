@@ -4,6 +4,7 @@
 #' @param subset The desired gating hierarchy level to look at the data
 #' @param sample.name Keyword for which sample name is stored
 #' @param removestrings A list of values to remove from the name
+#' @param stats Whether to use "mean" or "median"
 #' @param TheReturn Whether to return a "raw" or "normalized" value lineplot.
 #'
 #' @importFrom BiocGenerics nrow
@@ -29,7 +30,7 @@
 #'
 #' @examples Not at this time
 
-Utility_LinearSlices <- function(x, subset, sample.name, removestrings, TheReturn){
+Utility_LinearSlices <- function(x, subset, sample.name, removestrings, stats, TheReturn){
   name <- keyword(x, sample.name)
   name <- NameCleanUp(name, removestrings)
 

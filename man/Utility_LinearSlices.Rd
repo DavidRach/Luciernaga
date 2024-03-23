@@ -4,7 +4,7 @@
 \alias{Utility_LinearSlices}
 \title{Takes a Lucierna SingleColorQC .fcs, splits into percentiles, and plots the results.}
 \usage{
-Utility_LinearSlices(x, subset, sample.name, removestrings, TheReturn)
+Utility_LinearSlices(x, subset, sample.name, removestrings, stats, TheReturn)
 }
 \arguments{
 \item{x}{A GatingSet object}
@@ -14,6 +14,8 @@ Utility_LinearSlices(x, subset, sample.name, removestrings, TheReturn)
 \item{sample.name}{Keyword for which sample name is stored}
 
 \item{removestrings}{A list of values to remove from the name}
+
+\item{stats}{Whether to use "mean" or "median"}
 
 \item{TheReturn}{Whether to return a "raw" or "normalized" value lineplot.}
 }
