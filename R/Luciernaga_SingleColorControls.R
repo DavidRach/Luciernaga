@@ -60,9 +60,12 @@ Luciernaga_SingleColorControls <- function(x, sample.name, removestrings, subset
   if (!is.data.frame(PanelCuts)) {PanelCuts <- read.csv(PanelCuts, check.names = FALSE)} else {PanelCuts <- PanelCuts}
 
   # Importing the Quantile Cut Parameters
-  name <- gsub(" ", "_", name)
+  name <- sub(" ", "_", name)
   name <- sub("(.*)_(.*)", "\\2_\\1", name) #Swaps order
-  TheFluorophore <- strsplit(name, "_")[[1]]
+  #name1 <- gsub(" ")
+  internal <- c("-", ".", " ")
+  name1 <- NameCleanUp(name, removestrings=internal)
+  TheFluorophore <- strsplit(name1, "_")[[1]]
   TheFluorophore <- TheFluorophore[1]
 
   TheInfo <- PanelCuts %>% filter(Fluorophore %in% TheFluorophore)
@@ -94,7 +97,7 @@ Luciernaga_SingleColorControls <- function(x, sample.name, removestrings, subset
     mutate(median_data = map(data, ~ summarise_all(., ~ round(median(., na.rm = TRUE),2)))) %>%
     select(median_data) %>% unnest(median_data)} else {error("Choice of statistical summary not found")}
 
-  Data <- cbind(TheFluorophore, Samples) %>% rename(Fluorophore = TheFluorophore)
+  Data <- cbind(name, Samples) %>% rename(Fluorophore = name)
 
   if (SignatureView == TRUE){
 
@@ -103,7 +106,7 @@ Luciernaga_SingleColorControls <- function(x, sample.name, removestrings, subset
     A <- do.call(pmax, NData)
     Normalized <- NData/A
     Normalized <- round(Normalized, 1)
-    ThePlotData <- cbind(TheFluorophore, Normalized) %>% rename(Fluorophore = TheFluorophore)
+    ThePlotData <- cbind(name, Normalized) %>% rename(Fluorophore = name)
 
     LineCols <- ncol(ThePlotData)
 
@@ -127,7 +130,7 @@ Luciernaga_SingleColorControls <- function(x, sample.name, removestrings, subset
             panel.grid.minor = element_blank()
       )
 
-    plot
+    print(plot)
 
   }
 
