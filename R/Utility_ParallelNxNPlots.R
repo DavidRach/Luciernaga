@@ -37,18 +37,15 @@
 Utility_ParallelNbyNPlots <- function(x, y, sample.name, removestrings, Override = FALSE, marginsubset,
     gatesubset, ycolumn, bins, clearance, colorX, colorY, gatelines, reference = NULL, outpath, pdf){
 
-  # The Marker everything is plotted against
-  ycolumn <- ycolumn
-
-  # Retrieving both mapped items
-  x <- x
-  y <- y
-
   nameX <- keyword(x, sample.name)
   AltNameX <- NameCleanUp(name = nameX, removestrings)
 
   nameY <- keyword(y, sample.name)
   AltNameY <- NameCleanUp(name = nameY, removestrings)
+
+  if (AltNameX == AltNameY){message("X and Y names match, attaching numbers")
+                           AltNameX <- paste0(AltNameX, "_1")
+                           AltNameY <- paste0(AltNameY, "_2")}
 
   AlternateName <- paste(AltNameX, AltNameY, sep="_")
   AlternateName <- gsub("-", "", gsub(" ", "", AlternateName))
@@ -72,8 +69,8 @@ Utility_ParallelNbyNPlots <- function(x, y, sample.name, removestrings, Override
   TheXDF <- data.frame(xdf, check.names = FALSE)
 
   if(Override == TRUE){
-    X_DFNames <- colnames(TheYDF[,-grep("Time|FS|SC|SS|Original|W$|H$|-A$", names(TheYDF))])
-  } else {X_DFNames <- colnames(TheYDF[,-grep("Time|FS|SC|SS|Original|W$|H$", names(TheYDF))])
+    X_DFNames <- colnames(TheXDF[,-grep("Time|FS|SC|SS|Original|W$|H$|-A$", names(TheXDF))])
+  } else {X_DFNames <- colnames(TheXDF[,-grep("Time|FS|SC|SS|Original|W$|H$", names(TheXDF))])
   }
 
   X_PlotNumber <- length(X_DFNames)
