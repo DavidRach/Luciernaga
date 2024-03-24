@@ -9,6 +9,7 @@ Utility_ParallelNbyNPlots(
   y,
   sample.name,
   removestrings,
+  Override = FALSE,
   marginsubset,
   gatesubset,
   ycolumn,
@@ -30,6 +31,8 @@ Utility_ParallelNbyNPlots(
 \item{sample.name}{The keyword under which sample names are stored}
 
 \item{removestrings}{A list of values to remove from sample names}
+
+\item{Override}{Exclude raw columns with -A$}
 
 \item{marginsubset}{The gs subset that defines the plot margin}
 

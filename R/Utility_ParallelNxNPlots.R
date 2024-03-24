@@ -4,6 +4,7 @@
 #' @param y The second gs object
 #' @param sample.name The keyword under which sample names are stored
 #' @param removestrings A list of values to remove from sample names
+#' @param Override Exclude raw columns with -A$
 #' @param marginsubset The gs subset that defines the plot margin
 #' @param gatesubset The gs subset of interest
 #' @param ycolumn The desired y-column for the comparisons
@@ -33,7 +34,7 @@
 #'
 #' @examples Not at this time
 
-Utility_ParallelNbyNPlots <- function(x, y, sample.name, removestrings, marginsubset,
+Utility_ParallelNbyNPlots <- function(x, y, sample.name, removestrings, Override = FALSE, marginsubset,
     gatesubset, ycolumn, bins, clearance, colorX, colorY, gatelines, reference = NULL, outpath, pdf){
 
   # The Marker everything is plotted against
@@ -69,14 +70,24 @@ Utility_ParallelNbyNPlots <- function(x, y, sample.name, removestrings, marginsu
   xMargin <- gs_pop_get_data(x, marginsubset)
   xdf <- exprs(xMargin[[1]])
   TheXDF <- data.frame(xdf, check.names = FALSE)
-  X_DFNames <- colnames(TheXDF[,-grep("Time|FS|SC|SS|Original|W$|H$", names(TheXDF))])
+
+  if(Override == TRUE){
+    X_DFNames <- colnames(TheYDF[,-grep("Time|FS|SC|SS|Original|W$|H$|-A$", names(TheYDF))])
+  } else {X_DFNames <- colnames(TheYDF[,-grep("Time|FS|SC|SS|Original|W$|H$", names(TheYDF))])
+  }
+
   X_PlotNumber <- length(X_DFNames)
 
   # Retrieving margin info for the y specimen
   yMargin <- gs_pop_get_data(y, marginsubset)
   ydf <- exprs(yMargin[[1]])
   TheYDF <- data.frame(ydf, check.names = FALSE)
-  Y_DFNames <- colnames(TheYDF[,-grep("Time|FS|SC|SS|Original|W$|H$", names(TheYDF))])
+
+  if(Override == TRUE){
+  Y_DFNames <- colnames(TheYDF[,-grep("Time|FS|SC|SS|Original|W$|H$|-A$", names(TheYDF))])
+  } else {Y_DFNames <- colnames(TheYDF[,-grep("Time|FS|SC|SS|Original|W$|H$", names(TheYDF))])
+  }
+
   Y_PlotNumber <- length(Y_DFNames)
 
   if (all(X_DFNames == Y_DFNames)){DFNames <- X_DFNames
