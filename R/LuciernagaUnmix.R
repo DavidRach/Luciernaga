@@ -52,7 +52,7 @@ LuciernagaUnmix <- function(x, controlData, sample.name, addon, removestrings, s
   BackupNames <- colnames(TheSampleData)
 
   # Ordering the Single Color Control Columns to Match the Samples
-  TheControlData <- controlData[names(expresionData)]
+  TheControlData <- controlData[names(TheSampleData)]
 
   #OLS
   LeastSquares <- lsfit(x = t(TheControlData), y = t(TheSampleData), intercept = FALSE)
