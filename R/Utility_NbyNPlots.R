@@ -54,7 +54,32 @@ Utility_NbyNPlots <- function(x, sample.name, removestrings, experiment = NULL, 
 
   ff <- gs_pop_get_data(x, gatesubset)
 
-  if (ycolumn == "ALL"){print("run ComprehensiveNxNPlot fctn")
+  if (ycolumn == "ALL"){
+
+    .UniversalIterator <- function(x, x_ff,
+                                   TheDF, yValue, columnlist, gatelines,
+                                   reference, clearance, bins, AltNameX,
+                                   AltNameY, colorX, colorY){
+
+      columnlist <- DFNames[DFNames != x] # Remove the universal Y value
+
+      Plots <- map(.x = columnlist, .f = Utility_GeneralGating, name = name, ff = ff, yValue = x, columnlist = DFNames,
+                   TheDF = TheDF, gatelines = gatelines, reference = reference, clearance=clearance, bins=bins)
+
+      #Plots <- flatten(Plots)
+
+      #Plots1 <- Plots
+
+      return(Plots)
+    }
+
+    Plots <- map(.x=DFNames, .f = .UniversalIterator, x_ff=ff,
+                 TheDF=TheDF, yValue=ycolumn, columnlist=DFNames, gatelines=gatelines,
+                 reference=reference, clearance=clearance, bins=bins)
+
+    Plots <- flatten(Plots)
+    return(Plots)
+
   } else {
     columnlist <- DFNames[DFNames != ycolumn]
     Plots <- map(.x = columnlist, .f = Utility_GeneralGating, name = name, ff = ff, yValue = ycolumn, columnlist = DFNames,
