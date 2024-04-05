@@ -58,8 +58,7 @@ if (!exists("theYmax") || !exists("theXmax")){
 
   if (gatelines == TRUE){Value <- reference[reference$specimen == name, xValue]
     Plot <- Plot + geom_vline(xintercept = c(seq(0,200,25)), colour = "gray") +
-      geom_vline(xintercept = Value, colour = "red")
-  }
+      geom_vline(xintercept = Value, colour = "red")}
 
 } else {Plot <- as.ggplot(ggcyto(ff, aes(x = .data[[xValue]],
         y = .data[[yValue]]), subset = "root") + geom_hex(bins=bins) +
@@ -67,8 +66,8 @@ if (!exists("theYmax") || !exists("theXmax")){
           default = TRUE) + theme_bw() + labs(title = NULL) +
           theme(strip.background = element_blank(),
           strip.text.x = element_blank(), panel.grid.major = element_line(
-            linetype = "blank"),
-                                                                                         panel.grid.minor = element_line(linetype = "blank"), axis.title = element_text(size = 10, face = "bold"), legend.position = "none"))
+            linetype = "blank"), panel.grid.minor = element_line(linetype = "blank"),
+            axis.title = element_text(size = 10, face = "bold"), legend.position = "none"))
 
 if (gatelines == TRUE){Value <- reference[reference$specimen == name, xValue]
 Plot <- Plot + geom_vline(xintercept = c(seq(0,200,25)), colour = "gray") +

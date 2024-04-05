@@ -70,7 +70,7 @@ Utility_NbyNPlots <- function(x, sample.name, removestrings, experiment = NULL, 
 
       #Plots1 <- Plots
 
-      return(Plots)
+
     }
 
     Plots <- map(.x=DFNames, .f = .UniversalIterator, x_ff=ff,
@@ -78,13 +78,14 @@ Utility_NbyNPlots <- function(x, sample.name, removestrings, experiment = NULL, 
                  reference=reference, clearance=clearance, bins=bins)
 
     Plots <- flatten(Plots)
-    return(Plots)
+
 
   } else {
     columnlist <- DFNames[DFNames != ycolumn]
     Plots <- map(.x = columnlist, .f = Utility_GeneralGating, name = name, ff = ff, yValue = ycolumn, columnlist = DFNames,
                  TheDF = TheDF, gatelines = gatelines, reference = reference, clearance, bins)
   }
+
 
   if (pdf == TRUE){
 
