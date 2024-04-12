@@ -107,16 +107,29 @@ Utility_UnityPlot <- function(x, y, GatingSet, marginsubset, gatesubset, sample.
 
   ff1 <- gs_pop_get_data(x, gatesubset)
 
-  Plot <- as.ggplot(ggcyto(ff1, aes(x = .data[[TheX]], y = .data[[TheY]]),
-                           subset = "root") + geom_hex(bins=bins) + theme_bw() + labs(title = name) +
-                      theme(strip.background = element_blank(), strip.text.x = element_blank(),
-                            panel.grid.major = element_line(linetype = "blank"),
-                            panel.grid.minor = element_line(linetype = "blank"),
-                            axis.title = element_text(size = 10, face = "bold"),
-                            legend.position = "none"))
+  if (BiocGenerics::nrow(ff1) < 200) {
+    Plot <- as.ggplot(ggcyto(ff1, aes(x = .data[[TheX]], y = .data[[TheY]]),
+                             subset = "root") + geom_point(size = 2, alpha = 0.8) + theme_bw() + labs(title = name) +
+                        theme(strip.background = element_blank(), strip.text.x = element_blank(),
+                              panel.grid.major = element_line(linetype = "blank"),
+                              panel.grid.minor = element_line(linetype = "blank"),
+                              axis.title = element_text(size = 10, face = "bold"),
+                              legend.position = "none"))
+  } else {
+    Plot <- as.ggplot(ggcyto(ff1, aes(x = .data[[TheX]], y = .data[[TheY]]),
+                             subset = "root") + geom_hex(bins=bins) + theme_bw() + labs(title = name) +
+                        theme(strip.background = element_blank(), strip.text.x = element_blank(),
+                              panel.grid.major = element_line(linetype = "blank"),
+                              panel.grid.minor = element_line(linetype = "blank"),
+                              axis.title = element_text(size = 10, face = "bold"),
+                              legend.position = "none"))
+  }
+
+
 
   if (gatelines == TRUE){Value <- reference[reference$specimen == name, TheX]
   Plot <- Plot + geom_vline(xintercept = c(seq(0,200,25)), colour = "gray") +
+    geom_vline(xintercept = c(seq(0,200,10)), colour = "white", alpha = 0.1) +
     geom_vline(xintercept = Value, colour = "red")}
 
   return(Plot)
