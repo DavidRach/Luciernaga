@@ -63,5 +63,5 @@ Either list ggplot objects or a pdf object
 Overlay plot two .fcs files from two different gs.
 }
 \examples{
-Not at this time
+NULL
 }

@@ -32,7 +32,7 @@
 #' @return Either list ggplot objects or a pdf object
 #' @export
 #'
-#' @examples Not at this time
+#' @examples NULL
 
 Utility_ParallelNbyNPlots <- function(x, y, sample.name, removestrings, Override = FALSE, marginsubset,
     gatesubset, ycolumn, bins, clearance, colorX, colorY, gatelines, reference = NULL, outpath, pdf){
