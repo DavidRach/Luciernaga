@@ -32,7 +32,7 @@
 #' @return The ggplots for all the specimens, as well as the optional .pdf
 #' @export
 #'
-#' @examples  Not at this time
+#' @examples  NULL
 
 Utility_UnityPlot <- function(x, y, GatingSet, marginsubset, gatesubset, sample.name, removestrings,
                               clearance, bins, gatelines, reference, pdf, outpath){

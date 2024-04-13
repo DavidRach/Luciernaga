@@ -23,7 +23,7 @@
 #' @return A new .fcs file with the new columns appended
 #' @export
 #'
-#' @examples Not at this moment.
+#' @examples NULL
 
 LuciernagaUnmix <- function(x, controlData, sample.name, addon, removestrings, subset, multiplier, outpath){
 

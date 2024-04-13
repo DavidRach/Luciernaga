@@ -21,7 +21,7 @@
 #' @return Numbers
 #' @export
 #'
-#' @examples Not applicable
+#' @examples NULL
 
 Utility_UMAP <- function(x, sample.name, removestrings, subsets, columns, notcolumns, subsample, export, outpath){
   # Retrieving the metadata # the abbreviated version

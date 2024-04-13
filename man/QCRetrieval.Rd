@@ -18,5 +18,5 @@ A dataframe row
 Returns the Detector and Laser settings from individual CytoSet files
 }
 \examples{
-Not at this time
+NULL
 }

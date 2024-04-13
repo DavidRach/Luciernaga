@@ -11,7 +11,7 @@
 #' @return A new flow_frame object.
 #' @export
 #'
-#' @examples Not applicable
+#' @examples NULL
 
 Utility_ColAppend <- function(ff, DF, columnframe){
   TheColNames <- colnames(columnframe)

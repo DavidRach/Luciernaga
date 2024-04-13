@@ -20,5 +20,5 @@ A new flow_frame object.
 Add Dimensionality Visualized parameters to raw .fcs files
 }
 \examples{
-Not applicable
+NULL
 }

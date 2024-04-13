@@ -26,5 +26,5 @@ A ggplot2 object of lineplots from the sliced .fcs file
 Takes a Lucierna SingleColorQC .fcs, splits into percentiles, and plots the results.
 }
 \examples{
-Not at this time
+NULL
 }

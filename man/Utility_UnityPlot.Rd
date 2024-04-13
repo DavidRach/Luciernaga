@@ -54,5 +54,5 @@ The ggplots for all the specimens, as well as the optional .pdf
 Compare the plots for given parameters for all specimens in the gating set.
 }
 \examples{
- Not at this time
+ NULL
 }

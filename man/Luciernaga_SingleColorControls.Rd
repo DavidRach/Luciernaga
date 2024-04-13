@@ -36,5 +36,5 @@ A tibble row for each flow object containing the summarized data.
 Calculates the single color control matrix for a given quantile cutoffs and a given statistic
 }
 \examples{
-Not at this time
+NULL
 }

@@ -20,5 +20,5 @@ A dataframe.
 Converts the Cytek Aurora (TM)'s QC report into a data frame.
 }
 \examples{
-Not at this time
+NULL
 }

@@ -40,5 +40,5 @@ Numbers
 Runs openTSNE via Basilisk
 }
 \examples{
-Not applicable
+NULL
 }

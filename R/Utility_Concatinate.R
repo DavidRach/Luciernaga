@@ -11,7 +11,7 @@
 #' @return A concatenated .fcs file to new location
 #' @export
 #'
-#' @examples Not applicable at this time
+#' @examples NULL
 
 Utility_Concatinate <- function(gs, sample.name, removestrings, subsets, subsample, newName, outpath){
 gs <- gs

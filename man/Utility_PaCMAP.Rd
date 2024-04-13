@@ -40,5 +40,5 @@ Numbers
 Runs PaCMAP via Basilisk
 }
 \examples{
-Not applicable
+NULL
 }

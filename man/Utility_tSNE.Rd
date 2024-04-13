@@ -40,5 +40,5 @@ Numbers
 Runs tSNE (Rtsne implementation)
 }
 \examples{
-Not applicable
+NULL
 }

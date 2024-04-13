@@ -25,7 +25,7 @@
 #' @return Numbers
 #' @export
 #'
-#' @examples Not applicable
+#' @examples NULL
 
 Utility_openTSNE <- function(x, sample.name, removestrings, subsets, columns, notcolumns, subsample, export, outpath){
   #Python Environment Startup # Early in Case of Failure

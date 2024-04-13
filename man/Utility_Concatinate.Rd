@@ -36,5 +36,5 @@ A concatenated .fcs file to new location
 Concatinate a gs based on subset and subsample
 }
 \examples{
-Not applicable at this time
+NULL
 }

@@ -28,7 +28,7 @@
 #' @return A ggplot2 object of lineplots from the sliced .fcs file
 #' @export
 #'
-#' @examples Not at this time
+#' @examples NULL
 
 Utility_LinearSlices <- function(x, subset, sample.name, removestrings, stats, TheReturn){
   name <- keyword(x, sample.name)

@@ -27,7 +27,7 @@
 #' @return A tibble row for each flow object containing the summarized data.
 #' @export
 #'
-#' @examples Not at this time
+#' @examples NULL
 
 Luciernaga_SingleColorControls <- function(x, sample.name, removestrings, subset, PanelCuts, stats, SignatureView){
   name <- keyword(x, sample.name)

@@ -40,5 +40,5 @@ Numbers
 Runs UMAP (uwot implementation)
 }
 \examples{
-Not applicable
+NULL
 }

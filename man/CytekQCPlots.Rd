@@ -24,5 +24,5 @@ The pdf and/the plots.
 Takes the dataframe generated from CytekQCFilePrep and returns all the QC plots
 }
 \examples{
-Not at this time.
+NULL
 }

@@ -15,7 +15,7 @@
 #' @return A dataframe.
 #' @export
 #'
-#' @examples Not at this time
+#' @examples NULL
 
 CytekQCFilePrep <- function(x, TrackChange){
 

@@ -15,7 +15,7 @@
 #' @return The pdf and/the plots.
 #' @export
 #'
-#' @examples Not at this time.
+#' @examples NULL
 
 CytekQCPlots <- function(x, FailedFlag, pdf, path, filename){
   Flagged <- x %>% select(starts_with("Flag"))

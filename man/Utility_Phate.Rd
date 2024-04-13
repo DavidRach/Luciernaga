@@ -40,5 +40,5 @@ Numbers
 Runs PHATE via Basilisk
 }
 \examples{
-Not applicable
+NULL
 }

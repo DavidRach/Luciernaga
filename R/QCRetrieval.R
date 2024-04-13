@@ -11,7 +11,7 @@
 #' @return A dataframe row
 #' @export
 #'
-#' @examples Not at this time
+#' @examples NULL
 
 QCRetrieval <- function(x, sample.name){
   KeywordsList <- keyword(x)
