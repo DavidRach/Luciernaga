@@ -1,14 +1,14 @@
 Package: Luciernaga
 Type: Package
-Title: Quality control of single color and unstained controls for Spectral Flow Cytometry
+Title: Dichotomized Boolean Clustering and Heatmaps for Spectral Flow Cytometry
 Version: 0.1.0
 Authors@R: 
     person("David", "Rach", , "drach@som.umaryland.edu", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0003-2235-5585"))
-Description: How stable are your single colors and unstained controls? 
-    Let's together find out. By identifying peaks, we can subclassify the fluorescence,
-    and then compare across each other for additional insights into the quality
-    of spectral flow cytometry single color reference controls. 
+Description: Acknowledging the limitations of unsupervized analysis and 
+  downsampling, through a semi-supervised gating implements dichotomized 
+  boolean gates to cluster every cell from an experiment and querry the
+  resulting subclusters.
 License: AGPL (>= 3)
 Encoding: UTF-8
 LazyData: FALSE
@@ -16,40 +16,43 @@ URL: https://github.com/DavidRach/Luciernaga
 BugReports: https://github.com/DavidRach/Luciernaga/issues
 RoxygenNote: 7.3.1
 Imports: 
-    basilisk,
-    Biobase,
-    BiocGenerics,
+    broom,
     dplyr,
+    fBasics,
     flowCore,
     flowWorkspace,
-    ggcyto,
+    ggbeeswarm,
     ggplot2,
     grDevices,
-    htmltools,
-    lsa,
-    lubridate,
-    openCyto,
+    magrittr,
     patchwork,
-    plotly,
     purrr,
     reshape2,
-    reticulate,
-    Rtsne,
+    scales,
+    shiny,
     stats,
     stringr,
     tidyr,
-    uwot,
-    zoo
+    tidyselect,
+    viridis,
+    lubridate,
+    utils,
+    zoo,
+    BiocGenerics
 Depends: R (>= 4.0.0)
 Suggests: 
     BiocStyle,
-    knitr,
-    rmarkdown,
-    testthat (>= 3.0.0),
     data.table,
-    viridis,
-    gt
-biocViews: FlowCytometry, Preprocessing, QualityControl, Software
-VignetteBuilder: knitr
+    DT,
+    ggcyto,
+    knitr,
+    openCyto,
+    rmarkdown,
+    shinyBS,
+    shinydashboard,
+    shinyjs,
+    testthat (>= 3.0.0),
+    withr
+biocViews: Clustering, FlowCytometry, Preprocessing, Software
 Config/testthat/edition: 3
-StagedInstall: no
+VignetteBuilder: knitr
