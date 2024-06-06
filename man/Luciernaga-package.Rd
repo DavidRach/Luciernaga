@@ -4,7 +4,7 @@
 \name{Luciernaga-package}
 \alias{Luciernaga}
 \alias{Luciernaga-package}
-\title{Luciernaga: Quality control of single color and unstained controls for Spectral Flow Cytometry}
+\title{Luciernaga: Dichotomized Boolean Clustering and Heatmaps for Spectral Flow Cytometry}
 \description{
 To learn more about how to use Luciernaga, please start by browsing the vignettes:
 }
