@@ -45,9 +45,10 @@ Utility_NbyNPlots <- function(x, sample.name, removestrings, experiment = NULL, 
   } else if (exists("experiment.name")) {experiment <- keyword(x, experiment.name)
                                          experiment <- NameCleanUp(name=experiment, removestrings)}
 
-  if(!is.null(condition)){condition <- condition
+  if(exists("condition")){condition <- condition
   } else if (exists("condition.name")){condition <- keyword(x, condition.name)
-                                      condition <- NameCleanUp(name=condition, removestrings)}
+                                       condition <- NameCleanUp(name=condition, removestrings)
+                                       } else {condition <- NULL}
 
   #We need to think about naming convention, especially for including condition.
 
