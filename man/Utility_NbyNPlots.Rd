@@ -20,7 +20,9 @@ Utility_NbyNPlots(
   gatelines,
   reference = NULL,
   outpath,
-  pdf
+  pdf,
+  width = 9,
+  height = 7
 )
 }
 \arguments{
@@ -55,6 +57,10 @@ Utility_NbyNPlots(
 \item{outpath}{Location for which to store the generated .pdf}
 
 \item{pdf}{Prints default NxN plot, TRUE or FALSE.}
+
+\item{width}{Desired page width for a pdf, default is 9 inches.}
+
+\item{height}{Desired page height for a pdf, default is 7 inches}
 }
 \value{
 A value to be determined later
