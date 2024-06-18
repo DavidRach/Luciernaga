@@ -44,15 +44,19 @@ Utility_GatingPlots <- function(x, sample.name, removestrings,
   name <- keyword(x, sample.name)
   name <- NameCleanUp(name = name, removestrings)
 
-  if(!is.null(experiment)){experiment <- experiment
-  } else {experiment <- keyword(x, experiment.name)}
+  if(exists("experiment")) {experiment <- experiment
+  } else if (exists("experiment.name")) {experiment <- keyword(x, experiment.name)
+  } else {experiment <- NULL}
 
-  if(!is.null(condition)){condition <- condition
-  } else {condition <- keyword(x, condition.name)}
+  if(exists("condition")){condition <- condition
+  } else if (exists("condition.name")) {condition <- keyword(x, condition.name)
+  } else {condition <- NULL}
 
-  AggregateName <- paste0(name, experiment) #Additional for condition
-  #(we need to think this through)
-  StorageLocation <- paste(outpath, AggregateName, sep = "/", collapse = NULL)
+  if (!is.null(experiment)){
+    AggregateName <- paste0(name, experiment)
+  } else {AggregateName <- name}
+
+  StorageLocation <- file.path(outpath, AggregateName)
 
   ff <- gs_pop_get_data(x, subsets)
   df <- exprs(ff[[1]]) #Is the one necessary in this case? Unclear

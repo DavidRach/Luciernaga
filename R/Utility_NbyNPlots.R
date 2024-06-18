@@ -16,6 +16,8 @@
 #' @param condition.name The keyword in the .fcs file storing the condition.name
 #' @param gatelines Whether to add estimated gate cutoff lines
 #' @param reference Reference for the gate cutoff lines
+#' @param width Desired page width for a pdf, default is 9 inches.
+#' @param height Desired page height for a pdf, default is 7 inches
 #'
 #' @importFrom flowWorkspace keyword
 #' @importFrom flowWorkspace gs_pop_get_data
@@ -29,22 +31,31 @@
 #'
 #' @examples NULL
 
-Utility_NbyNPlots <- function(x, sample.name, removestrings, experiment = NULL, experiment.name = NULL, condition = NULL, condition.name = NULL,
-                              marginsubset, gatesubset, ycolumn, bins, clearance, gatelines, reference = NULL, outpath, pdf){
-  ycolumn <- ycolumn
-  x <- x
-  name <- keyword(x, sample.name)
+Utility_NbyNPlots <- function(x, sample.name, removestrings, experiment = NULL, experiment.name = NULL,
+                              condition = NULL, condition.name = NULL, marginsubset, gatesubset,
+                              ycolumn, bins, clearance, gatelines, reference = NULL, outpath, pdf,
+                              width = 9, height = 7) {
+  #ycolumn <- ycolumn
+  #x <- x
 
+  name <- keyword(x, sample.name)
   name <- NameCleanUp(name = name, removestrings)
 
   if(!is.null(experiment)){experiment <- experiment
-  } else {experiment <- keyword(x, experiment.name)}
+  } else if (exists("experiment.name")) {experiment <- keyword(x, experiment.name)
+                                         experiment <- NameCleanUp(name=experiment, removestrings)}
 
-  if(!is.null(condition)){condition <- condition
-  } else {condition <- keyword(x, condition.name)}
+  if(exists("condition")){condition <- condition
+  } else if (exists("condition.name")){condition <- keyword(x, condition.name)
+                                       condition <- NameCleanUp(name=condition, removestrings)
+                                       } else {condition <- NULL}
 
-  AggregateName <- paste(name, experiment, sep = "_") #Additional for condition (we need to think this through)
-  StorageLocation <- paste(outpath, AggregateName, sep = "/", collapse = NULL)
+  #We need to think about naming convention, especially for including condition.
+
+  if (exists("experiment")){AggregateName <- paste(name, experiment, sep = "_")
+  } else {AggregateName <- name}
+
+  StorageLocation <- file.path(outpath, AggregateName)
 
   mff <- gs_pop_get_data(x, marginsubset)
   df <- exprs(mff[[1]])
@@ -67,10 +78,7 @@ Utility_NbyNPlots <- function(x, sample.name, removestrings, experiment = NULL, 
                    TheDF = TheDF, gatelines = gatelines, reference = reference, clearance=clearance, bins=bins)
 
       #Plots <- flatten(Plots)
-
       #Plots1 <- Plots
-
-
     }
 
     Plots <- map(.x=DFNames, .f = .UniversalIterator, x_ff=ff,
@@ -89,6 +97,8 @@ Utility_NbyNPlots <- function(x, sample.name, removestrings, experiment = NULL, 
 
   if (pdf == TRUE){
 
+    #Pass directly to Utility_Patchwork
+
     theList <- Plots
     theListLength <- length(Plots)
 
@@ -104,11 +114,8 @@ Utility_NbyNPlots <- function(x, sample.name, removestrings, experiment = NULL, 
     }
 
     sublists <- split_list(theList, theoreticalitems)
-    #length(sublists)
 
-    #sublists[[length(sublists)]] <- c(sublists[[length(sublists)]], rep(plot_spacer(), AdditionalSpaces))
-
-    pdf(file = paste(StorageLocation, ".pdf", sep = "", collapse = NULL), width = 9, height = 7) #Optional Adjustments for Second
+    pdf(file = paste(StorageLocation, ".pdf", sep = "", collapse = NULL), width = width, height = height)
 
     for(i in sublists){p <- wrap_plots(i, ncol = thecolumns, nrow = therows, widths = 0.8, heights = 0.8)
     print(p)
