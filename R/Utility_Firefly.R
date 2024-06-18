@@ -53,8 +53,9 @@ Utility_SingleColorQC <- function(x, subsets, sample.name, group.name,
   CleanedDF <- DF[,-grep("Time|FS|SC|SS|Original|W$|H$", names(DF))]
   BackupNames <- colnames(CleanedDF)
   n <- CleanedDF
+
   #Normalizing By Peak Detector
-  n[n < 0] <- 0
+  n[n < 0] <- 0   #Troublesome
   A <- do.call(pmax, n)
   Normalized <- n/A
   Normalized <- round(Normalized, 1)
@@ -335,9 +336,10 @@ Utility_SingleColorQC <- function(x, subsets, sample.name, group.name,
         TheDetector, .before = Detectors)
 
       #Deriving an average y-vector for local maxima
-      Conversion <- Conversion %>% mutate(TheSums = rowSums(.[2:ncol(.)],
-                                                            na.rm = TRUE) /(ncol(Conversion) - 1)) %>% relocate(
-                                                              TheSums, .after = Detectors)
+      Conversion <- Conversion %>%
+        mutate(TheSums = rowSums(.[2:ncol(.)], na.rm = TRUE) /(ncol(Conversion) - 1)) %>%
+        relocate(TheSums, .after = Detectors)
+
       Conversion$Detectors <- 1:nrow(Conversion)
       LocalX <- Conversion$Detectors
       LocalY <- Conversion$TheSums

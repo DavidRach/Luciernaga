@@ -129,7 +129,7 @@ Utility_UnityPlot <- function(x, y, GatingSet, marginsubset, gatesubset, sample.
 
   if (gatelines == TRUE){Value <- reference[reference$specimen == name, TheX]
   Plot <- Plot + geom_vline(xintercept = c(seq(0,200,25)), colour = "gray") +
-    geom_vline(xintercept = c(seq(0,200,10)), colour = "white", alpha = 0.1) +
+    geom_vline(xintercept = c(seq(0,200,5)), colour = "white", alpha = 0.1) +
     geom_vline(xintercept = Value, colour = "red")}
 
   return(Plot)
