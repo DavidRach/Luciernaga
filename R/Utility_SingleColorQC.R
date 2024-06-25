@@ -48,22 +48,23 @@
 #'
 #' @examples NULL
 
-#x <- gs[1]
-#subsets = "lymph"
-#sample.name = "GUID"
-#removestrings = c("DR_", " (Cells)")
-#mainAF = "V7-A"
-#AFOverlap = AFOverlap
-#stats = "median"
-#Unstained = TRUE
-#Beads = FALSE
-#Verbose = TRUE
+x <- gs[2]
+subsets = "lymph"
+sample.name = "GUID"
+removestrings = c("DR_", " (Cells)")
+mainAF = "V7-A"
+AFOverlap = AFOverlap
+stats = "median"
+Unstained = FALSE
+Beads = FALSE
+Verbose = TRUE
+external = NULL
 
 #group.name = "GROUPNAME"
 #experiment = NULL
 #experiment.name = "$DATE"
 #Kept = "Normalized"
-#external = NULL
+
 #sourcelocation = "Genesis.R"
 #outpath = MainOutPath
 #artificial = TRUE
@@ -73,8 +74,9 @@
 
 Utility_SingleColorQC <- function(x, subsets, sample.name, removestrings, experiment = NULL, experiment.name = NULL,
                                   mainAF, AFOverlap, stats, Unstained=FALSE, Beads=FALSE, Verbose = FALSE,
+                                  external = NULL,
 
-                                  Kept, external, sourcelocation, outpath,
+                                  Kept, sourcelocation, outpath,
                                   artificial, fcsexport,
                                   Brightness){
 
@@ -253,14 +255,18 @@ Utility_SingleColorQC <- function(x, subsets, sample.name, removestrings, experi
   # We resume our regular programming #
   #####################################
 
-  if (str_detect(name, "Unstained")){
+  WorkAround1 <- WorkAround %>% mutate(Backups = Backups$Backups) %>%
+    relocate(Backups, .before = 1)
 
-    WorkAround1 <- WorkAround %>% mutate(Backups = Backups$Backups) %>%
-      relocate(Backups, .before = 1)
+  if (str_detect(name, "Unstained")){
 
     RetainedDF <- map(.x= Retained, .f=UnstainedSignatures, WorkAround1=WorkAround1, alternatename=AggregateName) %>% bind_rows()
 
-  } else {message("Work in progress")}
+  } else {
+
+    RetainedDF <- map(.x= Retained, .f=SingleStainSignatures, WorkAround1=WorkAround1,
+                      alternatename=AggregateName) %>% bind_rows()
+  }
 
 
   #Processing Unstaineds, no removal required
@@ -422,5 +428,141 @@ UnstainedSignatures <- function(x, WorkAround1, alternatename){
 }
 
 
+
+SingleStainSignatures <- function(x, WorkAround1, alternatename){
+  MySubset <- WorkAround1 %>% dplyr::filter(.data[[x]] == 1.000)
+  StashedIDs <- MySubset %>% select(Backups)
+  MySubset <- MySubset %>% select(-Backups)
+  MySubset <- MySubset %>% select(all_of(1:ColsN)) #Not Specified Internally
+  BackupNames2 <- colnames(MySubset)
+  DetectorName <- x
+
+  if (is.null(external)) {
+    Data <- MySubset
+    Samples_replicated <- Samples[rep(1, each = nrow(Data)),]
+    Test <- Data[, 1:ColsN] - Samples_replicated[, 1:ColsN]
+    Test[Test < 0] <- 0
+
+    AA <- do.call(pmax, Test)
+    Normalized2 <- Test/AA
+    Normalized2 <- round(Normalized2, 1)
+    colnames(Normalized2) <- gsub("-A", "", colnames(Normalized2))
+
+    Counts2 <- colSums(Normalized2 == 1)
+    Captured <- round(Counts2[x]/sum(Counts2), 2)
+    message(paste0(x, " retained ", Captured, " of the Variance"))
+    WorkAround2 <- cbind(MySubset, Normalized2)
+
+    if (any(str_detect(name, names(results)))){
+      WorkAround3 <- WorkAround2 %>% mutate(Backups = StashedIDs$Backups) %>%
+        relocate(Backups, .before = 1)
+      WorkAroundInt <- WorkAround3 %>% dplyr::filter(.data[[x]] == 1.000)
+      StashedIDs <- WorkAroundInt %>% select(Backups)
+      WorkAround2 <- WorkAroundInt %>% select(-Backups)
+    }
+  } else {
+    Data <- MySubset
+    Samples_replicated <- external[rep(1, each = nrow(Data)),]
+    Test <- Data[, 1:ColsN] - Samples_replicated[, 1:ColsN]
+    Test[Test < 0] <- 0
+
+    AA <- do.call(pmax, Test)
+    Normalized2 <- Test/AA
+    Normalized2 <- round(Normalized2, 1)
+    colnames(Normalized2) <- gsub("-A", "", colnames(Normalized2))
+
+    Counts2 <- colSums(Normalized2 == 1)
+    Captured <- round(Counts2[x]/sum(Counts2), 2)
+    print(paste0(x, " retained ", Captured, " of the Variance"))
+
+    #Bringing Together Raw And Subtracted Normalized
+    WorkAround2 <- cbind(MySubset, Normalized2)
+
+    if (any(str_detect(name, names(results)))){
+      WorkAround3 <- WorkAround2 %>% mutate(Backups = StashedIDs$Backups) %>%
+        relocate(Backups, .before = 1)
+      WorkAroundInt <- WorkAround3 %>% dplyr::filter(.data[[x]] == 1.000)
+      StashedIDs <- WorkAroundInt %>% select(Backups)
+      WorkAround2 <- WorkAroundInt %>% select(-Backups)
+    }
+  }
+
+  MyData <- WorkAround2 %>% select(all_of(
+    StartNormalizedMergedCol:EndNormalizedMergedCol)) %>%
+    mutate(across(where(is.numeric), ~ ceiling(. / 0.2) * 0.2))
+  MyRawData <- WorkAround2 %>% select(all_of(1:ColsN))
+
+  #Preparation for Local Maxima
+  Conversion <- data.frame(t(MyData), check.names = FALSE)
+  Conversion <- cbind(Detectors = rownames(Conversion), Conversion)
+  rownames(Conversion) <- NULL
+
+  #Preparing Detector Stand Ins for left_join
+  Decoys <- Conversion %>% select(Detectors)
+  Decoys <- Decoys %>% mutate(TheDetector = 1:nrow(Decoys)) %>% relocate(
+    TheDetector, .before = Detectors)
+
+  #Deriving an average y-vector for local maxima
+  Conversion <- Conversion %>% mutate(TheSums = rowSums(.[2:ncol(.)],
+                                                        na.rm = TRUE) /(ncol(Conversion) - 1)) %>% relocate(
+                                                          TheSums, .after = Detectors)
+  Conversion$Detectors <- 1:nrow(Conversion)
+  LocalX <- Conversion$Detectors
+  LocalY <- Conversion$TheSums
+
+  #I made it export, now just need to rebuild, then remove extra :
+  alternatename <- alternatename
+  PointData <- Luciernaga::Utility_LocalMaxima(theX = LocalX, theY = LocalY,
+                                               therepeats = 3, w = 3, span = 0.11, alternatename = alternatename)
+
+  colnames(PointData)[1] <- "TheDetector"
+  colnames(PointData)[2] <- "TheHeight"
+
+  Newest2 <- PointData %>% filter(TheHeight > 0.15) %>% arrange(desc(TheHeight))
+  Assembled <- left_join(Newest2, Decoys, by = "TheDetector")
+  if(nrow(Assembled) == 0){stop("Failed at Assembled, no local maxima greater than 0.15")}
+  These <- Assembled %>% pull(Detectors)
+  if (any(These %in% x)) {These <- These[These != x]}
+  if (length(These) > 2) {These <- head(These, 2)} #If we wanted to institute a number of peaks argument, it would be here.
+
+  MyData <- cbind(StashedIDs, MyRawData, MyData)
+  MyData$Cluster <- paste(DetectorName, "10-", sep = "_")
+
+  if (length(These) == 2){second <- These[[1]]
+  third <- These[[2]]
+  } else if(length(These) == 1){second <- These[[1]]}
+
+  if(exists("second")){MyData <- MyData %>% mutate(Cluster = case_when(
+    near(MyData[[second]], 0.0) ~ paste(MyData$Cluster, second, "_00-",
+                                        sep = "", collapse = NULL),
+    near(MyData[[second]], 0.2) ~ paste(MyData$Cluster, second, "_02-",
+                                        sep = "", collapse = NULL),
+    near(MyData[[second]], 0.4) ~ paste(MyData$Cluster, second, "_04-",
+                                        sep = "", collapse = NULL),
+    near(MyData[[second]], 0.6) ~ paste(MyData$Cluster, second, "_06-",
+                                        sep = "", collapse = NULL),
+    near(MyData[[second]], 0.8) ~ paste(MyData$Cluster, second, "_08-",
+                                        sep = "", collapse = NULL),
+    near(MyData[[second]], 1.0) ~ paste(MyData$Cluster, second, "_10-",
+                                        sep = "", collapse = NULL)))
+  }
+
+  if(exists("third")){MyData <- MyData %>% mutate(Cluster = case_when(
+    near(MyData[[third]], 0.0) ~ paste(MyData$Cluster, third, "_00",
+                                       sep = "", collapse = NULL),
+    near(MyData[[third]], 0.2) ~ paste(MyData$Cluster, third, "_02",
+                                       sep = "", collapse = NULL),
+    near(MyData[[third]], 0.4) ~ paste(MyData$Cluster, third, "_04",
+                                       sep = "", collapse = NULL),
+    near(MyData[[third]], 0.6) ~ paste(MyData$Cluster, third, "_06",
+                                       sep = "", collapse = NULL),
+    near(MyData[[third]], 0.8) ~ paste(MyData$Cluster, third, "_08",
+                                       sep = "", collapse = NULL),
+    near(MyData[[third]], 1.0) ~ paste(MyData$Cluster, third, "_10",
+                                       sep = "", collapse = NULL)))
+  }
+
+  return(MyData)
+}
 
 
