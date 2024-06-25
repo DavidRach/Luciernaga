@@ -45,44 +45,83 @@
 #' @export
 #'
 #' @examples NULL
-Utility_SingleColorQC <- function(x, subsets, sample.name, group.name,
-                                  experiment = NULL, experiment.name = NULL,
-                                  stats, Kept, external, sourcelocation, outpath,
-                                  artificial, fcsexport, mainAF, AFOverlap, Beads,
-                                  Brightness, Unstained){
 
-  gc()
-  x <- x
+x <- gs[1]
+sample.name = "GUID"
+removestrings = c("DR_", " (Cells)")
+
+subsets = "nonDebris"
+
+group.name = "GROUPNAME"
+experiment = NULL
+experiment.name = "$DATE"
+stats = "median"
+Kept = "Normalized"
+external = NULL
+sourcelocation = "Genesis.R"
+outpath = MainOutPath
+artificial = TRUE
+fcsexport = TRUE
+mainAF = "V7-A"
+AFOverlap = AFOverlap
+Beads = FALSE
+Brightness = TRUE
+Unstained = FALSE
+
+Utility_SingleColorQC <- function(x, subsets, sample.name, removestrings, experiment = NULL, experiment.name = NULL,
+                                  mainAF, AFOverlap, Unstained=FALSE, Beads=FALSE, Verbose = FALSE,
+
+
+
+
+                                  stats, Kept, external, sourcelocation, outpath,
+                                  artificial, fcsexport,
+                                  Brightness, ){
+
+  ##############
+  # Name Setup #
+  ##############
 
   # Retrieving .fcs file name
   name <- keyword(x, sample.name)
-  name <- gsub(".fcs", "", name)
+  name <- NameCleanUp(name, ".fcs")
 
-  if (Unstained == TRUE) {name <- paste0(name, " Unstained")}
+  # Predicting Reference Control Type
 
-  #Retrieving group name #InfantID in this case
-  group <- keyword(x, group.name)
+  if (Beads != TRUE) {
+    if(str_detect(name, "(Cells)")){Type <- "Cells"
+      } else if(str_detect(name, "(Beads)")){
+        stop("Bead reference controls are not currently supported. Sorry! -David")
+          } else {Type <- "Unknown"}
+  } else {
+    if(str_detect(name, "(Cells)")){Type <- "Cells"
+      } else if(str_detect(name, "(Beads)")){Type <- "Beads"
+        } else {Type <- "Unknown"}
+  }
 
-  # Guessing Type
-  if(str_detect(name, "(Cells)")){Type <- "Cells"} else if(
-    str_detect(name, "(Beads)")){Type <- "Beads"} else {Type <- "NULL"}
+  name <- NameCleanUp(name, removestrings)
 
-  #Additional Name Cleanup #Using Cytek Reference Control Output Names
-  name <- gsub(" (Cells)", "", fixed = TRUE, gsub(" (Beads)", "", fixed = TRUE,
-                                                  name))
+  # Specifying Unstained Work Around.
+  if (Unstained == TRUE) {name <- paste0(name, "_Unstained")}
 
-  #Setting Up an Alternate Name #Removing All Separators
-  alternate.name <- name #Before Removing Spaces et al
-  alternate.name <- gsub(" ", "", gsub("(", "", fixed = TRUE, gsub(")", "",
-    fixed = TRUE, gsub("_", "", fixed = TRUE, gsub("-", "", fixed = TRUE,
-                                                   alternate.name)))))
+  # Cleaning up Cells in Case Not Specified
+  name <- NameCleanUp(name, " (Cells)")
 
-  #Retrieving Experiment Info #Switched to an exist statement.
-  if(!is.null(experiment)){Experiment <- experiment
-  } else {experiment <- keyword(x, experiment.name)
-  experiment <- gsub("-", "", fixed = TRUE, experiment) #Some Cleanup
-  Experiment <- experiment}
-  #suppressWarnings(rm(experiment)) #Being Used Somewhere
+  if(exists("experiment")) {experiment <- experiment
+  } else if (exists("experiment.name")) {experiment <- keyword(x, experiment.name)
+  } else {experiment <- NULL}
+
+  if (!is.null(experiment)){
+    AggregateName <- paste0(name, experiment)
+  } else {AggregateName <- name}
+
+  # Removing Non-Characters and Spaces.
+  ExtraSpacers <- c(" ", "_", "-", ".", "(", ")")
+  AggregateName <- NameCleanUp(AggregateName, removestrings=ExtraSpacers)
+
+  ###############
+  # Exprs Setup #
+  ###############
 
   #Retrieving the exprs data for the target population
   ff <- gs_pop_get_data(x, subsets)
@@ -107,6 +146,18 @@ Utility_SingleColorQC <- function(x, subsets, sample.name, group.name,
   CleanedDF <- DF[,-grep("Time|FS|SC|SS|Original|W$|H$", names(DF))]
   BackupNames <- colnames(CleanedDF)
   n <- CleanedDF
+
+  #################
+  # Peak Detector #
+  #################
+
+  # Enumerating Negative Values Ratio
+  if (Verbose == TRUE){
+  TotalCells <- nrow(n) * ncol(n)
+  BelowZero <- sum(apply(n, 2, function(x) x < 0))
+  message(round(BelowZero/TotalCells,2), " of all events were negative and rounded to 0")
+  }
+
   #Normalizing By Peak Detector
   n[n < 0] <- 0
   A <- do.call(pmax, n)
@@ -123,17 +174,31 @@ Utility_SingleColorQC <- function(x, subsets, sample.name, group.name,
   #Bringing Together Raw And Normalized and deriving Autofluorescence Negative
   WorkAround <- cbind(n, Normalized)
 
-  #Retrieving Main Auto fluorescent Channels signature
-  MainAF <- mainAF
-  MainAF <- gsub("-A", "", MainAF)
+  ####################
+  # Autofluorescence #
+  ####################
 
+  #Retrieving Main Auto fluorescent Channels signature
+  if (Unstained == FALSE){MainAF <- mainAF
+  MainAF <- gsub("-A", "", MainAF)
+  } else{ ### NOTE ###Code this exception in later.
+    MainAF <- mainAF
+    MainAF <- gsub("-A", "", MainAF)
+  }
+
+  # Grabbing Main AF Peak and the Associated Raw Values
   This <- WorkAround %>% filter(.data[[MainAF]] == 1) %>%
     select(all_of(1:ColsN))
 
+  # Deriving Middle Autofluorescence Measurement
   if(stats == "mean"){Samples <- This %>% summarize_all(mean)
   } else if (stats == "median"){Samples <- This %>%
     summarize_all(median) #%>% select(-Backups)
-  } else(print("NA"))
+  } else(stop("Please specify stats parameter mean or median"))
+
+  ################
+  # Fluorophores #
+  ################
 
   #Deriving Peak Detector Counts and Detectors of Interest
   na_counts <- colSums(is.na(Normalized))
@@ -141,13 +206,14 @@ Utility_SingleColorQC <- function(x, subsets, sample.name, group.name,
   Counts <- colSums(Normalized == 1)
   PeakDetectorCounts <- data.frame(Fluors = names(Counts), Counts = Counts)
   rownames(PeakDetectorCounts) <- NULL
-  cutoff <- startingcells*0.0075
+  cutoff <- startingcells*0.0075 #Possible Parameter Add Here
   Detectors <- PeakDetectorCounts %>% filter(Counts > cutoff) %>%
     arrange(desc(Counts))
 
-  ###################################################################
-  # This is the very much cell and machine specific filter criteria #
-  ###################################################################
+  ################################################################
+  # Bringing in known AF detectors, and overlapping fluorophores #
+  ################################################################
+
   AFData <- AFOverlap
   AFChannels <- AFData %>% filter(Fluorophore %in% "Unstained") %>%
     pull(MainDetector) %>% str_split(",", simplify = TRUE)
@@ -158,6 +224,7 @@ Utility_SingleColorQC <- function(x, subsets, sample.name, group.name,
   SCData$Fluorophore <- gsub("-A", "", SCData$Fluorophore)
   TroubleChannels <- SCData %>% pull(Fluorophore)
 
+  # Handling the Exceptions
   results <- list()
   for(w in TroubleChannels){Internal <- SCData %>%
     filter(Fluorophore %in% w) %>% pull(MainDetector)
@@ -174,11 +241,8 @@ Utility_SingleColorQC <- function(x, subsets, sample.name, group.name,
   } else {Retained <- Detectors %>% filter(!Fluors %in% AFChannels) %>%
     pull(Fluors)}
 
-  #Retained
-
-
   if (length(Retained) == 0) {
-    stop("There were no Retained detectors in ", alternate.name)
+    stop("There were no Retained detectors in ", name)
   }
 
   if(Beads == TRUE){Retained <- Retained[[1]]}
