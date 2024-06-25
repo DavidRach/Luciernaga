@@ -17,6 +17,7 @@
 #' @import ggplot2
 #'
 #' @return A value to be determined later
+#' @export
 #'
 #' @examples NULL
 Utility_LocalMaxima <- function(theX, theY, therepeats, w, alternatename, ...){
