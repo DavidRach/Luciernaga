@@ -48,36 +48,35 @@
 #'
 #' @examples NULL
 
-x <- gs[1]
-subsets = "lymph"
-sample.name = "GUID"
-removestrings = c("DR_", " (Cells)")
-mainAF = "V7-A"
-AFOverlap = AFOverlap
-stats = "median"
-Unstained = TRUE
-Beads = FALSE
-Verbose = TRUE
+#x <- gs[1]
+#subsets = "lymph"
+#sample.name = "GUID"
+#removestrings = c("DR_", " (Cells)")
+#mainAF = "V7-A"
+#AFOverlap = AFOverlap
+#stats = "median"
+#Unstained = TRUE
+#Beads = FALSE
+#Verbose = TRUE
 
-group.name = "GROUPNAME"
-experiment = NULL
-experiment.name = "$DATE"
-
-Kept = "Normalized"
-external = NULL
-sourcelocation = "Genesis.R"
-outpath = MainOutPath
-artificial = TRUE
-fcsexport = TRUE
-Brightness = TRUE
+#group.name = "GROUPNAME"
+#experiment = NULL
+#experiment.name = "$DATE"
+#Kept = "Normalized"
+#external = NULL
+#sourcelocation = "Genesis.R"
+#outpath = MainOutPath
+#artificial = TRUE
+#fcsexport = TRUE
+#Brightness = TRUE
 
 
 Utility_SingleColorQC <- function(x, subsets, sample.name, removestrings, experiment = NULL, experiment.name = NULL,
                                   mainAF, AFOverlap, stats, Unstained=FALSE, Beads=FALSE, Verbose = FALSE,
 
-                                  stats, Kept, external, sourcelocation, outpath,
+                                  Kept, external, sourcelocation, outpath,
                                   artificial, fcsexport,
-                                  Brightness, ){
+                                  Brightness){
 
   ##############
   # Name Setup #
@@ -333,6 +332,12 @@ Utility_SingleColorQC <- function(x, subsets, sample.name, removestrings, experi
   return(Final2)
 }
 
+
+
+
+
+
+
 UnstainedSignatures <- function(x, WorkAround1, alternatename){
   MySubset <- WorkAround1 %>% dplyr::filter(.data[[x]] == 1.000)
   StashedIDs <- MySubset %>% select(Backups)
@@ -363,7 +368,7 @@ UnstainedSignatures <- function(x, WorkAround1, alternatename){
 
   #I made it export, now just need to rebuild, then remove extra :
   alternatename <- alternatename
-  PointData <- Luciernaga:::Utility_LocalMaxima(theX = LocalX, theY = LocalY,
+  PointData <- Luciernaga::Utility_LocalMaxima(theX = LocalX, theY = LocalY,
                                                 therepeats = 3, w = 3, span = 0.11, alternatename = alternatename)
 
   colnames(PointData)[1] <- "TheDetector"

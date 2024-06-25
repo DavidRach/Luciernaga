@@ -8,21 +8,22 @@ Utility_SingleColorQC(
   x,
   subsets,
   sample.name,
-  group.name,
+  removestrings,
   experiment = NULL,
   experiment.name = NULL,
+  mainAF,
+  AFOverlap,
   stats,
+  Unstained = FALSE,
+  Beads = FALSE,
+  Verbose = FALSE,
   Kept,
   external,
   sourcelocation,
   outpath,
   artificial,
   fcsexport,
-  mainAF,
-  AFOverlap,
-  Beads,
-  Brightness,
-  Unstained
+  Brightness
 )
 }
 \arguments{
@@ -32,14 +33,21 @@ Utility_SingleColorQC(
 
 \item{sample.name}{Keyword variable which samples are stored (ex. "GUID")}
 
-\item{group.name}{Keyword variable which groups are stored (ex. "GROUPNAME")}
-
 \item{experiment}{Provide directly experiment name (ex. "JAN2024")}
 
 \item{experiment.name}{Keyword variable which experiment information
 is stored (ex. "TUBENAME")}
 
+\item{mainAF}{Main Autofluorescence Detector (ex. "V7-A")}
+
+\item{AFOverlap}{Name of data.frame containing the Autofluorescence
+overlap of individual fluorophores for exclusion}
+
 \item{stats}{Whether to take "mean" or "median"}
+
+\item{Unstained}{Whether the sample is Unstained.}
+
+\item{Beads}{Whether the sample is Beads.}
 
 \item{Kept}{Whether "Raw" or "Normalized" values are retained in the
 Luciernaga object.}
@@ -55,16 +63,9 @@ a background autofluorescence stand in.}
 
 \item{fcsexport}{Whether to export .fcs files, TRUE or FALSE}
 
-\item{mainAF}{Main Autofluorescence Detector (ex. "V7-A")}
-
-\item{AFOverlap}{Name of data.frame containing the Autofluorescence
-overlap of individual fluorophores for exclusion}
-
-\item{Beads}{Whether the sample is Beads.}
-
 \item{Brightness}{Whether sum of detectors should be returned.}
 
-\item{Unstained}{Whether the sample is Unstained.}
+\item{group.name}{Keyword variable which groups are stored (ex. "GROUPNAME")}
 }
 \value{
 Additional information to be added
