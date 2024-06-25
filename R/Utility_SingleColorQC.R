@@ -71,9 +71,6 @@ Unstained = FALSE
 Utility_SingleColorQC <- function(x, subsets, sample.name, removestrings, experiment = NULL, experiment.name = NULL,
                                   mainAF, AFOverlap, Unstained=FALSE, Beads=FALSE, Verbose = FALSE,
 
-
-
-
                                   stats, Kept, external, sourcelocation, outpath,
                                   artificial, fcsexport,
                                   Brightness, ){
@@ -225,13 +222,18 @@ Utility_SingleColorQC <- function(x, subsets, sample.name, removestrings, experi
   TroubleChannels <- SCData %>% pull(Fluorophore)
 
   # Handling the Exceptions
-  results <- list()
-  for(w in TroubleChannels){Internal <- SCData %>%
-    filter(Fluorophore %in% w) %>% pull(MainDetector)
-  Internal <- gsub("-A", "", Internal)
-  Exclusion <- setdiff(AFChannels, Internal)
-  results[[w]] <- Exclusion
+
+
+
+  TroubleChannelExclusion <- function(x, SCData, MainDetector, AFChannels){
+    Internal <- SCData %>% filter(Fluorophore %in% x) %>% pull(MainDetector)
+    Internal <- gsub("-A", "", Internal)
+    Exclusion <- setdiff(AFChannels, Internal)
+    return(Exclusion)
   }
+
+  results <- map(.x=TroubleChannels, .f=TroubleChannelExclusion, SCData=SCData, MainDetector=MainDetector, AFChannels=AFChannels) %>%
+    set_names(TroubleChannels)
 
   matching_names <- names(results)[str_detect(name, names(results))]
   if (length(matching_names) > 0) {ExclusionList <- results[[matching_names[1]]]
@@ -252,296 +254,6 @@ Utility_SingleColorQC <- function(x, subsets, sample.name, removestrings, experi
   #####################################
 
   #Processing Unstaineds, no removal required
-
-  if (str_detect(name, "Unstained")){
-    #Retained
-    RetainedDF <- data.frame()
-    #i <- Retained[[1]]
-    #i
-    for(i in Retained){
-      # Filter Normalized Data and Bin It
-      WorkAround1 <- WorkAround %>% mutate(Backups = Backups$Backups) %>%
-        relocate(Backups, .before = 1)
-      MySubset <- WorkAround1 %>% dplyr::filter(.data[[i]] == 1.000)
-      StashedIDs <- MySubset %>% select(Backups)
-      MySubset <- MySubset %>% select(-Backups)
-      DetectorName <- i
-      MyData <- MySubset %>% select(all_of(
-        StartNormalizedMergedCol:EndNormalizedMergedCol)) %>%
-        mutate(across(where(is.numeric), ~ ceiling(. / 0.2) * 0.2))
-      MyRawData <- MySubset %>% select(all_of(1:ColsN))
-
-      #Preparation for Local Maxima
-      Conversion <- data.frame(t(MyData), check.names = FALSE)
-      Conversion <- cbind(Detectors = rownames(Conversion), Conversion)
-      rownames(Conversion) <- NULL
-
-      #Preparing Detector Stand Ins for left_join
-      Decoys <- Conversion %>% select(Detectors)
-      Decoys <- Decoys %>% mutate(TheDetector = 1:nrow(Decoys)) %>%
-        relocate(TheDetector, .before = Detectors)
-
-      #Deriving an average y-vector for local maxima
-      Conversion <- Conversion %>% mutate(TheSums = rowSums(.[2:ncol(.)],
-            na.rm = TRUE) /(ncol(Conversion) - 1)) %>% relocate(TheSums,
-                  .after = Detectors)
-      Conversion$Detectors <- 1:nrow(Conversion)
-      LocalX <- Conversion$Detectors
-      LocalY <- Conversion$TheSums
-
-      #Local Maxima
-      Newest <- data.frame()
-
-      PointData <- Utility_LocalMaxima(theX = LocalX, theY = LocalY,
-          therepeats = 3, w = 3, span = 0.11, alternatename = alternate.name)
-
-      for(l in PointData$x){Infinite <- PointData %>% filter(x %in% l)
-      TheDetector <- Infinite %>% pull(x)
-      TheHeight <- Infinite %>% pull(yhat)
-      Measurement <- cbind(TheDetector, TheHeight)
-      Newest <- rbind(Newest, Measurement)}
-      Newest2 <- Newest %>% filter(TheHeight > 0.15) %>%
-        arrange(desc(TheHeight))
-
-      #Detector Cascade
-      Assembled <- left_join(Newest2, Decoys, by = "TheDetector")
-
-      #suppressWarnings(rm(These))
-      These <- Assembled %>% pull(Detectors)
-
-      if (any(These %in% i)) {These <- These[These != i]}
-      if (length(These) > 2) {These <- head(These, 2)}
-
-      #suppressWarnings(rm(second))
-
-      #suppressWarnings(rm(third))
-
-      ####################
-      # Processing Start #
-      ####################
-
-      MyData <- cbind(StashedIDs, MyRawData, MyData)
-
-      MyData$Cluster <- paste(DetectorName, "10-", sep = "_")
-
-      tryCatch({second <- These[[1]]}, error = function(e) {
-        cat("Error occurred:", conditionMessage(e), "\n")})
-
-      if(exists("second")){MyData <- MyData %>% mutate(Cluster = case_when(
-        near(MyData[[second]], 0.0) ~ paste(MyData$Cluster, second, "_00-",
-                                            sep = "", collapse = NULL),
-        near(MyData[[second]], 0.2) ~ paste(MyData$Cluster, second, "_02-",
-                                            sep = "", collapse = NULL),
-        near(MyData[[second]], 0.4) ~ paste(MyData$Cluster, second, "_04-",
-                                            sep = "", collapse = NULL),
-        near(MyData[[second]], 0.6) ~ paste(MyData$Cluster, second, "_06-",
-                                            sep = "", collapse = NULL),
-        near(MyData[[second]], 0.8) ~ paste(MyData$Cluster, second, "_08-",
-                                            sep = "", collapse = NULL),
-        near(MyData[[second]], 1.0) ~ paste(MyData$Cluster, second, "_10-",
-                                            sep = "", collapse = NULL)))
-      }
-
-      tryCatch({third <- These[[2]]}, error = function(e) {
-        cat("Error occurred:", conditionMessage(e), "\n")})
-
-      if(exists("third")){MyData <- MyData %>% mutate(Cluster = case_when(
-        near(MyData[[third]], 0.0) ~ paste(MyData$Cluster, third, "_00",
-                                           sep = "", collapse = NULL),
-        near(MyData[[third]], 0.2) ~ paste(MyData$Cluster, third, "_02",
-                                           sep = "", collapse = NULL),
-        near(MyData[[third]], 0.4) ~ paste(MyData$Cluster, third, "_04",
-                                           sep = "", collapse = NULL),
-        near(MyData[[third]], 0.6) ~ paste(MyData$Cluster, third, "_06",
-                                           sep = "", collapse = NULL),
-        near(MyData[[third]], 0.8) ~ paste(MyData$Cluster, third, "_08",
-                                           sep = "", collapse = NULL),
-        near(MyData[[third]], 1.0) ~ paste(MyData$Cluster, third, "_10",
-                                           sep = "", collapse = NULL)))
-      }
-
-      RetainedDF <- rbind(RetainedDF, MyData)
-
-      suppressWarnings(rm(These))
-      suppressWarnings(rm(second))
-      suppressWarnings(rm(third))
-    }
-
-  } else {
-    RetainedDF <- data.frame()
-    #Retained
-    #i <- Retained[[4]]
-    #i
-    for(i in Retained){
-      # Filter Normalized Data and Bin It
-      WorkAround1 <- WorkAround %>% mutate(Backups = Backups$Backups) %>%
-        relocate(Backups, .before = 1)
-      MySubset <- WorkAround1 %>% dplyr::filter(.data[[i]] == 1.000)
-      StashedIDs <- MySubset %>% select(Backups)
-      MySubset <- MySubset %>% select(-Backups)
-      MySubset <- MySubset %>% select(all_of(1:ColsN))
-      BackupNames2 <- colnames(MySubset)
-      DetectorName <- i
-
-      if (is.null(external)) {
-        Data <- MySubset
-        Samples_replicated <- Samples[rep(1, each = nrow(Data)),]
-        Test <- Data[, 1:ColsN] - Samples_replicated[, 1:ColsN]
-        Test[Test < 0] <- 0
-
-        AA <- do.call(pmax, Test)
-        Normalized2 <- Test/AA
-        Normalized2 <- round(Normalized2, 1)
-        colnames(Normalized2) <- gsub("-A", "", colnames(Normalized2))
-
-        Counts2 <- colSums(Normalized2 == 1)
-        Captured <- round(Counts2[i]/sum(Counts2), 2)
-        print(paste0(i, " retained ", Captured, " of the Variance"))
-        WorkAround2 <- cbind(MySubset, Normalized2)
-
-        if (any(str_detect(name, names(results)))){
-          WorkAround3 <- WorkAround2 %>% mutate(Backups = StashedIDs$Backups) %>%
-            relocate(Backups, .before = 1)
-          WorkAroundInt <- WorkAround3 %>% dplyr::filter(.data[[i]] == 1.000)
-          StashedIDs <- WorkAroundInt %>% select(Backups)
-          WorkAround2 <- WorkAroundInt %>% select(-Backups)
-        }
-        #View(WorkAround2)
-      } else {
-        Data <- MySubset
-        Samples_replicated <- external[rep(1, each = nrow(Data)),]
-        Test <- Data[, 1:ColsN] - Samples_replicated[, 1:ColsN]
-        Test[Test < 0] <- 0
-
-        AA <- do.call(pmax, Test)
-        Normalized2 <- Test/AA
-        Normalized2 <- round(Normalized2, 1)
-        colnames(Normalized2) <- gsub("-A", "", colnames(Normalized2))
-
-        Counts2 <- colSums(Normalized2 == 1)
-        Captured <- round(Counts2[i]/sum(Counts2), 2)
-        print(paste0(i, " retained ", Captured, " of the Variance"))
-
-        #Bringing Together Raw And Subtracted Normalized
-        WorkAround2 <- cbind(MySubset, Normalized2)
-
-        if (any(str_detect(name, names(results)))){
-          WorkAround3 <- WorkAround2 %>% mutate(Backups = StashedIDs$Backups) %>%
-            relocate(Backups, .before = 1)
-          WorkAroundInt <- WorkAround3 %>% dplyr::filter(.data[[i]] == 1.000)
-          StashedIDs <- WorkAroundInt %>% select(Backups)
-          WorkAround2 <- WorkAroundInt %>% select(-Backups)
-        }
-
-        #View(WorkAround2)
-      }
-
-
-      MyData <- WorkAround2 %>% select(all_of(
-        StartNormalizedMergedCol:EndNormalizedMergedCol)) %>%
-        mutate(across(where(is.numeric), ~ ceiling(. / 0.2) * 0.2))
-      MyRawData <- WorkAround2 %>% select(all_of(1:ColsN))
-
-      #Preparation for Local Maxima
-      Conversion <- data.frame(t(MyData), check.names = FALSE)
-      Conversion <- cbind(Detectors = rownames(Conversion), Conversion)
-      rownames(Conversion) <- NULL
-
-      #Preparing Detector Stand Ins for left_join
-      Decoys <- Conversion %>% select(Detectors)
-      Decoys <- Decoys %>% mutate(TheDetector = 1:nrow(Decoys)) %>% relocate(
-        TheDetector, .before = Detectors)
-
-      #Deriving an average y-vector for local maxima
-      Conversion <- Conversion %>% mutate(TheSums = rowSums(.[2:ncol(.)],
-          na.rm = TRUE) /(ncol(Conversion) - 1)) %>% relocate(
-            TheSums, .after = Detectors)
-      Conversion$Detectors <- 1:nrow(Conversion)
-      LocalX <- Conversion$Detectors
-      LocalY <- Conversion$TheSums
-
-      #Local Maxima
-      Newest <- data.frame()
-
-      PointData <- Utility_LocalMaxima(theX = LocalX, theY = LocalY,
-        therepeats = 3, w = 3, span = 0.11, alternatename = alternate.name)
-
-      for(l in PointData$x){Infinite <- PointData %>% filter(x %in% l)
-      TheDetector <- Infinite %>% pull(x)
-      TheHeight <- Infinite %>% pull(yhat)
-      Measurement <- cbind(TheDetector, TheHeight)
-      Newest <- rbind(Newest, Measurement)}
-      Newest2 <- Newest %>% filter(TheHeight > 0.15) %>% arrange(desc(TheHeight))
-
-      #Detector Cascade
-      Assembled <- left_join(Newest2, Decoys, by = "TheDetector")
-
-      tryCatch({These <- Assembled %>% pull(Detectors)})
-
-      if (length(These) == 1){
-        if(any(These %in% i)){These <- These
-        #second <- NULL
-        #third <- NULL
-        }
-      } else if (length(These) == 0){print("No These Present")
-        rm(These)
-      } else {
-        if (any(These %in% i)){These <- These[These != i]}
-        if (length(These) > 2) {These <- head(These, 2)}
-      }
-
-      ####################
-      # Processing Start #
-      ####################
-
-      MyData <- cbind(StashedIDs, MyRawData, MyData)
-
-      MyData$Cluster <- paste(DetectorName, "10-", sep = "_")
-
-      tryCatch({seconded <- These[[1]]}, error = function(e) {
-        cat("Error occurred:", conditionMessage(e), "\n")})
-
-      if(exists("seconded")){MyData <- MyData %>% mutate(Cluster = case_when(
-        near(MyData[[seconded]], 0.0) ~ paste(MyData$Cluster, seconded, "_00-",
-                                              sep = "", collapse = NULL),
-        near(MyData[[seconded]], 0.2) ~ paste(MyData$Cluster, seconded, "_02-",
-                                              sep = "", collapse = NULL),
-        near(MyData[[seconded]], 0.4) ~ paste(MyData$Cluster, seconded, "_04-",
-                                              sep = "", collapse = NULL),
-        near(MyData[[seconded]], 0.6) ~ paste(MyData$Cluster, seconded, "_06-",
-                                              sep = "", collapse = NULL),
-        near(MyData[[seconded]], 0.8) ~ paste(MyData$Cluster, seconded, "_08-",
-                                              sep = "", collapse = NULL),
-        near(MyData[[seconded]], 1.0) ~ paste(MyData$Cluster, seconded, "_10-",
-                                              sep = "", collapse = NULL)))
-      }
-
-      tryCatch({thirded <- These[[2]]}, error = function(e) {
-        cat("Error occurred:", conditionMessage(e), "\n")})
-
-      if(exists("thirded")){MyData <- MyData %>% mutate(Cluster = case_when(
-        near(MyData[[thirded]], 0.0) ~ paste(MyData$Cluster, thirded, "_00",
-                                             sep = "", collapse = NULL),
-        near(MyData[[thirded]], 0.2) ~ paste(MyData$Cluster, thirded, "_02",
-                                             sep = "", collapse = NULL),
-        near(MyData[[thirded]], 0.4) ~ paste(MyData$Cluster, thirded, "_04",
-                                             sep = "", collapse = NULL),
-        near(MyData[[thirded]], 0.6) ~ paste(MyData$Cluster, thirded, "_06",
-                                             sep = "", collapse = NULL),
-        near(MyData[[thirded]], 0.8) ~ paste(MyData$Cluster, thirded, "_08",
-                                             sep = "", collapse = NULL),
-        near(MyData[[thirded]], 1.0) ~ paste(MyData$Cluster, thirded, "_10",
-                                             sep = "", collapse = NULL)))
-      }
-
-      RetainedDF <- rbind(RetainedDF, MyData)
-      suppressWarnings(rm(These))
-      suppressWarnings(rm(seconded))
-      suppressWarnings(rm(thirded))
-    }
-
-  }
-
   #PerCPFragments <- data.frame(table(RetainedDF$Cluster))
   #PerCPFragments %>% arrange(desc(Freq))
 
@@ -609,3 +321,11 @@ Utility_SingleColorQC <- function(x, subsets, sample.name, removestrings, experi
   #View(Final2)
   return(Final2)
 }
+
+
+# SingleColors
+
+
+
+
+
