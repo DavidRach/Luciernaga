@@ -17,13 +17,12 @@ Utility_SingleColorQC(
   Unstained = FALSE,
   Beads = FALSE,
   Verbose = FALSE,
-  Kept,
-  external,
+  external = NULL,
+  fcsexport,
   sourcelocation,
   outpath,
   artificial,
-  fcsexport,
-  Brightness
+  Brightness = FALSE
 )
 }
 \arguments{
@@ -49,10 +48,9 @@ overlap of individual fluorophores for exclusion}
 
 \item{Beads}{Whether the sample is Beads.}
 
-\item{Kept}{Whether "Raw" or "Normalized" values are retained in the
-Luciernaga object.}
-
 \item{external}{An external autofluorescence to subtract from single colors.}
+
+\item{fcsexport}{Whether to export .fcs files, TRUE or FALSE}
 
 \item{sourcelocation}{Location where .fcs creation file is stored}
 
@@ -61,11 +59,12 @@ Luciernaga object.}
 \item{artificial}{Whether an artificial 0 population should be added for
 a background autofluorescence stand in.}
 
-\item{fcsexport}{Whether to export .fcs files, TRUE or FALSE}
-
 \item{Brightness}{Whether sum of detectors should be returned.}
 
 \item{group.name}{Keyword variable which groups are stored (ex. "GROUPNAME")}
+
+\item{Kept}{Whether "Raw" or "Normalized" values are retained in the
+Luciernaga object.}
 }
 \value{
 Additional information to be added

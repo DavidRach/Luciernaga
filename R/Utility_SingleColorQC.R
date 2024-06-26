@@ -48,37 +48,32 @@
 #'
 #' @examples NULL
 
-x <- gs[2]
-subsets = "lymph"
-sample.name = "GUID"
-removestrings = c("DR_", " (Cells)")
-mainAF = "V7-A"
-AFOverlap = AFOverlap
-stats = "median"
-Unstained = FALSE
-Beads = FALSE
-Verbose = TRUE
-external = NULL
+#x <- gs[2]
+#subsets = "lymph"
+#sample.name = "GUID"
+#removestrings = c("DR_", " (Cells)")
+#mainAF = "V7-A"
+#AFOverlap = AFOverlap
+#stats = "median"
+#Unstained = FALSE
+#Beads = FALSE
+#Verbose = TRUE
+#external = NULL
+#fcsexport = TRUE
+#sourcelocation = "Genesis.R"
+#outpath = MainOutPath
+#artificial = TRUE
+#Brightness = TRUE
 
 #group.name = "GROUPNAME"
 #experiment = NULL
 #experiment.name = "$DATE"
 #Kept = "Normalized"
-
-#sourcelocation = "Genesis.R"
-#outpath = MainOutPath
-#artificial = TRUE
-#fcsexport = TRUE
-#Brightness = TRUE
-
+# Kept, outpath, artificial, Brightness
 
 Utility_SingleColorQC <- function(x, subsets, sample.name, removestrings, experiment = NULL, experiment.name = NULL,
                                   mainAF, AFOverlap, stats, Unstained=FALSE, Beads=FALSE, Verbose = FALSE,
-                                  external = NULL,
-
-                                  Kept, sourcelocation, outpath,
-                                  artificial, fcsexport,
-                                  Brightness){
+                                  external = NULL, fcsexport, sourcelocation, outpath, artificial, Brightness=FALSE){
 
   ##############
   # Name Setup #
@@ -120,6 +115,8 @@ Utility_SingleColorQC <- function(x, subsets, sample.name, removestrings, experi
   # Removing Non-Characters and Spaces.
   ExtraSpacers <- c(" ", "_", "-", ".", "(", ")")
   AggregateName <- NameCleanUp(AggregateName, removestrings=ExtraSpacers)
+
+  #if (!is.null(external)){external1 <- external} else {external1 <- NULL}
 
   ###############
   # Exprs Setup #
@@ -260,25 +257,22 @@ Utility_SingleColorQC <- function(x, subsets, sample.name, removestrings, experi
 
   if (str_detect(name, "Unstained")){
 
-    RetainedDF <- map(.x= Retained, .f=UnstainedSignatures, WorkAround1=WorkAround1, alternatename=AggregateName) %>% bind_rows()
+    RetainedDF <- map(.x= Retained, .f=UnstainedSignatures,
+                      WorkAround1=WorkAround1, alternatename=AggregateName,
+                      ColsN=ColsN, StartNormalizedMergedCol=StartNormalizedMergedCol,
+                      EndNormalizedMergedCol=EndNormalizedMergedCol) %>% bind_rows()
 
   } else {
 
-    RetainedDF <- map(.x= Retained, .f=SingleStainSignatures, WorkAround1=WorkAround1,
-                      alternatename=AggregateName) %>% bind_rows()
+    RetainedDF <- map(.x= Retained, .f=SingleStainSignatures,
+                      WorkAround1=WorkAround1, alternatename=AggregateName,
+                      ColsN=ColsN, StartNormalizedMergedCol=StartNormalizedMergedCol,
+                      EndNormalizedMergedCol=EndNormalizedMergedCol) %>% bind_rows()
   }
 
-
-  #Processing Unstaineds, no removal required
-  #PerCPFragments <- data.frame(table(RetainedDF$Cluster))
-  #PerCPFragments %>% arrange(desc(Freq))
-
-  #View(RetainedDF)
-  #View(OriginalColumnsIndex)
   Reintegrated <- left_join(RetainedDF, StashedDF, by = "Backups")
 
   BackupsCol <- "Backups"
-  #OriginalColumnsVector
   NormalizedColumns <- colnames(Normalized)
   ClusterCol <- "Cluster"
   RearrangedColumns <- c(BackupsCol, OriginalColumnsVector, NormalizedColumns,
@@ -291,60 +285,11 @@ Utility_SingleColorQC <- function(x, subsets, sample.name, removestrings, experi
 
   if (fcsexport == TRUE){source(sourcelocation, local = TRUE)}
 
-  #Deriving Cluster Count Table
-  My.Data2 <- RetainedDF %>% select(-Backups)
-  My.Data2$Cluster <- factor(My.Data2$Cluster)
-  AAA <- data.frame(table(My.Data2$Cluster))
-  AAA <- AAA %>% dplyr::arrange(desc(Freq))
-  colnames(AAA)[1] <- "Cluster"
-  colnames(AAA)[2] <- "Count"
-  Final <- AAA
-  #View(Final)
-
-  #Adding Metadata
-  Final$sample <- name
-  Final$group <- group
-  Final$type <- Type
-  Final$experiment <- Experiment
-  Final <- Final %>% relocate(sample, group, type, experiment, .before = Cluster)
-  #View(Final)
-
-  #Extracting LinePlot Data
-  TheOutputs <- Final %>% pull(Cluster)
-  TheOutputsDF <- data.frame()
-  #k <- "V5_10-UV7_00-"
-  for(k in TheOutputs){
-
-    if(Kept == "Raw"){RetainedSubset <- RetainedDF %>% filter(Cluster %in% k) %>%
-      select(-Backups) %>% select(all_of(1:ColsN))
-    } else if(Kept == "Normalized"){RetainedSubset <- RetainedDF %>% filter(
-      Cluster %in% k) %>% select(-Backups) %>% select(all_of(
-        StartNormalizedMergedCol:EndNormalizedMergedCol))}
-
-    if(stats == "mean"){RetainedSamples <- RetainedSubset %>% summarize_all(mean)
-    } else if (stats == "median"){RetainedSamples <- RetainedSubset %>%
-      summarize_all(median)
-    } else(print("NA"))
-
-    Cluster <- k
-    RetainedSamples <- cbind(k, RetainedSamples) %>% rename(Cluster = k)
-    TheOutputsDF <- rbind(TheOutputsDF, RetainedSamples)
-  }
-
-  #Left Joining the Count with the LinePlot Data
-  TheOutputsDF$Cluster <- factor(TheOutputsDF$Cluster)
-  Final2 <- left_join(Final, TheOutputsDF, by = "Cluster")
-  #View(Final2)
-  return(Final2)
+  return(Reintegrated1)
 }
 
 
-
-
-
-
-
-UnstainedSignatures <- function(x, WorkAround1, alternatename){
+UnstainedSignatures <- function(x, WorkAround1, alternatename, ColsN, StartNormalizedMergedCol, EndNormalizedMergedCol){
   MySubset <- WorkAround1 %>% dplyr::filter(.data[[x]] == 1.000)
   StashedIDs <- MySubset %>% select(Backups)
   MySubset <- MySubset %>% select(-Backups)
@@ -429,7 +374,9 @@ UnstainedSignatures <- function(x, WorkAround1, alternatename){
 
 
 
-SingleStainSignatures <- function(x, WorkAround1, alternatename){
+SingleStainSignatures <- function(x, WorkAround1, alternatename, ColsN, StartNormalizedMergedCol, EndNormalizedMergedCol,
+                                  Samples=Samples){
+
   MySubset <- WorkAround1 %>% dplyr::filter(.data[[x]] == 1.000)
   StashedIDs <- MySubset %>% select(Backups)
   MySubset <- MySubset %>% select(-Backups)
@@ -437,7 +384,7 @@ SingleStainSignatures <- function(x, WorkAround1, alternatename){
   BackupNames2 <- colnames(MySubset)
   DetectorName <- x
 
-  if (is.null(external)) {
+  #if (is.null(external1)) {
     Data <- MySubset
     Samples_replicated <- Samples[rep(1, each = nrow(Data)),]
     Test <- Data[, 1:ColsN] - Samples_replicated[, 1:ColsN]
@@ -460,32 +407,32 @@ SingleStainSignatures <- function(x, WorkAround1, alternatename){
       StashedIDs <- WorkAroundInt %>% select(Backups)
       WorkAround2 <- WorkAroundInt %>% select(-Backups)
     }
-  } else {
-    Data <- MySubset
-    Samples_replicated <- external[rep(1, each = nrow(Data)),]
-    Test <- Data[, 1:ColsN] - Samples_replicated[, 1:ColsN]
-    Test[Test < 0] <- 0
+  #} else {
+  #  Data <- MySubset
+  #  Samples_replicated <- external1[rep(1, each = nrow(Data)),]
+  #  Test <- Data[, 1:ColsN] - Samples_replicated[, 1:ColsN]
+  #  Test[Test < 0] <- 0
+  #
+  #  AA <- do.call(pmax, Test)
+  #  Normalized2 <- Test/AA
+  #  Normalized2 <- round(Normalized2, 1)
+  #  colnames(Normalized2) <- gsub("-A", "", colnames(Normalized2))
 
-    AA <- do.call(pmax, Test)
-    Normalized2 <- Test/AA
-    Normalized2 <- round(Normalized2, 1)
-    colnames(Normalized2) <- gsub("-A", "", colnames(Normalized2))
-
-    Counts2 <- colSums(Normalized2 == 1)
-    Captured <- round(Counts2[x]/sum(Counts2), 2)
-    print(paste0(x, " retained ", Captured, " of the Variance"))
+  #  Counts2 <- colSums(Normalized2 == 1)
+  #  Captured <- round(Counts2[x]/sum(Counts2), 2)
+  #  message(paste0(x, " retained ", Captured, " of the Variance"))
 
     #Bringing Together Raw And Subtracted Normalized
-    WorkAround2 <- cbind(MySubset, Normalized2)
+  #  WorkAround2 <- cbind(MySubset, Normalized2)
 
-    if (any(str_detect(name, names(results)))){
-      WorkAround3 <- WorkAround2 %>% mutate(Backups = StashedIDs$Backups) %>%
-        relocate(Backups, .before = 1)
-      WorkAroundInt <- WorkAround3 %>% dplyr::filter(.data[[x]] == 1.000)
-      StashedIDs <- WorkAroundInt %>% select(Backups)
-      WorkAround2 <- WorkAroundInt %>% select(-Backups)
-    }
-  }
+   # if (any(str_detect(name, names(results)))){
+   #   WorkAround3 <- WorkAround2 %>% mutate(Backups = StashedIDs$Backups) %>%
+   #     relocate(Backups, .before = 1)
+   #   WorkAroundInt <- WorkAround3 %>% dplyr::filter(.data[[x]] == 1.000)
+   #   StashedIDs <- WorkAroundInt %>% select(Backups)
+   #   WorkAround2 <- WorkAroundInt %>% select(-Backups)
+   # }
+  #}
 
   MyData <- WorkAround2 %>% select(all_of(
     StartNormalizedMergedCol:EndNormalizedMergedCol)) %>%
@@ -564,5 +511,3 @@ SingleStainSignatures <- function(x, WorkAround1, alternatename){
 
   return(MyData)
 }
-
-
