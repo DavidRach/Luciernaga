@@ -246,6 +246,8 @@ Utility_SingleColorQC <- function(x, subsets, sample.name, removestrings, experi
     stop("There were no Retained detectors in ", name)
   }
 
+  TheMainAF <- Detectors %>% filter(!Fluors %in% Retained) %>% slice(1) %>% pull(Fluors)
+
   if(Beads == TRUE){Retained <- Retained[[1]]}
 
   #####################################
@@ -267,7 +269,8 @@ Utility_SingleColorQC <- function(x, subsets, sample.name, removestrings, experi
     RetainedDF <- map(.x= Retained, .f=SingleStainSignatures,
                       WorkAround1=WorkAround1, alternatename=AggregateName,
                       ColsN=ColsN, StartNormalizedMergedCol=StartNormalizedMergedCol,
-                      EndNormalizedMergedCol=EndNormalizedMergedCol) %>% bind_rows()
+                      EndNormalizedMergedCol=EndNormalizedMergedCol, Samples=Samples, name=name,
+                      results=results) %>% bind_rows()
   }
 
   Reintegrated <- left_join(RetainedDF, StashedDF, by = "Backups")
@@ -375,7 +378,7 @@ UnstainedSignatures <- function(x, WorkAround1, alternatename, ColsN, StartNorma
 
 
 SingleStainSignatures <- function(x, WorkAround1, alternatename, ColsN, StartNormalizedMergedCol, EndNormalizedMergedCol,
-                                  Samples=Samples){
+                                  Samples, name, results){
 
   MySubset <- WorkAround1 %>% dplyr::filter(.data[[x]] == 1.000)
   StashedIDs <- MySubset %>% select(Backups)
