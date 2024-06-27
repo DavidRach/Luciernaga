@@ -255,7 +255,7 @@ Utility_SingleColorQC <- function(x, subsets, sample.name, removestrings, experi
   #####################################
 
   WorkAround1 <- WorkAround %>% mutate(Backups = Backups$Backups) %>%
-    relocate(Backups, .before = 1)
+    relocate(Backups, .before = 1) #This will change the start/end count
 
   if (str_detect(name, "Unstained")){
 
@@ -293,31 +293,46 @@ Utility_SingleColorQC <- function(x, subsets, sample.name, removestrings, experi
 
 
 ModernSingleStainSignatures <- function(x, WorkAround1, alternatename, ColsN, StartNormalizedMergedCol, EndNormalizedMergedCol,
-                                        Samples, name, results){
+                                        Samples, name, results, Increments=0.1){
 
-  x <- Retained[1]
+  WorkAround1b <- WorkAround1 %>% select(all_of(
+    (StartNormalizedMergedCol+1):(EndNormalizedMergedCol+1))) %>%
+    mutate(across(where(is.numeric), ~ ceiling(. / Increments) * Increments)) %>%
+    mutate(Backups = WorkAround1$Backups) %>% relocate(Backups, .before=1)
+
+  #x <- Retained[1]
   #TheMainAF
 
   # The Arguments would be mapping elements in Retained, therefore Retained below would be swapped out for the x argument.
-  AutofluorescentSubset <- WorkAround1 %>% dplyr::filter(.data[[TheMainAF]] == 1.000) %>% arrange(desc(.data[[x]]))
-  SingleColorSubset <- WorkAround1 %>% dplyr::filter(.data[[x]] == 1.000) %>% arrange(desc(.data[[TheMainAF]])) %>%
+  AutofluorescentSubset <- WorkAround1b %>% dplyr::filter(.data[[TheMainAF]] == 1.000) %>% arrange(desc(.data[[x]]))
+  SingleColorSubset <- WorkAround1b %>% dplyr::filter(.data[[x]] == 1.000) %>% arrange(desc(.data[[TheMainAF]])) %>%
     dplyr::filter(!.data[[TheMainAF]] == 1.00)  #To avoid double dipping
 
   SignatureCluster <- function(Arg1, Arg2, data){
     data <- data %>% mutate(Cluster = case_when(
       near(data[[Arg1]], 0.0) ~ paste(data$Cluster, Arg1, "_00-", sep = "", collapse = NULL),
+      near(data[[Arg1]], 0.1) ~ paste(data$Cluster, Arg1, "_01-", sep = "", collapse = NULL),
       near(data[[Arg1]], 0.2) ~ paste(data$Cluster, Arg1, "_02-", sep = "", collapse = NULL),
+      near(data[[Arg1]], 0.3) ~ paste(data$Cluster, Arg1, "_03-", sep = "", collapse = NULL),
       near(data[[Arg1]], 0.4) ~ paste(data$Cluster, Arg1, "_04-", sep = "", collapse = NULL),
+      near(data[[Arg1]], 0.5) ~ paste(data$Cluster, Arg1, "_05-", sep = "", collapse = NULL),
       near(data[[Arg1]], 0.6) ~ paste(data$Cluster, Arg1, "_06-", sep = "", collapse = NULL),
+      near(data[[Arg1]], 0.7) ~ paste(data$Cluster, Arg1, "_07-", sep = "", collapse = NULL),
       near(data[[Arg1]], 0.8) ~ paste(data$Cluster, Arg1, "_08-", sep = "", collapse = NULL),
+      near(data[[Arg1]], 0.9) ~ paste(data$Cluster, Arg1, "_09-", sep = "", collapse = NULL),
       near(data[[Arg1]], 1.0) ~ paste(data$Cluster, Arg1, "_10-", sep = "", collapse = NULL)))
 
     Second <- data %>% mutate(Cluster = case_when(
       near(data[[Arg2]], 0.0) ~ paste(data$Cluster, Arg2, "_00-", sep = "", collapse = NULL),
+      near(data[[Arg2]], 0.1) ~ paste(data$Cluster, Arg2, "_01-", sep = "", collapse = NULL),
       near(data[[Arg2]], 0.2) ~ paste(data$Cluster, Arg2, "_02-", sep = "", collapse = NULL),
+      near(data[[Arg2]], 0.3) ~ paste(data$Cluster, Arg2, "_03-", sep = "", collapse = NULL),
       near(data[[Arg2]], 0.4) ~ paste(data$Cluster, Arg2, "_04-", sep = "", collapse = NULL),
+      near(data[[Arg2]], 0.5) ~ paste(data$Cluster, Arg2, "_05-", sep = "", collapse = NULL),
       near(data[[Arg2]], 0.6) ~ paste(data$Cluster, Arg2, "_06-", sep = "", collapse = NULL),
+      near(data[[Arg2]], 0.7) ~ paste(data$Cluster, Arg2, "_07-", sep = "", collapse = NULL),
       near(data[[Arg2]], 0.8) ~ paste(data$Cluster, Arg2, "_08-", sep = "", collapse = NULL),
+      near(data[[Arg2]], 0.9) ~ paste(data$Cluster, Arg2, "_09-", sep = "", collapse = NULL),
       near(data[[Arg2]], 1.0) ~ paste(data$Cluster, Arg2, "_10-", sep = "", collapse = NULL)))
 
     return(Second)
@@ -326,8 +341,11 @@ ModernSingleStainSignatures <- function(x, WorkAround1, alternatename, ColsN, St
   AutofluorescenceNamed <- SignatureCluster(Arg1=TheMainAF, Arg2=x, data=AutofluorescentSubset)
   SingleColorNamed <- SignatureCluster(Arg1=x, Arg2=TheMainAF, data=SingleColorSubset)
   SignatureData <- bind_rows(AutofluorescenceNamed, SingleColorNamed)
-  table(SignatureData$Cluster)
+  TheClusters <- data.frame(table(SignatureData$Cluster), check.names=FALSE)
+  TheClusters[1] <- "Clusters"
+  TheClusters[2] <- "Counts"
 
+  TheClustersTheMainAF
 
   # We would want to basic bin on the basis of x and TheMainAF using cluster naming convention.
 
