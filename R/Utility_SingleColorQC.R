@@ -293,7 +293,7 @@ Utility_SingleColorQC <- function(x, subsets, sample.name, removestrings, experi
 
 
 ModernSingleStainSignatures <- function(x, WorkAround1, alternatename, ColsN, StartNormalizedMergedCol, EndNormalizedMergedCol,
-                                        Samples, name, results, Increments=0.1){
+                                        Samples, name, results, Increments=0.1, Subtraction = "Internal"){
 
   WorkAround1b <- WorkAround1 %>% select(all_of(
     (StartNormalizedMergedCol+1):(EndNormalizedMergedCol+1))) %>%
@@ -342,10 +342,39 @@ ModernSingleStainSignatures <- function(x, WorkAround1, alternatename, ColsN, St
   SingleColorNamed <- SignatureCluster(Arg1=x, Arg2=TheMainAF, data=SingleColorSubset)
   SignatureData <- bind_rows(AutofluorescenceNamed, SingleColorNamed)
   TheClusters <- data.frame(table(SignatureData$Cluster), check.names=FALSE)
-  TheClusters[1] <- "Clusters"
-  TheClusters[2] <- "Counts"
+  colnames(TheClusters)[1] <- "Clusters"
+  colnames(TheClusters)[2] <- "Counts"
 
-  TheClustersTheMainAF
+  AF <- TheClusters %>% filter(str_starts(Clusters, TheMainAF)) %>% arrange(Clusters)
+  SC <- TheClusters %>% filter(str_starts(Clusters, x)) %>% arrange(desc(Clusters))
+  Total <- bind_rows(AF, SC)
+  TheOrder <- Total$Clusters
+  Total$Clusters <- as.character(Total$Clusters)
+  Total$Clusters <- factor(Total$Clusters, levels = TheOrder)
+
+  InitialPlot <- ggplot(Total, aes(x = Clusters, y = Counts)) + geom_bar(stat = "identity") + theme_bw() +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1)) +labs(title=paste(x, AggregateName, "Pre"), sep=" ")
+  InitialPlot
+
+  AFforSubtraction <- Total %>% filter(str_starts(Clusters, TheMainAF)) %>% arrange(desc(Counts)) %>% slice(1) %>% pull(Clusters) #%>% as.character()
+
+  if (Subtraction == "Internal"){ AF_Choice <- SignatureData %>% filter(Cluster == AFforSubtraction)
+
+
+  } else if (Subtraction == "Average"){
+
+    stop("Sorry, still working on this. -David ")
+
+  } else if (Subtraction == "External"){
+
+    stop("Sorry, still working on this. -David ")
+  }
+
+  ################################
+  # Autofluorescence Subtraction #
+  ################################
+
+  TheMainAF
 
   # We would want to basic bin on the basis of x and TheMainAF using cluster naming convention.
 
