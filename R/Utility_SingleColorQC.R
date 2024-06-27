@@ -291,9 +291,40 @@ Utility_SingleColorQC <- function(x, subsets, sample.name, removestrings, experi
   return(Reintegrated1)
 }
 
+SignatureCluster <- function(Arg1, Arg2, data){
+  data <- data %>% mutate(Cluster = case_when(
+    near(data[[Arg1]], 0.0) ~ paste(data$Cluster, Arg1, "_00-", sep = "", collapse = NULL),
+    near(data[[Arg1]], 0.1) ~ paste(data$Cluster, Arg1, "_01-", sep = "", collapse = NULL),
+    near(data[[Arg1]], 0.2) ~ paste(data$Cluster, Arg1, "_02-", sep = "", collapse = NULL),
+    near(data[[Arg1]], 0.3) ~ paste(data$Cluster, Arg1, "_03-", sep = "", collapse = NULL),
+    near(data[[Arg1]], 0.4) ~ paste(data$Cluster, Arg1, "_04-", sep = "", collapse = NULL),
+    near(data[[Arg1]], 0.5) ~ paste(data$Cluster, Arg1, "_05-", sep = "", collapse = NULL),
+    near(data[[Arg1]], 0.6) ~ paste(data$Cluster, Arg1, "_06-", sep = "", collapse = NULL),
+    near(data[[Arg1]], 0.7) ~ paste(data$Cluster, Arg1, "_07-", sep = "", collapse = NULL),
+    near(data[[Arg1]], 0.8) ~ paste(data$Cluster, Arg1, "_08-", sep = "", collapse = NULL),
+    near(data[[Arg1]], 0.9) ~ paste(data$Cluster, Arg1, "_09-", sep = "", collapse = NULL),
+    near(data[[Arg1]], 1.0) ~ paste(data$Cluster, Arg1, "_10-", sep = "", collapse = NULL)))
 
-ModernSingleStainSignatures <- function(x, WorkAround1, alternatename, ColsN, StartNormalizedMergedCol, EndNormalizedMergedCol,
-                                        Samples, name, results, Increments=0.1, Subtraction = "Internal", stats){
+  Second <- data %>% mutate(Cluster = case_when(
+    near(data[[Arg2]], 0.0) ~ paste(data$Cluster, Arg2, "_00-", sep = "", collapse = NULL),
+    near(data[[Arg2]], 0.1) ~ paste(data$Cluster, Arg2, "_01-", sep = "", collapse = NULL),
+    near(data[[Arg2]], 0.2) ~ paste(data$Cluster, Arg2, "_02-", sep = "", collapse = NULL),
+    near(data[[Arg2]], 0.3) ~ paste(data$Cluster, Arg2, "_03-", sep = "", collapse = NULL),
+    near(data[[Arg2]], 0.4) ~ paste(data$Cluster, Arg2, "_04-", sep = "", collapse = NULL),
+    near(data[[Arg2]], 0.5) ~ paste(data$Cluster, Arg2, "_05-", sep = "", collapse = NULL),
+    near(data[[Arg2]], 0.6) ~ paste(data$Cluster, Arg2, "_06-", sep = "", collapse = NULL),
+    near(data[[Arg2]], 0.7) ~ paste(data$Cluster, Arg2, "_07-", sep = "", collapse = NULL),
+    near(data[[Arg2]], 0.8) ~ paste(data$Cluster, Arg2, "_08-", sep = "", collapse = NULL),
+    near(data[[Arg2]], 0.9) ~ paste(data$Cluster, Arg2, "_09-", sep = "", collapse = NULL),
+    near(data[[Arg2]], 1.0) ~ paste(data$Cluster, Arg2, "_10-", sep = "", collapse = NULL)))
+
+  return(Second)
+}
+
+
+ModernSingleStainSignatures <- function(x, WorkAround1, alternatename, ColsN, StartNormalizedMergedCol,
+                                        EndNormalizedMergedCol, Samples, name, results, Increments=0.1,
+                                        Subtraction = "Internal", stats, RatioCutoff=0.01){
 
   WorkAround1b <- WorkAround1 %>% select(all_of(
     (StartNormalizedMergedCol+1):(EndNormalizedMergedCol+1))) %>%
@@ -307,36 +338,6 @@ ModernSingleStainSignatures <- function(x, WorkAround1, alternatename, ColsN, St
   AutofluorescentSubset <- WorkAround1b %>% dplyr::filter(.data[[TheMainAF]] == 1.000) %>% arrange(desc(.data[[x]]))
   SingleColorSubset <- WorkAround1b %>% dplyr::filter(.data[[x]] == 1.000) %>% arrange(desc(.data[[TheMainAF]])) %>%
     dplyr::filter(!.data[[TheMainAF]] == 1.00)  #To avoid double dipping
-
-  SignatureCluster <- function(Arg1, Arg2, data){
-    data <- data %>% mutate(Cluster = case_when(
-      near(data[[Arg1]], 0.0) ~ paste(data$Cluster, Arg1, "_00-", sep = "", collapse = NULL),
-      near(data[[Arg1]], 0.1) ~ paste(data$Cluster, Arg1, "_01-", sep = "", collapse = NULL),
-      near(data[[Arg1]], 0.2) ~ paste(data$Cluster, Arg1, "_02-", sep = "", collapse = NULL),
-      near(data[[Arg1]], 0.3) ~ paste(data$Cluster, Arg1, "_03-", sep = "", collapse = NULL),
-      near(data[[Arg1]], 0.4) ~ paste(data$Cluster, Arg1, "_04-", sep = "", collapse = NULL),
-      near(data[[Arg1]], 0.5) ~ paste(data$Cluster, Arg1, "_05-", sep = "", collapse = NULL),
-      near(data[[Arg1]], 0.6) ~ paste(data$Cluster, Arg1, "_06-", sep = "", collapse = NULL),
-      near(data[[Arg1]], 0.7) ~ paste(data$Cluster, Arg1, "_07-", sep = "", collapse = NULL),
-      near(data[[Arg1]], 0.8) ~ paste(data$Cluster, Arg1, "_08-", sep = "", collapse = NULL),
-      near(data[[Arg1]], 0.9) ~ paste(data$Cluster, Arg1, "_09-", sep = "", collapse = NULL),
-      near(data[[Arg1]], 1.0) ~ paste(data$Cluster, Arg1, "_10-", sep = "", collapse = NULL)))
-
-    Second <- data %>% mutate(Cluster = case_when(
-      near(data[[Arg2]], 0.0) ~ paste(data$Cluster, Arg2, "_00-", sep = "", collapse = NULL),
-      near(data[[Arg2]], 0.1) ~ paste(data$Cluster, Arg2, "_01-", sep = "", collapse = NULL),
-      near(data[[Arg2]], 0.2) ~ paste(data$Cluster, Arg2, "_02-", sep = "", collapse = NULL),
-      near(data[[Arg2]], 0.3) ~ paste(data$Cluster, Arg2, "_03-", sep = "", collapse = NULL),
-      near(data[[Arg2]], 0.4) ~ paste(data$Cluster, Arg2, "_04-", sep = "", collapse = NULL),
-      near(data[[Arg2]], 0.5) ~ paste(data$Cluster, Arg2, "_05-", sep = "", collapse = NULL),
-      near(data[[Arg2]], 0.6) ~ paste(data$Cluster, Arg2, "_06-", sep = "", collapse = NULL),
-      near(data[[Arg2]], 0.7) ~ paste(data$Cluster, Arg2, "_07-", sep = "", collapse = NULL),
-      near(data[[Arg2]], 0.8) ~ paste(data$Cluster, Arg2, "_08-", sep = "", collapse = NULL),
-      near(data[[Arg2]], 0.9) ~ paste(data$Cluster, Arg2, "_09-", sep = "", collapse = NULL),
-      near(data[[Arg2]], 1.0) ~ paste(data$Cluster, Arg2, "_10-", sep = "", collapse = NULL)))
-
-    return(Second)
-  }
 
   AutofluorescenceNamed <- SignatureCluster(Arg1=TheMainAF, Arg2=x, data=AutofluorescentSubset)
   SingleColorNamed <- SignatureCluster(Arg1=x, Arg2=TheMainAF, data=SingleColorSubset)
@@ -396,7 +397,7 @@ ModernSingleStainSignatures <- function(x, WorkAround1, alternatename, ColsN, St
     colnames(Normalized2) <- gsub("-A", "", colnames(Normalized2))
     Counts2 <- colSums(Normalized2 == 1.0)
     #Counts2
-    WorkAround2 <- cbind(Backups, Test, Normalized2)
+    WorkAround2 <- cbind(StoredBackups, Test, Normalized2)
 
     ################
     # Reclustering #
@@ -426,8 +427,29 @@ ModernSingleStainSignatures <- function(x, WorkAround1, alternatename, ColsN, St
     ##########################
     # Local Maxima Iteration #
     ##########################
+    Cutoff <- sum(TheClusters$Counts)*RatioCutoff
+    MainClusters <- TheClusters %>% filter(Counts >= Cutoff) %>% select(Clusters) %>%
+      pull() %>% as.character()
 
-    AF_Choice <- left_join(SingleColorData %>% filter(Cluster == AFforSubtraction) %>% select(Backups)
+    SingleColorSubset <- SingleColorData %>% select(Backups, Cluster)
+    Ready <- left_join(SingleColorSubset, WorkAround2, by="Backups") %>% relocate(Cluster, .after="R8")
+
+    ClusterIteration <- function(x, data){
+      subset <- data %>% filter(Cluster %in% x)
+
+
+
+
+
+
+    }
+
+    #x <- MainClusters[1]
+    map(.x=MainClusters, .f=ClusterIteration, data=Ready)
+
+
+
+    AF_Choice <- left_join(SingleColorData) %>% filter(Cluster == AFforSubtraction) %>% select(Backups)
 
 
   } else if (Subtraction == "Average"){
@@ -438,72 +460,9 @@ ModernSingleStainSignatures <- function(x, WorkAround1, alternatename, ColsN, St
 
     stop("Sorry, still working on this. -David ")
   }
+}
 
 
-
-  TheMainAF
-
-  # We would want to basic bin on the basis of x and TheMainAF using cluster naming convention.
-
-  # Having Cluster Named, we would want to subtract clean AF signature from the single color peaks. This would be the
-  #spot where a QC report for non-specific weak staining would fit in as well.
-
-  MySubset <- WorkAround1 %>% dplyr::filter(.data[[x]] == 1.000)
-  StashedIDs <- MySubset %>% select(Backups)
-  MySubset <- MySubset %>% select(-Backups)
-  MySubset <- MySubset %>% select(all_of(1:ColsN)) #Not Specified Internally
-  BackupNames2 <- colnames(MySubset)
-  DetectorName <- x
-
-  #if (is.null(external1)) {
-  Data <- MySubset
-  Samples_replicated <- Samples[rep(1, each = nrow(Data)),]
-  Test <- Data[, 1:ColsN] - Samples_replicated[, 1:ColsN]
-  Test[Test < 0] <- 0
-
-  AA <- do.call(pmax, Test)
-  Normalized2 <- Test/AA
-  Normalized2 <- round(Normalized2, 1)
-  colnames(Normalized2) <- gsub("-A", "", colnames(Normalized2))
-
-  Counts2 <- colSums(Normalized2 == 1)
-  Captured <- round(Counts2[x]/sum(Counts2), 2)
-  message(paste0(x, " retained ", Captured, " of the Variance"))
-  WorkAround2 <- cbind(MySubset, Normalized2)
-
-  if (any(str_detect(name, names(results)))){
-    WorkAround3 <- WorkAround2 %>% mutate(Backups = StashedIDs$Backups) %>%
-      relocate(Backups, .before = 1)
-    WorkAroundInt <- WorkAround3 %>% dplyr::filter(.data[[x]] == 1.000)
-    StashedIDs <- WorkAroundInt %>% select(Backups)
-    WorkAround2 <- WorkAroundInt %>% select(-Backups)
-  }
-  #} else {
-  #  Data <- MySubset
-  #  Samples_replicated <- external1[rep(1, each = nrow(Data)),]
-  #  Test <- Data[, 1:ColsN] - Samples_replicated[, 1:ColsN]
-  #  Test[Test < 0] <- 0
-  #
-  #  AA <- do.call(pmax, Test)
-  #  Normalized2 <- Test/AA
-  #  Normalized2 <- round(Normalized2, 1)
-  #  colnames(Normalized2) <- gsub("-A", "", colnames(Normalized2))
-
-  #  Counts2 <- colSums(Normalized2 == 1)
-  #  Captured <- round(Counts2[x]/sum(Counts2), 2)
-  #  message(paste0(x, " retained ", Captured, " of the Variance"))
-
-  #Bringing Together Raw And Subtracted Normalized
-  #  WorkAround2 <- cbind(MySubset, Normalized2)
-
-  # if (any(str_detect(name, names(results)))){
-  #   WorkAround3 <- WorkAround2 %>% mutate(Backups = StashedIDs$Backups) %>%
-  #     relocate(Backups, .before = 1)
-  #   WorkAroundInt <- WorkAround3 %>% dplyr::filter(.data[[x]] == 1.000)
-  #   StashedIDs <- WorkAroundInt %>% select(Backups)
-  #   WorkAround2 <- WorkAroundInt %>% select(-Backups)
-  # }
-  #}
 
   MyData <- WorkAround2 %>% select(all_of(
     StartNormalizedMergedCol:EndNormalizedMergedCol)) %>%
