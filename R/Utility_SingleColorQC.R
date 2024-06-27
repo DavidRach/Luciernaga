@@ -348,11 +348,18 @@ ModernSingleStainSignatures <- function(x, WorkAround1, alternatename, ColsN, St
   AF <- TheClusters %>% filter(str_starts(Clusters, TheMainAF)) %>% arrange(Clusters)
   SC <- TheClusters %>% filter(str_starts(Clusters, x)) %>% arrange(desc(Clusters))
   Total <- bind_rows(AF, SC)
-  TheOrder <- Total$Clusters
-  Total$Clusters <- as.character(Total$Clusters)
-  Total$Clusters <- factor(Total$Clusters, levels = TheOrder)
 
-  InitialPlot <- ggplot(Total, aes(x = Clusters, y = Counts)) + geom_bar(stat = "identity") + theme_bw() +
+  #TheOrder <- Total$Clusters
+  #Total$Clusters <- as.character(Total$Clusters)
+  #Total$Clusters <- factor(Total$Clusters, levels = TheOrder)
+
+  Subtotal <- Total %>% filter(str_starts(Clusters, x))
+
+  TheOrder <- Subtotal$Clusters
+  Subtotal$Clusters <- as.character(Subtotal$Clusters)
+  Subtotal$Clusters <- factor(Subtotal$Clusters, levels = TheOrder)
+
+  InitialPlot <- ggplot(Subtotal, aes(x = Clusters, y = Counts)) + geom_bar(stat = "identity") + theme_bw() +
     theme(axis.text.x = element_text(angle = 45, hjust = 1)) +labs(title=paste(x, AggregateName, "Initial"), sep=" ")
   InitialPlot
 
@@ -380,12 +387,6 @@ ModernSingleStainSignatures <- function(x, WorkAround1, alternatename, ColsN, St
     Samples_replicated <- Samples[rep(1, each = nrow(Data)),]
     Test <- Data - Samples_replicated
 
-    if (Verbose == TRUE){
-      TotalCells <- nrow(Test) * ncol(Test)
-      BelowZero <- sum(apply(Test, 2, function(x) x < 0))
-      message(round(BelowZero/TotalCells,2), " of all events were negative and rounded to 0")
-    }
-
     Test[Test < 0] <- 0 #Check here for negatives...
     AA <- do.call(pmax, Test)
     Normalized2 <- Test/AA
@@ -406,10 +407,10 @@ ModernSingleStainSignatures <- function(x, WorkAround1, alternatename, ColsN, St
       mutate(across(where(is.numeric), ~ ceiling(. / Increments) * Increments)) %>%
       mutate(Backups = WorkAround2$Backups) %>% relocate(Backups, .before=1)
 
-    SingleColorSubset <- WorkAround1b %>% dplyr::filter(.data[[x]] == 1.000) %>% arrange(desc(.data[[TheMainAF]])) #%>%
-      #dplyr::filter(!.data[[TheMainAF]] == 1.00)  Not Double Dipping Anymore Technically
+    SingleColorSubset <- WorkAround2b %>% dplyr::filter(.data[[x]] == 1.000) %>% arrange(desc(.data[[TheMainAF]])) #%>%
+      #dplyr::filter(!.data[[TheMainAF]] == 1.00)  #Not Double Dipping Anymore Technically
     SingleColorData <- SignatureCluster(Arg1=x, Arg2=TheMainAF, data=SingleColorSubset)
-    TheClusters <- data.frame(table(SignatureData$Cluster), check.names=FALSE)
+    TheClusters <- data.frame(table(SingleColorData$Cluster), check.names=FALSE)
     colnames(TheClusters)[1] <- "Clusters"
     colnames(TheClusters)[2] <- "Counts"
     Total <- TheClusters %>% filter(str_starts(Clusters, x)) %>% arrange(desc(Clusters))
@@ -420,7 +421,13 @@ ModernSingleStainSignatures <- function(x, WorkAround1, alternatename, ColsN, St
     FinalPlot <- ggplot(Total, aes(x = Clusters, y = Counts)) + geom_bar(stat = "identity") + theme_bw() +
       theme(axis.text.x = element_text(angle = 45, hjust = 1)) +labs(title=paste(x, AggregateName, "Final"), sep=" ")
     #InitialPlot
-    FinalPlot
+    InitialPlot + FinalPlot
+
+    ##########################
+    # Local Maxima Iteration #
+    ##########################
+
+    AF_Choice <- left_join(SingleColorData %>% filter(Cluster == AFforSubtraction) %>% select(Backups)
 
 
   } else if (Subtraction == "Average"){
