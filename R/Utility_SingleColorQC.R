@@ -270,7 +270,7 @@ Utility_SingleColorQC <- function(x, subsets, sample.name, removestrings, experi
                       WorkAround1=WorkAround1, alternatename=AggregateName,
                       ColsN=ColsN, StartNormalizedMergedCol=StartNormalizedMergedCol,
                       EndNormalizedMergedCol=EndNormalizedMergedCol, Samples=Samples, name=name,
-                      results=results) %>% bind_rows()
+                      results=results, stats=stats) %>% bind_rows()
   }
 
   Reintegrated <- left_join(RetainedDF, StashedDF, by = "Backups")
@@ -293,7 +293,7 @@ Utility_SingleColorQC <- function(x, subsets, sample.name, removestrings, experi
 
 
 ModernSingleStainSignatures <- function(x, WorkAround1, alternatename, ColsN, StartNormalizedMergedCol, EndNormalizedMergedCol,
-                                        Samples, name, results, Increments=0.1, Subtraction = "Internal"){
+                                        Samples, name, results, Increments=0.1, Subtraction = "Internal", stats){
 
   WorkAround1b <- WorkAround1 %>% select(all_of(
     (StartNormalizedMergedCol+1):(EndNormalizedMergedCol+1))) %>%
@@ -353,12 +353,74 @@ ModernSingleStainSignatures <- function(x, WorkAround1, alternatename, ColsN, St
   Total$Clusters <- factor(Total$Clusters, levels = TheOrder)
 
   InitialPlot <- ggplot(Total, aes(x = Clusters, y = Counts)) + geom_bar(stat = "identity") + theme_bw() +
-    theme(axis.text.x = element_text(angle = 45, hjust = 1)) +labs(title=paste(x, AggregateName, "Pre"), sep=" ")
+    theme(axis.text.x = element_text(angle = 45, hjust = 1)) +labs(title=paste(x, AggregateName, "Initial"), sep=" ")
   InitialPlot
+
+  ################################
+  # Autofluorescence Subtraction #
+  ################################
 
   AFforSubtraction <- Total %>% filter(str_starts(Clusters, TheMainAF)) %>% arrange(desc(Counts)) %>% slice(1) %>% pull(Clusters) #%>% as.character()
 
-  if (Subtraction == "Internal"){ AF_Choice <- SignatureData %>% filter(Cluster == AFforSubtraction)
+  if (Subtraction == "Internal"){
+    AF_Choice <- SignatureData %>% filter(Cluster == AFforSubtraction) %>% select(Backups)
+    Restored <- left_join(AF_Choice, WorkAround1, by="Backups")
+    Restored <- Restored %>% select(-Backups)
+    Restored <- Restored %>% select(all_of(1:ColsN))
+    BackupNames2 <- colnames(Restored)
+
+    if(stats == "mean"){Samples <- Restored %>% summarize_all(mean)
+    } else if (stats == "median"){Samples <- Restored %>%
+      summarize_all(median)
+    } else(stop("Please specify stats parameter mean or median"))
+
+    StoredBackups <- WorkAround1 %>% select(Backups)
+    Data <- WorkAround1 %>% select(-Backups)
+    Data <- Data %>% select(all_of(1:ColsN))
+    Samples_replicated <- Samples[rep(1, each = nrow(Data)),]
+    Test <- Data - Samples_replicated
+
+    if (Verbose == TRUE){
+      TotalCells <- nrow(Test) * ncol(Test)
+      BelowZero <- sum(apply(Test, 2, function(x) x < 0))
+      message(round(BelowZero/TotalCells,2), " of all events were negative and rounded to 0")
+    }
+
+    Test[Test < 0] <- 0 #Check here for negatives...
+    AA <- do.call(pmax, Test)
+    Normalized2 <- Test/AA
+    Normalized2 <- round(Normalized2, 1)
+    #num_na <- sum(is.na(Normalized2))
+    Normalized2[is.na(Normalized2)] <- 0
+    colnames(Normalized2) <- gsub("-A", "", colnames(Normalized2))
+    Counts2 <- colSums(Normalized2 == 1.0)
+    #Counts2
+    WorkAround2 <- cbind(Backups, Test, Normalized2)
+
+    ################
+    # Reclustering #
+    ################
+
+    WorkAround2b <- WorkAround2 %>% select(all_of(
+      (StartNormalizedMergedCol+1):(EndNormalizedMergedCol+1))) %>%
+      mutate(across(where(is.numeric), ~ ceiling(. / Increments) * Increments)) %>%
+      mutate(Backups = WorkAround2$Backups) %>% relocate(Backups, .before=1)
+
+    SingleColorSubset <- WorkAround1b %>% dplyr::filter(.data[[x]] == 1.000) %>% arrange(desc(.data[[TheMainAF]])) #%>%
+      #dplyr::filter(!.data[[TheMainAF]] == 1.00)  Not Double Dipping Anymore Technically
+    SingleColorData <- SignatureCluster(Arg1=x, Arg2=TheMainAF, data=SingleColorSubset)
+    TheClusters <- data.frame(table(SignatureData$Cluster), check.names=FALSE)
+    colnames(TheClusters)[1] <- "Clusters"
+    colnames(TheClusters)[2] <- "Counts"
+    Total <- TheClusters %>% filter(str_starts(Clusters, x)) %>% arrange(desc(Clusters))
+    TheOrder <- Total$Clusters
+    Total$Clusters <- as.character(Total$Clusters)
+    Total$Clusters <- factor(Total$Clusters, levels = TheOrder)
+
+    FinalPlot <- ggplot(Total, aes(x = Clusters, y = Counts)) + geom_bar(stat = "identity") + theme_bw() +
+      theme(axis.text.x = element_text(angle = 45, hjust = 1)) +labs(title=paste(x, AggregateName, "Final"), sep=" ")
+    #InitialPlot
+    FinalPlot
 
 
   } else if (Subtraction == "Average"){
@@ -370,9 +432,7 @@ ModernSingleStainSignatures <- function(x, WorkAround1, alternatename, ColsN, St
     stop("Sorry, still working on this. -David ")
   }
 
-  ################################
-  # Autofluorescence Subtraction #
-  ################################
+
 
   TheMainAF
 
