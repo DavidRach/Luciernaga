@@ -437,11 +437,45 @@ ModernSingleStainSignatures <- function(x, WorkAround1, alternatename, ColsN, St
     ClusterIteration <- function(x, data){
       subset <- data %>% filter(Cluster %in% x)
 
+      StashedIDs <- subset %>% select(Backups)
+      TheNormalized <- subset %>% select(-Backups) %>% select(all_of(StartNormalizedMergedCol:EndNormalizedMergedCol))
+      MyRawData <- subset %>% select(-Backups) %>% select(all_of(1:ColsN))
 
+      #Preparation for Local Maxima
+      Conversion <- data.frame(t(TheNormalized), check.names = FALSE)
+      Conversion <- cbind(Detectors = rownames(Conversion), Conversion)
+      rownames(Conversion) <- NULL
 
+      #Preparing Detector Stand Ins for left_join
+      Decoys <- Conversion %>% select(Detectors)
+      Decoys <- Decoys %>% mutate(TheDetector = 1:nrow(Decoys)) %>% relocate(
+        TheDetector, .before = Detectors)
 
+      #Deriving an average y-vector for local maxima
+      Conversion <- Conversion %>% mutate(TheSums = rowSums(.[2:ncol(.)],
+                                                            na.rm = TRUE) /(ncol(Conversion) - 1)) %>% relocate(
+                                                              TheSums, .after = Detectors)
+      Conversion$Detectors <- 1:nrow(Conversion)
+      LocalX <- Conversion$Detectors
+      LocalY <- Conversion$TheSums
 
+      #I made it export, now just need to rebuild, then remove extra :
+      alternatename <- AggregateName
 
+      PointData <- Luciernaga::Utility_LocalMaxima(theX = LocalX, theY = LocalY,
+                                                   therepeats = 3, w = 3, span = 0.11, alternatename = alternatename)
+
+      colnames(PointData)[1] <- "TheDetector"
+      colnames(PointData)[2] <- "TheHeight"
+
+      Newest2 <- PointData %>% filter(TheHeight > 0.15) %>% arrange(desc(TheHeight))
+      Assembled <- left_join(Newest2, Decoys, by = "TheDetector")
+      if(nrow(Assembled) == 0){stop("Failed at Assembled, no local maxima greater than 0.15")}
+      These <- Assembled %>% pull(Detectors)
+      if (any(These %in% x)) {These <- These[These != x]}
+      if (length(These) > 2) {These <- head(These, 2)} #If we wanted to institute a number of peaks argument, it would be here.
+
+      MyData <- cbind(StashedIDs, MyRawData, TheNormalized)
     }
 
     #x <- MainClusters[1]
@@ -462,47 +496,6 @@ ModernSingleStainSignatures <- function(x, WorkAround1, alternatename, ColsN, St
   }
 }
 
-
-
-  MyData <- WorkAround2 %>% select(all_of(
-    StartNormalizedMergedCol:EndNormalizedMergedCol)) %>%
-    mutate(across(where(is.numeric), ~ ceiling(. / 0.2) * 0.2))
-  MyRawData <- WorkAround2 %>% select(all_of(1:ColsN))
-
-  #Preparation for Local Maxima
-  Conversion <- data.frame(t(MyData), check.names = FALSE)
-  Conversion <- cbind(Detectors = rownames(Conversion), Conversion)
-  rownames(Conversion) <- NULL
-
-  #Preparing Detector Stand Ins for left_join
-  Decoys <- Conversion %>% select(Detectors)
-  Decoys <- Decoys %>% mutate(TheDetector = 1:nrow(Decoys)) %>% relocate(
-    TheDetector, .before = Detectors)
-
-  #Deriving an average y-vector for local maxima
-  Conversion <- Conversion %>% mutate(TheSums = rowSums(.[2:ncol(.)],
-                                                        na.rm = TRUE) /(ncol(Conversion) - 1)) %>% relocate(
-                                                          TheSums, .after = Detectors)
-  Conversion$Detectors <- 1:nrow(Conversion)
-  LocalX <- Conversion$Detectors
-  LocalY <- Conversion$TheSums
-
-  #I made it export, now just need to rebuild, then remove extra :
-  alternatename <- alternatename
-  PointData <- Luciernaga::Utility_LocalMaxima(theX = LocalX, theY = LocalY,
-                                               therepeats = 3, w = 3, span = 0.11, alternatename = alternatename)
-
-  colnames(PointData)[1] <- "TheDetector"
-  colnames(PointData)[2] <- "TheHeight"
-
-  Newest2 <- PointData %>% filter(TheHeight > 0.15) %>% arrange(desc(TheHeight))
-  Assembled <- left_join(Newest2, Decoys, by = "TheDetector")
-  if(nrow(Assembled) == 0){stop("Failed at Assembled, no local maxima greater than 0.15")}
-  These <- Assembled %>% pull(Detectors)
-  if (any(These %in% x)) {These <- These[These != x]}
-  if (length(These) > 2) {These <- head(These, 2)} #If we wanted to institute a number of peaks argument, it would be here.
-
-  MyData <- cbind(StashedIDs, MyRawData, MyData)
   MyData$Cluster <- paste(DetectorName, "10-", sep = "_")
 
   if (length(These) == 2){second <- These[[1]]
