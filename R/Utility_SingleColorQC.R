@@ -270,7 +270,8 @@ Utility_SingleColorQC <- function(x, subsets, sample.name, removestrings, experi
                       WorkAround1=WorkAround1, alternatename=AggregateName,
                       ColsN=ColsN, StartNormalizedMergedCol=StartNormalizedMergedCol,
                       EndNormalizedMergedCol=EndNormalizedMergedCol, Samples=Samples, name=name,
-                      results=results, stats=stats) %>% bind_rows()
+                      results=results, stats=stats, TheMainAF=TheMainAF,
+                      AggregateName=AggregateName) %>% bind_rows()
   }
 
   Reintegrated <- left_join(RetainedDF, StashedDF, by = "Backups")
@@ -321,7 +322,8 @@ SignatureCluster <- function(Arg1, Arg2, data){
   return(Second)
 }
 
-ClusterIteration <- function(x, data, TheDetector, RatioCutoff){
+ClusterIteration <- function(x, data, TheDetector, RatioCutoff, StartNormalizedMergedCol,
+                             EndNormalizedMergedCol, ColsN, AggregateName){
   subset <- data %>% filter(Cluster %in% x)
 
   StashedIDs <- subset %>% select(Backups)
@@ -429,7 +431,8 @@ ClusterIteration <- function(x, data, TheDetector, RatioCutoff){
 
 SingleStainSignatures <- function(x, WorkAround1, alternatename, ColsN, StartNormalizedMergedCol,
                                         EndNormalizedMergedCol, Samples, name, results, Increments=0.1,
-                                        Subtraction = "Internal", stats, RatioCutoff=0.01){
+                                        Subtraction = "Internal", stats, RatioCutoff=0.01, TheMainAF,
+                                        AggregateName){
 
   WorkAround1b <- WorkAround1 %>% select(all_of(
     (StartNormalizedMergedCol+1):(EndNormalizedMergedCol+1))) %>%
@@ -493,71 +496,6 @@ SingleStainSignatures <- function(x, WorkAround1, alternatename, ColsN, StartNor
     Samples_replicated <- Samples[rep(1, each = nrow(Data)),]
     Test <- Data - Samples_replicated
 
-    Test[Test < 0] <- 0 #Check here for negatives...
-    AA <- do.call(pmax, Test)
-    Normalized2 <- Test/AA
-    Normalized2 <- round(Normalized2, 1)
-    #num_na <- sum(is.na(Normalized2))
-    Normalized2[is.na(Normalized2)] <- 0
-    colnames(Normalized2) <- gsub("-A", "", colnames(Normalized2))
-    Counts2 <- colSums(Normalized2 == 1.0)
-    #Counts2
-    WorkAround2 <- cbind(StoredBackups, Test, Normalized2)
-
-    ################
-    # Reclustering #
-    ################
-
-    WorkAround2b <- WorkAround2 %>% select(all_of(
-      (StartNormalizedMergedCol+1):(EndNormalizedMergedCol+1))) %>%
-      mutate(across(where(is.numeric), ~ ceiling(. / Increments) * Increments)) %>%
-      mutate(Backups = WorkAround2$Backups) %>% relocate(Backups, .before=1)
-
-    SingleColorSubset <- WorkAround2b %>% dplyr::filter(.data[[x]] == 1.000) %>% arrange(desc(.data[[TheMainAF]])) #%>%
-      #dplyr::filter(!.data[[TheMainAF]] == 1.00)  #Not Double Dipping Anymore Technically
-    SingleColorData <- SignatureCluster(Arg1=x, Arg2=TheMainAF, data=SingleColorSubset)
-    TheClusters <- data.frame(table(SingleColorData$Cluster), check.names=FALSE)
-    colnames(TheClusters)[1] <- "Clusters"
-    colnames(TheClusters)[2] <- "Counts"
-    Total <- TheClusters %>% filter(str_starts(Clusters, x)) %>% arrange(desc(Clusters))
-    TheOrder <- Total$Clusters
-    Total$Clusters <- as.character(Total$Clusters)
-    Total$Clusters <- factor(Total$Clusters, levels = TheOrder)
-
-    FinalPlot <- ggplot(Total, aes(x = Clusters, y = Counts)) + geom_bar(stat = "identity") + theme_bw() +
-      theme(axis.text.x = element_text(angle = 45, hjust = 1)) +labs(title=paste(x, AggregateName, "Final"), sep=" ")
-    #InitialPlot
-    InitialPlot + FinalPlot
-
-    ##########################
-    # Local Maxima Iteration #
-    ##########################
-    Cutoff <- sum(TheClusters$Counts)*RatioCutoff
-    MainClusters <- TheClusters %>% filter(Counts >= Cutoff) %>% select(Clusters) %>%
-      pull() %>% as.character()
-
-    SingleColorSubset <- SingleColorData %>% select(Backups, Cluster)
-    Ready <- left_join(SingleColorSubset, WorkAround2, by="Backups") %>% relocate(Cluster, .after="R8")
-
-    TheDetector <- x
-
-    AllData <- map(.x=MainClusters, .f=ClusterIteration, data=Ready,
-                   TheDetector=TheDetector, RatioCutoff=RatioCutoff) %>%
-      bind_rows()
-
-    NewTable <- data.frame(table(AllData$Cluster), check.names=FALSE)
-    colnames(NewTable)[1] <- "Cluster"
-    colnames(NewTable)[2] <- "Count"
-
-    NewTable %>% arrange(desc(Count))
-
-    NewCutoff <- sum(NewTable$Count)*RatioCutoff
-    GrabThese <- NewTable %>% filter(Count >= NewCutoff) %>% select(Cluster) %>%
-      pull() %>% as.character()
-
-    FinalData <- AllData %>% filter(Cluster %in% GrabThese)
-    return(FinalData)
-
   } else if (Subtraction == "Average"){
 
     stop("Sorry, still working on this. -David ")
@@ -566,6 +504,77 @@ SingleStainSignatures <- function(x, WorkAround1, alternatename, ColsN, StartNor
 
     stop("Sorry, still working on this. -David ")
   }
+
+  Test[Test < 0] <- 0 #Check here for negatives...
+  AA <- do.call(pmax, Test)
+  Normalized2 <- Test/AA
+  Normalized2 <- round(Normalized2, 1)
+  #num_na <- sum(is.na(Normalized2))
+  Normalized2[is.na(Normalized2)] <- 0
+  colnames(Normalized2) <- gsub("-A", "", colnames(Normalized2))
+  Counts2 <- colSums(Normalized2 == 1.0)
+  #Counts2
+  WorkAround2 <- cbind(StoredBackups, Test, Normalized2)
+
+  ################
+  # Reclustering #
+  ################
+
+  WorkAround2b <- WorkAround2 %>% select(all_of(
+    (StartNormalizedMergedCol+1):(EndNormalizedMergedCol+1))) %>%
+    mutate(across(where(is.numeric), ~ ceiling(. / Increments) * Increments)) %>%
+    mutate(Backups = WorkAround2$Backups) %>% relocate(Backups, .before=1)
+
+  SingleColorSubset <- WorkAround2b %>% dplyr::filter(.data[[x]] == 1.000) %>% arrange(desc(.data[[TheMainAF]])) #%>%
+  #dplyr::filter(!.data[[TheMainAF]] == 1.00)  #Not Double Dipping Anymore Technically
+  SingleColorData <- SignatureCluster(Arg1=x, Arg2=TheMainAF, data=SingleColorSubset)
+  TheClusters <- data.frame(table(SingleColorData$Cluster), check.names=FALSE)
+  colnames(TheClusters)[1] <- "Clusters"
+  colnames(TheClusters)[2] <- "Counts"
+  Total <- TheClusters %>% filter(str_starts(Clusters, x)) %>% arrange(desc(Clusters))
+  TheOrder <- Total$Clusters
+  Total$Clusters <- as.character(Total$Clusters)
+  Total$Clusters <- factor(Total$Clusters, levels = TheOrder)
+
+  FinalPlot <- ggplot(Total, aes(x = Clusters, y = Counts)) + geom_bar(stat = "identity") + theme_bw() +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1)) +labs(title=paste(x, AggregateName, "Final"), sep=" ")
+  #InitialPlot
+  InitialPlot + FinalPlot
+
+  ##########################
+  # Local Maxima Iteration #
+  ##########################
+  Cutoff <- sum(TheClusters$Counts)*RatioCutoff
+  MainClusters <- TheClusters %>% filter(Counts >= Cutoff) %>% select(Clusters) %>%
+    pull() %>% as.character()
+
+  SingleColorSubset <- SingleColorData %>% select(Backups, Cluster)
+  Ready <- left_join(SingleColorSubset, WorkAround2, by="Backups") %>% relocate(Cluster, .after="R8")
+
+  TheDetector <- x
+
+  AllData <- map(.x=MainClusters, .f=ClusterIteration, data=Ready,
+                 TheDetector=TheDetector, RatioCutoff=RatioCutoff,
+                 StartNormalizedMergedCol=StartNormalizedMergedCol,
+                 EndNormalizedMergedCol=EndNormalizedMergedCol,
+                 ColsN=ColsN, AggregateName=AggregateName) %>%
+    bind_rows()
+
+  NewTable <- data.frame(table(AllData$Cluster), check.names=FALSE)
+  colnames(NewTable)[1] <- "Cluster"
+  colnames(NewTable)[2] <- "Count"
+
+  NewTable %>% arrange(desc(Count))
+
+  NewCutoff <- sum(NewTable$Count)*RatioCutoff
+  GrabThese <- NewTable %>% filter(Count >= NewCutoff) %>% select(Cluster) %>%
+    pull() %>% as.character()
+
+  FinalData <- AllData %>% filter(Cluster %in% GrabThese)
+  return(FinalData)
+
+
+
 }
 
 UnstainedSignatures <- function(x, WorkAround1, alternatename, ColsN, StartNormalizedMergedCol, EndNormalizedMergedCol){
