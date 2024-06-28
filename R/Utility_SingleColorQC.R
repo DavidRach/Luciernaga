@@ -427,8 +427,7 @@ ClusterIteration <- function(x, data, TheDetector, RatioCutoff){
 
 }
 
-
-ModernSingleStainSignatures <- function(x, WorkAround1, alternatename, ColsN, StartNormalizedMergedCol,
+SingleStainSignatures <- function(x, WorkAround1, alternatename, ColsN, StartNormalizedMergedCol,
                                         EndNormalizedMergedCol, Samples, name, results, Increments=0.1,
                                         Subtraction = "Internal", stats, RatioCutoff=0.01){
 
@@ -652,9 +651,7 @@ UnstainedSignatures <- function(x, WorkAround1, alternatename, ColsN, StartNorma
   return(MyData)
 }
 
-
-
-SingleStainSignatures <- function(x, WorkAround1, alternatename, ColsN, StartNormalizedMergedCol, EndNormalizedMergedCol,
+OldSingleStainSignatures <- function(x, WorkAround1, alternatename, ColsN, StartNormalizedMergedCol, EndNormalizedMergedCol,
                                   Samples, name, results){
 
   MySubset <- WorkAround1 %>% dplyr::filter(.data[[x]] == 1.000)
