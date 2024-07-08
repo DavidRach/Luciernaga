@@ -25,10 +25,8 @@ BrightnessPlots <- function(thedata, input, Downsample = NULL, Scaled = NULL){
   data$Fluorophore <- gsub("-", "", data$Fluorophore)
   data$Fluorophore <- gsub("_", "", data$Fluorophore)
   data$Fluorophore <- gsub(" ", "", data$Fluorophore)
-
   data$Detector <- gsub("-A$", "", data$Detector)
   data$Detector <- gsub(" ", "", data$Detector)
-
   InternalData <- data
 
   Variables <- InternalData %>% select(Fluorophore) %>% pull(.)
@@ -38,8 +36,10 @@ BrightnessPlots <- function(thedata, input, Downsample = NULL, Scaled = NULL){
   #Present <- list()
 
   InternalList <- function(x, inputfiles){
+
     fcs_files <- inputfiles[str_detect(basename(inputfiles), x) &
                               str_detect(basename(inputfiles), ".fcs$")]
+
     if (length(fcs_files) > 0){return(x)}
   }
 
@@ -51,15 +51,22 @@ BrightnessPlots <- function(thedata, input, Downsample = NULL, Scaled = NULL){
 
   #thex <- Present[2]
 
-  InternalExprs <- function(thex, data, inputfiles){
+  #Here is the issue below:
+
+  InternalExprs <- function(x, data, inputfiles){
+    thex <- x
     TheDetector <- data %>% filter(Fluorophore %in% thex) %>% pull(Detector)
 
     if (thex %in% c("PE", "APC")){thex <- paste0(thex, "_")}
+
 
     fcs_files <- inputfiles[str_detect(basename(inputfiles), thex) &
                               str_detect(basename(inputfiles), ".fcs$")]
 
     if (thex %in% c("PE_", "APC_")){thex <- gsub("_", "", thex)}
+
+
+    if (!length(fcs_files) == 0){
 
     cs <- load_cytoset_from_fcs(fcs_files, truncate_max_range = FALSE,
                                 transformation = FALSE)
@@ -113,10 +120,13 @@ BrightnessPlots <- function(thedata, input, Downsample = NULL, Scaled = NULL){
       }
 
     theplotlist[[thex]] <- plot
+    } else {theplotlist[[thex]] <- NULL}
   }
 
   PlotTwist <- map(.x=Present, .f=InternalExprs, data=InternalData,
                    inputfiles=inputfiles)
+  PlotTwist <- Filter(Negate(is.null), PlotTwist)
+  PlotTwist <- unlist( PlotTwist)
 
   return(PlotTwist)
 }

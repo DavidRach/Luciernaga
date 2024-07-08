@@ -86,7 +86,7 @@ Utility_SingleColorQC <- function(x, subsets, sample.name, removestrings, experi
   } else {experiment <- NULL}
 
   if (!is.null(experiment)){
-    AggregateName <- paste0(name, experiment)
+    AggregateName <- paste0(experiment, name)
   } else {AggregateName <- name}
 
   # Removing Non-Characters and Spaces.
@@ -231,7 +231,10 @@ Utility_SingleColorQC <- function(x, subsets, sample.name, removestrings, experi
   }
 
   if (!str_detect(name, "nstained")){
-  TheMainAF <- Detectors %>% filter(!Fluors %in% Retained) %>% slice(1) %>% pull(Fluors)
+    Intermediate <- Detectors %>% filter(!Fluors %in% Retained)
+    if (nrow(Intermediate) >0){
+      TheMainAF <- Intermediate %>% slice(1) %>% pull(Fluors)
+    } else {TheMainAF <- MainAF}
   }
 
   if(Beads == TRUE){Retained <- Retained[[1]]}

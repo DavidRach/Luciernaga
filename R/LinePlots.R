@@ -57,8 +57,10 @@ LinePlots <- function(thedata, input, stats = NULL){
 
     if (thex %in% c("PE_", "APC_")){thex <- gsub("_", "", thex)}
 
-    cs <- load_cytoset_from_fcs(fcs_files, truncate_max_range = FALSE,
-                                transformation = FALSE)
+    if (!length(fcs_files) == 0){
+
+      cs <- load_cytoset_from_fcs(fcs_files, truncate_max_range = FALSE,
+                                  transformation = FALSE)
 
     InternalExprs2 <- function(x, thex2){
       they <- x
@@ -140,10 +142,13 @@ LinePlots <- function(thedata, input, stats = NULL){
       )
 
     theplotlist[[thex]] <- plot
+  } else {theplotlist[[thex]] <- NULL}
   }
 
   PlotTwist <- map(.x = Present, .f = InternalExprs, data = InternalData,
                    inputfiles = inputfiles)
+  PlotTwist <- Filter(Negate(is.null), PlotTwist)
+  PlotTwistt <- unlist( PlotTwist)
 
   return(PlotTwist)
 }
