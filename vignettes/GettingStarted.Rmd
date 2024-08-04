@@ -39,8 +39,8 @@ Luciernaga is an open-source project under active development, and we would love
 
 Luciernaga will be submitted to Bioconductor later this year, for the moment, it is available to install via GitHub. 
 
-```{r Install Luciernaga, eval = FALSE}
-install.packages("remotes")
+```{r Install Luciernaga, eval = FALSE, echo=FALSE}
+if(!require("remotes")) install.packages("remotes")
 remotes::install_github("https://github.com/DavidRach/Luciernaga")
 
 #install.packages("BiocManager")
@@ -139,7 +139,11 @@ MyGatingSet[[1]]
 
 ### Utility_GatingPlots
 
-We can visualize the gates on the individual .fcs files using Luciernaga's Utility_GatingPlots function. This can be done individually (by specifying MyGatingSet[[1]]), or using the purrr packages map function on all objects in the GatingSet (MyGatingSet). The export option will store the image as a .pdf in the location specified by outpath. 
+We can visualize our applied gates on their individual .fcs files using Luciernaga's `Utility_GatingPlots()` function. We can do this individually, or iterate over the entire GatingSet using the `r CRANpkg("purrr")` `purrr::map()` function. 
+
+To do this, we reference the `r CRANpkg("data.table")` imported gating information (MyGates) showcased above, and the GatingSet object. 
+
+
 
 ```{r}
 removestrings <-  c("DR_", " (Cells).fcs", "-", " ")
