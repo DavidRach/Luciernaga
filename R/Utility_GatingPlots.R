@@ -24,12 +24,7 @@
 #' @importFrom dplyr pull
 #' @importFrom purrr map
 #'
-#' @importFrom dplyr filter
-#' @importFrom dplyr select
-#' @importFrom stringr str_split
-#' @importFrom ggcyto as.ggplot
-#' @importFrom ggcyto ggcyto
-#' @import ggplot2
+
 #' @importFrom patchwork wrap_plots
 #' @importFrom grDevices dev.off
 #' @importFrom grDevices pdf
@@ -47,23 +42,26 @@ Utility_GatingPlots <- function(x, sample.name, removestrings, subsets="root", g
   if (is.null(outpath)){outpath <- getwd()}
 
   AggregateName <- NameForSample(x=x, sample.name=sample.name, removestrings=removestrings, ...)
-
   StorageLocation <- file.path(outpath, AggregateName)
 
   # Pulling Gating Information
   TheXYZgates <- gtFile %>% pull(alias)
 
   # Desired Gate
-
+  TheXYZgates <- intersect(DesiredGates, TheXYZgates)
 
   # Pulling Gating Set Data
   ff <- gs_pop_get_data(x, subsets)
   df <- exprs(ff[[1]])
   TheDF <- data.frame(df, check.names = FALSE)
-
   x2 <- x
-  CompiledPlots <- map(.x = TheXYZgates, .f = GatePlot, gtFile = gtFile)
 
+  #Plot Generation
+  CompiledPlots <- map(.x = TheXYZgates, data=x2, .f = GatePlot, gtFile = gtFile)
+
+
+
+  # Send to Utility_Patchwork
   theList <- CompiledPlots
   theListLength <- length(theList)
 
@@ -91,70 +89,4 @@ Utility_GatingPlots <- function(x, sample.name, removestrings, subsets="root", g
   dev.off()
 
   } else {return(AssembledPlots)}
-}
-
-
-
-
-
-
-
-
-
-
-GatePlot <- function(x, gtFile){
-  i <- x
-  gtFile <- data.frame(gtFile, check.names = FALSE)
-  RowData <- gtFile %>% dplyr::filter(alias %in% i)
-  theSubset <- RowData %>% pull(parent)
-  theGate <- RowData %>% pull(alias)
-  theParameters <- RowData %>% pull(dims) %>% str_split(",", simplify = TRUE)
-
-  theParameters <- gsub("^\\s+|\\s+$", "", theParameters)
-
-  if(length(theParameters) == 2){xValue <- theParameters[[1]]
-  yValue <- theParameters[[2]]
-  } else if (length(theParameters) == 1){xValue <- theParameters[[1]]
-  yValue <- "SSC-A" #or an alternate variable specify
-  } else {message(
-    "Plotting Parameters for Axis were not 1 or 2, please check the .csv file")}
-
-
-  #Please Note, All the Below Are Raw Values With No Transforms Yet Applied.
-
-  if (!grepl("FSC|SSC", xValue)) {ExprsData <- TheDF %>%
-    select(all_of(xValue)) %>% pull()
-  theXmin <- ExprsData %>% quantile(., 0.001)
-  theXmax <- ExprsData %>% quantile(., 0.999)
-  theXmin <- theXmin - abs((clearance*theXmin))
-  theXmax <- theXmax + (clearance*theXmax)}
-  if (!grepl("FSC|SSC", yValue)) {ExprsData <- TheDF %>%
-    select(all_of(yValue)) %>% pull()
-  theYmin <- ExprsData %>% quantile(., 0.001)
-  theYmax <- ExprsData %>% quantile(., 0.999)
-  theYmin <- theYmin - abs((clearance*theYmin))
-  theYmax <- theYmax + (clearance*theYmax)}
-
-  if (!exists("theYmax") || !exists("theXmax")){
-    Plot <- as.ggplot(ggcyto(x2, aes(x = .data[[xValue]], y = .data[[yValue]]),
-                             subset = theSubset) + geom_hex(bins=bins) + geom_gate(theGate) +
-                        theme_bw() + labs(title = NULL) + theme(
-                          strip.background = element_blank(), strip.text.x = element_blank(),
-                          panel.grid.major = element_line(linetype = "blank"),
-                          panel.grid.minor = element_line(linetype = "blank"),
-                          axis.title = element_text(size = 10, face = "bold"),
-                          legend.position = "none"))
-
-  } else {Plot <- as.ggplot(ggcyto(x2, aes(
-    x = .data[[xValue]], y = .data[[yValue]]), subset = theSubset) +
-      geom_hex(bins=bins) + coord_cartesian(xlim = c(theXmin, theXmax),
-                                            ylim = c(theYmin, theYmax), default = TRUE) + geom_gate(theGate) +
-      theme_bw() + labs(title = NULL) + theme(strip.background = element_blank(),
-                                              strip.text.x = element_blank(), panel.grid.major = element_line(
-                                                linetype = "blank"), panel.grid.minor = element_line(
-                                                  linetype = "blank"), axis.title = element_text(size = 10,
-                                                                                                 face = "bold"),
-                                              legend.position = "none"))
-
-  tryCatch({rm("theXmin", "theXmax", "theYmin", "theYmax")})}
 }

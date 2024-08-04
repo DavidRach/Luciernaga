@@ -38,3 +38,4 @@ Generate a name from the sample for plot identification
 \examples{
 NULL
 }
+\keyword{internal}

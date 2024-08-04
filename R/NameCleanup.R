@@ -11,7 +11,7 @@
 #' @importFrom stringr fixed
 #'
 #' @return The shortened variable
-#' @export
+#' @keywords internal
 #'
 #' @examples NULL
 

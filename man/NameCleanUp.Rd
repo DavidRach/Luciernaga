@@ -25,3 +25,4 @@ Shorten a variable name
 \examples{
 NULL
 }
+\keyword{internal}

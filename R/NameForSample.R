@@ -11,7 +11,7 @@
 #' @importFrom flowWorkspace keyword
 #'
 #' @return A name matching the provided information for use in plot labeling.
-#' @export
+#' @keywords internal
 #'
 #' @examples NULL
 

@@ -148,19 +148,10 @@ x <- MyGatingSet[[2]]
 removestrings <-  c("DR_", "Cells", ".fcs", "-", " ", "_")
 gtFile = MyGates
 sample.name = "GUID"
-condition = "Test"
-experiment  = "Hell"
-
-Gargoyle <- function(x, sample.name, removestrings, gtFile, ...){
-  
-  AggregateName <- NameForSample(x=x, sample.name=sample.name, removestrings=removestrings, ...)
-  return(AggregateName)
-}
-
-Gargoyle(x=x, sample.name = "GUID", removestrings = removestrings, gtFile = MyGates, condition="Test", experiment = "Hell")
+outpath <- "C:/Users/12692/Desktop"
+gtFile <- MyGates
 
 
-Utility_GatingPlots()
 ```
 
 
