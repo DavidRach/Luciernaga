@@ -1,14 +1,11 @@
 Package: Luciernaga
 Type: Package
-Title: Dichotomized Boolean Clustering and Heatmaps for Spectral Flow Cytometry
+Title: Quality checks, signature interrogation, and data visualization for Spectral Flow Cytometry (SFC) unmixing controls. 
 Version: 0.1.0
 Authors@R: 
     person("David", "Rach", , "drach@som.umaryland.edu", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0003-2235-5585"))
-Description: Acknowledging the limitations of unsupervized analysis and 
-  downsampling, through a semi-supervised gating implements dichotomized 
-  boolean gates to cluster every cell from an experiment and querry the
-  resulting subclusters.
+Description: Having good quality unmixing controls is critical to accurate unmixing of full-stained samples in Spectral Flow Cytometry, but few tools exist to check whether this is the case. In this package we provide tools for quality control checks, signature interrogation and data visualization to allow individuals responsible for the pre-processing to make informed decisions. Tools are implemented for individual .fcs files at a single timepoint or across an experimental run. 
 License: AGPL (>= 3)
 Encoding: UTF-8
 LazyData: FALSE
@@ -53,6 +50,6 @@ Suggests:
     shinyjs,
     testthat (>= 3.0.0),
     withr
-biocViews: Clustering, FlowCytometry, Preprocessing, Software
+biocViews: FlowCytometry, Preprocessing, Software
 Config/testthat/edition: 3
 VignetteBuilder: knitr
