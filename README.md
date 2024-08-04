@@ -2,7 +2,7 @@ Luciernaga
 ================
 David Rach
 <h4>  
-README updated: <i>Jan-28-2024</i>  
+README updated: <i>Aug-04-2024</i>  
 </h4>
 
 <!-- To modify Package/Title/Description/Authors fields, edit the DESCRIPTION file -->
@@ -20,14 +20,15 @@ status](https://github.com/DavidRach/Luciernaga/workflows/rworkflows/badge.svg)]
 
 <img src="inst/hex/hex.png" width="50%" style="display: block; margin: auto;" />
 
-## `Luciernaga`: Quality control of single color and unstained controls for Spectral Flow Cytometry
+## `Luciernaga`: Quality checks, signature interrogation, and data visualization for Spectral Flow Cytometry (SFC) unmixing controls.
 
-### How stable are your single colors and unstained controls?
-
-Let’s find out. By identifying peaks, we can subclassify the
-fluorescence, and then compare across each other for additional insights
-into the quality of spectral flow cytometry single color reference
-controls.
+Having good quality unmixing controls is critical to accurate unmixing
+of full-stained samples in Spectral Flow Cytometry, but few tools exist
+to check whether this is the case. In this package we provide tools for
+quality control checks, signature interrogation and data visualization
+to allow individuals responsible for the pre-processing to make informed
+decisions. Tools are implemented for individual .fcs files at a single
+timepoint or across an experimental run.
 
 If you use `Luciernaga`, please cite:
 

@@ -34,7 +34,7 @@ owner <- tolower(strsplit(URL,"/")[[1]][4])
  
 ## ``r pkg``: `r title`
 
-### `r description`
+`r description`
  
 If you use ``r pkg``, please cite: 
 
