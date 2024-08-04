@@ -2,59 +2,62 @@
 % Please edit documentation in R/Utility_GatingPlots.R
 \name{Utility_GatingPlots}
 \alias{Utility_GatingPlots}
-\title{Check gate placement for individual .fcs files}
+\title{Check gate placement for individual .fcs files in a GatingSet}
 \usage{
 Utility_GatingPlots(
   x,
   sample.name,
   removestrings,
-  experiment = NULL,
-  experiment.name = NULL,
-  condition = NULL,
-  condition.name = NULL,
-  subsets,
+  subsets = "root",
   gtFile,
-  column,
+  DesiredGates = NULL,
+  thecolumn = 2,
+  therows = 2,
   bins,
   clearance,
-  outpath,
-  export = NULL
+  outpath = NULL,
+  export = NULL,
+  ...
 )
 }
 \arguments{
-\item{x}{A Gating Set object}
+\item{x}{A GatingSet object}
 
-\item{sample.name}{The .fcs keyword containing the samples name}
+\item{sample.name}{The .fcs keyword that contains an unique name for that sample}
 
-\item{removestrings}{The values you want removed from sample.name}
+\item{removestrings}{A string of character values to remove from the sample.name}
 
-\item{experiment}{Provide an alternative experiment name}
+\item{subsets}{The GatingSet subset that you want to visualize for data plotting, "root" is the default.}
 
-\item{experiment.name}{The .fcs keyword containing the experiment value}
+\item{gtFile}{The data.table imported .csv file containing the gating template.}
 
-\item{condition}{Provide an alternative condition name}
+\item{DesiredGates}{A vector of gates that you want plotted, for example Desired <- c("nonDebris, "lymphocytes")}
 
-\item{condition.name}{The .fcs keyword containing the condition name}
+\item{therows}{Number of desired rows for the .pdf file}
 
-\item{subsets}{The subset level you want the data plotted at. "root" as default}
-
-\item{gtFile}{The imported data.table containing the gate information.}
-
-\item{column}{Residual superceeded}
-
-\item{bins}{Number of geom hexbins to bin the plotted data for visualization.}
+\item{bins}{Argument to geom_hex for number of bins to visualize the plotted data density.}
 
 \item{clearance}{Area around edge}
 
-\item{outpath}{The location to send the generated .pdf file}
+\item{outpath}{Location to store the generated .pdf file}
 
-\item{export}{Whether to export as a .pdf file to the outpath, TRUE, FALSE}
+\item{export}{Whether to return as a .pdf file or as individual patchwork ggplot objects.}
+
+\item{experiment.name}{The .fcs keyword that contains the name of the experiment}
+
+\item{experiment}{Directly provide the name of the experiment (alternative to experiment.name)}
+
+\item{condition.name}{The .fcs keyword that contains the name of the condition.}
+
+\item{condition}{Directly provide the name of the condition (alternative to condition.name)}
+
+\item{thecolumns}{Number of desired columns for the .pdf file}
 }
 \value{
 Additional information to be added
 }
 \description{
-Check gate placement for individual .fcs files
+Check gate placement for individual .fcs files in a GatingSet
 }
 \examples{
 NULL

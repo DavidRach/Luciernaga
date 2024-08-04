@@ -143,10 +143,31 @@ We can visualize our applied gates on their individual .fcs files using Lucierna
 
 To do this, we reference the `r CRANpkg("data.table")` imported gating information (MyGates) showcased above, and the GatingSet object. 
 
-
-
 ```{r}
-removestrings <-  c("DR_", " (Cells).fcs", "-", " ")
+x <- MyGatingSet[[2]]
+removestrings <-  c("DR_", "Cells", ".fcs", "-", " ", "_")
+gtFile = MyGates
+sample.name = "GUID"
+condition = "Test"
+experiment  = "Hell"
+
+Gargoyle <- function(x, sample.name, removestrings, gtFile, ...){
+  
+  AggregateName <- NameForSample(x=x, sample.name=sample.name, removestrings=removestrings, ...)
+  return(AggregateName)
+}
+
+Gargoyle(x=x, sample.name = "GUID", removestrings = removestrings, gtFile = MyGates, condition="Test", experiment = "Hell")
+
+
+Utility_GatingPlots()
+```
+
+
+```{r, eval = FALSE}
+removestrings <-  c("DR_", "Cells", ".fcs", "-", " ")
+
+IndividualPlot <- Utility_GatingPlots(x=MyGatingSet[[2]], 
 
 AssembledPlot <- map(MyGatingSet[[2]], .f = Utility_GatingPlots, sample.name = "GUID", removestrings = removestrings, experiment = "Test", experiment.name = NULL, condition = "Test", condition.name = NULL, subset = "root", bins = 270, clearance = 0.2, gtFile = MyGates, outpath = NULL, export = FALSE)
 AssembledPlot[[1]]
