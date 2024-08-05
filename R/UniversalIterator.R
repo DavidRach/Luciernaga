@@ -40,13 +40,13 @@ ParallelUniversalIterator <- function(x, x_ff, y_ff,
   DFNames <- columnlist
   columnlist <- columnlist[columnlist != x] # Remove the universal Y value
 
-  Plots <- map(.x = columnlist, .f = .Internal_ParallelGating, x_ff=x_ff, y_ff=y_ff,
+  Plots <- map(.x = columnlist, .f = Internal_ParallelGating, x_ff=x_ff, y_ff=y_ff,
                TheDF=TheDF, yValue=x, columnlist=DFNames, gatelines=gatelines,
                reference=reference, clearance=clearance, bins=bins, AltNameX=AltNameX,
                AltNameY=AltNameY, colorX=colorX, colorY=colorY) #Name
   #Plots <- flatten(Plots)
 
   #Plots1 <- Plots
-  Plots <- flatten(Plots)
+  #Plots <- flatten(Plots)
   return(Plots)
 }
