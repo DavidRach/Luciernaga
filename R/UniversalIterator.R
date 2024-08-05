@@ -44,7 +44,7 @@ ParallelUniversalIterator <- function(x, x_ff, y_ff,
                TheDF=TheDF, yValue=x, columnlist=DFNames, gatelines=gatelines,
                reference=reference, clearance=clearance, bins=bins, AltNameX=AltNameX,
                AltNameY=AltNameY, colorX=colorX, colorY=colorY) #Name
-  #Plots <- flatten(Plots)
+  Plots <- flatten(Plots)
 
   #Plots1 <- Plots
   #Plots <- flatten(Plots)

@@ -95,9 +95,6 @@ Utility_ParallelNbyNPlots <- function(x, y, sample.name, removestrings, Override
                  TheDF=TheDF, yValue=ycolumn, columnlist=DFNames, gatelines=gatelines,
                  reference=reference, clearance=clearance, bins=bins, AltNameX=AltNameX,
                  AltNameY=AltNameY, colorX=colorX, colorY=colorY)
-
-    return(Plots)
-
   } else {
     columnlist <- DFNames[DFNames != ycolumn] # Remove the universal Y value
 
