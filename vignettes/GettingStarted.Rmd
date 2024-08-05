@@ -226,27 +226,49 @@ UnmixedIndividualPlot <- Utility_GatingPlots(x=UnmixedGatingSet[[2]], sample.nam
 UnmixedIndividualPlot
 ```
 
+
+### Utility_NxNPlots
+
+`Utility_NxNPlots()` is a convenient function to visualize unmixed .fcs files for every marker compared to a reference marker. It is particularly useful in identifying cell populations, as well as unmixing errors. It takes a GatingSet object that has been transformed and gated. The desired population of cells can then be specified by the gatesubset argument. ycolumn specifies the desired marker to compare all the other markers to. Similar to other functions that use Utility_Patchwork behind the scenes, it can send the outputs for each specimen to their own pdf file. 
+
+```{r}
+plot(UnmixedGatingSet)
+removethese <- c(".fcs", "DTR_")
+StorageLocation <- file.path("C:", "Users", "JohnDoe", "Desktop")
+
+IndividualNxN <- Utility_NbyNPlots(x=UnmixedGatingSet[[1]], sample.name = "GROUPNAME", removestrings = removethese, marginsubset = "lymphocytes", gatesubset = "live", ycolumn = "Spark Blue 550-A", bins = 120, clearance = 0.2, gatelines = FALSE, reference = NULL, outpath = StorageLocation, pdf = FALSE)
+
+
+MultipleNxN <- map(.x = UnmixedGatingSet, .f = Utility_NbyNPlots, sample.name = "GROUPNAME", removestrings = removethese, marginsubset = "lymphocytes", gatesubset = "live", ycolumn = "Spark Blue 550-A", bins = 120, clearance = 0.2, gatelines = FALSE, reference = NULL, outpath = StorageLocation, pdf = FALSE)
+```
+
+The return is for a given specimen all markers vs. the specified marker on the y-axis. `Utility_NxNPlots()` additionally accepts a ycolumn = "ALL" option that will directly iterate over every marker as the ycolumn argument. However, be warned, for larger SFC panels with many fluorophores, it will take time for a single specimen (and each marker pdf taking up memory space!), and even more so over every specimen in a GatingSet!!!
+
+```{r, eval = FALSE}
+removethese <- c(".fcs", "DTR_")
+StorageLocation <- file.path("C:", "Users", "JohnDoe", "Desktop")
+
+# All_IndividualNxN <- Utility_NbyNPlots(x=UnmixedGatingSet[[1]], sample.name = "GROUPNAME", removestrings = removethese, marginsubset = "lymphocytes", gatesubset = "live", ycolumn = "ALL", bins = 120, clearance = 0.2, gatelines = FALSE, reference = NULL, outpath = StorageLocation, pdf = FALSE)
+
+
+### ALL_MultipleNxN <- map(.x = UnmixedGatingSet, .f = Utility_NbyNPlots, sample.name = "GROUPNAME", removestrings = removethese, marginsubset = "lymphocytes", gatesubset = "live", ycolumn = "ALL", bins = 120, clearance = 0.2, gatelines = FALSE, reference = NULL, outpath = StorageLocation, pdf = FALSE)
+```
+
+### Utility_ParallelNxNPlots
+
+`Utitlity_ParallelNxNPlots` is an extension of `Utility_NxNPlots`, but is used to compare two separate samples that are overlaid on the same plot. This can be useful when comparing different specimens, different treatment conditions, and differences in unmixing. It is still partly under development as the colors for the different specimens don't currently blend well. It utilizes the `r CRANpkg("purrr")` `purrr::map2()` argument behind the scenes to determine the order of what specimens are compared to each other. 
+
+```{r}
+
+
+```
+
 ### Utility_UnityPlots
 
 ```{r}
 
 
 ```
-
-### Utility_NxNPlots
-
-```{r}
-
-
-```
-
-### Utility_ParallelNxNPlots
-
-```{r}
-
-
-```
-
 
 
 

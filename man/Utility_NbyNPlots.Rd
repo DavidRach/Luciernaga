@@ -22,7 +22,8 @@ Utility_NbyNPlots(
   outpath,
   pdf,
   width = 9,
-  height = 7
+  height = 7,
+  ...
 )
 }
 \arguments{
