@@ -53,7 +53,7 @@ Utility_GatingPlots <- function(x, sample.name, removestrings, subset="root", gt
   x2 <- x
 
   #Plot Generation
-  CompiledPlots <- map(.x = TheXYZgates, .f = GatePlot, data=x2, gtFile = gtFile)
+  CompiledPlots <- map(.x = TheXYZgates, .f = GatePlot, data=x2, TheDF = TheDF, gtFile = gtFile)
   # CompiledPlots <- map(.x = TheXYZgates, .f = Luciernaga:::GatePlot, data=x2, gtFile = gtFile)
 
   if (export == TRUE){

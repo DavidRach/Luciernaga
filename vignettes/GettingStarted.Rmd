@@ -40,11 +40,11 @@ Luciernaga is an open-source project under active development, and we would love
 Luciernaga will be submitted to Bioconductor later this year, for the moment, it is available to install via GitHub. 
 
 ```{r Install Luciernaga, eval = FALSE, echo=FALSE}
-if(!require("remotes")) install.packages("remotes")
-remotes::install_github("https://github.com/DavidRach/Luciernaga")
+# if(!require("remotes")) {install.packages("remotes")}
+# remotes::install_github("https://github.com/DavidRach/Luciernaga")
 
-#install.packages("BiocManager")
-#BiocManager::install("Luciernaga")
+# install.packages("BiocManager")
+# BiocManager::install("Luciernaga")
 ```
 
 ### Loading Libraries
@@ -105,7 +105,7 @@ FCS_Files
 Three of these files are raw unmixing controls (APCFire810, BUV496, Unstained), while the others are unmixed full-stained samples from a 29-color SFC panel (ND050). For now, let's subset the desired files to only select the raw .fcs unmixing controls as shown below:
 
 ```{r Selecting Desired Files}
-SubsetFCSFiles <- FCS_Files[1:3]
+SubsetFCSFiles <- FCS_Files[c(1:2, 6)]
 SubsetFCSFiles
 ```
 
@@ -187,10 +187,10 @@ Utility_Patchwork(AllSpecimens, "LymphocyteGates", outfolder=StorageLocation, th
 
 
 ### Creating a GatingSet for Unmixed .fcs files
-The next couple functions are designed primarily for use with unmixed full-stained samples. We will return to the earlier example and select the corresponding example .fcs files found within Luciernaga's extdata folder. Once we bring them into a GatingSet object, we will bi-exponentially transform the underlying data before applying a gating template. 
+The next couple functions are designed primarily for use with unmixed full-stained samples. We will return to the earlier example and select the corresponding example .fcs files found within Luciernaga's extdata folder and bring them into a GatingSet object.
 
 ```{r Selecting Desired Files}
-UnmixedFCSFiles <- FCS_Files[4:6]
+UnmixedFCSFiles <- FCS_Files[c(3:5)]
 UnmixedFCSFiles
 ```
 
@@ -200,10 +200,30 @@ UnmixedGatingSet <- GatingSet(UnmixedCytoSet)
 UnmixedGatingSet
 ```
 
+Now that they are in a GatingSet object, we will identify markers/fluorophores present for the .fcs file, and remove from the list markers that don't need to be transformed (example FSC, SSC, etc). We will then bi-exponentially transform the data using `r Biocpkg("flowWorkspace")` `flowWorkspace::flowjo_biexp_trans()` before applying a gating template. 
+
 ```{r}
+Markers <- colnames(UnmixedCytoSet)
+KeptMarkers <- Markers[-grep("Time|FS|SC|SS|Original|-W$|-H$|AF", Markers)]
+
+MyBiexponentialTransform <- flowjo_biexp_trans(channelRange = 256, maxValue = 1000000, pos = 4.5, neg = 0, widthBasis = -1000)
+TransformList <- transformerList(KeptMarkers, MyBiexponentialTransform)
+UnmixedGatingSet <- transform(UnmixedGatingSet, TransformList)
+
 FileLocation <- system.file("extdata", package = "Luciernaga")
-MyGates <- fread(file.path(path = FileLocation, pattern = 'Gates.csv'))
-gt(MyGates)
+UnmixedGates <- fread(file.path(path = FileLocation, pattern = 'GatesUnmixed.csv'))
+UnmixedGating <- gatingTemplate(UnmixedGates)
+gt_gating(UnmixedGating, UnmixedGatingSet)
+```
+
+And to verify successfully gated as we expected:
+
+```{r}
+plot(UnmixedGatingSet)
+
+UnmixedIndividualPlot <- Utility_GatingPlots(x=UnmixedGatingSet[[2]], sample.name = "GUID", removestrings = removestrings, gtFile = UnmixedGates, DesiredGates = NULL, outpath = StorageLocation, export = FALSE)
+
+UnmixedIndividualPlot
 ```
 
 ### Utility_UnityPlots

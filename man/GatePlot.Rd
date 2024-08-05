@@ -4,12 +4,14 @@
 \alias{GatePlot}
 \title{Generates called plots from Utility_GatingPlots}
 \usage{
-GatePlot(x, data, gtFile, bins = 270, clearance = 0.2)
+GatePlot(x, data, TheDF, gtFile, bins = 270, clearance = 0.2)
 }
 \arguments{
 \item{x}{A specific gate, ex. "nonDebris"}
 
 \item{data}{A GatingSet object}
+
+\item{TheDF}{A data.frame object of the flow file's expr data}
 
 \item{gtFile}{The data.table imported .csv file containing the gating template.}
 

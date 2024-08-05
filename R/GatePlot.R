@@ -2,6 +2,7 @@
 #'
 #' @param x A specific gate, ex. "nonDebris"
 #' @param data A GatingSet object
+#' @param TheDF A data.frame object of the flow file's expr data
 #' @param gtFile The data.table imported .csv file containing the gating template.
 #' @param bins Argument to geom_hex for number of bins to visualize the plotted data density.
 #' @param clearance A buffer area around the plot edge
@@ -19,7 +20,7 @@
 #'
 #' @examples NULL
 
-GatePlot <- function(x, data, gtFile, bins=270, clearance = 0.2){
+GatePlot <- function(x, data, TheDF, gtFile, bins=270, clearance = 0.2){
   i <- x
   gtFile <- data.frame(gtFile, check.names = FALSE)
   RowData <- gtFile %>% filter(alias %in% i)
