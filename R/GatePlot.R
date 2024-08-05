@@ -3,6 +3,8 @@
 #' @param x A specific gate, ex. "nonDebris"
 #' @param data A GatingSet object
 #' @param gtFile The data.table imported .csv file containing the gating template.
+#' @param bins Argument to geom_hex for number of bins to visualize the plotted data density.
+#' @param clearance A buffer area around the plot edge
 #'
 #' @importFrom dplyr filter
 #' @importFrom stringr str_split
@@ -17,7 +19,7 @@
 #'
 #' @examples NULL
 
-GatePlot <- function(x, data, gtFile){
+GatePlot <- function(x, data, gtFile, bins=270, clearance = 0.2){
   i <- x
   gtFile <- data.frame(gtFile, check.names = FALSE)
   RowData <- gtFile %>% filter(alias %in% i)
@@ -51,7 +53,7 @@ GatePlot <- function(x, data, gtFile){
   theYmax <- theYmax + (clearance*theYmax)}
 
   if (!exists("theYmax") || !exists("theXmax")){
-    Plot <- as.ggplot(ggcyto(x2, aes(x = .data[[xValue]], y = .data[[yValue]]),
+    Plot <- as.ggplot(ggcyto(data, aes(x = .data[[xValue]], y = .data[[yValue]]),
                              subset = theSubset) + geom_hex(bins=bins) + geom_gate(theGate) +
                         theme_bw() + labs(title = NULL) + theme(
                           strip.background = element_blank(), strip.text.x = element_blank(),
@@ -60,7 +62,7 @@ GatePlot <- function(x, data, gtFile){
                           axis.title = element_text(size = 10, face = "bold"),
                           legend.position = "none"))
 
-  } else {Plot <- as.ggplot(ggcyto(x2, aes(
+  } else {Plot <- as.ggplot(ggcyto(data, aes(
     x = .data[[xValue]], y = .data[[yValue]]), subset = theSubset) +
       geom_hex(bins=bins) + coord_cartesian(xlim = c(theXmin, theXmax),
                                             ylim = c(theYmin, theYmax), default = TRUE) + geom_gate(theGate) +

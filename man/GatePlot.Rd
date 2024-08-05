@@ -4,7 +4,7 @@
 \alias{GatePlot}
 \title{Generates called plots from Utility_GatingPlots}
 \usage{
-GatePlot(x, data, gtFile)
+GatePlot(x, data, gtFile, bins = 270, clearance = 0.2)
 }
 \arguments{
 \item{x}{A specific gate, ex. "nonDebris"}
@@ -12,6 +12,10 @@ GatePlot(x, data, gtFile)
 \item{data}{A GatingSet object}
 
 \item{gtFile}{The data.table imported .csv file containing the gating template.}
+
+\item{bins}{Argument to geom_hex for number of bins to visualize the plotted data density.}
+
+\item{clearance}{A buffer area around the plot edge}
 }
 \value{
 A ggplot corresponding to the given inputs

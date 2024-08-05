@@ -150,17 +150,18 @@ gtFile = MyGates
 sample.name = "GUID"
 outpath <- "C:/Users/12692/Desktop"
 gtFile <- MyGates
-
-
 ```
 
 
 ```{r, eval = FALSE}
 removestrings <-  c("DR_", "Cells", ".fcs", "-", " ")
 
-IndividualPlot <- Utility_GatingPlots(x=MyGatingSet[[2]], 
+IndividualPlot <- Utility_GatingPlots(x=MyGatingSet[[2]], sample.name = "GUID", removestrings = removestrings,  
 
-AssembledPlot <- map(MyGatingSet[[2]], .f = Utility_GatingPlots, sample.name = "GUID", removestrings = removestrings, experiment = "Test", experiment.name = NULL, condition = "Test", condition.name = NULL, subset = "root", bins = 270, clearance = 0.2, gtFile = MyGates, outpath = NULL, export = FALSE)
+AssembledPlot <- 
+  
+Here <- map(.x = MyGatingSet[[2]], .f = Utility_GatingPlots, sample.name = "GUID", removestrings = removestrings, gtFile = MyGates, outpath = "C:/Users/12692/Desktop", export = FALSE)
+
 AssembledPlot[[1]]
 ```
 

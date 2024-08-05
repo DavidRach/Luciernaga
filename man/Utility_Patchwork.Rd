@@ -8,10 +8,11 @@ Utility_Patchwork(
   x,
   filename,
   outfolder,
-  thecolumns,
-  therows,
-  width = 9,
-  height = 7
+  thecolumns = 2,
+  therows = 3,
+  width = 7,
+  height = 9,
+  returntype = "pdf"
 )
 }
 \arguments{
@@ -28,6 +29,8 @@ Utility_Patchwork(
 \item{width}{Desired page width}
 
 \item{height}{Desired page height}
+
+\item{returntype}{Whether to return "pdf" (to desired location) or "patchwork" (to R)}
 }
 \value{
 Some additional value to edit

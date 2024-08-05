@@ -7,7 +7,9 @@
 #' @param therows The number of rows per page
 #' @param width Desired page width
 #' @param height Desired page height
+#' @param returntype Whether to return "pdf" (to desired location) or "patchwork" (to R)
 #'
+#' @importFrom purrr map
 #' @importFrom patchwork wrap_plots
 #' @importFrom grDevices dev.off
 #' @importFrom grDevices pdf
@@ -18,33 +20,40 @@
 #' @examples NULL
 #'
 
-Utility_Patchwork <- function(x, filename, outfolder, thecolumns, therows, width = 9,
-                              height = 7){
+Utility_Patchwork <- function(x, filename, outfolder, thecolumns=2, therows=3, width = 7,
+                              height = 9, returntype="pdf"){
   theList <- x
   theList <- Filter(Negate(is.null), theList)
   theListLength <- length(theList)
 
   theoreticalitems <- therows*thecolumns
-  #theoreticalpages <- theListLength/theoreticalitems
-  #theoreticalpages <- round(theoreticalpages, 0)
-
-  split_list <- function(input_list, chunk_size) {
-    split(input_list, ceiling(seq_along(input_list) / chunk_size))
-  }
 
   sublists <- split_list(theList, theoreticalitems)
-  length(sublists)
+  #length(sublists)
 
-  MergedName <- paste(outfolder, filename, sep = "/")
+  if (returntype == "pdf"){
 
-  pdf(file = paste(MergedName, ".pdf", sep = "", collapse = NULL), width = width,
-      height = height) #Optional Adjustments for Second
+    MergedName <- paste(outfolder, filename, sep = "/")
+    pdf(file = paste(MergedName, ".pdf", sep = "", collapse = NULL), width = width,
+        height = height)
+    p <- map(sublists, .f=sublist_plots, thecolumns=thecolumns, therows=therows)
+    print(p)
+    dev.off()
 
-  for(i in sublists){p <- wrap_plots(i, ncol = thecolumns, nrow = therows,
-                                     widths = 0.8, heights = 0.8)
-  print(p)
-  }
+  } else if (returntype == "patchwork"){
+      p <- map(sublists, .f=sublist_plots, thecolumns=thecolumns, therows=therows)
+      return(p)}
+}
 
-  dev.off()
+#' Splits available plots into sublist
+#' @noRd
+split_list <- function(input_list, chunk_size) {
+  split(input_list, ceiling(seq_along(input_list) / chunk_size))
+}
 
+#' Wraps the sublist to hand off to patchwork
+#' @importFrom patchwork wrap_plots
+#' @noRd
+sublist_plots <- function(x, thecolumns, therows){
+  p <- wrap_plots(x, ncol = thecolumns, nrow = therows, widths = 0.8, heights = 0.8)
 }

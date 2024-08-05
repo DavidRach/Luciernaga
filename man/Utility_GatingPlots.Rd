@@ -11,12 +11,8 @@ Utility_GatingPlots(
   subsets = "root",
   gtFile,
   DesiredGates = NULL,
-  thecolumn = 2,
-  therows = 2,
-  bins,
-  clearance,
   outpath = NULL,
-  export = NULL,
+  export = TRUE,
   ...
 )
 }
@@ -33,12 +29,6 @@ Utility_GatingPlots(
 
 \item{DesiredGates}{A vector of gates that you want plotted, for example Desired <- c("nonDebris, "lymphocytes")}
 
-\item{therows}{Number of desired rows for the .pdf file}
-
-\item{bins}{Argument to geom_hex for number of bins to visualize the plotted data density.}
-
-\item{clearance}{Area around edge}
-
 \item{outpath}{Location to store the generated .pdf file}
 
 \item{export}{Whether to return as a .pdf file or as individual patchwork ggplot objects.}
@@ -51,7 +41,17 @@ Utility_GatingPlots(
 
 \item{condition}{Directly provide the name of the condition (alternative to condition.name)}
 
+\item{bins}{Argument to geom_hex for number of bins to visualize the plotted data density.}
+
+\item{clearance}{A buffer area around the plot edge}
+
 \item{thecolumns}{Number of desired columns for the .pdf file}
+
+\item{therows}{Number of desired rows for the .pdf file}
+
+\item{width}{Desired page width}
+
+\item{height}{Desired page height}
 }
 \value{
 Additional information to be added
