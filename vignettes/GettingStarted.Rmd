@@ -259,9 +259,11 @@ StorageLocation <- file.path("C:", "Users", "JohnDoe", "Desktop")
 `Utitlity_ParallelNxNPlots` is an extension of `Utility_NxNPlots`, but is used to compare two separate samples that are overlaid on the same plot. This can be useful when comparing different specimens, different treatment conditions, and differences in unmixing. It is still partly under development as the colors for the different specimens don't currently blend well. It utilizes the `r CRANpkg("purrr")` `purrr::map2()` argument behind the scenes to determine the order of what specimens are compared to each other. 
 
 ```{r}
-
-
+gt(pData(UnmixedGatingSet))
+map(.x=UnmixedGatingSet[1], .y = UnmixedGatingSet[2], .f=Utility_ParallelNbyNPlots, sample.name = "GROUPNAME", removestrings = c(".fcs"), marginsubset = "lymphocytes", gatesubset = "live", ycolumn = "Spark Blue 550-A", bins = 120, clearance = 0.2, gatelines = FALSE, reference = NULL, outpath = StorageLocation, pdf = FALSE)
 ```
+
+
 
 ### Utility_UnityPlots
 
