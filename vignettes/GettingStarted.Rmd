@@ -285,14 +285,17 @@ All_OverlaidNxNPlots
 While `Utility_NxNPlots()` will show all marker combinations for a single specimen, `Utility_UnityPlots()` will showcase a single combination of markers for all specimens present in the GatingSet. Given that bringing data from every specimen into active memory is a way to max out your ram, it is helpful to break the map calls into chunks. Here is an example: 
 
 ```{r}
+SingleUnityPlot <- Utility_UnityPlot(x="Spark Blue 550-A", y="BUV805-A", GatingSet=UnmixedGatingSet, sample.name="GROUPNAME", bins=100, clearance=0.2,removestrings=removestrings, marginsubset="lymphocytes", gatesubset="live", gatelines=FALSE, reference=NULL, pdf=FALSE, outpath=StorageLocation)
+
+SingleUnityPlot
+
 Markers <- colnames(UnmixedCytoSet)
 KeptMarkers <- Markers[-grep("Time|FS|SC|SS|Original|-W$|-H$|AF", Markers)]
 KeptMarkers
 
-walk(.x=KeptMarkers[c(1:10)], .f=Utility_UnityPlot, y="APC-A", GatingSet=gs, sample.name="GROUPNAME", bins=100, clearance=0.2,
-                  removestrings=theremovestrings, marginsubset=CD8s, gatesubset=CD8s, gatelines=TRUE, reference=MyGateCutoffs,
-                  pdf=TRUE,outpath=OutPath)
+MultipleUnityPlots <- map(.x=KeptMarkers[c(1:6, 8:10)], .f=Utility_UnityPlot, y="BUV805-A", GatingSet=UnmixedGatingSet, sample.name="GROUPNAME", bins=100, clearance=0.2,removestrings=removestrings, marginsubset="lymphocytes", gatesubset="live", gatelines=FALSE, reference=NULL, pdf=FALSE, outpath=StorageLocation)
 
+#gc() 
 ```
 
 
