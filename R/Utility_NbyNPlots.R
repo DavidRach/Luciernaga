@@ -34,26 +34,12 @@
 Utility_NbyNPlots <- function(x, sample.name, removestrings, experiment = NULL, experiment.name = NULL,
                               condition = NULL, condition.name = NULL, marginsubset, gatesubset,
                               ycolumn, bins, clearance, gatelines, reference = NULL, outpath, pdf,
-                              width = 9, height = 7) {
+                              width = 9, height = 7, ...) {
   #ycolumn <- ycolumn
   #x <- x
 
-  name <- keyword(x, sample.name)
-  name <- NameCleanUp(name = name, removestrings)
-
-  if(!is.null(experiment)){experiment <- experiment
-  } else if (exists("experiment.name")) {experiment <- keyword(x, experiment.name)
-                                         experiment <- NameCleanUp(name=experiment, removestrings)}
-
-  if(exists("condition")){condition <- condition
-  } else if (exists("condition.name")){condition <- keyword(x, condition.name)
-                                       condition <- NameCleanUp(name=condition, removestrings)
-                                       } else {condition <- NULL}
-
-  #We need to think about naming convention, especially for including condition.
-
-  if (exists("experiment")){AggregateName <- paste(name, experiment, sep = "_")
-  } else {AggregateName <- name}
+  AggregateName <- NameForSample(x=x, sample.name=sample.name, removestrings=removestrings, ...)
+  # AggregateName <- Luciernaga:::NameForSample(x=x, sample.name=sample.name, removestrings=removestrings)
 
   StorageLocation <- file.path(outpath, AggregateName)
 
@@ -67,26 +53,11 @@ Utility_NbyNPlots <- function(x, sample.name, removestrings, experiment = NULL, 
 
   if (ycolumn == "ALL"){
 
-    .UniversalIterator <- function(x, x_ff,
-                                   TheDF, yValue, columnlist, gatelines,
-                                   reference, clearance, bins, AltNameX,
-                                   AltNameY, colorX, colorY){
-
-      columnlist <- DFNames[DFNames != x] # Remove the universal Y value
-
-      Plots <- map(.x = columnlist, .f = Utility_GeneralGating, name = name, ff = ff, yValue = x, columnlist = DFNames,
-                   TheDF = TheDF, gatelines = gatelines, reference = reference, clearance=clearance, bins=bins)
-
-      #Plots <- flatten(Plots)
-      #Plots1 <- Plots
-    }
-
     Plots <- map(.x=DFNames, .f = .UniversalIterator, x_ff=ff,
                  TheDF=TheDF, yValue=ycolumn, columnlist=DFNames, gatelines=gatelines,
                  reference=reference, clearance=clearance, bins=bins)
 
     Plots <- flatten(Plots)
-
 
   } else {
     columnlist <- DFNames[DFNames != ycolumn]
@@ -96,40 +67,30 @@ Utility_NbyNPlots <- function(x, sample.name, removestrings, experiment = NULL, 
 
 
   if (pdf == TRUE){
-
-    #Pass directly to Utility_Patchwork
-
-    theList <- Plots
-    theListLength <- length(Plots)
-
-    thecolumns <- 4
-    therows <- 3
-    theoreticalitems <- therows*thecolumns
-
-    DecimalLeftover <- (PlotNumber/theoreticalitems) %% 1
-    AdditionalSpaces <- theoreticalitems*DecimalLeftover
-
-    split_list <- function(input_list, chunk_size) {
-      split(input_list, ceiling(seq_along(input_list) / chunk_size))
-    }
-
-    sublists <- split_list(theList, theoreticalitems)
-
-    pdf(file = paste(StorageLocation, ".pdf", sep = "", collapse = NULL), width = width, height = height)
-
-    for(i in sublists){p <- wrap_plots(i, ncol = thecolumns, nrow = therows, widths = 0.8, heights = 0.8)
-    print(p)
-    }
-
-    dev.off()
-
+      AssembledPlots <- Utility_Patchwork(x=CompiledPlots, filename=AggregateName, outfolder=outpath, returntype = "pdf")
+      } else {
+      AssembledPlots <- Utility_Patchwork(x=CompiledPlots, filename=AggregateName, outfolder=outpath, returntype = "patchwork")
   }
 
-    return(Plots)
+  return(AssembledPlots)
+
 }
 
 
 
+.UniversalIterator <- function(x, x_ff,
+                               TheDF, yValue, columnlist, gatelines,
+                               reference, clearance, bins, AltNameX,
+                               AltNameY, colorX, colorY){
+
+  columnlist <- DFNames[DFNames != x] # Remove the universal Y value
+
+  Plots <- map(.x = columnlist, .f = Utility_GeneralGating, name = name, ff = ff, yValue = x, columnlist = DFNames,
+               TheDF = TheDF, gatelines = gatelines, reference = reference, clearance=clearance, bins=bins)
+
+  #Plots <- flatten(Plots)
+  #Plots1 <- Plots
+}
 
 
 

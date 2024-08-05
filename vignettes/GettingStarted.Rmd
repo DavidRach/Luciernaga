@@ -189,7 +189,7 @@ Utility_Patchwork(AllSpecimens, "LymphocyteGates", outfolder=StorageLocation, th
 ### Creating a GatingSet for Unmixed .fcs files
 The next couple functions are designed primarily for use with unmixed full-stained samples. We will return to the earlier example and select the corresponding example .fcs files found within Luciernaga's extdata folder and bring them into a GatingSet object.
 
-```{r Selecting Desired Files}
+```{r}
 UnmixedFCSFiles <- FCS_Files[c(3:5)]
 UnmixedFCSFiles
 ```
