@@ -30,55 +30,7 @@ CytekQCPlots <- function(x, FailedFlag, pdf, path, filename){
 
   StorageLocation <- file.path(path, filename)
 
-  .Internal_LevyJennings <- function(x, FailedFlag, xValue, TheData){
-    yValue <- x
-
-    FlagValue <- paste0("Flag-", yValue)
-    FlagColumn <- TheData %>% select(starts_with(FlagValue)) %>% colnames(.)
-    if (length(FlagColumn) >1){
-      NewFlagColumn <- str_detect(FlagColumn, paste0("^", FlagValue, "$"))
-      FlagColumn <- FlagColumn[which(NewFlagColumn)]
-    } else (FlagColumn <- FlagColumn)
-    #message("The Flag Column is", FlagColumn)
-
-
-    if (str_detect(yValue, "^UV\\d{1,2}(-[A-Za-z% ]+)?$")){mycolor <- "purple"
-    } else if (str_detect(yValue, "^V\\d{1,2}(-[A-Za-z% ]+)?$")){mycolor <- "violet"
-    } else if (str_detect(yValue, "^B\\d{1,2}(-[A-Za-z% ]+)?$")){mycolor <- "blue"
-    } else if (str_detect(yValue, "^YG\\d{1,2}(-[A-Za-z% ]+)?$")){mycolor <- "darkgreen"
-    } else if (str_detect(yValue, "^R\\d{1,2}(-[A-Za-z% ]+)?$")){mycolor <- "darkred"
-    } else if (str_detect(yValue, "^Change_UV\\d{1,2}(-[A-Za-z% ]+)?$")){mycolor <- "purple"
-    } else if (str_detect(yValue, "^Change_V\\d{1,2}(-[A-Za-z% ]+)?$")){mycolor <- "violet"
-    } else if (str_detect(yValue, "^Change_B\\d{1,2}(-[A-Za-z% ]+)?$")){mycolor <- "blue"
-    } else if (str_detect(yValue, "^Change_YG\\d{1,2}(-[A-Za-z% ]+)?$")){mycolor <- "darkgreen"
-    } else if (str_detect(yValue, "^Change_R\\d{1,2}(-[A-Za-z% ]+)?$")){mycolor <- "darkred"
-    } else {mycolor <- "black"}
-
-    if (FailedFlag == TRUE){
-
-      if (any(grepl("FALSE", TheData[[FlagColumn]]))) {
-        shape_qc <- c("FALSE" = 21, "TRUE" = 22)
-        fill_qc <- c("FALSE" = mycolor, "TRUE" = "red")
-        size_qc <- c("FALSE" = 1, "TRUE" = 3)
-
-      } else {
-        shape_qc <- c("False" = 21, "True" = 22)
-        fill_qc <- c("False" = mycolor, "True" = "red")
-        size_qc <- c("False" = 1, "True" = 3)
-      }
-
-      Plot <- ggplot(TheData, aes(x=.data[[xValue]], y = .data[[yValue]]))  +  geom_line(color = mycolor, linewidth = 1) +
-        geom_point(aes(shape = .data[[FlagColumn]], size = .data[[FlagColumn]], fill = .data[[FlagColumn]])) + scale_shape_manual(values = shape_qc) +
-        scale_fill_manual(values = fill_qc) + scale_size_manual(values = size_qc) +
-        labs(title = yValue, x = NULL, y = "Values") + theme_bw() + theme(legend.position = "none")
-
-    } else {Plot <- ggplot(TheData, aes(x=.data[[xValue]], y = .data[[yValue]], color = mycolor)) +
-      geom_line(color = mycolor) + geom_point(color = mycolor) + labs(title = yValue, x = NULL, y = "Values") +
-      theme_bw() + theme(legend.position = "none")
-    }
-  }
-
-  Plots <- map(.x=DFNames, .f = .Internal_LevyJennings, FailedFlag = FailedFlag, xValue=xValue, TheData=ReorderedData)
+  Plots <- map(.x=DFNames, .f = Internal_LevyJennings, FailedFlag = FailedFlag, xValue=xValue, TheData=ReorderedData)
 
   if (pdf == TRUE){
 
@@ -109,4 +61,61 @@ CytekQCPlots <- function(x, FailedFlag, pdf, path, filename){
   }
 
   return(Plots)
+}
+
+
+#' Internal for CytekQCPlots
+#' @importFrom dplyr select
+#' @importFrom tidyr starts_with
+#' @importFrom stringr str_detect
+#' @importFrom patchwork wrap_plots
+#' @importFrom ggplot2 ggplot
+#' @noRd
+
+Internal_LevyJennings <- function(x, FailedFlag, xValue, TheData){
+  yValue <- x
+
+  FlagValue <- paste0("Flag-", yValue)
+  FlagColumn <- TheData %>% select(starts_with(FlagValue)) %>% colnames(.)
+  if (length(FlagColumn) >1){
+    NewFlagColumn <- str_detect(FlagColumn, paste0("^", FlagValue, "$"))
+    FlagColumn <- FlagColumn[which(NewFlagColumn)]
+  } else (FlagColumn <- FlagColumn)
+  #message("The Flag Column is", FlagColumn)
+
+
+  if (str_detect(yValue, "^UV\\d{1,2}(-[A-Za-z% ]+)?$")){mycolor <- "purple"
+  } else if (str_detect(yValue, "^V\\d{1,2}(-[A-Za-z% ]+)?$")){mycolor <- "violet"
+  } else if (str_detect(yValue, "^B\\d{1,2}(-[A-Za-z% ]+)?$")){mycolor <- "blue"
+  } else if (str_detect(yValue, "^YG\\d{1,2}(-[A-Za-z% ]+)?$")){mycolor <- "darkgreen"
+  } else if (str_detect(yValue, "^R\\d{1,2}(-[A-Za-z% ]+)?$")){mycolor <- "darkred"
+  } else if (str_detect(yValue, "^Change_UV\\d{1,2}(-[A-Za-z% ]+)?$")){mycolor <- "purple"
+  } else if (str_detect(yValue, "^Change_V\\d{1,2}(-[A-Za-z% ]+)?$")){mycolor <- "violet"
+  } else if (str_detect(yValue, "^Change_B\\d{1,2}(-[A-Za-z% ]+)?$")){mycolor <- "blue"
+  } else if (str_detect(yValue, "^Change_YG\\d{1,2}(-[A-Za-z% ]+)?$")){mycolor <- "darkgreen"
+  } else if (str_detect(yValue, "^Change_R\\d{1,2}(-[A-Za-z% ]+)?$")){mycolor <- "darkred"
+  } else {mycolor <- "black"}
+
+  if (FailedFlag == TRUE){
+
+    if (any(grepl("FALSE", TheData[[FlagColumn]]))) {
+      shape_qc <- c("FALSE" = 21, "TRUE" = 22)
+      fill_qc <- c("FALSE" = mycolor, "TRUE" = "red")
+      size_qc <- c("FALSE" = 1, "TRUE" = 3)
+
+    } else {
+      shape_qc <- c("False" = 21, "True" = 22)
+      fill_qc <- c("False" = mycolor, "True" = "red")
+      size_qc <- c("False" = 1, "True" = 3)
+    }
+
+    Plot <- ggplot(TheData, aes(x=.data[[xValue]], y = .data[[yValue]]))  +  geom_line(color = mycolor, linewidth = 1) +
+      geom_point(aes(shape = .data[[FlagColumn]], size = .data[[FlagColumn]], fill = .data[[FlagColumn]])) + scale_shape_manual(values = shape_qc) +
+      scale_fill_manual(values = fill_qc) + scale_size_manual(values = size_qc) +
+      labs(title = yValue, x = NULL, y = "Values") + theme_bw() + theme(legend.position = "none")
+
+  } else {Plot <- ggplot(TheData, aes(x=.data[[xValue]], y = .data[[yValue]], color = mycolor)) +
+    geom_line(color = mycolor) + geom_point(color = mycolor) + labs(title = yValue, x = NULL, y = "Values") +
+    theme_bw() + theme(legend.position = "none")
+  }
 }
