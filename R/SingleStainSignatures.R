@@ -1,0 +1,169 @@
+#' Internal to Utility_SingleColorQC
+#' @importFrom dplyr select
+#' @importFrom dplyr filter
+#' @importFrom dplyr mutate
+#' @importFrom dplyr summarize_all
+#' @importFrom dplyr pull
+#' @importFrom dplyr arrange
+#' @importFrom dplyr relocate
+#' @importFrom dplyr left_join
+#' @importFrom dplyr case_when
+#' @importFrom dplyr rename
+#' @importFrom BiocGenerics nrow
+#' @importFrom flowWorkspace keyword
+#' @importFrom stringr str_detect
+#' @importFrom stringr str_split
+#' @importFrom flowWorkspace gs_pop_get_data
+#' @importFrom flowCore exprs
+#' @importFrom purrr map
+#' @importFrom purrr set_names
+#' @noRd
+
+SingleStainSignatures <- function(x, WorkAround1, alternatename, ColsN, StartNormalizedMergedCol,
+                                  EndNormalizedMergedCol, Samples, name, results, Increments=0.1,
+                                  Subtraction = "Internal", stats, RatioCutoff=0.01, TheMainAF,
+                                  AggregateName){
+
+  WorkAround1b <- WorkAround1 %>% select(all_of(
+    (StartNormalizedMergedCol+1):(EndNormalizedMergedCol+1))) %>%
+    mutate(across(where(is.numeric), ~ ceiling(. / Increments) * Increments)) %>%
+    mutate(Backups = WorkAround1$Backups) %>% relocate(Backups, .before=1)
+
+  #x <- Retained[1]
+  #TheMainAF
+
+  # The Arguments would be mapping elements in Retained, therefore Retained below would be swapped out for the x argument.
+  AutofluorescentSubset <- WorkAround1b %>% dplyr::filter(.data[[TheMainAF]] == 1.000) %>% arrange(desc(.data[[x]]))
+  SingleColorSubset <- WorkAround1b %>% dplyr::filter(.data[[x]] == 1.000) %>% arrange(desc(.data[[TheMainAF]])) %>%
+    dplyr::filter(!.data[[TheMainAF]] == 1.00)  #To avoid double dipping
+
+  AutofluorescenceNamed <- SignatureCluster(Arg1=TheMainAF, Arg2=x, data=AutofluorescentSubset)
+  SingleColorNamed <- SignatureCluster(Arg1=x, Arg2=TheMainAF, data=SingleColorSubset)
+  SignatureData <- bind_rows(AutofluorescenceNamed, SingleColorNamed)
+  TheClusters <- data.frame(table(SignatureData$Cluster), check.names=FALSE)
+  colnames(TheClusters)[1] <- "Clusters"
+  colnames(TheClusters)[2] <- "Counts"
+
+  AF <- TheClusters %>% filter(str_starts(Clusters, TheMainAF)) %>% arrange(Clusters)
+  SC <- TheClusters %>% filter(str_starts(Clusters, x)) %>% arrange(desc(Clusters))
+  Total <- bind_rows(AF, SC)
+
+  #TheOrder <- Total$Clusters
+  #Total$Clusters <- as.character(Total$Clusters)
+  #Total$Clusters <- factor(Total$Clusters, levels = TheOrder)
+
+  Subtotal <- Total %>% filter(str_starts(Clusters, x))
+
+  TheOrder <- Subtotal$Clusters
+  Subtotal$Clusters <- as.character(Subtotal$Clusters)
+  Subtotal$Clusters <- factor(Subtotal$Clusters, levels = TheOrder)
+
+  InitialPlot <- ggplot(Subtotal, aes(x = Clusters, y = Counts)) + geom_bar(stat = "identity") + theme_bw() +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1)) +labs(title=paste(x, AggregateName, "Initial"), sep=" ")
+  InitialPlot
+
+  ################################
+  # Autofluorescence Subtraction #
+  ################################
+
+  AFforSubtraction <- Total %>% filter(str_starts(Clusters, TheMainAF)) %>% arrange(desc(Counts)) %>% slice(1) %>% pull(Clusters) #%>% as.character()
+
+  if (Subtraction == "Internal"){
+
+    AF_Choice <- SignatureData %>% filter(Cluster == AFforSubtraction) %>% select(Backups)
+    Restored <- left_join(AF_Choice, WorkAround1, by="Backups")
+    Restored <- Restored %>% select(-Backups)
+    Restored <- Restored %>% select(all_of(1:ColsN))
+    BackupNames2 <- colnames(Restored)
+
+    if(stats == "mean"){Samples <- Restored %>% summarize_all(mean)
+    } else if (stats == "median"){Samples <- Restored %>%
+      summarize_all(median)
+    } else(stop("Please specify stats parameter mean or median"))
+
+    StoredBackups <- WorkAround1 %>% select(Backups)
+    Data <- WorkAround1 %>% select(-Backups)
+    Data <- Data %>% select(all_of(1:ColsN))
+    Samples_replicated <- Samples[rep(1, each = nrow(Data)),]
+    Test <- Data - Samples_replicated
+
+  } else if (Subtraction == "Average"){
+
+    stop("Sorry, still working on this. -David ")
+
+  } else if (Subtraction == "External"){
+
+    stop("Sorry, still working on this. -David ")
+  }
+
+  Test[Test < 0] <- 0 #Check here for negatives...
+  AA <- do.call(pmax, Test)
+  Normalized2 <- Test/AA
+  Normalized2 <- round(Normalized2, 1)
+  #num_na <- sum(is.na(Normalized2))
+  Normalized2[is.na(Normalized2)] <- 0
+  colnames(Normalized2) <- gsub("-A", "", colnames(Normalized2))
+  Counts2 <- colSums(Normalized2 == 1.0)
+  #Counts2
+  WorkAround2 <- cbind(StoredBackups, Test, Normalized2)
+
+  ################
+  # Reclustering #
+  ################
+
+  WorkAround2b <- WorkAround2 %>% select(all_of(
+    (StartNormalizedMergedCol+1):(EndNormalizedMergedCol+1))) %>%
+    mutate(across(where(is.numeric), ~ ceiling(. / Increments) * Increments)) %>%
+    mutate(Backups = WorkAround2$Backups) %>% relocate(Backups, .before=1)
+
+  SingleColorSubset <- WorkAround2b %>% dplyr::filter(.data[[x]] == 1.000) %>% arrange(desc(.data[[TheMainAF]])) #%>%
+  #dplyr::filter(!.data[[TheMainAF]] == 1.00)  #Not Double Dipping Anymore Technically
+  SingleColorData <- SignatureCluster(Arg1=x, Arg2=TheMainAF, data=SingleColorSubset)
+  TheClusters <- data.frame(table(SingleColorData$Cluster), check.names=FALSE)
+  colnames(TheClusters)[1] <- "Clusters"
+  colnames(TheClusters)[2] <- "Counts"
+  Total <- TheClusters %>% filter(str_starts(Clusters, x)) %>% arrange(desc(Clusters))
+  TheOrder <- Total$Clusters
+  Total$Clusters <- as.character(Total$Clusters)
+  Total$Clusters <- factor(Total$Clusters, levels = TheOrder)
+
+  FinalPlot <- ggplot(Total, aes(x = Clusters, y = Counts)) + geom_bar(stat = "identity") + theme_bw() +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1)) +labs(title=paste(x, AggregateName, "Final"), sep=" ")
+  #InitialPlot
+  InitialPlot + FinalPlot
+
+  ##########################
+  # Local Maxima Iteration #
+  ##########################
+  Cutoff <- sum(TheClusters$Counts)*RatioCutoff
+  MainClusters <- TheClusters %>% filter(Counts >= Cutoff) %>% select(Clusters) %>%
+    pull() %>% as.character()
+
+  SingleColorSubset <- SingleColorData %>% select(Backups, Cluster)
+  Ready <- left_join(SingleColorSubset, WorkAround2, by="Backups") %>% relocate(Cluster, .after="R8")
+
+  TheDetector <- x
+
+  AllData <- map(.x=MainClusters, .f=ClusterIteration, data=Ready,
+                 TheDetector=TheDetector, RatioCutoff=RatioCutoff,
+                 StartNormalizedMergedCol=StartNormalizedMergedCol,
+                 EndNormalizedMergedCol=EndNormalizedMergedCol,
+                 ColsN=ColsN, AggregateName=AggregateName) %>%
+    bind_rows()
+
+  NewTable <- data.frame(table(AllData$Cluster), check.names=FALSE)
+  colnames(NewTable)[1] <- "Cluster"
+  colnames(NewTable)[2] <- "Count"
+
+  NewTable %>% arrange(desc(Count))
+
+  NewCutoff <- sum(NewTable$Count)*RatioCutoff
+  GrabThese <- NewTable %>% filter(Count >= NewCutoff) %>% select(Cluster) %>%
+    pull() %>% as.character()
+
+  FinalData <- AllData %>% filter(Cluster %in% GrabThese)
+  return(FinalData)
+}
+
+
+

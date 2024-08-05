@@ -198,8 +198,6 @@ UnmixedFCSFiles
 UnmixedCytoSet <- load_cytoset_from_fcs(UnmixedFCSFiles, truncate_max_range = FALSE, transform = FALSE)
 UnmixedGatingSet <- GatingSet(UnmixedCytoSet)
 UnmixedGatingSet
-
-
 ```
 
 ```{r}
