@@ -1,0 +1,72 @@
+---
+title: "FluorescenceSignatures"
+author:
+- name: David Rach
+  affiliation: University of Maryland, Baltimore
+  email: drach@som.umaryland.edu
+package: Luciernaga
+output:
+  BiocStyle::html_document
+abstract: |
+  How to set up Luciernaga
+vignette: |
+  %\VignetteIndexEntry{Getting Started}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+# Introduction
+
+The working unit for most of Luciernaga's functions is a GatingSet object. Let's now workthrough the main Luciernaga function to characterize single color reference controls. First, let's provide a .csv file to provide information about where to expect to have overlapping autofluorescent signatures with fluorophore signatures. 
+
+```{r}
+FileLocation <- system.file("extdata", package = "Luciernaga")
+AutofluorescentOverlaps <- fread(file.path(path = FileLocation, pattern = "AutofluorescentOverlaps.csv"))
+AutofluorescentOverlaps
+```
+
+We are now setup to run the main Luciernaga function. What this function does is it brings in the individual raw .fcs files, and on a per cell basis identifies which detector has the peak fluorescent emission. For example, single color stained cells have their fluorescent emission peak on R1-A, unstained PBMCs have their fluorescent emission peak on V7-A. 
+
+
+Luciernaga will then identify which detectors had the most emission peaks, remove autofluorescent detectors with exceptions listed in the overlap list provided above. As a result, cells that are stained with your single-color stain are retained, while unstained autofluorescent cells are excluded. 
+
+Retained single color-stain cells then have an average autofluorescence signature subtracted (either using the internal calculation or one externally provided), and are normalized for peak fluorescent signature. The cells are then clustered into shared signature bins. Cells that share the same signature are then exported as .raw fcs files with the subcluster name appended to the file for subsequent use. 
+
+
+```{r, eval=FALSE}
+    Unstained <- map(MyGatingSet[1], Utility_SingleColorQC, subsets = "lymphocytes",
+        sample.name = "GUID", group.name = "GROUPNAME", experiment = NULL,
+        experiment.name = "$DATE", stats = "median", Kept = "Normalized",
+        external = NULL, sourcelocation = NULL, outpath = MainOutPath,
+        artificial = FALSE, fcsexport = FALSE, mainAF = "V7-A",
+        AFOverlap = AutofluorescentOverlaps, Beads = FALSE, Brightness = TRUE, 
+        Unstained = FALSE) %>%
+        bind_rows()
+```
+
+In addition to the exported .fcs files, the function also returns lineplots used in the fluorescent peak identifications for visual
+inspection, as well as the following data.table: 
+
+
+```{r, eval=FALSE}
+gt(head(Unstained))
+```
+
+This in turn can be filtered using dplyr package for additional information. 
+
+```{r, echo = FALSE}
+FileLocation <- system.file("extdata", package = "Luciernaga")
+Panel <- fread(file.path(path = FileLocation, pattern = "Panel.csv"))
+```
+
+```{r sessionInfo, echo = FALSE}
+sessionInfo()
+```
+
