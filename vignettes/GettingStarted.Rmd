@@ -280,12 +280,18 @@ All_OverlaidNxNPlots
 # All_IteratedOverlaidNxNPlots <- map2(.x=UnmixedGatingSet[[1]], .y = UnmixedGatingSet[[3]], .f=Utility_ParallelNbyNPlots, sample.name = "GROUPNAME", removestrings = ".fcs", Override = FALSE, marginsubset = "lymphocytes", gatesubset = "live", ycolumn = "ALL", bins = 120, clearance = 0.2, colorX = "lightblue", colorY = "orange", gatelines = FALSE, reference = NULL, outpath = StorageLocation, pdf = FALSE)
 ```
 
-
-
 ### Utility_UnityPlots
 
-```{r}
+While `Utility_NxNPlots()` will show all marker combinations for a single specimen, `Utility_UnityPlots()` will showcase a single combination of markers for all specimens present in the GatingSet. Given that bringing data from every specimen into active memory is a way to max out your ram, it is helpful to break the map calls into chunks. Here is an example: 
 
+```{r}
+Markers <- colnames(UnmixedCytoSet)
+KeptMarkers <- Markers[-grep("Time|FS|SC|SS|Original|-W$|-H$|AF", Markers)]
+KeptMarkers
+
+walk(.x=KeptMarkers[c(1:10)], .f=Utility_UnityPlot, y="APC-A", GatingSet=gs, sample.name="GROUPNAME", bins=100, clearance=0.2,
+                  removestrings=theremovestrings, marginsubset=CD8s, gatesubset=CD8s, gatelines=TRUE, reference=MyGateCutoffs,
+                  pdf=TRUE,outpath=OutPath)
 
 ```
 
