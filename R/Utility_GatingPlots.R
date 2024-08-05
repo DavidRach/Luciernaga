@@ -7,7 +7,7 @@
 #' @param experiment Directly provide the name of the experiment (alternative to experiment.name)
 #' @param condition.name The .fcs keyword that contains the name of the condition.
 #' @param condition Directly provide the name of the condition (alternative to condition.name)
-#' @param subsets The GatingSet subset that you want to visualize for data plotting, "root" is the default.
+#' @param subset The GatingSet subset that you want to visualize for data plotting, "root" is the default.
 #' @param bins Argument to geom_hex for number of bins to visualize the plotted data density.
 #' @param clearance A buffer area around the plot edge
 #' @param gtFile The data.table imported .csv file containing the gating template.
@@ -31,7 +31,7 @@
 #'
 #' @examples NULL
 
-Utility_GatingPlots <- function(x, sample.name, removestrings, subsets="root", gtFile, DesiredGates = NULL,
+Utility_GatingPlots <- function(x, sample.name, removestrings, subset="root", gtFile, DesiredGates = NULL,
                                 outpath = NULL, export = TRUE, ...){
 
   # Setting up individual file name
@@ -47,7 +47,7 @@ Utility_GatingPlots <- function(x, sample.name, removestrings, subsets="root", g
   if(!is.null(DesiredGates)){TheXYZgates <- intersect(DesiredGates, TheXYZgates)}
 
   # Pulling Gating Set Data
-  ff <- gs_pop_get_data(x, subsets)
+  ff <- gs_pop_get_data(x, subset)
   df <- exprs(ff[[1]])
   TheDF <- data.frame(df, check.names = FALSE)
   x2 <- x

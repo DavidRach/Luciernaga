@@ -108,6 +108,7 @@ Three of these files are raw unmixing controls (APCFire810, BUV496, Unstained), 
 SubsetFCSFiles <- FCS_Files[1:3]
 SubsetFCSFiles
 ```
+
 ### Creating a GatingSet
 Once we have the list of desired .fcs files, we can use the `r Biocpkg("flowWorkspace")` to bring these individual .fcs files first into a CytoSet object, then into a GatingSet object that we can add gates to:
 
@@ -135,35 +136,103 @@ MyGatingTemplate <- gatingTemplate(MyGates)
 gt_gating(MyGatingTemplate, MyGatingSet)
 MyGatingSet[[1]]
 ```
+
 ## Data Visualization
 
 ### Utility_GatingPlots
 
 We can visualize our applied gates on their individual .fcs files using Luciernaga's `Utility_GatingPlots()` function. We can do this individually, or iterate over the entire GatingSet using the `r CRANpkg("purrr")` `purrr::map()` function. 
 
-To do this, we reference the `r CRANpkg("data.table")` imported gating information (MyGates) showcased above, and the GatingSet object. 
+To do this, we reference the `r CRANpkg("data.table")` imported gating information (MyGates) showcased above, and the GatingSet object. `Utility_GatingPlots()` argument export = FALSE will return a `r CRANpkg("patchwork")` grouped ggplot objects, return = TRUE returns the same output in a .pdf file to the designated output location.
 
 ```{r}
-x <- MyGatingSet[[2]]
-removestrings <-  c("DR_", "Cells", ".fcs", "-", " ", "_")
-gtFile = MyGates
-sample.name = "GUID"
-outpath <- "C:/Users/12692/Desktop"
-gtFile <- MyGates
-```
-
-
-```{r, eval = FALSE}
 removestrings <-  c("DR_", "Cells", ".fcs", "-", " ")
+StorageLocation <- file.path("C:/", "Users", "JohnDoe", "Desktop")
 
-IndividualPlot <- Utility_GatingPlots(x=MyGatingSet[[2]], sample.name = "GUID", removestrings = removestrings,  
+IndividualPlot <- Utility_GatingPlots(x=MyGatingSet[[2]], sample.name = "GUID", removestrings = removestrings, gtFile = MyGates, DesiredGates = NULL, outpath = StorageLocation, export = FALSE)
 
-AssembledPlot <- 
+IndividualPlot
   
-Here <- map(.x = MyGatingSet[[2]], .f = Utility_GatingPlots, sample.name = "GUID", removestrings = removestrings, gtFile = MyGates, outpath = "C:/Users/12692/Desktop", export = FALSE)
-
-AssembledPlot[[1]]
+IteratedPlots <- map(.x = MyGatingSet, .f = Utility_GatingPlots, sample.name = "GUID", removestrings = removestrings, gtFile = MyGates, DesiredGates = NULL, outpath = StorageLocation, export = FALSE)
 ```
+
+### Utility_IterativeGating
+
+In the absence of an existing gating template, the `Utility_IterativeGating()` function can be used to visualize individual gate placements for specimens found in a GatingSet object. To figure out the necessary information, we can use `r Biocpkg("flowWorkspace")`
+`flowWorkspace::plot()` and `flowWorkspace::gs_pop_get_gate()` to find out the gate, and the respective X and Y parameters. 
+
+```{r}
+plot(MyGatingSet)
+gs_pop_get_gate(MyGatingSet[1], "lymphocytes")
+
+SingleSpecimen <- Utility_IterativeGating(x=MyGatingSet[1], sample.name = "GUID", removestrings = removestrings, subset = "nonDebris",
+                        gate = "lymphocytes", xValue = "FSC-A", yValue = "SSC-A", bins = 270)
+
+SingleSpecimen
+
+AllSpecimens <- Utility_IterativeGating(x=MyGatingSet, sample.name = "GUID", removestrings = removestrings, subset = "nonDebris",
+                        gate = "lymphocytes", xValue = "FSC-A", yValue = "SSC-A", bins = 270)
+```
+
+### Utility_Patchwork
+
+The previous example returned AllSpecimens, which is a list of ggplot objects. This allows us to showcase `Utility_Patchwork()`. It is a wrapper for `r CRANpkg("patchwork")` that is used in the background by Luciernaga's data visualization functions when generating .pdf files from existing ggplot objects.
+
+`Utility_Patchwork()` will take the list of ggplot objects, arrange them based on the specified number of columns and rows into individual pages of designated width and height, and when returntype = "pdf" save them to the designated outfolder file.path with the desired file.name. 
+
+```{r}
+StorageLocation <- file.path("C:/", "Users", "JohnDoe", "Desktop")
+Utility_Patchwork(AllSpecimens, "LymphocyteGates", outfolder=StorageLocation, thecolumns=2, therows=2, width = 7, height = 9, returntype="patchwork")
+```
+
+
+### Creating a GatingSet for Unmixed .fcs files
+The next couple functions are designed primarily for use with unmixed full-stained samples. We will return to the earlier example and select the corresponding example .fcs files found within Luciernaga's extdata folder. Once we bring them into a GatingSet object, we will bi-exponentially transform the underlying data before applying a gating template. 
+
+```{r Selecting Desired Files}
+UnmixedFCSFiles <- FCS_Files[4:6]
+UnmixedFCSFiles
+```
+
+```{r}
+UnmixedCytoSet <- load_cytoset_from_fcs(UnmixedFCSFiles, truncate_max_range = FALSE, transform = FALSE)
+UnmixedGatingSet <- GatingSet(UnmixedCytoSet)
+UnmixedGatingSet
+
+
+```
+
+```{r}
+FileLocation <- system.file("extdata", package = "Luciernaga")
+MyGates <- fread(file.path(path = FileLocation, pattern = 'Gates.csv'))
+gt(MyGates)
+```
+
+### Utility_UnityPlots
+
+```{r}
+
+
+```
+
+### Utility_NxNPlots
+
+```{r}
+
+
+```
+
+### Utility_ParallelNxNPlots
+
+```{r}
+
+
+```
+
+
+
+
+
 
 The working unit for most of Luciernaga's functions is a GatingSet object. Let's now workthrough the main Luciernaga function to characterize single color reference controls. First, let's provide a .csv file to provide information about where to expect to have overlapping autofluorescent signatures with fluorophore signatures. 
 

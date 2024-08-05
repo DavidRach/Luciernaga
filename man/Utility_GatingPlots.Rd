@@ -8,7 +8,7 @@ Utility_GatingPlots(
   x,
   sample.name,
   removestrings,
-  subsets = "root",
+  subset = "root",
   gtFile,
   DesiredGates = NULL,
   outpath = NULL,
@@ -23,7 +23,7 @@ Utility_GatingPlots(
 
 \item{removestrings}{A string of character values to remove from the sample.name}
 
-\item{subsets}{The GatingSet subset that you want to visualize for data plotting, "root" is the default.}
+\item{subset}{The GatingSet subset that you want to visualize for data plotting, "root" is the default.}
 
 \item{gtFile}{The data.table imported .csv file containing the gating template.}
 
