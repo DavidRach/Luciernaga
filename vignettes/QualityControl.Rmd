@@ -40,8 +40,8 @@ For this vignette, we will be accessing a .csv folder that can be found in Lucie
 
 ```{r Access Package Data}
 File_Location <- system.file("extdata", package = "Luciernaga")
-CSV_Pattern <- ".csv$"
-CSV_Files <- list.files(path=File_Location, pattern=CSV_Pattern)
+CSV_Pattern <- ".CSV$"
+CSV_Files <- list.files(path=File_Location, pattern=CSV_Pattern, full.names=TRUE)
 CSV_Files
 ```
 
@@ -49,18 +49,48 @@ Since this .CSV file is not is not in a tidy format, `read.csv()` will have issu
 
 ```{r}
 library(Luciernaga)
+library(dplyr)
+library(gt)
+
 TidyData <- CytekQCFilePrep(CSV_Files, TrackChange = FALSE)
+gt(head(TidyData))
 ```
+
+Once the data has been "tidyed", it can be used within R for plotting of any individual detector(s) that might be of interest. The Track Change option to `CytekQCFilePrep()` will calculate the difference between days which can additionally be of interest for monitoring the instrument. 
 
 ## CytekQCPlots
 
+The next step is to take the resulting data.frame object and visualize the data contained. While this can be done for individual detectors, our function `CytekQCPlots()` will iterate over the different columns to return the plots simultaneously. Since the "tidy" QC data has ~140 QC measurements of interest, we instituted the argument "MeasurementType" to help filter for the results of interest. Behind the scenes, if the column name of the column of interest contains matching characters to your input, it will be selected and the data contained downstream sent for plotting. 
+
 ```{r}
-
-
+head(colnames(TidyData), 20)
 ```
+
+```{r}
+StorageLocation <- file.path("C:", "Users", "JohnDoe", "Desktop")
+
+AvailableBroadMeasurementTypes <- c("Gain", "rCV", "Laser Delay", "Area Scaling Factor")
+
+SinglePlot <- "UV7-Gain"
+
+TheSinglePlot <- CytekQCPlots(x = TidyData, MeasurementType = SinglePlot, FailedFlag = TRUE, pdf=FALSE, path=StorageLocation, filename="CytekAurora5L_QC")
+TheSinglePlot 
+
+TodaysExample <- c("Gain")
+
+Plots <- CytekQCPlots(x = TidyData, MeasurementType = TodaysExample, FailedFlag = TRUE, pdf=FALSE, path=StorageLocation, filename="CytekAurora5L_QC")
+Plots[1]
+```
+
+Setting FailedFlag = TRUE will add a red box on the graph to indicate the date when that particular detector failed the automated QC check. 
+
+As with most functions in Luciernaga, `CytekQCPlots()` uses `Utility_Patchwork()` for the .pdf generation, so changes in layout arrangement when there are multiple plots can be provided as arguments.
 
 
 ## QC Retrieval
+
+Sometimes we don't have access to QC reports, but we do have access to .fcs files acquired on that day. 
+
 
 ```{r}
 

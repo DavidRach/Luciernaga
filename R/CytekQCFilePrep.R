@@ -8,6 +8,7 @@
 #' @importFrom purrr map
 #' @importFrom dplyr select
 #' @importFrom dplyr rename
+#' @importFrom dplyr %>%
 #' @importFrom tidyr starts_with
 #' @importFrom lubridate mdy_hms
 #' @importFrom lubridate mdy_hm
