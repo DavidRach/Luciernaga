@@ -220,6 +220,8 @@ And to verify successfully gated as we expected:
 
 ```{r}
 plot(UnmixedGatingSet)
+StorageLocation <- file.path("C:", "Users", "JohnDoe", "Desktop")
+removestrings <- ".fcs"
 
 UnmixedIndividualPlot <- Utility_GatingPlots(x=UnmixedGatingSet[[2]], sample.name = "GUID", removestrings = removestrings, gtFile = UnmixedGates, DesiredGates = NULL, outpath = StorageLocation, export = FALSE)
 
