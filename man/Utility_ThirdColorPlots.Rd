@@ -14,7 +14,9 @@ Utility_ThirdColorPlots(
   thecolor = "red",
   sample.name,
   removestrings,
-  tilesize = 0.7
+  tilesize = 0.7,
+  FactorNames = NULL,
+  reference = NULL
 )
 }
 \arguments{

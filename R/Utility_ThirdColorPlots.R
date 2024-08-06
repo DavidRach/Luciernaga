@@ -16,7 +16,9 @@
 #'
 #' @examples NULL
 
-Utility_ThirdColorPlots <- function(x, subset, xaxis, yaxis, zaxis, splitpoint = 100, thecolor="red", sample.name, removestrings, tilesize=0.7){
+Utility_ThirdColorPlots <- function(x, subset, xaxis, yaxis, zaxis, splitpoint = 100,
+                                    thecolor="red", sample.name, removestrings,
+                                    tilesize=0.7, FactorNames = NULL, reference = NULL){
 
   AggregateName <- Luciernaga:::NameForSample(x=x, sample.name=sample.name, removestrings=removestrings)
   #AggregateName <- NameForSample(x=x, sample.name=sample.name, removestrings=removestrings, ...)
@@ -28,15 +30,58 @@ Utility_ThirdColorPlots <- function(x, subset, xaxis, yaxis, zaxis, splitpoint =
   TheDF <- data.frame(df, check.names = FALSE)
 
   if (is.data.frame(splitpoint)){message("Splitpoint is a Dataframe")
+
+
+
   } else if (splitpoint == "crossreference"){message("Splitpoint is a crossreference")
+
+
+
+
+  } else if (splitpoint == "continuous"){message("Splitpoint is a continuous")
+
+    Plot <- ggplot(TheDF) + geom_tile(aes(x = .data[[xaxis]], y = .data[[yaxis]], fill = .data[[zaxis]]),
+                width = 0.7, height = 0.7, color = "lightgray") +
+      scale_fill_gradient(low = "lightgray", high = thecolor) +
+      theme_bw() +
+      labs(title = AggregateName) +
+      theme(
+        strip.background = element_blank(),
+        strip.text.x = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        axis.title = element_text(size = 10, face = "bold"),
+        legend.position = "none"  # Hide the legend if not needed
+      )
+    return(Plot)
+  } else if (splitpoint == "categorical"){
+
+    TheSubset <- TheDF %>% dplyr::filter(.data[[zaxis]] %in% FactorNames)
+    TheBackground <- TheDF %>% dplyr::filter(!.data[[zaxis]] %in% FactorNames)
+
+    Plot <- ggplot() +
+      geom_tile(data = TheBackground, aes(x = .data[[xaxis]], y = .data[[yaxis]], fill = .data[[zaxis]]),
+                width = 0.7, height = 0.7, color = "lightgray") +
+      geom_tile(data = TheSubset, aes(x = .data[[xaxis]], y = .data[[yaxis]], fill = .data[[zaxis]]),
+                width = 0.7, height = 0.7, color = thecolor) + # Adjust color gradient
+      scale_fill_gradient(low="lightgray", high=thecolor) + theme_bw() +
+      labs(title = AggregateName) +
+      theme(
+        strip.background = element_blank(),
+        strip.text.x = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        axis.title = element_text(size = 10, face = "bold"),
+        legend.position = "none"  # Hide the legend if not needed
+      )
+
+    return(Plot)
   } else if (is.numeric(splitpoint)){splitpoint <- splitpoint
-      } else if (is.character(splitpoint)){splitpoint <- as.numeric(splitpoint)}
+  } else if (is.character(splitpoint)){splitpoint <- as.numeric(splitpoint)
+  } else {stop("splitpoint argument not recognized")}
 
-  #colnames(TheDF[[zaxis]]) <- Luciernaga:::NameCleanUp(colnames(TheDF[[]]), removestrings = c("-", " ", "."))
-  #xaxis <- Luciernaga:::NameCleanUp(xaxis, removestrings = c("-", " ", "."))
-  #yaxis <- Luciernaga:::NameCleanUp(yaxis, removestrings = c("-", " ", "."))
-  #zaxis <- Luciernaga:::NameCleanUp(zaxis, removestrings = c("-", " ", "."))
 
+  if (is.numeric(splitpoint)){
   TheSubset <- TheDF %>% dplyr::filter(.data[[zaxis]] >= splitpoint)
   TheBackground <- TheDF %>% dplyr::filter(.data[[zaxis]] < splitpoint)
 
@@ -57,5 +102,6 @@ Utility_ThirdColorPlots <- function(x, subset, xaxis, yaxis, zaxis, splitpoint =
     )
 
   return(Plot)
+  }
 }
 
