@@ -24,7 +24,7 @@ knitr::opts_chunk$set(
 
 # Introduction
 
-This vignette addresses some of the instrumental quality control functions implemented by Luciernaga. These primarily are focused on Cytek (TM) Aurora and Northern Light cytometers that utilize the SpectroFlo software for acquistion and unmixing. This is due to they were the only spectral cytometers at our institution during the time the author was developing this package. If you would like to contribute your own function to expand repertoire of instruments and manufacturers covered, please send a pull request via GitHub and we can solve this Aurora heavy bias :D
+This vignette addresses some of the instrumental quality control functions implemented by Luciernaga. Due to the only Spectral Cytometers at the authors institution being are Cytek (TM) Aurora and Northern Light cytometers that utilize the SpectroFlo software for acquistion and unmixing, there is a heavy bias towards them in terms of the functions presented in this vignette. If you would like to address this by contributing your own function that expands the repertoire of manufacturers and instruments covered by this vignette, please reach out via GitHub with a pull request. 
 
 Cytek Aurora instruments use fluorescent beads as part of their daily quality control checks. These result in the production of a QC report visible to the user, with the underlying data stored under the Levy-Jennings tracking tab. When downloaded, this returns a .csv file. However, it is not in a "tidy" data format, which limits it's direct usefulness for exploratory data analysis via functional programming in R. We provide several functions to convert this output into a "tidy" format, and then to visualize the data contained. 
 
@@ -41,6 +41,15 @@ Cytek Aurora instruments use fluorescent beads as part of their daily quality co
 
 
 ```
+
+
+## QC Retrieval
+
+```{r}
+
+
+```
+
 
 
 
