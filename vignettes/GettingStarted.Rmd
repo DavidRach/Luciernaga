@@ -299,6 +299,28 @@ MultipleUnityPlots <- map(.x=KeptMarkers[c(1:6, 8:10)], .f=Utility_UnityPlot, y=
 #gc() 
 ```
 
+
+### Utility_ThirdColor
+
+Similar to the other visualization functions, `Utility_ThirdColor()` plots the data from the specified GatingSet and subset for the given X and Y axis-markers. From here it will overlay a color gradient for an additional marker, allowing for it's visualization. 
+
+```{r}
+SinglePlot <-  Utility_ThirdColorPlots(x=UnmixedGatingSet[1], subset = "live", xaxis="BUV496-A", yaxis = "Spark Blue 550-A",  zaxis ="BUV805-A", splitpoint = "130", sample.name = "GROUPNAME", removestrings = c("DTR", ".fcs"), thecolor = "orange")
+
+SinglePlot 
+
+AllPlot <- map(.x=UnmixedGatingSet, .f=Utility_ThirdColorPlots, subset = "live", xaxis="BUV496-A", yaxis = "Spark Blue 550-A",  zaxis ="BUV805-A", splitpoint = "130", sample.name = "GROUPNAME", removestrings = c("DTR", ".fcs"), thecolor = "orange")
+```
+
+`Utility_ThirdColor()` has three plotting modes. When "Continous" is specified, it takes two colors and forms a color gradient from the lowest to highest values specified for the parameter specified in the zaxis argument. When "Categorical" is specified, it converts the zaxis column into a factor, and plots the factor(s) specified in the argument. The third option "splitpoint" will dichotomize the continous marker expression at the given value. 
+
+"splitpoint" can also cross-match the gs specimen to the Coereba packages designated splitpoint for that specific marker in a designated .csv file, allowing equivalent plotting across specimens that may have batch effects. A further advance use, when splitpoint is given a data.frame, it will iterate down the rows, subfiltering from the remaining cells as it descends. 
+
+The default is to return ggplot objects, which in turn can be arranged using `Utility_Patchwork()` into a .pdf of desired layout. Combining with map function, it's possible to extend the visualization capacity for many scenarios similar to Utility_UnityPlots and Utility_NxNPlots. As community usefulness is demonstrated, these will become integrated in later versions of the package. 
+
+
+
+
 ```{r sessionInfo, echo = FALSE}
 sessionInfo()
 ```

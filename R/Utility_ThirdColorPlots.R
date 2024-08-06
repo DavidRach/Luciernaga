@@ -27,7 +27,15 @@ Utility_ThirdColorPlots <- function(x, subset, xaxis, yaxis, zaxis, splitpoint =
   df <- exprs(Margin[[1]])
   TheDF <- data.frame(df, check.names = FALSE)
 
-  #TheDF[[zaxis]] <- factor(TheDF[[zaxis]])
+  if (is.data.frame(splitpoint)){message("Splitpoint is a Dataframe")
+  } else if (splitpoint == "crossreference"){message("Splitpoint is a crossreference")
+  } else if (is.numeric(splitpoint)){splitpoint <- splitpoint
+      } else if (is.character(splitpoint)){splitpoint <- as.numeric(splitpoint)}
+
+  #colnames(TheDF[[zaxis]]) <- Luciernaga:::NameCleanUp(colnames(TheDF[[]]), removestrings = c("-", " ", "."))
+  #xaxis <- Luciernaga:::NameCleanUp(xaxis, removestrings = c("-", " ", "."))
+  #yaxis <- Luciernaga:::NameCleanUp(yaxis, removestrings = c("-", " ", "."))
+  #zaxis <- Luciernaga:::NameCleanUp(zaxis, removestrings = c("-", " ", "."))
 
   TheSubset <- TheDF %>% dplyr::filter(.data[[zaxis]] >= splitpoint)
   TheBackground <- TheDF %>% dplyr::filter(.data[[zaxis]] < splitpoint)
@@ -36,9 +44,8 @@ Utility_ThirdColorPlots <- function(x, subset, xaxis, yaxis, zaxis, splitpoint =
     geom_tile(data = TheBackground, aes(x = .data[[xaxis]], y = .data[[yaxis]], fill = .data[[zaxis]]),
                                width = 0.7, height = 0.7, color = "lightgray") +
     geom_tile(data = TheSubset, aes(x = .data[[xaxis]], y = .data[[yaxis]], fill = .data[[zaxis]]),
-                               width = 0.7, height = 0.7, color = thecolor) +
-    scale_fill_gradient(low = "lightgray", high = thecolor) +  # Adjust color gradient
-    theme_bw() +
+                               width = 0.7, height = 0.7, color = thecolor) + # Adjust color gradient
+    scale_fill_gradient(low="lightgray", high=thecolor) + theme_bw() +
     labs(title = AggregateName) +
     theme(
       strip.background = element_blank(),
@@ -51,3 +58,4 @@ Utility_ThirdColorPlots <- function(x, subset, xaxis, yaxis, zaxis, splitpoint =
 
   return(Plot)
 }
+
