@@ -336,23 +336,30 @@ SinglePlot
 AllPlot <- map(.x=UnmixedGatingSet, .f=Utility_ThirdColorPlots, subset = "live", xaxis="BUV496-A", yaxis = "Spark Blue 550-A",  zaxis ="BUV805-A", splitpoint = "130", sample.name = "GROUPNAME", removestrings = c("DTR", ".fcs"), thecolor = "orange")
 ```
 
-To provide multiple arguments to `Utility_ThirdColorPlots()`, a data.frame can be provided to the splitpoint argument. It will then iterate down the rows, returning only cells that are greater than values listed for each marker. 
+To provide multiple filtering arguments to `Utility_ThirdColorPlots()`, a data.frame can be provided to the splitpoint argument. This is composed of two columns, "Fluorophore" and "Splitpoint", with the specified arguments present in the rows. When a data.frame is detected, `Utility_ThirdColorPlots()` will then iterate down the rows to find each gating argument, returning only the remaining cells that are greater than values listed for each marker. 
 
 ```{r}
 FileLocation <- system.file("extdata", package = "Luciernaga")
 CSVLocation <- file.path(path = FileLocation, pattern = 'ThirdColorDataFrame.csv')
-read.csv2(CSVLocation)
-Hmm <- read.csv(file.path(path = FileLocation, pattern = 'ThirdColorDataFrame.csv'))
+ThirdColorArguments <- read.csv(CSVLocation)
+gt(ThirdColorArguments)
+
+SinglePlot <-  Utility_ThirdColorPlots(x=UnmixedGatingSet[1], subset = "live", xaxis="BUV496-A", yaxis = "Spark Blue 550-A",  zaxis =NULL, splitpoint = ThirdColorArguments, sample.name = "GROUPNAME", removestrings = c("DTR", ".fcs"), thecolor = "orange")
+
+MultiplePlot <- map(.x=UnmixedGatingSet, .f=Utility_ThirdColorPlots, subset = "live", xaxis="BUV496-A", yaxis = "Spark Blue 550-A",  zaxis =NULL, splitpoint = ThirdColorArguments, sample.name = "GROUPNAME", removestrings = c("DTR", ".fcs"), thecolor = "orange")
+```
+
+Utility_ThirdColorPlots can also be used in combination with the Coereba packages GatingCutoff estimates to allow for specimen specific split-points for the specified markers, using the GatingCutoff csv file. This is particularly useful for non-normalized specimens where batch effects are present. 
+
+```{r}
 
 ```
 
+To provide flexibility for your own analysis, `Utility_ThirdColorPlots()` returns ggplot objects. These in turn can be edited, or a list of them passed to and arranged using `Utility_Patchwork()` into a .pdf of desired layout. 
 
+### Future Development
 
-"splitpoint" can also cross-match the gs specimen to the Coereba packages designated splitpoint for that specific marker in a designated .csv file, allowing equivalent plotting across specimens that may have batch effects. A further advance use, when splitpoint is given a data.frame, it will iterate down the rows, subfiltering from the remaining cells as it descends. 
-
-The default is to return ggplot objects, which in turn can be arranged using `Utility_Patchwork()` into a .pdf of desired layout. Combining with map function, it's possible to extend the visualization capacity for many scenarios similar to Utility_UnityPlots and Utility_NxNPlots. As community usefulness is demonstrated, these will become integrated in later versions of the package. 
-
-
+In combination with purrr package functions, it's possible to extend the visualization capacity for many scenarios similar to Utility_UnityPlots and Utility_NxNPlots. As community usefulness is demonstrated, these will become integrated in later versions of the package. Reach out via the GitHub for suggested improvements. 
 
 
 ```{r sessionInfo, echo = FALSE}

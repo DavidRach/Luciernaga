@@ -30,8 +30,40 @@ Utility_ThirdColorPlots <- function(x, subset, xaxis, yaxis, zaxis, splitpoint =
   TheDF <- data.frame(df, check.names = FALSE)
 
   if (is.data.frame(splitpoint)){message("Splitpoint is a Dataframe")
+      TheDF <- TheDF %>% mutate(NewID = row_number())
+      FilteringDF <- TheDF
+      FilterArguments <- splitpoint %>% pull(Fluorophore)
+      nrow(FilteringDF)
+      #i <- FilterArguments[1]
 
+      for (i in FilterArguments){
+        zaxis <- splitpoint %>% filter(Fluorophore %in% i) %>% pull(Fluorophore)
+        TheSplit <- splitpoint %>% filter(Fluorophore %in% i) %>% pull(Splitpoint)
+        FilteringDF <- FilteringDF %>% dplyr::filter(.data[[zaxis]] >= TheSplit)
+      }
 
+      if (!nrow(FilteringDF)>0){stop("Nothing left after filtering arguments")}
+
+      RetainedIDs <- FilteringDF %>% select(NewID) %>% pull()
+      TheSubset <- FilteringDF %>% select(-NewID)
+      TheBackground <- TheDF %>% filter(!NewID %in% RetainedIDs) %>% select(-NewID)
+
+      Plot <- ggplot() +
+        geom_tile(data = TheBackground, aes(x = .data[[xaxis]], y = .data[[yaxis]]),
+                  width = 0.7, height = 0.7, color = "lightgray", fill="lightgray") +
+        geom_tile(data = TheSubset, aes(x = .data[[xaxis]], y = .data[[yaxis]]),
+                  width = 0.7, height = 0.7, color = thecolor, fill=thecolor) + # Adjust color gradient
+        scale_fill_gradient(low="lightgray", high=thecolor) + theme_bw() +
+        labs(title = AggregateName) +
+        theme(
+          strip.background = element_blank(),
+          strip.text.x = element_blank(),
+          panel.grid.major = element_blank(),
+          panel.grid.minor = element_blank(),
+          axis.title = element_text(size = 10, face = "bold"),
+          legend.position = "none"  # Hide the legend if not needed
+        )
+    return(Plot)
 
   } else if (splitpoint == "crossreference"){message("Splitpoint is a crossreference")
 
