@@ -50,7 +50,7 @@ UnstainedSignatures <- function(x, WorkAround1, alternatename, ColsN, StartNorma
 
   #I made it export, now just need to rebuild, then remove extra :
   alternatename <- alternatename
-  PointData <- Luciernaga::Utility_LocalMaxima(theX = LocalX, theY = LocalY,
+  PointData <- Utility_LocalMaxima(theX = LocalX, theY = LocalY,
                                                therepeats = 3, w = 3, span = 0.11, alternatename = alternatename)
 
   colnames(PointData)[1] <- "TheDetector"

@@ -23,6 +23,116 @@ knitr::opts_chunk$set(
 ```
 
 # Introduction
+In spectral flow cytometry (SFC), having good quality single color and unstained unmixing controls is critical to the ability to take a full-stained sample and be able to decipher on an individual cell basis what fluorophore is present and the relative amount. Each single color unmixing control is itself a combination of the staining fluorophore and the underlying autofluorescence. Once autofluorescence is subtracted, the leftover signal should be distinct enough from other fluorophores that when incorporated into the reference matrix for the process to work. 
+
+When the above assumptions are broken, we end up with uncertainty in the calculation, which becomes visible in the form of unmixing errors. However, despite the importance foundational to the final result, we have limited tools by which we can address the quality of our unmixing controls beyond trial and errors. 
+
+This vignette addresses the Luciernaga functions that are focused on characterizing fluorescence signatures from individual .fcs files. They work on both unstained .fcs files where no subtraction takes place, as well as on single color .fcs files. These outputs can be quantified for exploratory data analysis, or filtered out as their own .fcs files containing only that given signature. We extend some existing unmixing in R capabilities of other packages and some preliminary simulation functions to allow for a better understanding of the typically ordinal least squares methods that are used to unmix full-stained samples. 
+
+## Getting Set Up
+
+To use the following Luciernaga functions, we are working with raw .FCS files that retain their detector information (ex. UV7-A, V7-A, B3-A, etc.). For both unstained and single color unmixing controls, these can be brought into R in the form of a GatingSet. 
+
+### Loading Libraries
+
+Luciernaga works using infrastructure provided by other Bioconductor cytometry packages. It also utilizes a few of the tidyverse packages available via CRAN. It is important to make sure that these are installed on your computer and then that the libraries are loaded. 
+
+```{r, echo=FALSE, results = "hide", warning=FALSE}
+suppressPackageStartupMessages({
+library(Luciernaga)
+library(flowCore)
+library(flowWorkspace)
+library(openCyto)
+library(ggcyto)  
+library(data.table)
+library(dplyr)
+library(purrr) 
+library(stringr)
+library(ggplot2)
+library(gt)
+library(plotly)
+library(htmltools)
+})
+```
+
+```{r Load Libraries}
+library(Luciernaga)
+library(flowCore)
+library(flowWorkspace)
+library(openCyto)
+library(ggcyto)  
+library(data.table)
+library(dplyr)
+library(purrr) 
+library(stringr)
+library(ggplot2)
+library(gt)
+library(plotly)
+library(htmltools)
+```
+
+### Locating .fcs files
+To get started, you will first need to provide the location on your computer where the .fcs files of interest are being stored. An example of how the author does this is provided below and can be modified for your own user and desired computer folder. 
+
+```{r Additional Example, eval = FALSE}
+File_Location <- file.path("C:", "Users", "JohnDoe", "Desktop", "TodaysExperiment")
+FCS_Pattern <- ".fcs$"
+FCS_Files <- list.files(path = File_Location, pattern = FCS_Pattern, full.names = TRUE, recursive = FALSE)
+```
+
+For this vignette, we will using several small .fcs files that can be found in Luciernaga's extdata folder for our example. 
+
+```{r Access Package Data}
+File_Location <- system.file("extdata", package = "Luciernaga")
+FCS_Pattern <- ".fcs$"
+FCS_Files <- list.files(path = File_Location, pattern = FCS_Pattern, full.names = TRUE, recursive = FALSE)
+FCS_Files
+```
+Three of these files are raw unmixing controls (APCFire810, BUV496, Unstained), while the others are unmixed full-stained samples from a 29-color SFC panel (ND050). For now, let's subset the desired files to only select the raw .fcs unmixing controls as shown below:
+
+```{r Selecting Desired Files}
+SubsetFCSFiles <- FCS_Files[c(1:2, 6)]
+SubsetFCSFiles
+```
+
+### Creating a GatingSet
+Once we have the list of desired .fcs files, we can use the `r Biocpkg("flowWorkspace")` to bring these individual .fcs files first into a CytoSet object, then into a GatingSet object that we can add gates to:
+
+```{r}
+MyCytoSet <- load_cytoset_from_fcs(SubsetFCSFiles, truncate_max_range = FALSE, transform = FALSE)
+MyCytoSet
+MyGatingSet <- GatingSet(MyCytoSet)
+MyGatingSet
+```
+For this example, we will use the `r Biocpkg("openCyto")` package to automatically gate each of our .fcs files for the lymphocyte population. To do this, we first read in the example .csv file containing our desired gates (that can be found in Luciernaga's extdata folder) using the `r CRANpkg("data.table")` package
+
+```{r}
+FileLocation <- system.file("extdata", package = "Luciernaga")
+MyGates <- fread(file.path(path = FileLocation, pattern = 'Gates.csv'))
+gt(MyGates)
+```
+
+For your own experiments, individual gates can be added, removed or modified to match the requirements of your own .fcs files, for additional details, please refer to the `r Biocpkg("openCyto")` packages vignettes. Alternatively, GatingSet objects can be brought directly from several commercial software formats using the `r Biocpkg("CytoML")` package. 
+
+Now that we have the gating information from the .csv file, we can convert them into a GatingTemplate, and append them to the .fcs files contained within the GatingSet
+
+```{r, echo=FALSE, results="FALSE"}
+MyGatingTemplate <- gatingTemplate(MyGates)
+gt_gating(MyGatingTemplate, MyGatingSet)
+MyGatingSet[[1]]
+```
+
+
+## Utility_SingleColorQC
+
+The main workhorse of the Luciernaga is `Utility_SingleColorQC()`. Briefly, it will take individual raw .fcs files, process them and return distinct fluorescence signatures as their own .fcs files.
+
+```{r}
+
+
+```
+
+
 
 The working unit for most of Luciernaga's functions is a GatingSet object. Let's now workthrough the main Luciernaga function to characterize single color reference controls. First, let's provide a .csv file to provide information about where to expect to have overlapping autofluorescent signatures with fluorophore signatures. 
 
@@ -51,7 +161,7 @@ Retained single color-stain cells then have an average autofluorescence signatur
         bind_rows()
 ```
 
-In addition to the exported .fcs files, the function also returns lineplots used in the fluorescent peak identifications for visual
+In addition to the exported .fcs files, the function also returns line plots used in the fluorescent peak identifications for visual
 inspection, as well as the following data.table: 
 
 

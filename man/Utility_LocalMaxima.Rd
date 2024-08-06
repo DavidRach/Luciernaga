@@ -30,3 +30,4 @@ Detecting Fluorophore Peak Detectors by Local Maxima
 \examples{
 NULL
 }
+\keyword{internal}

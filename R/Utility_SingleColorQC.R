@@ -208,13 +208,6 @@ Utility_SingleColorQC <- function(x, subsets, sample.name, removestrings, experi
   TroubleChannels <- SCData %>% pull(Fluorophore)
 
   # Handling the Exceptions
-  TroubleChannelExclusion <- function(x, SCData, MainDetector, AFChannels){
-    Internal <- SCData %>% filter(Fluorophore %in% x) %>% pull(MainDetector)
-    Internal <- gsub("-A", "", Internal)
-    Exclusion <- setdiff(AFChannels, Internal)
-    return(Exclusion)
-  }
-
   results <- map(.x=TroubleChannels, .f=TroubleChannelExclusion, SCData=SCData, MainDetector=MainDetector, AFChannels=AFChannels) %>%
     set_names(TroubleChannels)
 
@@ -282,6 +275,17 @@ Utility_SingleColorQC <- function(x, subsets, sample.name, removestrings, experi
 }
 
 
+#' Internal for Utility_SingleColorQC
+#'
+#' @importFrom dplyr filter
+#' @importFrom dplyr pull
+#' @noRd
+TroubleChannelExclusion <- function(x, SCData, MainDetector, AFChannels){
+  Internal <- SCData %>% filter(Fluorophore %in% x) %>% pull(MainDetector)
+  Internal <- gsub("-A", "", Internal)
+  Exclusion <- setdiff(AFChannels, Internal)
+  return(Exclusion)
+}
 
 
 
