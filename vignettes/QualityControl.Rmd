@@ -41,9 +41,16 @@ For this vignette, we will be accessing a .csv folder that can be found in Lucie
 ```{r Access Package Data}
 File_Location <- system.file("extdata", package = "Luciernaga")
 CSV_Pattern <- ".csv$"
-list.files(path=File_Location, pattern=CSV_Pattern)
+CSV_Files <- list.files(path=File_Location, pattern=CSV_Pattern)
+CSV_Files
 ```
 
+Since this .CSV file is not is not in a tidy format, `read.csv()` will have issues when attempting to import directly. Instead, `CytekQCPlots()` will attempt to read in each row individually as text and from there pre-process it. 
+
+```{r}
+library(Luciernaga)
+TidyData <- CytekQCFilePrep(CSV_Files, TrackChange = FALSE)
+```
 
 ## CytekQCPlots
 
