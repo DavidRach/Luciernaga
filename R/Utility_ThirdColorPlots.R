@@ -50,9 +50,9 @@ Utility_ThirdColorPlots <- function(x, subset, xaxis, yaxis, zaxis, splitpoint =
 
       Plot <- ggplot() +
         geom_tile(data = TheBackground, aes(x = .data[[xaxis]], y = .data[[yaxis]]),
-                  width = 0.7, height = 0.7, color = "lightgray", fill="lightgray") +
+                  width = tilesize, height = tilesize, color = "lightgray", fill="lightgray") +
         geom_tile(data = TheSubset, aes(x = .data[[xaxis]], y = .data[[yaxis]]),
-                  width = 0.7, height = 0.7, color = thecolor, fill=thecolor) + # Adjust color gradient
+                  width = tilesize, height = tilesize, color = thecolor, fill=thecolor) + # Adjust color gradient
         scale_fill_gradient(low="lightgray", high=thecolor) + theme_bw() +
         labs(title = AggregateName) +
         theme(
@@ -73,7 +73,7 @@ Utility_ThirdColorPlots <- function(x, subset, xaxis, yaxis, zaxis, splitpoint =
   } else if (splitpoint == "continuous"){message("Splitpoint is a continuous")
 
     Plot <- ggplot(TheDF) + geom_tile(aes(x = .data[[xaxis]], y = .data[[yaxis]], fill = .data[[zaxis]]),
-                width = 0.7, height = 0.7, color = "lightgray") +
+                width = tilesize, height = tilesize, color = "lightgray") +
       scale_fill_gradient(low = "lightgray", high = thecolor) +
       theme_bw() +
       labs(title = AggregateName) +
@@ -93,9 +93,9 @@ Utility_ThirdColorPlots <- function(x, subset, xaxis, yaxis, zaxis, splitpoint =
 
     Plot <- ggplot() +
       geom_tile(data = TheBackground, aes(x = .data[[xaxis]], y = .data[[yaxis]], fill = .data[[zaxis]]),
-                width = 0.7, height = 0.7, color = "lightgray") +
+                width = tilesize, height = tilesize, color = "lightgray") +
       geom_tile(data = TheSubset, aes(x = .data[[xaxis]], y = .data[[yaxis]], fill = .data[[zaxis]]),
-                width = 0.7, height = 0.7, color = thecolor) + # Adjust color gradient
+                width = tilesize, height = tilesize, color = thecolor) + # Adjust color gradient
       scale_fill_gradient(low="lightgray", high=thecolor) + theme_bw() +
       labs(title = AggregateName) +
       theme(
@@ -119,9 +119,9 @@ Utility_ThirdColorPlots <- function(x, subset, xaxis, yaxis, zaxis, splitpoint =
 
   Plot <- ggplot() +
     geom_tile(data = TheBackground, aes(x = .data[[xaxis]], y = .data[[yaxis]], fill = .data[[zaxis]]),
-                               width = 0.7, height = 0.7, color = "lightgray") +
+                               width = tilesize, height = tilesize, color = "lightgray") +
     geom_tile(data = TheSubset, aes(x = .data[[xaxis]], y = .data[[yaxis]], fill = .data[[zaxis]]),
-                               width = 0.7, height = 0.7, color = thecolor) + # Adjust color gradient
+                               width = tilesize, height = tilesize, color = thecolor) + # Adjust color gradient
     scale_fill_gradient(low="lightgray", high=thecolor) + theme_bw() +
     labs(title = AggregateName) +
     theme(

@@ -94,6 +94,33 @@ gt_gating(MyGatingTemplate, MyGatingSet)
 MyGatingSet[[1]]
 ```
 
+## Creating a Gating Set Unmixed
+
+```{r}
+UnmixedFCSFiles <- FCS_Files[c(3:5)]
+UnmixedFCSFiles
+```
+
+```{r}
+UnmixedCytoSet <- load_cytoset_from_fcs(UnmixedFCSFiles, truncate_max_range = FALSE, transform = FALSE)
+UnmixedGatingSet <- GatingSet(UnmixedCytoSet)
+UnmixedGatingSet
+```
+
+```{r}
+Markers <- colnames(UnmixedCytoSet)
+KeptMarkers <- Markers[-grep("Time|FS|SC|SS|Original|-W$|-H$|AF", Markers)]
+
+MyBiexponentialTransform <- flowjo_biexp_trans(channelRange = 256, maxValue = 1000000, pos = 4.5, neg = 0, widthBasis = -1000)
+TransformList <- transformerList(KeptMarkers, MyBiexponentialTransform)
+UnmixedGatingSet <- transform(UnmixedGatingSet, TransformList)
+
+FileLocation <- system.file("extdata", package = "Luciernaga")
+UnmixedGates <- fread(file.path(path = FileLocation, pattern = 'GatesUnmixed.csv'))
+UnmixedGating <- gatingTemplate(UnmixedGates)
+gt_gating(UnmixedGating, UnmixedGatingSet)
+```
+
 ## Utility_tSNE
 
 ```{r}
@@ -112,9 +139,36 @@ TheNewCS <- cytoset()
 cs_add_cytoframe(cs=TheNewCS, sn="Test", cf=cf)
 NewGatingSet <- GatingSet(TheNewCS)
 
-SinglePlot <-  Utility_ThirdColorPlots(x=NewGatingSet[[1]], subset = "root", xaxis="tSNE_1", yaxis = "tSNE_2",  zaxis ="V7-A", splitpoint = "continuous", sample.name = "TUBENAME", removestrings = c("Dimensionality", ".fcs"), thecolor = "orange")
+TSNEPlot <-  Utility_ThirdColorPlots(x=NewGatingSet[[1]], subset = "root", xaxis="tSNE_1", yaxis = "tSNE_2",  zaxis ="V7-A", splitpoint = "continuous", sample.name = "TUBENAME", removestrings = c("Dimensionality", ".fcs"), thecolor = "orange", tilesize = 0.6)
 
-SinglePlot 
+TSNEPlot 
+```
+
+
+```{r}
+Markers <- colnames(UnmixedCytoSet)
+KeptMarkers <- Markers[-grep("Time|FS|SC|SS|Original|-W$|-H$|AF", Markers)]
+SubsetMarkers <- c("BUV496-A", "BUV805-A", "Pacific Blue-A", "BV711-A",
+                       "BV786-A", "Spark Blue 550-A", "PE-A", "APC-Fire 750-A")
+
+pData(UnmixedGatingSet[[3]]) %>% pull(name)
+nrow(UnmixedGatingSet[[3]])
+plot(UnmixedGatingSet)
+
+removestrings <- c("DTR_2023_ILT_15_Tetramers-", "_Tetramer_Unmixed", ".fcs")
+
+tSNE_Output <- Utility_tSNE(x=UnmixedGatingSet[[3]], sample.name = "GROUPNAME", removestrings=removestrings, subset = "live", columns=SubsetMarkers, export=FALSE)
+
+#BUGGED: flowCore_$P42Rmax not contained in Text section!
+
+cf <- flowFrame_to_cytoframe(tSNE_Output)
+TheNewCS <- cytoset()
+cs_add_cytoframe(cs=TheNewCS, sn="Test", cf=cf)
+NewGatingSet <- GatingSet(TheNewCS)
+
+Sample_TSNEPlot <-  Utility_ThirdColorPlots(x=NewGatingSet[[1]], subset = "root", xaxis="tSNE_1", yaxis = "tSNE_2",  zaxis ="V7-A", splitpoint = "continuous", sample.name = "GROUPNAME", removestrings = removestrings, thecolor = "orange", tilesize = 0.6)
+
+Sample_TSNEPlot 
 ```
 
 ## Utility_UMAP
@@ -135,9 +189,9 @@ TheNewCS <- cytoset()
 cs_add_cytoframe(cs=TheNewCS, sn="Test", cf=cf)
 NewGatingSet <- GatingSet(TheNewCS)
 
-SinglePlot <-  Utility_ThirdColorPlots(x=NewGatingSet[[1]], subset = "root", xaxis="UMAP_1", yaxis = "UMAP_2",  zaxis ="V7-A", splitpoint = "continuous", sample.name = "TUBENAME", removestrings = c("Dimensionality", ".fcs"), thecolor = "orange")
+UMAPPlot <-  Utility_ThirdColorPlots(x=NewGatingSet[[1]], subset = "root", xaxis="UMAP_1", yaxis = "UMAP_2",  zaxis ="V7-A", splitpoint = "continuous", sample.name = "TUBENAME", removestrings = c("Dimensionality", ".fcs"), thecolor = "orange", tilesize = 0.3)
 
-SinglePlot
+UMAPPlot
 ```
 ```{r sessionInfo, echo = FALSE}
 sessionInfo()
