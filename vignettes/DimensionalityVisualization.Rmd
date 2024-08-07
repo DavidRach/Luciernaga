@@ -88,6 +88,12 @@ MyGates <- fread(file.path(path = FileLocation, pattern = 'Gates.csv'))
 gt(MyGates)
 ```
 
+```{r, echo=FALSE, results="FALSE"}
+MyGatingTemplate <- gatingTemplate(MyGates)
+gt_gating(MyGatingTemplate, MyGatingSet)
+MyGatingSet[[1]]
+```
+
 ## Utility_tSNE
 
 ```{r}
@@ -97,6 +103,39 @@ KeptMarkers
 
 pData(MyGatingSet[[3]]) %>% pull(name)
 nrow(MyGatingSet[[3]])
+plot(MyGatingSet)
 
-Utility_tSNE(x=MyGatingSet[[3]], sample.name = "GUID", removestrings=c("_Cells", ".fcs"), subset = "lymphocytes", columns=KeptMarkers)
+tSNE_Output <- Utility_tSNE(x=MyGatingSet[[3]], sample.name = "GUID", removestrings=c("_Cells", ".fcs"), subset = "lymphocytes", columns=KeptMarkers, export=FALSE)
+
+cf <- flowFrame_to_cytoframe(tSNE_Output)
+TheNewCS <- cytoset()
+cs_add_cytoframe(cs=TheNewCS, sn="Test", cf=cf)
+NewGatingSet <- GatingSet(TheNewCS)
+
+SinglePlot <-  Utility_ThirdColorPlots(x=NewGatingSet[[1]], subset = "root", xaxis="tSNE_1", yaxis = "tSNE_2",  zaxis ="V7-A", splitpoint = "continuous", sample.name = "TUBENAME", removestrings = c("Dimensionality", ".fcs"), thecolor = "orange")
+
+SinglePlot 
+```
+
+## Utility_UMAP
+
+```{r}
+Markers <- colnames(MyCytoSet)
+KeptMarkers <- Markers[-grep("Time|FS|SC|SS|Original|-W$|-H$|AF", Markers)]
+KeptMarkers
+
+pData(MyGatingSet[[3]]) %>% pull(name)
+nrow(MyGatingSet[[3]])
+plot(MyGatingSet)
+
+UMAP_Output <- Utility_UMAP(x=MyGatingSet[[3]], sample.name="GUID", removestrings=c("_Cells", ".fcs"), subset="lymphocytes", columns=KeptMarkers, export=FALSE)
+
+cf <- flowFrame_to_cytoframe(UMAP_Output)
+TheNewCS <- cytoset()
+cs_add_cytoframe(cs=TheNewCS, sn="Test", cf=cf)
+NewGatingSet <- GatingSet(TheNewCS)
+
+SinglePlot <-  Utility_ThirdColorPlots(x=NewGatingSet[[1]], subset = "root", xaxis="UMAP_1", yaxis = "UMAP_2",  zaxis ="V7-A", splitpoint = "continuous", sample.name = "TUBENAME", removestrings = c("Dimensionality", ".fcs"), thecolor = "orange")
+
+SinglePlot
 ```
