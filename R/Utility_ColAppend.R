@@ -4,9 +4,12 @@
 #' @param DF The maybe downsampled exprs
 #' @param columnframe The dimensionality visualized data.frame object to be added
 #'
+#' @importFrom purrr map
+#' @importFrom dplyr bind_cols
 #' @importFrom flowCore parameters
 #' @importFrom flowCore keyword
 #' @importFrom flowCore exprs
+#' @importFrom Biobase pData
 #'
 #' @return A new flow_frame object.
 #' @export
@@ -17,13 +20,8 @@ Utility_ColAppend <- function(ff, DF, columnframe){
   TheColNames <- colnames(columnframe)
 
   #x <- TheColNames[1]
-  .InternalShift <- function(x){
-    TheColumn <- columnframe %>% select(all_of(x))
-    ShiftedColumn <- TheColumn + abs(min(TheColumn))+1
-    return(ShiftedColumn)
-  }
 
-  ShiftedColumns <- map(.x=TheColNames, .f=.InternalShift) %>% bind_cols
+  ShiftedColumns <- map(.x=TheColNames, .f=InternalShift) %>% bind_cols
   Shifted <- as.matrix(ShiftedColumns)
   FCSSubset <- as.matrix(DF)
 
@@ -44,7 +42,7 @@ Utility_ColAppend <- function(ff, DF, columnframe){
   pData(parameters(fr)) <- pd
 
   new_pid <- rownames(new_pd)
-  new_kw <- fr@description
+  new_kw <- fr@description ### Another Bioconductor :( for @
 
   for (i in new_pid){
     new_kw[paste0(i,"B")] <- new_kw["$P1B"] #Unclear Purpose
@@ -63,4 +61,17 @@ Utility_ColAppend <- function(ff, DF, columnframe){
   new_fcs <- new("flowFrame", exprs=UpdatedExprs, parameters=UpdatedParameters, description=new_kw)
 
   return(new_fcs)
+}
+
+#' Internal for Column Append
+#'
+#' @importFrom dplyr select
+#' @importFrom all_of
+#'
+#' @noRd
+
+InternalShift <- function(x){
+  TheColumn <- columnframe %>% select(all_of(x))
+  ShiftedColumn <- TheColumn + abs(min(TheColumn))+1
+  return(ShiftedColumn)
 }

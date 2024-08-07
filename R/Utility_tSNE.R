@@ -74,6 +74,7 @@ Utility_tSNE <- function(x, sample.name, removestrings, subset, columns=NULL, no
 
   X <- CleanedDF1
 
+  #ThetSNE <- Rtsne(as.matrix(X), dims=2, max_iter = max_iter, perplexity = perplexity)
   ThetSNE <- Rtsne(as.matrix(X), dims=2, max_iter = max_iter, perplexity = perplexity, ...)
 
   ThetSNEcols <- ThetSNE$Y

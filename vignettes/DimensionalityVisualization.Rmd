@@ -155,9 +155,9 @@ pData(UnmixedGatingSet[[3]]) %>% pull(name)
 nrow(UnmixedGatingSet[[3]])
 plot(UnmixedGatingSet)
 
-removestrings <- c("DTR_2023_ILT_15_Tetramers-", "_Tetramer_Unmixed", ".fcs")
+removestrings <- c(".fcs")
 
-tSNE_Output <- Utility_tSNE(x=UnmixedGatingSet[[3]], sample.name = "GROUPNAME", removestrings=removestrings, subset = "live", columns=SubsetMarkers, export=FALSE)
+tSNE_Output <- Utility_tSNE(x=UnmixedGatingSet[[3]], sample.name = "TUBENAME", removestrings=removestrings, subset = "live", columns=SubsetMarkers, export=FALSE)
 
 #BUGGED: flowCore_$P42Rmax not contained in Text section!
 
