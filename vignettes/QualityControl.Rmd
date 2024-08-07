@@ -24,7 +24,42 @@ knitr::opts_chunk$set(
 
 # Introduction
 
-This vignette addresses some of the instrumental quality control functions implemented by Luciernaga. Due to the only Spectral Cytometers at the authors institution being are Cytek (TM) Aurora and Northern Light cytometers that utilize the SpectroFlo software for acquistion and unmixing, there is a heavy bias towards them in terms of the functions presented in this vignette. If you would like to address this by contributing your own function that expands the repertoire of manufacturers and instruments covered by this vignette, please reach out via GitHub with a pull request. 
+This vignette addresses some of the instrumental quality control functions implemented by Luciernaga. Due to the only Spectral Cytometers at the authors institution being are Cytek (TM) Aurora and Northern Light cytometers that utilize the SpectroFlo software for acquisition and unmixing, there is a heavy bias towards them in terms of the functions presented in this vignette. If you would like to address this by contributing your own function that expands the repertoire of manufacturers and instruments covered by this vignette, please reach out via GitHub with a pull request. 
+
+## Load Libraries
+```{r, echo=FALSE, results = "hide", warning=FALSE}
+suppressPackageStartupMessages({
+library(Luciernaga)
+library(flowCore)
+library(flowWorkspace)
+library(openCyto)
+library(ggcyto)  
+library(data.table)
+library(dplyr)
+library(purrr) 
+library(stringr)
+library(ggplot2)
+library(gt)
+library(plotly)
+library(htmltools)
+})
+```
+
+```{r Load Libraries}
+library(Luciernaga)
+library(flowCore)
+library(flowWorkspace)
+library(openCyto)
+library(ggcyto)  
+library(data.table)
+library(dplyr)
+library(purrr) 
+library(stringr)
+library(ggplot2)
+library(gt)
+library(plotly)
+library(htmltools)
+```
 
 
 ## CytekQCFilePrep
@@ -48,10 +83,6 @@ CSV_Files
 Since this .CSV file is not is not in a tidy format, `read.csv()` will have issues when attempting to import directly. Instead, `CytekQCPlots()` will attempt to read in each row individually as text and from there pre-process it. 
 
 ```{r}
-library(Luciernaga)
-library(dplyr)
-library(gt)
-
 TidyData <- CytekQCFilePrep(CSV_Files, TrackChange = FALSE)
 gt(head(TidyData))
 ```
@@ -91,10 +122,28 @@ As with most functions in Luciernaga, `CytekQCPlots()` uses `Utility_Patchwork()
 
 Sometimes we don't have access to QC reports, but we do have access to .fcs files acquired on that day. 
 
+```{r Access Package Data}
+File_Location <- system.file("extdata", package = "Luciernaga")
+FCS_Pattern <- ".fcs$"
+FCS_Files <- list.files(path = File_Location, pattern = FCS_Pattern, full.names = TRUE, recursive = FALSE)
+FCS_Files
+```
+
+```{r Selecting Desired Files}
+SubsetFCSFiles <- FCS_Files[c(1:2, 6)]
+SubsetFCSFiles
+```
 
 ```{r}
+MyCytoSet <- load_cytoset_from_fcs(SubsetFCSFiles, truncate_max_range = FALSE, transform = FALSE)
+MyCytoSet
+MyGatingSet <- GatingSet(MyCytoSet)
+MyGatingSet
+```
 
-
+```{r}
+QCRetrieval(x=MyGatingSet[[1]], sample.name = "GROUPNAME")
+?Luciernaga::QCRetrieval
 ```
 
 

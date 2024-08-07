@@ -8,7 +8,7 @@ Utility_UMAP(
   x,
   sample.name,
   removestrings,
-  subsets,
+  subset,
   columns,
   notcolumns,
   subsample,
@@ -23,7 +23,7 @@ Utility_UMAP(
 
 \item{removestrings}{A list of things to remove from sample.name}
 
-\item{subsets}{The subset of interest from gating hierarchy}
+\item{subset}{The subset of interest from gating hierarchy}
 
 \item{columns}{A subset of columns to pass instead}
 

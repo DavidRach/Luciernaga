@@ -3,7 +3,7 @@
 #' @param x A gating set object
 #' @param sample.name Keyword for which sample name is stored
 #' @param removestrings A list of things to remove from sample.name
-#' @param subsets The subset of interest from gating hierarchy
+#' @param subset The subset of interest from gating hierarchy
 #' @param columns A subset of columns to pass instead
 #' @param notcolumns A subset of columns to remove
 #' @param subsample If downsampling is wanted.
@@ -23,13 +23,13 @@
 #'
 #' @examples NULL
 
-Utility_UMAP <- function(x, sample.name, removestrings, subsets, columns, notcolumns, subsample, export, outpath){
+Utility_UMAP <- function(x, sample.name, removestrings, subset, columns, notcolumns, subsample, export, outpath){
   # Retrieving the metadata # the abbreviated version
   name <- keyword(x, sample.name)
   alternatename <- NameCleanUp(name, removestrings)
 
   #Retrieving the exprs data for my subset population of interest
-  ff <- gs_pop_get_data(x, subsets)
+  ff <- gs_pop_get_data(x, subset)
   newff <- realize_view(ff)
 
   startingcells <- nrow(ff)[[1]] # For Ratio Calculation, may not be needed here

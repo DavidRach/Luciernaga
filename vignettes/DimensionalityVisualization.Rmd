@@ -1,0 +1,101 @@
+---
+title: "Dimensionality Visualization"
+author:
+- name: David Rach
+  affiliation: University of Maryland, Baltimore
+  email: drach@som.umaryland.edu
+package: Luciernaga
+output:
+  BiocStyle::html_document
+abstract: |
+  How to set up Luciernaga
+vignette: |
+  %\VignetteIndexEntry{Getting Started}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+# Introduction
+
+# Getting Started
+
+## Load Libraries
+```{r, echo=FALSE, results = "hide", warning=FALSE}
+suppressPackageStartupMessages({
+library(Luciernaga)
+library(flowCore)
+library(flowWorkspace)
+library(openCyto)
+library(ggcyto)  
+library(data.table)
+library(dplyr)
+library(purrr) 
+library(stringr)
+library(ggplot2)
+library(gt)
+library(plotly)
+library(htmltools)
+})
+```
+
+```{r Load Libraries}
+library(Luciernaga)
+library(flowCore)
+library(flowWorkspace)
+library(openCyto)
+library(ggcyto)  
+library(data.table)
+library(dplyr)
+library(purrr) 
+library(stringr)
+library(ggplot2)
+library(gt)
+library(plotly)
+library(htmltools)
+```
+
+## Create a GatingSet
+
+```{r Access Package Data}
+File_Location <- system.file("extdata", package = "Luciernaga")
+FCS_Pattern <- ".fcs$"
+FCS_Files <- list.files(path = File_Location, pattern = FCS_Pattern, full.names = TRUE, recursive = FALSE)
+FCS_Files
+```
+
+```{r Selecting Desired Files}
+SubsetFCSFiles <- FCS_Files[c(1:2, 6)]
+SubsetFCSFiles
+```
+
+```{r}
+MyCytoSet <- load_cytoset_from_fcs(SubsetFCSFiles, truncate_max_range = FALSE, transform = FALSE)
+MyCytoSet
+MyGatingSet <- GatingSet(MyCytoSet)
+MyGatingSet
+```
+
+```{r}
+FileLocation <- system.file("extdata", package = "Luciernaga")
+MyGates <- fread(file.path(path = FileLocation, pattern = 'Gates.csv'))
+gt(MyGates)
+```
+
+## Utility_tSNE
+
+```{r}
+Markers <- colnames(MyCytoSet)
+KeptMarkers <- Markers[-grep("Time|FS|SC|SS|Original|-W$|-H$|AF", Markers)]
+KeptMarkers
+
+pData(MyGatingSet[[3]]) %>% pull(name)
+
+Utility_tSNE(x=MyGatingSet[[3]], sample.name = "GUID", removestrings=c("_Cells", ".fcs"), subset = "lymphocytes", 
+```
