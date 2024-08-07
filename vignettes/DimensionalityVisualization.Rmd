@@ -166,7 +166,7 @@ TheNewCS <- cytoset()
 cs_add_cytoframe(cs=TheNewCS, sn="Test", cf=cf)
 NewGatingSet <- GatingSet(TheNewCS)
 
-Sample_TSNEPlot <-  Utility_ThirdColorPlots(x=NewGatingSet[[1]], subset = "root", xaxis="tSNE_1", yaxis = "tSNE_2",  zaxis ="V7-A", splitpoint = "continuous", sample.name = "GROUPNAME", removestrings = removestrings, thecolor = "orange", tilesize = 0.6)
+Sample_TSNEPlot <-  Utility_ThirdColorPlots(x=NewGatingSet[[1]], subset = "root", xaxis="tSNE_1", yaxis = "tSNE_2",  zaxis ="Spark Blue 550-A", splitpoint = "continuous", sample.name = "GROUPNAME", removestrings = removestrings, thecolor = "orange", tilesize = 0.6)
 
 Sample_TSNEPlot 
 ```

@@ -38,7 +38,7 @@ Utility_ColAppend <- function(ff, DF, columnframe){
 
   pd <- pData(parameters(fr))
   pd <- rbind(pd, new_pd)
-  fr@exprs <- cbind(exprs(fr), cols)
+  fr@exprs <- cbind(exprs(fr), cols) ### Another Bioconductor :( for @
   pData(parameters(fr)) <- pd
 
   new_pid <- rownames(new_pd)
@@ -52,6 +52,8 @@ Utility_ColAppend <- function(ff, DF, columnframe){
     new_kw[paste0(i,"R")] <- new_pd[[i,5]]
     new_kw[paste0(i,"DISPLAY")] <- "LIN"
     new_kw[paste0(i,"TYPE")] <- "Dimensionality"
+    new_kw[paste0("flowCore_", i, "Rmin")] <- new_pd[[i,4]]
+    new_kw[paste0("flowCore_", i, "Rmax")] <- new_pd[[i,5]]
   }
 
   new_kw
@@ -66,7 +68,7 @@ Utility_ColAppend <- function(ff, DF, columnframe){
 #' Internal for Column Append
 #'
 #' @importFrom dplyr select
-#' @importFrom all_of
+#' @importFrom tidyselect all_of
 #'
 #' @noRd
 
