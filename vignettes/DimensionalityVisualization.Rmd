@@ -96,6 +96,7 @@ KeptMarkers <- Markers[-grep("Time|FS|SC|SS|Original|-W$|-H$|AF", Markers)]
 KeptMarkers
 
 pData(MyGatingSet[[3]]) %>% pull(name)
+nrow(MyGatingSet[[3]])
 
-Utility_tSNE(x=MyGatingSet[[3]], sample.name = "GUID", removestrings=c("_Cells", ".fcs"), subset = "lymphocytes", 
+Utility_tSNE(x=MyGatingSet[[3]], sample.name = "GUID", removestrings=c("_Cells", ".fcs"), subset = "lymphocytes", columns=KeptMarkers)
 ```

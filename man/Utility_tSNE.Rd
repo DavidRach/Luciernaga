@@ -9,11 +9,14 @@ Utility_tSNE(
   sample.name,
   removestrings,
   subset,
-  columns,
-  notcolumns,
-  subsample,
-  export,
-  outpath
+  columns = NULL,
+  notcolumns = NULL,
+  subsample = NULL,
+  export = FALSE,
+  outpath = NULL,
+  max_iter = 1000,
+  perplexity = 30,
+  ...
 )
 }
 \arguments{
@@ -25,13 +28,19 @@ Utility_tSNE(
 
 \item{subset}{The subset of interest from gating hierarchy}
 
-\item{columns}{A subset of columns to pass instead}
+\item{columns}{Which columns to use. Not combinable with notcolumns, use one or other.}
 
-\item{notcolumns}{A subset of columns to remove}
+\item{notcolumns}{Which columns not to use. Not combinable with columns, use one or other.}
 
 \item{subsample}{If downsampling is wanted.}
 
 \item{outpath}{Location to store new .fcs files}
+
+\item{max_iter}{Rtsne argument, default is set to 1000}
+
+\item{perplexity}{Rtsne argument, default is set to 30}
+
+\item{...}{Other Arguments to pass to Rtsne}
 }
 \value{
 Numbers

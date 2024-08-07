@@ -4,10 +4,14 @@
 #' @param sample.name Keyword for which sample name is stored
 #' @param removestrings A list of things to remove from sample.name
 #' @param subset The subset of interest from gating hierarchy
-#' @param columns A subset of columns to pass instead
-#' @param notcolumns A subset of columns to remove
+#' @param columns Which columns to use. Not combinable with notcolumns, use one or other.
+#' @param notcolumns Which columns not to use. Not combinable with columns, use one or other.
 #' @param subsample If downsampling is wanted.
 #' @param outpath Location to store new .fcs files
+#' @param metric umap Argument, default is set to "euclidean"
+#' @param n_neighbors umap Argument, default is set to 15
+#' @param min_dist umap Argument, default is set to 0.5
+#' @param ... Other arguments to pass to umap()
 #'
 #' @importFrom uwot umap
 #' @importFrom flowWorkspace keyword
@@ -23,7 +27,8 @@
 #'
 #' @examples NULL
 
-Utility_UMAP <- function(x, sample.name, removestrings, subset, columns, notcolumns, subsample, export, outpath){
+Utility_UMAP <- function(x, sample.name, removestrings, subset, columns=NULL, notcolumns=NULL, subsample=NULL, export=FALSE, outpath=NULL,
+                         metric = "euclidean", n_neighbors = 15, min_dist = 0.5, ...){
   # Retrieving the metadata # the abbreviated version
   name <- keyword(x, sample.name)
   alternatename <- NameCleanUp(name, removestrings)
@@ -58,6 +63,9 @@ Utility_UMAP <- function(x, sample.name, removestrings, subset, columns, notcolu
   CleanedDF <- DF[,-grep("Time|FS|SC|SS|Original|W$|H$", names(DF))]
   BackupNames <- colnames(CleanedDF)
 
+  #if (is.null(columns) && is.null(notcolumns)) {stop("Please specify either columns or notcolumns")}
+  if (!is.null(columns) && !is.null(notcolumns)) {stop("Columns and notcolumns are not currently combinable. Pick one")}
+
   # If external columns interest specified
   if (!is.null(columns)){CleanedDF1 <- CleanedDF %>% select(all_of(columns))
   } else {CleanedDF1 <- CleanedDF}
@@ -67,16 +75,16 @@ Utility_UMAP <- function(x, sample.name, removestrings, subset, columns, notcolu
 
   X <- CleanedDF1
 
-  TheUMAP <- umap(X, metric="euclidean", n_components=2, n_neighbors=15, min_dist=0.5)
+  TheUMAP <- umap(X, metric=metric, n_components=2, n_neighbors=n_neighbors, min_dist=min_dist, ...)
 
   colnames(TheUMAP) <- c("UMAP_1", "UMAP_2")
   TheUMAP <- data.frame(TheUMAP)
 
   new_fcs <- Utility_ColAppend(ff=newff, DF=DF, columnframe=TheUMAP)
 
-  TheFileName <- paste0(alternatename, "_DR.fcs")
+  TheFileName <- paste0(alternatename, "_Dimensionality.fcs")
 
-  fileSpot <- file.path(outpath, TheFileName)
+  if (!is.null(outpath)) {fileSpot <- file.path(outpath, TheFileName)}
 
   if(export == TRUE){write.FCS(new_fcs, filename = fileSpot, delimiter="#")
   }else{return(new_fcs)}

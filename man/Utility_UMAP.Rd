@@ -9,11 +9,15 @@ Utility_UMAP(
   sample.name,
   removestrings,
   subset,
-  columns,
-  notcolumns,
-  subsample,
-  export,
-  outpath
+  columns = NULL,
+  notcolumns = NULL,
+  subsample = NULL,
+  export = FALSE,
+  outpath = NULL,
+  metric = "euclidean",
+  n_neighbors = 15,
+  min_dist = 0.5,
+  ...
 )
 }
 \arguments{
@@ -25,13 +29,21 @@ Utility_UMAP(
 
 \item{subset}{The subset of interest from gating hierarchy}
 
-\item{columns}{A subset of columns to pass instead}
+\item{columns}{Which columns to use. Not combinable with notcolumns, use one or other.}
 
-\item{notcolumns}{A subset of columns to remove}
+\item{notcolumns}{Which columns not to use. Not combinable with columns, use one or other.}
 
 \item{subsample}{If downsampling is wanted.}
 
 \item{outpath}{Location to store new .fcs files}
+
+\item{metric}{umap Argument, default is set to "euclidean"}
+
+\item{n_neighbors}{umap Argument, default is set to 15}
+
+\item{min_dist}{umap Argument, default is set to 0.5}
+
+\item{...}{Other arguments to pass to umap()}
 }
 \value{
 Numbers
