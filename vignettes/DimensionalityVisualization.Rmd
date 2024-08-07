@@ -24,6 +24,12 @@ knitr::opts_chunk$set(
 
 # Introduction
 
+Spectral Flow Cytometry data consist of many acquired cellular events, with increasing number of markers. Many unsupervised analysis approaches rely on clustering the markers on the basis of median fluorescent intensity. A common workflow step is to then project these cells onto a dimensionality visualized space using one of the various available algorithms. While this can provide useful information, we agree with Pachter lab that it can be easy to overinterpret what is essentially artefact noise. 
+
+Similarly, dimensionality visualization works on both unmixed files, as well as novel applications addressing unstained samples still in the raw form. To enable characterization of what actually ends up in these islands (whether brightness, unique signature, random noise) we have implemented dimensionality visualization for the most frequently used algorithms to facilitate their exploration in context of our paper. 
+
+While these are useful, we would like to reiterate, these wrappers are for exploratory purposes only, please refer to the original packages for any specialized argument implementation. We can and we will change them at any point, don't rely on our approach to build your own package on. Take advantage of the copyleft license, modify it and include it in your own package. 
+
 # Getting Started
 
 ## Load Libraries
@@ -121,7 +127,38 @@ UnmixedGating <- gatingTemplate(UnmixedGates)
 gt_gating(UnmixedGating, UnmixedGatingSet)
 ```
 
+## Utility_ColAppend
+
+Originally an internal function, `Utility_ColAppend()` will take an existing data.frame column and append it onto an .fcs file of the same number of rows. It will then work at adding the appropiate parameters to enable other software to recognize the addition in accordance with FCS 3.1 standards. When we run dimensionality visualizations with other functions in this package, or append additional metadata before concatenating, we use this function in the background. As it's immensely useful to us, we are highlighting it here in case you need to add extra information/alternate dimensionality visualization to an .fcs file
+
+```{r}
+
+
+```
+
+# Utility_Downsample
+
+```{r}
+
+```
+
+
+## Utility_Concatinate
+
+A common feature of dimensionality visualization approaches for cytometry data is concatenating different samples into a single file. 
+This sometimes includes first downsampling to an equivalent number of cells in a particular cell subset, so as to not overly influence the result on the basis of a single cell subset. Similarly, this can be done before or after cells are normalized using one of the various algorithms. 
+
+To facilitate this process, we have implemented this function. Unlike other approaches, it relies on GatingSet, bringing in only the cells for the node of interest into active memory. The final file can then be saved as it's own .fcs file. We have attempted to retain FCS 3.1, so that it can be brought into other software for additional steps. If you encounter issues, please reach out! 
+
+```{r}
+# Also possibly add keywords at this stage?
+
+
+```
+
 ## Utility_tSNE
+
+Now that we have a GatingSet containing our raw .fcs files, let's figure out what markers/parameters are present, and save the detectors as "KeptMarkers". From there, let's identify the unstained file within the GatingSet. After this we will run a tSNE on the provided data at the lymphocyte gating level, using the `Utility_tSNE()` function. This function has the ability to return a .fcs file (which is what we typically use). For the purpose of this vignette, it returns as a FlowCore flowframe. For use with our visualization functions that work on GatingSet objects, we transform to a cytoframe, add to a new cytoset and then convert that into a gating set. Finally we visualize using `Utility_ThirdColorPlots()`
 
 ```{r}
 Markers <- colnames(MyCytoSet)
@@ -144,6 +181,8 @@ TSNEPlot <-  Utility_ThirdColorPlots(x=NewGatingSet[[1]], subset = "root", xaxis
 TSNEPlot 
 ```
 
+
+We can now repeat the previous step, but using our Unmixed file GatingSet. The process is similar, identifying markers present in the .fcs file (fluorophores in this case), selecting our markers of interest, and from there passing to the `Utility_tSNE()` function.
 
 ```{r}
 Markers <- colnames(UnmixedCytoSet)
@@ -171,7 +210,10 @@ Sample_TSNEPlot <-  Utility_ThirdColorPlots(x=NewGatingSet[[1]], subset = "root"
 Sample_TSNEPlot 
 ```
 
+
 ## Utility_UMAP
+
+Now that we have a GatingSet containing our raw .fcs files, let's figure out what markers/parameters are present, and save the detectors as "KeptMarkers". From there, let's identify the unstained file within the GatingSet. After this we will run a tSNE on the provided data at the lymphocyte gating level, using the `Utility_UMAP()` function. This function has the ability to return a .fcs file (which is what we typically use). For the purpose of this vignette, it returns as a FlowCore flowframe. For use with our visualization functions that work on GatingSet objects, we transform to a cytoframe, add to a new cytoset and then convert that into a gating set. Finally we visualize using `Utility_ThirdColorPlots()`
 
 ```{r}
 Markers <- colnames(MyCytoSet)
@@ -182,7 +224,7 @@ pData(MyGatingSet[[3]]) %>% pull(name)
 nrow(MyGatingSet[[3]])
 plot(MyGatingSet)
 
-UMAP_Output <- Utility_UMAP(x=MyGatingSet[[3]], sample.name="GUID", removestrings=c("_Cells", ".fcs"), subset="lymphocytes", columns=KeptMarkers, export=FALSE)
+UMAP_Output <- Utility_UMAP(x=MyGatingSet[[3]], sample.name="GUID", removestrings=c("_Cells", ".fcs"), subset="live", columns=KeptMarkers, export=FALSE)
 
 cf <- flowFrame_to_cytoframe(UMAP_Output)
 TheNewCS <- cytoset()
@@ -193,7 +235,31 @@ UMAPPlot <-  Utility_ThirdColorPlots(x=NewGatingSet[[1]], subset = "root", xaxis
 
 UMAPPlot
 ```
+We can now repeat the previous step, but using our Unmixed file GatingSet. The process is similar, identifying markers present in the .fcs file (fluorophores in this case), selecting our markers of interest, and from there passing to the `Utility_UMAP()` function.
 
+```{r}
+Markers <- colnames(UnmixedCytoSet)
+KeptMarkers <- Markers[-grep("Time|FS|SC|SS|Original|-W$|-H$|AF", Markers)]
+SubsetMarkers <- c("BUV496-A", "BUV805-A", "Pacific Blue-A", "BV711-A",
+                       "BV786-A", "Spark Blue 550-A", "PE-A", "APC-Fire 750-A")
+
+pData(UnmixedGatingSet[[3]]) %>% pull(name)
+nrow(UnmixedGatingSet[[3]])
+plot(UnmixedGatingSet)
+
+removestrings <- c(".fcs")
+
+UMAP_Output <- Utility_UMAP(x=UnmixedGatingSet[[3]], sample.name="GUID", removestrings=removestrings, subset="live", columns=SubsetMarkers, export=FALSE)
+
+cf <- flowFrame_to_cytoframe(UMAP_Output)
+TheNewCS <- cytoset()
+cs_add_cytoframe(cs=TheNewCS, sn="Test", cf=cf)
+NewGatingSet <- GatingSet(TheNewCS)
+
+Sample_UMAPPlot <-  Utility_ThirdColorPlots(x=NewGatingSet[[1]], subset = "root", xaxis="UMAP_1", yaxis = "UMAP_2",  zaxis ="Spark Blue 550-A", splitpoint = "continuous", sample.name = "GROUPNAME", removestrings = c("Dimensionality", ".fcs"), thecolor = "orange", tilesize = 0.3)
+
+Sample_UMAPPlot
+```
 
 ```{r sessionInfo, echo = FALSE}
 sessionInfo()

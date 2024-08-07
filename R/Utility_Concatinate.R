@@ -1,4 +1,4 @@
-#' Concatinate a gs based on subset and subsample
+#' Concatenate a gs based on subset and optional subsample
 #'
 #' @param gs A gating set object
 #' @param sample.name Keyword specifying sample name
@@ -7,20 +7,21 @@
 #' @param subsample Total number of events to subsample from each specimen
 #' @param newName File Name for the Concatenate File
 #' @param outpath Location to store the concatenated file
+#' @param export Whether to export as a .fcs file.
 #'
 #' @return A concatenated .fcs file to new location
 #' @export
 #'
 #' @examples NULL
 
-Utility_Concatinate <- function(gs, sample.name, removestrings, subsets, subsample, newName, outpath){
+Utility_Concatinate <- function(gs, sample.name, removestrings, subsets, subsample, newName, outpath, export=FALSE){
 gs <- gs
 sample.name <- sample.name
 removestrings <- removestrings
 subsample <- subsample
 
-ConcatenatedFile <- map(gs, .f=.Internal_Downsample, sample.name=sample.name, removestrings=removestrings,
-                        subsets=subsets, subsample=subsample) %>% bind_rows
+ConcatenatedFile <- map(gs, .f=Utility_Downsample, sample.name=sample.name, removestrings=removestrings,
+                        subsets=subsets, subsample=subsample, export=FALSE) %>% bind_rows
 
 #ConcatenatedMatrix <- as.matrix(ConcatenatedFile)
 
@@ -68,29 +69,9 @@ cols <- ExtraMatrix
 
 TheFileName <- paste0(newName, ".fcs")
 
-fileSpot <- file.path(outpath, TheFileName)
+if (!is.null(outpath)) {fileSpot <- file.path(outpath, TheFileName)}
 
-write.FCS(new_fcs, filename = fileSpot, delimiter="#")
+if(export == TRUE){write.FCS(new_fcs, filename = fileSpot, delimiter="#")
+  }else{return(new_fcs)}
 }
 
-.Internal_Downsample <- function(x, sample.name, removestrings,
-                                 subsets, subsample){
-  name <- keyword(x, sample.name)
-  alternatename <- NameCleanUp(name, removestrings)
-
-  #Retrieving the exprs data for my subset population of interest
-  ff <- gs_pop_get_data(x, subsets)
-  #newff <- realize_view(ff)
-
-  df <- exprs(ff[[1]])
-  DF <- as.data.frame(df, check.names = FALSE)
-
-  # If down-sampling is specified
-  if(!is.null(subsample)){DF <- slice_sample(DF, n = subsample,
-                                             replace = FALSE)
-  } else{DF <- DF}
-
-  DF <- DF %>% mutate(specimen = alternatename)
-
-  return(DF)
-}
