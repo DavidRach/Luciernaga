@@ -17,11 +17,12 @@
 #' @examples NULL
 
 Utility_ColAppend <- function(ff, DF, columnframe){
+  columnframe <- columnframe
   TheColNames <- colnames(columnframe)
 
   #x <- TheColNames[1]
 
-  ShiftedColumns <- map(.x=TheColNames, .f=InternalShift) %>% bind_cols
+  ShiftedColumns <- map(.x=TheColNames, .f=InternalShift, columnframe=columnframe) %>% bind_cols
   Shifted <- as.matrix(ShiftedColumns)
   FCSSubset <- as.matrix(DF)
 
@@ -71,8 +72,7 @@ Utility_ColAppend <- function(ff, DF, columnframe){
 #' @importFrom tidyselect all_of
 #'
 #' @noRd
-
-InternalShift <- function(x){
+InternalShift <- function(x, columnframe){
   TheColumn <- columnframe %>% select(all_of(x))
   ShiftedColumn <- TheColumn + abs(min(TheColumn))+1
   return(ShiftedColumn)

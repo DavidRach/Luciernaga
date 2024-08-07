@@ -193,6 +193,8 @@ UMAPPlot <-  Utility_ThirdColorPlots(x=NewGatingSet[[1]], subset = "root", xaxis
 
 UMAPPlot
 ```
+
+
 ```{r sessionInfo, echo = FALSE}
 sessionInfo()
 ```

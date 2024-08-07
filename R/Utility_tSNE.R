@@ -26,11 +26,14 @@
 #'
 #' @examples NULL
 
-Utility_tSNE <- function(x, sample.name, removestrings, subset, columns=NULL, notcolumns=NULL, subsample=NULL, export=FALSE, outpath=NULL,
+Utility_tSNE <- function(x, sample.name, removestrings, subset, columns=NULL, notcolumns=NULL,
+                         subsample=NULL, export=FALSE, outpath=NULL,
                          max_iter = 1000, perplexity = 30, ...){
+
   # Retrieving the metadata # the abbreviated version
   name <- keyword(x, sample.name)
-  alternatename <- NameCleanUp(name, removestrings)
+  # alternatename <- Luciernaga:::NameCleanUp(name, removestrings)
+   alternatename <- NameCleanUp(name, removestrings)
 
   #Retrieving the exprs data for my subset population of interest
   ff <- gs_pop_get_data(x, subset)
@@ -74,8 +77,8 @@ Utility_tSNE <- function(x, sample.name, removestrings, subset, columns=NULL, no
 
   X <- CleanedDF1
 
-  #ThetSNE <- Rtsne(as.matrix(X), dims=2, max_iter = max_iter, perplexity = perplexity)
-  ThetSNE <- Rtsne(as.matrix(X), dims=2, max_iter = max_iter, perplexity = perplexity, ...)
+  # ThetSNE <- Rtsne(as.matrix(X), dims=2, max_iter = max_iter, perplexity = perplexity)
+   ThetSNE <- Rtsne(as.matrix(X), dims=2, max_iter = max_iter, perplexity = perplexity, ...)
 
   ThetSNEcols <- ThetSNE$Y
 
