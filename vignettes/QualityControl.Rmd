@@ -142,13 +142,13 @@ MyGatingSet
 ```
 
 ```{r}
-QCRetrieval(x=MyGatingSet[[1]], sample.name = "GROUPNAME")
-?Luciernaga::QCRetrieval
+#QCRetrieval(x=MyGatingSet[[1]], sample.name = "GROUPNAME")
+#?Luciernaga::QCRetrieval
 ```
 
-
-
-
+```{r sessionInfo, echo = FALSE}
+sessionInfo()
+```
 
 
 

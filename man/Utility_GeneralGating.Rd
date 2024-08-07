@@ -2,7 +2,7 @@
 % Please edit documentation in R/Utility_GeneralGating.R
 \name{Utility_GeneralGating}
 \alias{Utility_GeneralGating}
-\title{Generate ggplot2s for different channels}
+\title{An internal function that generates ggplots for given channels}
 \usage{
 Utility_GeneralGating(
   x,
@@ -45,8 +45,9 @@ dataframe}
 A value to be determined later
 }
 \description{
-Generate ggplot2s for different channels
+An internal function that generates ggplots for given channels
 }
 \examples{
 NULL
 }
+\keyword{internal}

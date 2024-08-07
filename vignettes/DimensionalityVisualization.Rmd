@@ -139,3 +139,8 @@ SinglePlot <-  Utility_ThirdColorPlots(x=NewGatingSet[[1]], subset = "root", xax
 
 SinglePlot
 ```
+```{r sessionInfo, echo = FALSE}
+sessionInfo()
+```
+
+

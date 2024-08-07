@@ -352,7 +352,7 @@ MultiplePlot <- map(.x=UnmixedGatingSet, .f=Utility_ThirdColorPlots, subset = "l
 Utility_ThirdColorPlots can also be used in combination with the Coereba packages GatingCutoff estimates to allow for specimen specific split-points for the specified markers, using the GatingCutoff csv file. This is particularly useful for non-normalized specimens where batch effects are present. 
 
 ```{r}
-
+print("Hello")
 ```
 
 To provide flexibility for your own analysis, `Utility_ThirdColorPlots()` returns ggplot objects. These in turn can be edited, or a list of them passed to and arranged using `Utility_Patchwork()` into a .pdf of desired layout. 

@@ -1,4 +1,4 @@
-#' Generate ggplot2s for different channels
+#' An internal function that generates ggplots for given channels
 #'
 #' @param x Passed channel
 #' @param name The name that matches to the data.frame and gs object,
@@ -22,7 +22,7 @@
 #' @import ggplot2
 #'
 #' @return A value to be determined later
-#' @export
+#' @keywords internal
 #'
 #' @examples NULL
 Utility_GeneralGating <- function(x, name, ff, yValue, clearance, bins,
@@ -73,8 +73,6 @@ if (gatelines == TRUE){Value <- reference[reference$specimen == name, xValue]
 Plot <- Plot + geom_vline(xintercept = c(seq(0,200,25)), colour = "gray") +
   geom_vline(xintercept = Value, colour = "red")}
 }
-
-tryCatch({rm("theXmin", "theXmax", "theYmin", "theYmax")})
 
 return(Plot)
 }
