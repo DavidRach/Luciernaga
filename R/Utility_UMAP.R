@@ -80,7 +80,7 @@ Utility_UMAP <- function(x, sample.name, removestrings, subset, columns=NULL, no
   colnames(TheUMAP) <- c("UMAP_1", "UMAP_2")
   TheUMAP <- data.frame(TheUMAP)
 
-  new_fcs <- Utility_ColAppend(ff=newff, DF=DF, columnframe=TheUMAP)
+  new_fcs <- Utility_ColAppend(ff=newff, DF=DF, columnframe=TheUMAP, shift = TRUE)
 
   TheFileName <- paste0(alternatename, "_Dimensionality.fcs")
 

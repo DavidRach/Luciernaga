@@ -3,6 +3,7 @@
 #' @param ff A realized_view object from flowWorkspace
 #' @param DF The maybe downsampled exprs
 #' @param columnframe The dimensionality visualized data.frame object to be added
+#' @param shift Whether to shift values to non-zero, default is set to FALSE,
 #'
 #' @importFrom purrr map
 #' @importFrom dplyr bind_cols
@@ -16,12 +17,16 @@
 #'
 #' @examples NULL
 
-Utility_ColAppend <- function(ff, DF, columnframe){
+Utility_ColAppend <- function(ff, DF, columnframe, shift=FALSE){
 
   columnframe <- columnframe #New Columns To Add
   TheColNames <- colnames(columnframe) # New Columns Names
   #x <- TheColNames[1]
+
+  if (shift == TRUE){
   NotNegativeColumns <- map(.x=TheColNames, .f=InternalShift, columnframe=columnframe) %>% bind_cols #Values not below
+  } else {NotNegativeColumns <- columnframe}
+
   Shifted <- as.matrix(NotNegativeColumns)
   FCSSubset <- as.matrix(DF)
 

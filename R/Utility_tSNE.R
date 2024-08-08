@@ -37,6 +37,7 @@ Utility_tSNE <- function(x, sample.name, removestrings, subset, columns=NULL, no
 
   #Retrieving the exprs data for my subset population of interest
   ff <- gs_pop_get_data(x, subset)
+  newff <- realize_view(ff)
 
   startingcells <- nrow(ff)[[1]] # For Ratio Calculation, may not be needed here
   df <- exprs(ff[[1]])
@@ -84,7 +85,7 @@ Utility_tSNE <- function(x, sample.name, removestrings, subset, columns=NULL, no
   colnames(ThetSNEcols) <- c("tSNE_1", "tSNE_2")
   ThetSNE <- data.frame(ThetSNEcols)
 
-  new_fcs <- Utility_ColAppend(ff=newff, DF=DF, columnframe=ThetSNE)
+  new_fcs <- Utility_ColAppend(ff=newff, DF=DF, columnframe=ThetSNE, shift = TRUE)
 
   TheFileName <- paste0(alternatename, "_dimensionality.fcs")
 

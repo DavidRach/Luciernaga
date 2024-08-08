@@ -4,7 +4,7 @@
 \alias{Utility_ColAppend}
 \title{Add Dimensionality Visualized parameters to raw .fcs files}
 \usage{
-Utility_ColAppend(ff, DF, columnframe)
+Utility_ColAppend(ff, DF, columnframe, shift = FALSE)
 }
 \arguments{
 \item{ff}{A realized_view object from flowWorkspace}
@@ -12,6 +12,8 @@ Utility_ColAppend(ff, DF, columnframe)
 \item{DF}{The maybe downsampled exprs}
 
 \item{columnframe}{The dimensionality visualized data.frame object to be added}
+
+\item{shift}{Whether to shift values to non-zero, default is set to FALSE,}
 }
 \value{
 A new flow_frame object.

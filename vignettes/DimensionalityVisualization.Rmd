@@ -268,7 +268,7 @@ pData(MyGatingSet[[3]]) %>% pull(name)
 nrow(MyGatingSet[[3]])
 plot(MyGatingSet)
 
-UMAP_Output <- Utility_UMAP(x=MyGatingSet[[3]], sample.name="GUID", removestrings=c("_Cells", ".fcs"), subset="live", columns=KeptMarkers, export=FALSE)
+UMAP_Output <- Utility_UMAP(x=MyGatingSet[[3]], sample.name="GUID", removestrings=c("_Cells", ".fcs"), subset="lymphocytes", columns=KeptMarkers, export=FALSE)
 
 cf <- flowFrame_to_cytoframe(UMAP_Output)
 TheNewCS <- cytoset()
