@@ -9,10 +9,12 @@ Utility_Concatinate(
   sample.name,
   removestrings,
   subsets,
-  subsample,
+  subsample = NULL,
+  ReturnType,
   newName,
-  outpath,
-  export = FALSE
+  outpath = NULL,
+  export = FALSE,
+  inverse.transform = FALSE
 )
 }
 \arguments{
@@ -24,13 +26,17 @@ Utility_Concatinate(
 
 \item{subsets}{The gating hierarchy subset you want to include}
 
-\item{subsample}{Total number of events to subsample from each specimen}
+\item{subsample}{Default is set to NULL. If down-sample is desired, Total number of events to subsample from each specimen}
+
+\item{ReturnType}{Whether to return as a "data.frame", a "flow.frame", or export to an "fcs" file to the outpath location}
 
 \item{newName}{File Name for the Concatenate File}
 
 \item{outpath}{Location to store the concatenated file}
 
 \item{export}{Whether to export as a .fcs file.}
+
+\item{inverse.transform}{Whether to reverse the GatingSet Transform on the data, default is set to FALSE.}
 }
 \value{
 A concatenated .fcs file to new location

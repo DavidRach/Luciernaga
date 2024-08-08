@@ -6,8 +6,8 @@
 #'
 #' @importFrom purrr map
 #' @importFrom dplyr bind_cols
+#' @importFrom flowWorkspace keyword
 #' @importFrom flowCore parameters
-#' @importFrom flowCore keyword
 #' @importFrom flowCore exprs
 #' @importFrom Biobase pData
 #'
@@ -17,13 +17,12 @@
 #' @examples NULL
 
 Utility_ColAppend <- function(ff, DF, columnframe){
-  columnframe <- columnframe
-  TheColNames <- colnames(columnframe)
 
+  columnframe <- columnframe #New Columns To Add
+  TheColNames <- colnames(columnframe) # New Columns Names
   #x <- TheColNames[1]
-
-  ShiftedColumns <- map(.x=TheColNames, .f=InternalShift, columnframe=columnframe) %>% bind_cols
-  Shifted <- as.matrix(ShiftedColumns)
+  NotNegativeColumns <- map(.x=TheColNames, .f=InternalShift, columnframe=columnframe) %>% bind_cols #Values not below
+  Shifted <- as.matrix(NotNegativeColumns)
   FCSSubset <- as.matrix(DF)
 
   #Updating in case of Downsample
@@ -66,7 +65,7 @@ Utility_ColAppend <- function(ff, DF, columnframe){
   return(new_fcs)
 }
 
-#' Internal for Column Append
+#' Internal for Column Append, ensures nothing is zero valued
 #'
 #' @importFrom dplyr select
 #' @importFrom tidyselect all_of

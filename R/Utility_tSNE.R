@@ -33,11 +33,10 @@ Utility_tSNE <- function(x, sample.name, removestrings, subset, columns=NULL, no
   # Retrieving the metadata # the abbreviated version
   name <- keyword(x, sample.name)
   # alternatename <- Luciernaga:::NameCleanUp(name, removestrings)
-   alternatename <- NameCleanUp(name, removestrings)
+  alternatename <- NameCleanUp(name, removestrings)
 
   #Retrieving the exprs data for my subset population of interest
   ff <- gs_pop_get_data(x, subset)
-  newff <- realize_view(ff)
 
   startingcells <- nrow(ff)[[1]] # For Ratio Calculation, may not be needed here
   df <- exprs(ff[[1]])
@@ -87,7 +86,7 @@ Utility_tSNE <- function(x, sample.name, removestrings, subset, columns=NULL, no
 
   new_fcs <- Utility_ColAppend(ff=newff, DF=DF, columnframe=ThetSNE)
 
-  TheFileName <- paste0(alternatename, "_Dimensionality.fcs")
+  TheFileName <- paste0(alternatename, "_dimensionality.fcs")
 
   if (!is.null(outpath)) {fileSpot <- file.path(outpath, TheFileName)}
 

@@ -4,25 +4,39 @@
 \alias{Utility_Downsample}
 \title{Downsample a gs based on subset}
 \usage{
-Utility_Downsample(x, sample.name, removestrings, subsets, subsample)
+Utility_Downsample(
+  x,
+  sample.name,
+  removestrings,
+  subsets,
+  subsample = NULL,
+  inverse.transform = FALSE,
+  internal = FALSE,
+  export = FALSE,
+  outpath = NULL
+)
 }
 \arguments{
+\item{x}{A gating set object}
+
 \item{sample.name}{Keyword specifying sample name}
 
 \item{removestrings}{Value to be removed from sample name}
 
 \item{subsets}{The gating hierarchy subset you want to include}
 
-\item{subsample}{Total number of events to subsample from each specimen}
+\item{subsample}{Total number of events to sub-sample from each specimen}
 
-\item{gs}{A gating set object}
+\item{inverse.transform}{Whether to reverse the GatingSet Transform on the data, default is set to FALSE.}
 
-\item{newName}{File Name for the Concatenate File}
+\item{internal}{Whether to return as a data.frame (vs. a flow frame or .fcs file)}
 
-\item{outpath}{Location to store the concatenated file}
+\item{export}{Default is set to FALSE, when TRUE (and internal = FALSE) returns a .fcs file to outpath.}
+
+\item{outpath}{When export is true, the file.path to where you want the .fcs file stored.}
 }
 \value{
-A concatenated .fcs file to new location
+Either a data.frame, a flow.frame or an .fcs file depending on your selected options
 }
 \description{
 Downsample a gs based on subset

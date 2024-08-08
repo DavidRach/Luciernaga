@@ -151,9 +151,9 @@ This sometimes includes first downsampling to an equivalent number of cells in a
 To facilitate this process, we have implemented this function. Unlike other approaches, it relies on GatingSet, bringing in only the cells for the node of interest into active memory. The final file can then be saved as it's own .fcs file. We have attempted to retain FCS 3.1, so that it can be brought into other software for additional steps. If you encounter issues, please reach out! 
 
 ```{r}
-# Also possibly add keywords at this stage?
+removestrings <- c("DTR_", ".fcs")
 
-
+Utility_Concatinate(=UnmixedGatingSet, sample.name = "GROUPNAME", removestrings=removestrings, subsets="live", )
 ```
 
 ## Utility_tSNE

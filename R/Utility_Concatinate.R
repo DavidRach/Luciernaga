@@ -4,74 +4,52 @@
 #' @param sample.name Keyword specifying sample name
 #' @param removestrings Value to be removed from sample name
 #' @param subsets The gating hierarchy subset you want to include
-#' @param subsample Total number of events to subsample from each specimen
+#' @param subsample Default is set to NULL. If down-sample is desired, Total number of events to subsample from each specimen
+#' @param ReturnType Whether to return as a "data.frame", a "flow.frame", or export to an "fcs" file to the outpath location
 #' @param newName File Name for the Concatenate File
 #' @param outpath Location to store the concatenated file
 #' @param export Whether to export as a .fcs file.
+#' @param inverse.transform Whether to reverse the GatingSet Transform on the data, default is set to FALSE.
 #'
 #' @return A concatenated .fcs file to new location
 #' @export
 #'
 #' @examples NULL
 
-Utility_Concatinate <- function(gs, sample.name, removestrings, subsets, subsample, newName, outpath, export=FALSE){
+Utility_Concatinate <- function(gs, sample.name, removestrings, subsets, subsample=NULL, ReturnType, newName, outpath=NULL, export=FALSE,
+                                inverse.transform = FALSE) {
+
 gs <- gs
 sample.name <- sample.name
 removestrings <- removestrings
 subsample <- subsample
 
+if (!is.null(subsample)){
+  if (!is.numeric(subsample)) {stop("Subsample argument is not numeric, enter just a number, no quotes needed")}
+}
+
 ConcatenatedFile <- map(gs, .f=Utility_Downsample, sample.name=sample.name, removestrings=removestrings,
-                        subsets=subsets, subsample=subsample, export=FALSE) %>% bind_rows
+                        subsets=subsets, subsample=subsample, internal = TRUE, export=FALSE) %>% bind_rows
 
-#ConcatenatedMatrix <- as.matrix(ConcatenatedFile)
+if (ReturnType == "data.frame"){return(ConcatenatedFile)
+}
 
+ff <- gs_pop_get_data(gs, subsets, inverse.transform = inverse.transform)
 ConcatenatedExtra <- ConcatenatedFile %>% select(specimen)
 ConcatenatedMain <- ConcatenatedFile %>% select(-specimen)
-ExtraMatrix <- as.matrix(ConcatenatedExtra)
-MainMatrix <- as.matrix(ConcatenatedFile)
 
-ff <- gs_pop_get_data(gs, subsets)
-FlowFrameTest <- ff[[1, returnType = "flowFrame"]]
-original_p <- parameters(FlowFrameTest)
-original_d <- keyword(FlowFrameTest)
+new_fcs <- Utility_ColAppend(ff=ff, DF=ConcatenatedMain, columnframe=ConcatenatedExtra)
 
-new_fcs <- new("flowFrame", exprs=MainMatrix, parameters=original_p, description=original_d)
-#new_fcs <- new("flowFrame", exprs=ConcatenatedMatrix, parameters=original_p, description=original_d)
+# Renaming of the .fcs file in the internal parameters would occur here.
 
-fr <- new_fcs
-cols <- ExtraMatrix
+if (ReturnType == "flow.frame") {return(new_FCS_2)}
 
-#new_pd <- flowCore:::cols_to_pd(fr=fr, cols=cols) #Using Internal Function :( Bioconductor?
+if (ReturnTye  == "fcs"){
+  if (is.null(outpath)) {outpath <- getwd()}
+  TheFileName <- paste0(newName, ".fcs")
+  fileSpot <- file.path(outpath, TheFileName)
+  write.FCS(new_FCS_2, filename = fileSpot, delimiter="#")
+}
 
-#pd <- pData(parameters(fr))
-#pd <- rbind(pd, new_pd)
-#fr@exprs <- cbind(exprs(fr), cols)
-#pData(parameters(fr)) <- pd
-
-#new_pid <- rownames(new_pd)
-#new_kw <- fr@description
-
-#for (i in new_pid){
-#  new_kw[paste0(i,"B")] <- new_kw["$P1B"] #Unclear Purpose
-#  new_kw[paste0(i,"E")] <- "0,0"
-#  new_kw[paste0(i,"N")] <- new_pd[[i,1]]
-#  #new_kw[paste0(i,"V")] <- new_kw["$P1V"] # Extra Unclear Purpose
-#  new_kw[paste0(i,"R")] <- new_pd[[i,5]]
-#  new_kw[paste0(i,"DISPLAY")] <- "LIN"
-#  new_kw[paste0(i,"TYPE")] <- "Dimensionality"
-#}
-
-#new_kw
-#UpdatedParameters <- parameters(fr)
-#UpdatedExprs <- exprs(fr)
-
-#new_fcs <- new("flowFrame", exprs=UpdatedExprs, parameters=UpdatedParameters, description=new_kw)
-
-TheFileName <- paste0(newName, ".fcs")
-
-if (!is.null(outpath)) {fileSpot <- file.path(outpath, TheFileName)}
-
-if(export == TRUE){write.FCS(new_fcs, filename = fileSpot, delimiter="#")
-  }else{return(new_fcs)}
 }
 
