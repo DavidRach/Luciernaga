@@ -90,6 +90,6 @@ Utility_tSNE <- function(x, sample.name, removestrings, subset, columns=NULL, no
 
   if (!is.null(outpath)) {fileSpot <- file.path(outpath, TheFileName)}
 
-  if(export == TRUE){write.FCS(new_fcs, filename = fileSpot, delimiter="#")
-  }else{return(new_fcs)}
+  if (export == TRUE) {write.FCS(new_fcs, filename = fileSpot, delimiter="#")
+  } else {return(new_fcs)}
 }

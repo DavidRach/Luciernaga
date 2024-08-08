@@ -129,17 +129,55 @@ gt_gating(UnmixedGating, UnmixedGatingSet)
 
 ## Utility_ColAppend
 
-Originally an internal function, `Utility_ColAppend()` will take an existing data.frame column and append it onto an .fcs file of the same number of rows. It will then work at adding the appropiate parameters to enable other software to recognize the addition in accordance with FCS 3.1 standards. When we run dimensionality visualizations with other functions in this package, or append additional metadata before concatenating, we use this function in the background. As it's immensely useful to us, we are highlighting it here in case you need to add extra information/alternate dimensionality visualization to an .fcs file
+Originally an internal function supporting our dimensionality visualization functions, `Utility_ColAppend()` appends new data.frame columns to an .fcs file that contains the same number of rows as a new marker/parameter. To do this, you feed the function a cytoset object, a data.frame of the flowframe exprs data, and a data.frame of the new data columns. `Utility_ColAppend()` then adds the appropriate parameters and returns a flowframe object with these new parameters added.
+
+Since it has been highly useful to us, we are mentioning it here in case you need to append additional information/alternate dimensionality visualizations to your own .fcs files. We have tried to keep the return .fcs file compliant for ease of use in other software applications, but expect bugs to arise outside internal function purpose, so if you encounter a bug with this function, please report it via GitHub.
 
 ```{r}
+ff <- gs_pop_get_data(UnmixedGatingSet[1], subsets="live", inverse.transform = FALSE)
+BeforeParameters <- ff[[1, returnType = "flowFrame"]]
+BeforeParameters
 
+# Main Expression Data From Original
+MainDataFrame <- as.data.frame(exprs(ff[[1]]), check.names = FALSE)
 
+# Creating Artificial Data To Mimic Metadata to Append
+NewData <- MainDataFrame %>% mutate(ExposureStatus = sample(1:3, n(), replace = TRUE))
+NewData <- NewData %>% select(ExposureStatus)
+
+AfterParameters <- Utility_ColAppend(ff=ff, DF=MainDataFrame, columnframe = NewData)
+AfterParameters
+```
+
+For anyone wanting to continue on from just a flow.frame to an .fcs file, the code is below:
+```{r}
+outpath <- file.path("C:", "Users", "JohnDoe", "Desktop")
+Name <- flowWorkspace::keyword(AfterParameters, "GROUPNAME")
+TheFileName <- paste0(Name, "_Appended.fcs")
+fileSpot <- file.path(outpath, TheFileName)
+fileSpot
+# flowCore::write.FCS(AfterParameters, filename = fileSpot, delimiter="#")
 ```
 
 # Utility_Downsample
 
 ```{r}
+# plot(UnmixedGatingSet)
+CountData <- gs_pop_get_count_fast(UnmixedGatingSet)
+CountData %>% filter(Population %in% "/singletsFSC/singletsSSC/singletsSSCB/nonDebris/lymphocytes/live") %>%
+  select(name, Count)
 
+#Single Sample Returned as a data.frame 
+removestrings <- c("DTR_2023_ILT_15_Tetramers-", "-Ctrl_Tetramer_Unmixed", ".fcs")
+SingleSample <- Utility_Downsample(UnmixedGatingSet[1], sample.name = "GROUPNAME", removestrings=removestrings, subsets = "live", subsample = 2800, 
+                   internal = FALSE, export = FALSE)
+SingleSample
+
+# Multiple Samples
+
+MultipleSamples <- map(.x=UnmixedGatingSet, .f=Utility_Downsample, sample.name =  "GROUPNAME", removestrings=removestrings, subsets = "live", 
+                       subsample = 2800, internal = FALSE, export = FALSE)
+MultipleSamples
 ```
 
 
@@ -152,8 +190,14 @@ To facilitate this process, we have implemented this function. Unlike other appr
 
 ```{r}
 removestrings <- c("DTR_", ".fcs")
+StorageLocation <- file.path("C:", "Users", "12692", "Desktop")
 
-Utility_Concatinate(=UnmixedGatingSet, sample.name = "GROUPNAME", removestrings=removestrings, subsets="live", )
+#Return Types: "data.frame", "flow.frame", "fcs"
+ConcatinatedReturn <- Utility_Concatinate(gs=UnmixedGatingSet, sample.name = "GROUPNAME", removestrings=removestrings, subsets="live", 
+                    subsample = 2000, ReturnType = "flow.frame", newName = "MyConcatinatedFile", outpath = StorageLocation, 
+                    export = FALSE)
+
+ConcatinatedReturn
 ```
 
 ## Utility_tSNE
@@ -235,6 +279,7 @@ UMAPPlot <-  Utility_ThirdColorPlots(x=NewGatingSet[[1]], subset = "root", xaxis
 
 UMAPPlot
 ```
+
 We can now repeat the previous step, but using our Unmixed file GatingSet. The process is similar, identifying markers present in the .fcs file (fluorophores in this case), selecting our markers of interest, and from there passing to the `Utility_UMAP()` function.
 
 ```{r}

@@ -39,7 +39,7 @@ Utility_Concatinate(
 \item{inverse.transform}{Whether to reverse the GatingSet Transform on the data, default is set to FALSE.}
 }
 \value{
-A concatenated .fcs file to new location
+A concatenated data.frame, flow.frame or fcs file, with reference .csv for the specimen information
 }
 \description{
 Concatenate a gs based on subset and optional subsample

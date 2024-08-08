@@ -54,7 +54,7 @@ Utility_Downsample <- function(x, sample.name, removestrings,
                               write.FCS(new_fcs, filename = fileSpot, delimiter="#")
     } else {return(new_fcs)}
 
-  } else { message(alternatename, "has been processed")
+  } else { message(alternatename, " has been processed")
            DF <- DF %>% mutate(specimen = alternatename)
            return(DF)}
 }

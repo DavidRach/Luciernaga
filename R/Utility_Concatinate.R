@@ -11,7 +11,15 @@
 #' @param export Whether to export as a .fcs file.
 #' @param inverse.transform Whether to reverse the GatingSet Transform on the data, default is set to FALSE.
 #'
-#' @return A concatenated .fcs file to new location
+#' @importFrom purrr map
+#' @importFrom dplyr mutate
+#' @importFrom dplyr select
+#' @importFrom dplyr left_join
+#' @importFrom dplyr rename
+#' @importFrom flowWorkspace gs_pop_get_data
+#' @importFrom flowCore write.FCS
+#'
+#' @return A concatenated data.frame, flow.frame or fcs file, with reference .csv for the specimen information
 #' @export
 #'
 #' @examples NULL
@@ -34,13 +42,31 @@ ConcatenatedFile <- map(gs, .f=Utility_Downsample, sample.name=sample.name, remo
 if (ReturnType == "data.frame"){return(ConcatenatedFile)
 }
 
+SpecimenNames <- data.frame(table(ConcatenatedFile$specimen))
+colnames(SpecimenNames)[[1]] <- "specimen"
+colnames(SpecimenNames)[[2]] <- "Count"
+SpecimenNames <- SpecimenNames %>% mutate(Reference = as.numeric(factor(specimen)))
+CSVName <- paste0("ReferenceDictionary", newName, ".csv")
+if (is.null(outpath)) {outpath <- getwd()}
+CSVDestination <- file.path(outpath, CSVName)
+
+if (export == TRUE){write.csv(x=SpecimenNames, file=CSVDestination, row.names = FALSE)}
+
+SpecimenNames <- SpecimenNames %>% select(-Count)
+Referenced <- left_join(ConcatenatedFile, SpecimenNames, by="specimen")
+# If Alternative Found Enter Stage Right
+Referenced <- Referenced %>% select(-specimen)
+Referenced <- Referenced %>% rename(specimen = Reference)
+
 ff <- gs_pop_get_data(gs, subsets, inverse.transform = inverse.transform)
-ConcatenatedExtra <- ConcatenatedFile %>% select(specimen)
-ConcatenatedMain <- ConcatenatedFile %>% select(-specimen)
+ConcatenatedExtra <- Referenced %>% select(specimen)
+ConcatenatedMain <- Referenced %>% select(-specimen)
 
 new_fcs <- Utility_ColAppend(ff=ff, DF=ConcatenatedMain, columnframe=ConcatenatedExtra)
 
 # Renaming of the .fcs file in the internal parameters would occur here.
+new_FCS_2 <- new_fcs
+#Until Then
 
 if (ReturnType == "flow.frame") {return(new_FCS_2)}
 
