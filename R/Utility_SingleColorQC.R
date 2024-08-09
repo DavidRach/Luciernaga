@@ -48,29 +48,21 @@
 #'
 #' @examples NULL
 
-Utility_SingleColorQC <- function(x, subsets, sample.name, removestrings, unmixingcontroltype, experiment = NULL, experiment.name = NULL,
+Utility_SingleColorQC <- function(x, subsets, sample.name, removestrings, unmixingcontroltype,
+                                  experiment = NULL, experiment.name = NULL,
                                   mainAF, AFOverlap, stats, Unstained=FALSE, Beads=FALSE, Verbose = FALSE,
                                   external = NULL, fcsexport, sourcelocation, outpath, artificial, Brightness=FALSE, ...){
 
+  # Figuring out Unmixing Control Type
+  # Impacts Downstream Processing Forks
+
   name <- keyword(x, sample.name)
+  Type <- Internal_Typing(name=name, unmixingcontroltype=unmixingcontroltype, Unstained=Unstained)
 
-  if (unmixingcontroltype == "beads"){Type <- "Beads"}
-
-  if (unmixingcontroltype == "cells"){Type <- "Cells"}
-
-  if (unmixingcontroltype == "both"){if(str_detect(name, "(Cells)")){Type <- "Cells"
-  } else if(str_detect(name, "(Beads)")){Type <- "Beads"
-  } else {Type <- "Unknown"}
-
+  #   Naming the specimen (need to separate from Fluorophore matching?)
   AlternateName <- Luciernaga:::NameForSample(x, sample.name, removestrings)
   # NameForSample(x, sample.name, removestrings, ...)
-
-
-
-  name <- NameCleanUp(name, removestrings)
-
-  # Specifying Unstained Work Around.
-  if (Unstained == TRUE) {name <- paste0(name, "_Unstained")}
+  # name <- NameCleanUp(name, removestrings)
 
   # Cleaning up Cells in Case Not Specified
   name <- NameCleanUp(name, " (Cells)")
@@ -267,6 +259,49 @@ Utility_SingleColorQC <- function(x, subsets, sample.name, removestrings, unmixi
 
   return(Reintegrated1)
 }
+
+#' Internal for SingleColorQC, returns unmixing control type for downstream forking.
+#' @noRd
+
+Internal_Typing <- function(name, unmixingcontroltype, Unstained){
+  if (unmixingcontroltype == "beads"){
+    if (!str_detect(name, "ells")){Type <- "Beads"
+    }
+  }
+
+  if (unmixingcontroltype == "cells"){
+    if (!str_detect(name, "eads")) {Type <- "Cells"
+    }
+  }
+
+  if (unmixingcontroltype == "both") {
+    if (str_detect(name, "ells")){Type <- "Cells"
+    } else if(str_detect(name, "eads")){Type <- "Beads"
+    } else {Type <- "Unknown"}
+  }
+
+
+  # Figuring out if Unstained
+  if (Unstained == TRUE) {
+    if(!str_detect(name, "stained")){Type <- paste0(Type, "_Unstained")}
+  } else {
+    if (str_detect(name, "stained")){Type <- paste0(Type, "_Unstained")}
+  }
+  return(Type)
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 #' Internal for Utility_SingleColorQC
