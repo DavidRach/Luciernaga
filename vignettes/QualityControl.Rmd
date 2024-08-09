@@ -45,7 +45,7 @@ library(htmltools)
 })
 ```
 
-```{r Load Libraries}
+```{r}
 library(Luciernaga)
 library(flowCore)
 library(flowWorkspace)
@@ -73,7 +73,7 @@ FileLocation <- file.path("C:", "Users", "JohnDoe", "Desktop", "LevyJenningsTrac
 
 For this vignette, we will be accessing a .csv folder that can be found in Luciernaga's extdata folder containing three months of Levy-Jennings Tracking data for a 5 Laser Cytek Aurora (UV16-V16-B14-YG10-R8) for our example. 
 
-```{r Access Package Data}
+```{r}
 File_Location <- system.file("extdata", package = "Luciernaga")
 CSV_Pattern <- ".CSV$"
 CSV_Files <- list.files(path=File_Location, pattern=CSV_Pattern, full.names=TRUE)
@@ -122,14 +122,14 @@ As with most functions in Luciernaga, `CytekQCPlots()` uses `Utility_Patchwork()
 
 Sometimes we don't have access to QC reports, but we do have access to .fcs files acquired on that day. 
 
-```{r Access Package Data}
+```{r}
 File_Location <- system.file("extdata", package = "Luciernaga")
 FCS_Pattern <- ".fcs$"
 FCS_Files <- list.files(path = File_Location, pattern = FCS_Pattern, full.names = TRUE, recursive = FALSE)
 FCS_Files
 ```
 
-```{r Selecting Desired Files}
+```{r}
 SubsetFCSFiles <- FCS_Files[c(1:2, 6)]
 SubsetFCSFiles
 ```
