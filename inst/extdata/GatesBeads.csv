@@ -1,0 +1,4 @@
+alias,pop,parent,dims,gating_method,gating_args,collapseDataForGating,groupBy,preprocessing_method,preprocessing_args
+nonDebris,-,root,FSC-A,gate_mindensity,"gate_range=c(6e5, 7e5)",FALSE,NA,NA,
+beads,+,nonDebris,"FSC-A, SSC-A",flowClust,"K=2, target=c(5e4, 1e5)",FALSE,NA,NA,
+singlets,+,beads,"FSC-A,FSC-H",singletGate,,FALSE,NA,NA,

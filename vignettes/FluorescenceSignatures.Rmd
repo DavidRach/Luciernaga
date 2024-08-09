@@ -88,14 +88,67 @@ FCS_Pattern <- ".fcs$"
 FCS_Files <- list.files(path = File_Location, pattern = FCS_Pattern, full.names = TRUE, recursive = FALSE)
 FCS_Files
 ```
+### Creating a GatingSet Beads
+
+```{r Selecting Desired Files}
+#SubsetFCSFiles <- FCS_Files[c(1:2, 6)]
+BeadsFCSFiles <- FCS_Files[c(1)]
+BeadsFCSFiles
+```
+
+
+Once we have the list of desired .fcs files, we can use the `r Biocpkg("flowWorkspace")` to bring these individual .fcs files first into a CytoSet object, then into a GatingSet object that we can add gates to:
+
+```{r}
+MyBeadsCytoSet <- load_cytoset_from_fcs(BeadsFCSFiles, truncate_max_range = FALSE, transform = FALSE)
+MyBeadsCytoSet
+MyBeadsGatingSet <- GatingSet(MyBeadsCytoSet)
+MyBeadsGatingSet
+```
+For this example, we will use the `r Biocpkg("openCyto")` package to automatically gate each of our .fcs files for the lymphocyte population. To do this, we first read in the example .csv file containing our desired gates (that can be found in Luciernaga's extdata folder) using the `r CRANpkg("data.table")` package
+
+```{r}
+FileLocation <- system.file("extdata", package = "Luciernaga")
+MyBeadsGates <- fread(file.path(path = FileLocation, pattern = 'GatesBeads.csv'))
+gt(MyBeadsGates)
+```
+
+For your own experiments, individual gates can be added, removed or modified to match the requirements of your own .fcs files, for additional details, please refer to the `r Biocpkg("openCyto")` packages vignettes. Alternatively, GatingSet objects can be brought directly from several commercial software formats using the `r Biocpkg("CytoML")` package. 
+
+Now that we have the gating information from the .csv file, we can convert them into a GatingTemplate, and append them to the .fcs files contained within the GatingSet
+
+```{r, echo=FALSE, results="FALSE"}
+MyBeadsGatingTemplate <- gatingTemplate(MyBeadsGates)
+gt_gating(MyBeadsGatingTemplate, MyBeadsGatingSet)
+MyBeadsGatingSet[[1]]
+```
+
+And finally check the gate placements using:
+
+```{r}
+removestrings <-  c("(Cells)", ".fcs", " ")
+StorageLocation <- file.path("C:/", "Users", "JohnDoe", "Desktop")
+
+IndividualBeadPlot <- Utility_GatingPlots(x=MyBeadsGatingSet[[1]], sample.name = "GUID", removestrings = removestrings, gtFile = MyBeadsGates, DesiredGates = NULL, outpath = StorageLocation, export = FALSE)
+
+#IndividualBeadPlot
+  
+IteratedBeadPlots <- map(.x = MyBeadsGatingSet, .f = Utility_GatingPlots, sample.name = "GUID", removestrings = removestrings, gtFile = MyBeadsGates, DesiredGates = NULL, outpath = StorageLocation, export = FALSE)
+
+IteratedBeadPlots
+
+gs_pop_get_count_fast(MyBeadsGatingSet)
+```
+
+### Creating a GatingSet Cells
 Three of these files are raw unmixing controls (APCFire810, BUV496, Unstained), while the others are unmixed full-stained samples from a 29-color SFC panel (ND050). For now, let's subset the desired files to only select the raw .fcs unmixing controls as shown below:
 
 ```{r Selecting Desired Files}
-SubsetFCSFiles <- FCS_Files[c(1:2, 6)]
+#SubsetFCSFiles <- FCS_Files[c(1:2, 6)]
+SubsetFCSFiles <- FCS_Files[c(2,7)]
 SubsetFCSFiles
 ```
 
-### Creating a GatingSet
 Once we have the list of desired .fcs files, we can use the `r Biocpkg("flowWorkspace")` to bring these individual .fcs files first into a CytoSet object, then into a GatingSet object that we can add gates to:
 
 ```{r}
@@ -122,13 +175,36 @@ gt_gating(MyGatingTemplate, MyGatingSet)
 MyGatingSet[[1]]
 ```
 
+And finally check the gate placements using:
+
+```{r}
+removestrings <-  c("(Cells)", ".fcs", " ")
+StorageLocation <- file.path("C:/", "Users", "JohnDoe", "Desktop")
+
+IndividualPlot <- Utility_GatingPlots(x=MyGatingSet[[2]], sample.name = "GUID", removestrings = removestrings, gtFile = MyGates, DesiredGates = NULL, outpath = StorageLocation, export = FALSE)
+
+#IndividualPlot
+  
+IteratedPlots <- map(.x = MyGatingSet, .f = Utility_GatingPlots, sample.name = "GUID", removestrings = removestrings, gtFile = MyGates, DesiredGates = NULL, outpath = StorageLocation, export = FALSE)
+
+IteratedPlots
+```
 
 ## Utility_SingleColorQC
 
 The main workhorse of the Luciernaga is `Utility_SingleColorQC()`. Briefly, it will take individual raw .fcs files, process them and return distinct fluorescence signatures as their own .fcs files.
 
 ```{r}
+removestrings <- ".fcs"
 
+Utility_SingleColorQC(x=MyBeadsGatingSet[1], subsets = "singlets", sample.name="GUID", removestrings=removestrings, unmixingcontroltype = "beads")
+
+
+
+pData(MyGatingSet)
+
+?Utility_SingleColorQC(x=MyGatingSet[2], subsets="lymphocytes", sample.name="GUID", removestrings=removestrings, 
+                       )
 
 ```
 

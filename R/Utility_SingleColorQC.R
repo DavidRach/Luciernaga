@@ -48,30 +48,24 @@
 #'
 #' @examples NULL
 
-Utility_SingleColorQC <- function(x, subsets, sample.name, removestrings, experiment = NULL, experiment.name = NULL,
+Utility_SingleColorQC <- function(x, subsets, sample.name, removestrings, unmixingcontroltype, experiment = NULL, experiment.name = NULL,
                                   mainAF, AFOverlap, stats, Unstained=FALSE, Beads=FALSE, Verbose = FALSE,
-                                  external = NULL, fcsexport, sourcelocation, outpath, artificial, Brightness=FALSE){
+                                  external = NULL, fcsexport, sourcelocation, outpath, artificial, Brightness=FALSE, ...){
 
-  ##############
-  # Name Setup #
-  ##############
-
-  # Retrieving .fcs file name
   name <- keyword(x, sample.name)
-  name <- NameCleanUp(name, ".fcs")
 
-  # Predicting Reference Control Type
+  if (unmixingcontroltype == "beads"){Type <- "Beads"}
 
-  if (Beads != TRUE) {
-    if(str_detect(name, "(Cells)")){Type <- "Cells"
-      } else if(str_detect(name, "(Beads)")){
-        stop("Bead reference controls are not currently supported. Sorry! -David")
-          } else {Type <- "Unknown"}
-  } else {
-    if(str_detect(name, "(Cells)")){Type <- "Cells"
-      } else if(str_detect(name, "(Beads)")){Type <- "Beads"
-        } else {Type <- "Unknown"}
-  }
+  if (unmixingcontroltype == "cells"){Type <- "Cells"}
+
+  if (unmixingcontroltype == "both"){if(str_detect(name, "(Cells)")){Type <- "Cells"
+  } else if(str_detect(name, "(Beads)")){Type <- "Beads"
+  } else {Type <- "Unknown"}
+
+  AlternateName <- Luciernaga:::NameForSample(x, sample.name, removestrings)
+  # NameForSample(x, sample.name, removestrings, ...)
+
+
 
   name <- NameCleanUp(name, removestrings)
 
