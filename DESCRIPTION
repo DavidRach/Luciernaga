@@ -35,7 +35,8 @@ Imports:
     lubridate,
     utils,
     zoo,
-    BiocGenerics
+    BiocGenerics,
+    xml2
 Depends: R (>= 4.0.0)
 Suggests: 
     BiocStyle,
