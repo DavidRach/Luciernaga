@@ -146,6 +146,12 @@ MyGatingSet
 #?Luciernaga::QCRetrieval
 ```
 
+## Cytek Library QC Signatures
+
+Cytek allows acquisition of unmixing controls that are stored in the library and can be re-used across experiments. These can be exported as .XML files and reimported to other instruments. Unfortunately, after acquisition there is no way to visualize the library unmixing controls normalized signature. So whether the library reference control is accurate, contaminated with autofluorescence, there is no way of knowing. These following functions will convert the .XML single color unmixing control files present in a reference folder into a data.frame, that can then be plotted as normalized line plots. We additionally provide the option to plot reference signatures when the fluorophore names match. 
+
+
+
 ```{r sessionInfo, echo = FALSE}
 sessionInfo()
 ```
