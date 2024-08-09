@@ -150,7 +150,42 @@ MyGatingSet
 
 Cytek allows acquisition of unmixing controls that are stored in the library and can be re-used across experiments. These can be exported as .XML files and reimported to other instruments. Unfortunately, after acquisition there is no way to visualize the library unmixing controls normalized signature. So whether the library reference control is accurate, contaminated with autofluorescence, there is no way of knowing. These following functions will convert the .XML single color unmixing control files present in a reference folder into a data.frame, that can then be plotted as normalized line plots. We additionally provide the option to plot reference signatures when the fluorophore names match. 
 
+```{r, echo=FALSE, results = "hide", warning=FALSE}
+suppressPackageStartupMessages({
+library(Luciernaga)
+library(xml2)
+library(tidyr)
+library(purrr)
+library(dplyr)
+library(ggplot2)
+})
+```
 
+```{r Load Libraries}
+library(Luciernaga)
+library(xml2)
+library(tidyr)
+library(purrr)
+library(dplyr)
+library(ggplot2)
+```
+
+```{r}
+FolderLocation <- file.path("C:", "Users", "JohnDoe", "Desktop", "LibraryControls5L")
+StorageLocation <- file.path(FolderLocation, "Visualized")
+```
+
+```{r}
+Folder_Location <- system.file("extdata", package = "Luciernaga")
+XML_Pattern <- ".XML$"
+XML_Files <- list.files(path = Folder_Location, pattern = XML_Pattern, full.names = TRUE, recursive = FALSE)
+XML_Files
+```
+
+```{r}
+x <- XML_Files[1]
+
+```
 
 ```{r sessionInfo, echo = FALSE}
 sessionInfo()
