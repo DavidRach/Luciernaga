@@ -3,33 +3,35 @@
 #' @param x A Gating Set object (ex. gs or gs[[1]])
 #' @param subsets The Gating Hierarchy level you will be sampling at
 #' @param sample.name Keyword variable which samples are stored (ex. "GUID")
-#' @param group.name Keyword variable which groups are stored (ex. "GROUPNAME")
+#' @param removestrings A string of character values to remove from sample.name
+#' @param Verbose Whether to print outputs as you go.
+#' @param unmixingcontroltype Whether your inputs are "cells", "beads" or "both"
+#' @param Unmixing Set to True when running unstained samples that don't have Unstained in the Name
+#' @param ratiopopcutoff A numeric ratio for peak detector inclusion, default is set to 0.01 all startingcells
 #' @param experiment Provide directly experiment name (ex. "JAN2024")
 #' @param experiment.name Keyword variable which experiment information
 #' is stored (ex. "TUBENAME")
+#' @param condition Provide directly experiment name (ex. "JAN2024")
+#' @param condition.name Keyword variable which experiment information
+#' is stored (ex. "TUBENAME")
+#' @param AFOverlap A data.frame or a filepath to the CSV containing the Autofluorescence
+#' overlap of individual fluorophores for exclusion
 #' @param stats Whether to take "mean" or "median"
-#' @param Kept Whether "Raw" or "Normalized" values are retained in the
-#' Luciernaga object.
-#' @param external An external autofluorescence to subtract from single colors.
+#' @param desiredAF Main Autofluorescence Detector (ex. "V7-A")
+#' @param externalAF A data.frame row containing external autofluorescence to subtract from single colors.
+#' @param ExportType Whether to return "fcs", "data.frame" or "csv"
+#' @param SignatureReturnNow Short circuits the function and returns signature for specified autofluorescence.
 #' @param sourcelocation Location where .fcs creation file is stored
 #' @param outpath  Location where created .fcs and .csv files are sent
 #' @param artificial Whether an artificial 0 population should be added for
 #'  a background autofluorescence stand in.
-#' @param fcsexport Whether to export .fcs files, TRUE or FALSE
-#' @param mainAF Main Autofluorescence Detector (ex. "V7-A")
-#' @param AFOverlap Name of data.frame containing the Autofluorescence
-#' overlap of individual fluorophores for exclusion
-#' @param Beads  Whether the sample is Beads.
 #' @param Brightness Whether sum of detectors should be returned.
-#' @param Unstained Whether the sample is Unstained.
 #'
 #' @importFrom flowWorkspace gs_pop_get_data
 #' @importFrom BiocGenerics nrow
 #' @importFrom dplyr mutate
 #' @importFrom dplyr select
-#'
 #' @importFrom dplyr filter
-#'
 #' @importFrom dplyr summarize_all
 #' @importFrom dplyr pull
 #' @importFrom dplyr arrange
@@ -37,31 +39,29 @@
 #' @importFrom dplyr left_join
 #' @importFrom dplyr case_when
 #' @importFrom dplyr rename
-#'
 #' @importFrom flowWorkspace keyword
 #' @importFrom stringr str_detect
 #' @importFrom stringr str_split
-#'
 #' @importFrom flowCore exprs
 #' @importFrom purrr map
 #' @importFrom purrr set_names
-#'
 #'
 #' @return Additional information to be added
 #' @export
 #'
 #' @examples NULL
 
-Utility_SingleColorQC <- function(x, subsets, sample.name, removestrings, unmixingcontroltype,
-                                  experiment = NULL, experiment.name = NULL,
-                                  mainAF, AFOverlap, stats="median", Unstained=FALSE, Beads=FALSE, Verbose = FALSE,
-                                  external = NULL, fcsexport, sourcelocation, outpath, artificial, Brightness=FALSE, ratiopopcutoff=0.01, ...){
+Utility_SingleColorQC <- function(x, subsets, sample.name, removestrings, Verbose = FALSE,
+                                  unmixingcontroltype="both", Unstained=FALSE, ratiopopcutoff=0.01,
+                                  experiment = NULL, experiment.name = NULL, condition = NULL, condition.name = NULL,
+                                  AFOverlap, stats="median", desiredAF=NULL, externalAF = NULL,
+                                  ExportType, SignatureReturnNow=FALSE, sourcelocation, outpath, artificial, Brightness=FALSE){
 
   name <- keyword(x, sample.name)
   Type <- Luciernaga:::Internal_Typing(name=name, unmixingcontroltype=unmixingcontroltype, Unstained=Unstained)
   #Type <- Internal_Typing(name=name, unmixingcontroltype=unmixingcontroltype, Unstained=Unstained)
-  AlternateName <- Luciernaga:::NameForSample(x=x, sample.name=sample.name, removestrings=removestrings)
-  #AlternateName <- NameForSample(x=x, sample.name=sample.name, removestrings=removestrings, ...)
+  AggregateName <- Luciernaga:::NameForSample(x=x, sample.name=sample.name, removestrings=removestrings)
+  #AggregateName <- NameForSample(x=x, sample.name=sample.name, removestrings=removestrings, ...)
 
   Experiment <- Luciernaga:::NameForSample(x=x, sample.name=sample.name, removestrings=removestrings, experiment.name = experiment.name,
                                            returnType = "experiment")
@@ -76,6 +76,8 @@ Utility_SingleColorQC <- function(x, subsets, sample.name, removestrings, unmixi
   name <- Luciernaga:::NameCleanUp(name, InternalCleanupList)
   #name <- NameCleanUp(name, InternalCleanupList)
 
+  # Brought back until overlap is converted from name reliant to type reliant.
+  if (Unstained == TRUE) {if(!str_detect(name, "stained")){name <- paste0(name, "_Unstained")}}
 
   ###############
   # Exprs Setup #
@@ -194,30 +196,29 @@ Utility_SingleColorQC <- function(x, subsets, sample.name, removestrings, unmixi
   if (Verbose == TRUE){print(Retained)}
 
 
-  #############################
-  # Internal Autofluorescense #
-  #############################
+  ###########################################
+  # Internal Main Autofluorescence Detector #
+  ###########################################
 
+  # Inverse of retained, then top for peak
 
   if (!str_detect(name, "nstained")){
     Intermediate <- Detectors %>% filter(!Fluors %in% Retained)
     if (nrow(Intermediate) >0){
       TheMainAF <- Intermediate %>% slice(1) %>% pull(Fluors)
     }
+
+  # Adding way to switch to alternate AFs.
+  if (is.null(desiredAF)){This <- WorkAround %>% filter(.data[[TheMainAF]] == 1) %>% select(all_of(1:ColsN))
+  } else {desiredAF <- NameCleanUp(desiredAF, c("-A"))
+          TheMainAF <- desiredAF
+          This <- WorkAround %>% filter(.data[[desiredAF]] == 1) %>% select(all_of(1:ColsN))}
+
+  if (is.null(externalAF)){Samples <- AveragedSignature(x=This, stats=stats)
+  } else { if(is.data.frame(externalAF)){Samples <- externalAF} else {stop("externalAF needs to be a single row of a data.frame")}}
   }
 
-
-  ########################
-  # Intermediate Version #
-  ########################
-
-  #InitialRatio <- 0.0075
-  #cutoff <- startingcells*InitialRatio
-  #MainAF <- PeakDetectorCounts %>% slice(1) %>% pull(Fluors)
-  #This <- WorkAround %>% filter(.data[[MainAF]] == 1) %>% select(all_of(1:ColsN))
-  #Samples <- AveragedSignature(x=This, stats=stats)
-  #TheMainAF <- MainAF
-  #if(Beads == TRUE){Retained <- Retained[[1]]}
+  if (SignatureReturnNow == TRUE){return(Samples)}
 
   #####################################
   # We resume our regular programming #
@@ -228,7 +229,7 @@ Utility_SingleColorQC <- function(x, subsets, sample.name, removestrings, unmixi
 
   if (str_detect(name, "nstained")){
 
-    RetainedDF <- map(.x= Retained, .f=UnstainedSignatures,
+    RetainedDF <- map(.x= Retained, .f=Luciernaga:::UnstainedSignatures,
                       WorkAround1=WorkAround1, alternatename=AggregateName,
                       ColsN=ColsN, StartNormalizedMergedCol=StartNormalizedMergedCol,
                       EndNormalizedMergedCol=EndNormalizedMergedCol) %>% bind_rows()
@@ -256,9 +257,10 @@ Utility_SingleColorQC <- function(x, subsets, sample.name, removestrings, unmixi
 
   Reintegrated1 <- Reintegrated %>% relocate(all_of(RearrangedColumns))
 
-  if (fcsexport == TRUE){source(sourcelocation, local = TRUE)}
+  if (ExportType == "fcs"){source(sourcelocation, local = TRUE)
+  }
 
-  return(Reintegrated1)
+  if (ExportType == "data.frame"){return(Reintegrated1)}
 }
 
 

@@ -9,22 +9,24 @@ Utility_SingleColorQC(
   subsets,
   sample.name,
   removestrings,
-  unmixingcontroltype,
+  Verbose = FALSE,
+  unmixingcontroltype = "both",
+  Unstained = FALSE,
+  ratiopopcutoff = 0.01,
   experiment = NULL,
   experiment.name = NULL,
-  mainAF,
+  condition = NULL,
+  condition.name = NULL,
   AFOverlap,
-  stats,
-  Unstained = FALSE,
-  Beads = FALSE,
-  Verbose = FALSE,
-  external = NULL,
-  fcsexport,
+  stats = "median",
+  desiredAF = NULL,
+  externalAF = NULL,
+  ExportType,
+  SignatureReturnNow = FALSE,
   sourcelocation,
   outpath,
   artificial,
-  Brightness = FALSE,
-  ...
+  Brightness = FALSE
 )
 }
 \arguments{
@@ -34,25 +36,36 @@ Utility_SingleColorQC(
 
 \item{sample.name}{Keyword variable which samples are stored (ex. "GUID")}
 
+\item{removestrings}{A string of character values to remove from sample.name}
+
+\item{Verbose}{Whether to print outputs as you go.}
+
+\item{unmixingcontroltype}{Whether your inputs are "cells", "beads" or "both"}
+
+\item{ratiopopcutoff}{A numeric ratio for peak detector inclusion, default is set to 0.01 all startingcells}
+
 \item{experiment}{Provide directly experiment name (ex. "JAN2024")}
 
 \item{experiment.name}{Keyword variable which experiment information
 is stored (ex. "TUBENAME")}
 
-\item{mainAF}{Main Autofluorescence Detector (ex. "V7-A")}
+\item{condition}{Provide directly experiment name (ex. "JAN2024")}
 
-\item{AFOverlap}{Name of data.frame containing the Autofluorescence
+\item{condition.name}{Keyword variable which experiment information
+is stored (ex. "TUBENAME")}
+
+\item{AFOverlap}{A data.frame or a filepath to the CSV containing the Autofluorescence
 overlap of individual fluorophores for exclusion}
 
 \item{stats}{Whether to take "mean" or "median"}
 
-\item{Unstained}{Whether the sample is Unstained.}
+\item{desiredAF}{Main Autofluorescence Detector (ex. "V7-A")}
 
-\item{Beads}{Whether the sample is Beads.}
+\item{externalAF}{A data.frame row containing external autofluorescence to subtract from single colors.}
 
-\item{external}{An external autofluorescence to subtract from single colors.}
+\item{ExportType}{Whether to return "fcs", "data.frame" or "csv"}
 
-\item{fcsexport}{Whether to export .fcs files, TRUE or FALSE}
+\item{SignatureReturnNow}{Short circuits the function and returns signature for specified autofluorescence.}
 
 \item{sourcelocation}{Location where .fcs creation file is stored}
 
@@ -63,10 +76,7 @@ a background autofluorescence stand in.}
 
 \item{Brightness}{Whether sum of detectors should be returned.}
 
-\item{group.name}{Keyword variable which groups are stored (ex. "GROUPNAME")}
-
-\item{Kept}{Whether "Raw" or "Normalized" values are retained in the
-Luciernaga object.}
+\item{Unmixing}{Set to True when running unstained samples that don't have Unstained in the Name}
 }
 \value{
 Additional information to be added

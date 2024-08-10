@@ -220,9 +220,6 @@ pattern = "AutofluorescentOverlaps.csv"
 AFOverlap <- list.files(path=FileLocation, pattern=pattern, full.names = TRUE)
 AFOverlap <- read.csv(file=AFOverlap, check.names = FALSE)
 
-
-
-
 removestrings <- ".fcs"
 
 x=MyGatingSet[2]
