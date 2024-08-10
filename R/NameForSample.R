@@ -36,9 +36,9 @@ NameForSample <- function(x, sample.name, removestrings, experiment.name = NULL,
   condition
 
   if (is.null(experiment) && is.null(condition)){AggregateName <- name}
-  if (!is.null(experiment) && is.null(condition)){AggregateName <- paste(AggregateName, experiment, sep="_")}
-  if (is.null(experiment) && !is.null(condition)){AggregateName <- paste(AggregateName, condition, sep="_")}
-  if (!is.null(experiment) && !is.null(condition)){AggregateName <- paste(AggregateName, experiment, condition, sep="_")}
+  if (!is.null(experiment) && is.null(condition)){AggregateName <- paste(name, experiment, sep="_")}
+  if (is.null(experiment) && !is.null(condition)){AggregateName <- paste(name, condition, sep="_")}
+  if (!is.null(experiment) && !is.null(condition)){AggregateName <- paste(name, experiment, condition, sep="_")}
 
   return(AggregateName)
 }
