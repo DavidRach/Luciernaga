@@ -131,14 +131,34 @@ StorageLocation <- file.path("C:/", "Users", "JohnDoe", "Desktop")
 
 IndividualBeadPlot <- Utility_GatingPlots(x=MyBeadsGatingSet[[1]], sample.name = "GUID", removestrings = removestrings, gtFile = MyBeadsGates, DesiredGates = NULL, outpath = StorageLocation, export = FALSE)
 
-#IndividualBeadPlot
+IndividualBeadPlot
   
-IteratedBeadPlots <- map(.x = MyBeadsGatingSet, .f = Utility_GatingPlots, sample.name = "GUID", removestrings = removestrings, gtFile = MyBeadsGates, DesiredGates = NULL, outpath = StorageLocation, export = FALSE)
+#IteratedBeadPlots <- map(.x = MyBeadsGatingSet, .f = Utility_GatingPlots, sample.name = "GUID", removestrings = removestrings, gtFile = MyBeadsGates, DesiredGates = NULL, outpath = StorageLocation, export = FALSE)
 
-IteratedBeadPlots
+#IteratedBeadPlots
 
 gs_pop_get_count_fast(MyBeadsGatingSet)
 ```
+
+```{r}
+removestrings <- ".fcs"
+
+x=MyBeadsGatingSet[1]
+subsets = "singlets"
+sample.name="GUID"
+experiment.name <- "$FLOWRATE"
+condition.name <- "$DATE"
+removestrings=removestrings
+unmixingcontroltype = "cells"
+Unstained=FALSE
+
+```
+
+
+
+
+
+
 
 ### Creating a GatingSet Cells
 Three of these files are raw unmixing controls (APCFire810, BUV496, Unstained), while the others are unmixed full-stained samples from a 29-color SFC panel (ND050). For now, let's subset the desired files to only select the raw .fcs unmixing controls as shown below:
@@ -197,7 +217,7 @@ The main workhorse of the Luciernaga is `Utility_SingleColorQC()`. Briefly, it w
 ```{r}
 removestrings <- ".fcs"
 
-Utility_SingleColorQC(x=MyBeadsGatingSet[1], subsets = "singlets", sample.name="GUID", removestrings=removestrings, unmixingcontroltype = "beads")
+Utility_SingleColorQC(x=MyBeadsGatingSet[1], subsets = "singlets", sample.name="GUID", removestrings=removestrings, unmixingcontroltype = "beads", Unstained=FALSE)
 
 
 

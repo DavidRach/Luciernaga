@@ -9,6 +9,7 @@ Utility_SingleColorQC(
   subsets,
   sample.name,
   removestrings,
+  unmixingcontroltype,
   experiment = NULL,
   experiment.name = NULL,
   mainAF,
@@ -22,7 +23,8 @@ Utility_SingleColorQC(
   sourcelocation,
   outpath,
   artificial,
-  Brightness = FALSE
+  Brightness = FALSE,
+  ...
 )
 }
 \arguments{

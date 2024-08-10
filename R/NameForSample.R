@@ -17,7 +17,7 @@
 #' @examples NULL
 
 NameForSample <- function(x, sample.name, removestrings, experiment.name = NULL,
-                          experiment = NULL, condition.name = NULL, condition = NULL){
+                          experiment = NULL, condition.name = NULL, condition = NULL, returnType = "name"){
 
   name <- keyword(x, sample.name)
   name <- NameCleanUp(name = name, removestrings)
@@ -41,15 +41,18 @@ NameForSample <- function(x, sample.name, removestrings, experiment.name = NULL,
 
   if (exists("condition.name")){
     if(!is.null(condition.name)){condition <- keyword(x, condition.name)
-    experiment <- pull(condition)
+                                 condition <- pull(condition)
     } else if (is.null(condition.name)) {Internal <- "A"}
   }
 
-  if (is.null(experiment) && is.null(condition)){AggregateName <- name
-  } else if (!is.null(experiment) && is.null(condition)){AggregateName <- paste(name, experiment, sep="_")
-  } else if (is.null(experiment) && !is.null(condition)){AggregateName <- paste(name, condition, sep="_")
-  } else if (!is.null(experiment) && !is.null(condition)){AggregateName <- paste(name, experiment, condition, sep="_")}
+  if (returnType == "name"){
+    if (is.null(experiment) && is.null(condition)){AggregateName <- name
+    } else if (!is.null(experiment) && is.null(condition)){AggregateName <- paste(name, experiment, sep="_")
+    } else if (is.null(experiment) && !is.null(condition)){AggregateName <- paste(name, condition, sep="_")
+    } else if (!is.null(experiment) && !is.null(condition)){AggregateName <- paste(name, experiment, condition, sep="_")}
+    return(AggregateName)
+  } else if (returnType == "condition") {return(condition)
+    } else if (returnType == "experiment") {return(experiment)}
 
-  return(AggregateName)
 }
 

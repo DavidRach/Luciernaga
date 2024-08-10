@@ -53,33 +53,25 @@ Utility_SingleColorQC <- function(x, subsets, sample.name, removestrings, unmixi
                                   mainAF, AFOverlap, stats, Unstained=FALSE, Beads=FALSE, Verbose = FALSE,
                                   external = NULL, fcsexport, sourcelocation, outpath, artificial, Brightness=FALSE, ...){
 
-  # Figuring out Unmixing Control Type
-  # Impacts Downstream Processing Forks
-
   name <- keyword(x, sample.name)
-  Type <- Internal_Typing(name=name, unmixingcontroltype=unmixingcontroltype, Unstained=Unstained)
+  Type <- Luciernaga:::Internal_Typing(name=name, unmixingcontroltype=unmixingcontroltype, Unstained=Unstained)
+  #Type <- Internal_Typing(name=name, unmixingcontroltype=unmixingcontroltype, Unstained=Unstained)
+  AlternateName <- Luciernaga:::NameForSample(x=x, sample.name=sample.name, removestrings=removestrings)
+  #AlternateName <- NameForSample(x=x, sample.name=sample.name, removestrings=removestrings, ...)
 
-  #   Naming the specimen (need to separate from Fluorophore matching?)
-  AlternateName <- Luciernaga:::NameForSample(x, sample.name, removestrings)
-  # NameForSample(x, sample.name, removestrings, ...)
-  # name <- NameCleanUp(name, removestrings)
+  Experiment <- Luciernaga:::NameForSample(x=x, sample.name=sample.name, removestrings=removestrings, experiment.name = experiment.name,
+                                           returnType = "experiment")
+  #Experiment <- Luciernaga:::NameForSample(x=x, sample.name=sample.name, removestrings=removestrings, returnType = "experiment", ...)
 
-  # Cleaning up Cells in Case Not Specified
-  name <- NameCleanUp(name, " (Cells)")
+  Condition <- Luciernaga:::NameForSample(x=x, sample.name=sample.name, removestrings=removestrings, condition.name = condition.name,
+                                           returnType = "condition")
+  #Condition <- Luciernaga:::NameForSample(x=x, sample.name=sample.name, removestrings=removestrings, returnType = "condition", ...)
 
-  if(exists("experiment")) {experiment <- experiment
-  } else if (exists("experiment.name")) {experiment <- keyword(x, experiment.name)
-  } else {experiment <- NULL}
+  # Internal Name Cleanup, to make sure fluorophores match
+  InternalCleanupList <- c(".fcs", "Cells", "Beads", " ", "_", "-", ".", "(", ")")
+  name <- Luciernaga:::NameCleanUp(name, InternalCleanupList)
+  #name <- NameCleanUp(name, InternalCleanupList)
 
-  if (!is.null(experiment)){
-    AggregateName <- paste0(experiment, name)
-  } else {AggregateName <- name}
-
-  # Removing Non-Characters and Spaces.
-  ExtraSpacers <- c(" ", "_", "-", ".", "(", ")")
-  AggregateName <- NameCleanUp(AggregateName, removestrings=ExtraSpacers)
-
-  #if (!is.null(external)){external1 <- external} else {external1 <- NULL}
 
   ###############
   # Exprs Setup #
@@ -259,48 +251,6 @@ Utility_SingleColorQC <- function(x, subsets, sample.name, removestrings, unmixi
 
   return(Reintegrated1)
 }
-
-#' Internal for SingleColorQC, returns unmixing control type for downstream forking.
-#' @noRd
-
-Internal_Typing <- function(name, unmixingcontroltype, Unstained){
-  if (unmixingcontroltype == "beads"){
-    if (!str_detect(name, "ells")){Type <- "Beads"
-    }
-  }
-
-  if (unmixingcontroltype == "cells"){
-    if (!str_detect(name, "eads")) {Type <- "Cells"
-    }
-  }
-
-  if (unmixingcontroltype == "both") {
-    if (str_detect(name, "ells")){Type <- "Cells"
-    } else if(str_detect(name, "eads")){Type <- "Beads"
-    } else {Type <- "Unknown"}
-  }
-
-
-  # Figuring out if Unstained
-  if (Unstained == TRUE) {
-    if(!str_detect(name, "stained")){Type <- paste0(Type, "_Unstained")}
-  } else {
-    if (str_detect(name, "stained")){Type <- paste0(Type, "_Unstained")}
-  }
-  return(Type)
-}
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

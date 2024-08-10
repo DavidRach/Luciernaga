@@ -11,7 +11,8 @@ NameForSample(
   experiment.name = NULL,
   experiment = NULL,
   condition.name = NULL,
-  condition = NULL
+  condition = NULL,
+  returnType = "name"
 )
 }
 \arguments{
