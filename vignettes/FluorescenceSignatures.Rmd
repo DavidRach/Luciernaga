@@ -214,25 +214,69 @@ IteratedPlots
 
 The main workhorse of the Luciernaga is `Utility_SingleColorQC()`. Briefly, it will take individual raw .fcs files, process them and return distinct fluorescence signatures as their own .fcs files.
 
+Let's work through it's compabilities individually. First off, let's profile Autofluorescence from the Unstained Cells. 
+
 ```{r}
 FileLocation <- system.file("extdata", package = "Luciernaga")
 pattern = "AutofluorescentOverlaps.csv"
 AFOverlap <- list.files(path=FileLocation, pattern=pattern, full.names = TRUE)
-AFOverlap <- read.csv(file=AFOverlap, check.names = FALSE)
 
 removestrings <- ".fcs"
 
-x=MyGatingSet[2]
-subsets = "lymphocytes"
-sample.name="TUBENAME"
-experiment.name <- "$FLOWRATE"
-condition.name <- "$DATE"
-removestrings=removestrings
-unmixingcontroltype = "cells"
-Unstained=FALSE
+Utility_SingleColorQC(x=MyGatingSet[2], subsets="lymphocytes", removestrings=removestrings, sample.name="GUID", 
+                      unmixingcontroltype = "cells", Unstained = TRUE, ratiopopcutoff = 0.001, Verbose = TRUE,
+                      AFOverlap = AFOverlap, stats = "median", ExportType = "data.frame", SignatureReturnNow = TRUE, 
+                      sourcelocation = NULL, outpath = NULL, artificial = NULL, Brightness = FALSE)
+``` 
+
+The important parameters for the above outputs where Verbose, ratiopopcutoff, stats, and SignatureReturnNow.
+
+From our lymphocyte gated cells, Verbose = TRUE prints out the output of cells enumerated by their peak detector. We can see that the main autofluorescence from this sample was UV7, followed by V7 and V3.  With the ratiopopcutoff set at 0.001, we are returning any detector that had > 0.1% starting lymphocytes with their main peak present in that detector. 
+Here is an example when we restrict it to detectors with 1% of starting lymphocytes:
+
+```{r}
+Utility_SingleColorQC(x=MyGatingSet[2], subsets="lymphocytes", removestrings=removestrings, sample.name="GUID", 
+                      unmixingcontroltype = "cells", Unstained = TRUE, ratiopopcutoff = 0.01, Verbose = TRUE,
+                      AFOverlap = AFOverlap, stats = "median", ExportType = "data.frame", SignatureReturnNow = TRUE, 
+                      sourcelocation = NULL, outpath = NULL, artificial = NULL, Brightness = FALSE)
+``` 
+
+The SignatureReturnNow short circuits the downstream analysis. It calculates the main autofluorescence by taking the most abundant detector, filtering those cells, and then taking the selected stat for each detector from those cells. It then returns these values as a data.frame. 
+
+If by contrast, we wanted the signature of the second and third peak detectors (V7 and V3), we could do this by providing the parameter desiredAF = "V7" or "V3"
+
+```{r}
+UV7 <- Utility_SingleColorQC(x=MyGatingSet[2], subsets="lymphocytes", removestrings=removestrings, sample.name="GUID", 
+                      unmixingcontroltype = "cells", Unstained = TRUE, ratiopopcutoff = 0.01, Verbose = FALSE,
+                      AFOverlap = AFOverlap, stats = "median", ExportType = "data.frame", SignatureReturnNow = TRUE, 
+                      sourcelocation = NULL, outpath = NULL, artificial = NULL, Brightness = FALSE)
+
+V7 <- Utility_SingleColorQC(x=MyGatingSet[2], desiredAF = "V7-A", subsets="lymphocytes", removestrings=removestrings, sample.name="GUID", 
+                      unmixingcontroltype = "cells", Unstained = TRUE, ratiopopcutoff = 0.01, Verbose = FALSE,
+                      AFOverlap = AFOverlap, stats = "median", ExportType = "data.frame", SignatureReturnNow = TRUE, 
+                      sourcelocation = NULL, outpath = NULL, artificial = NULL, Brightness = FALSE)
+
+V3 <- Utility_SingleColorQC(x=MyGatingSet[2], desiredAF = "V3-A", subsets="lymphocytes", removestrings=removestrings, sample.name="GUID", 
+                      unmixingcontroltype = "cells", Unstained = TRUE, ratiopopcutoff = 0.01, Verbose = FALSE,
+                      AFOverlap = AFOverlap, stats = "median", ExportType = "data.frame", SignatureReturnNow = TRUE, 
+                      sourcelocation = NULL, outpath = NULL, artificial = NULL, Brightness = FALSE)
+
+DifferentPeakDetectors <- bind_rows(UV7, V7, V3)
+DifferentPeakDetectors
+``` 
+
+These data.frame consist of raw measurements from the .fcs file for the given detectors. These can be used by the xyz function to plot averaged normalized signature. Similarly, providing one of these data.frames containing a single row of our autofluorescence of interest can be used by the externalAF measurement to allow for subtraction of that reference from single color controls (to be discussed below). 
+
+In the case of unstained bead controls, it's recommended to use externalAF in this manner. In our experience with UltraComp beads, there is rarely a single peak detector for unstained beads given their low background, which causes oversplitting due to instrumental noise into hundreds of signatures. This and the rest will be detailed as we continue into the example workthrough. 
+
+Continuing, we will switch SignatureReturnNow to False. Each of the peak detectors that has more events than specified by the ratiopopcutoff will be passed on to the unstained autofluorescence processing module, which will filter by these peak detectors and proceed to characterize their peaks.
 
 
-```
+
+
+
+
+
 
 
 

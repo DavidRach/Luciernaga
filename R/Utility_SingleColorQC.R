@@ -215,7 +215,25 @@ Utility_SingleColorQC <- function(x, subsets, sample.name, removestrings, Verbos
           This <- WorkAround %>% filter(.data[[desiredAF]] == 1) %>% select(all_of(1:ColsN))}
 
   if (is.null(externalAF)){Samples <- AveragedSignature(x=This, stats=stats)
-  } else { if(is.data.frame(externalAF)){Samples <- externalAF} else {stop("externalAF needs to be a single row of a data.frame")}}
+  } else {if(is.data.frame(externalAF)){Samples <- externalAF} else {stop("externalAF needs to be a single row of a data.frame")}}
+
+  }
+
+  if (str_detect(name, "nstained")){
+    Intermediate <- Detectors
+    if (nrow(Intermediate) >0){
+      TheMainAF <- Intermediate %>% slice(1) %>% pull(Fluors)
+    }
+
+    # Adding way to switch to alternate AFs.
+    if (is.null(desiredAF)){This <- WorkAround %>% filter(.data[[TheMainAF]] == 1) %>% select(all_of(1:ColsN))
+    } else {desiredAF <- NameCleanUp(desiredAF, c("-A"))
+    TheMainAF <- desiredAF
+    This <- WorkAround %>% filter(.data[[desiredAF]] == 1) %>% select(all_of(1:ColsN))}
+
+    if (is.null(externalAF)){Samples <- AveragedSignature(x=This, stats=stats)
+    } else {if(is.data.frame(externalAF)){Samples <- externalAF} else {stop("externalAF needs to be a single row of a data.frame")}}
+
   }
 
   if (SignatureReturnNow == TRUE){return(Samples)}
