@@ -1,7 +1,7 @@
 #' Internal for SingleColorQC, returns unmixing control type for downstream forking.
 #' @noRd
 
-Internal_Typing <- function(name, unmixingcontroltype, Unstained){
+Internal_Typing <- function(name, unmixingcontroltype, Unstained = FALSE){
   if (unmixingcontroltype == "beads"){
     if (!str_detect(name, "ells")){Type <- "Beads"
     }

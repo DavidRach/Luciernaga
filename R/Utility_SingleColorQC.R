@@ -54,8 +54,8 @@
 
 Utility_SingleColorQC <- function(x, subsets, sample.name, removestrings, unmixingcontroltype,
                                   experiment = NULL, experiment.name = NULL,
-                                  mainAF, AFOverlap, stats, Unstained=FALSE, Beads=FALSE, Verbose = FALSE,
-                                  external = NULL, fcsexport, sourcelocation, outpath, artificial, Brightness=FALSE, ...){
+                                  mainAF, AFOverlap, stats="median", Unstained=FALSE, Beads=FALSE, Verbose = FALSE,
+                                  external = NULL, fcsexport, sourcelocation, outpath, artificial, Brightness=FALSE, ratiopopcutoff, ...){
 
   name <- keyword(x, sample.name)
   Type <- Luciernaga:::Internal_Typing(name=name, unmixingcontroltype=unmixingcontroltype, Unstained=Unstained)
@@ -110,9 +110,9 @@ Utility_SingleColorQC <- function(x, subsets, sample.name, removestrings, unmixi
     message(round(BelowZero/TheTotal,2), " of all events were negative and will be rounded to 0")
   }
 
-  #################
-  # Peak Detector #
-  #################
+  ##########################################
+  # Generating Normalized by Peak Detector #
+  ##########################################
 
   # Normalizing Individual Cells By Peak Detector
   n[n < 0] <- 0
@@ -130,48 +130,44 @@ Utility_SingleColorQC <- function(x, subsets, sample.name, removestrings, unmixi
   # Bringing Together Raw And Normalized Data.Frames
   WorkAround <- cbind(n, Normalized)
 
-  ####################
-  # Autofluorescence #
-  ####################
-
-  #Retrieving Main Auto fluorescent Channels signature
-  if (Unstained == FALSE){MainAF <- mainAF
-                          MainAF <- gsub("-A", "", MainAF)
-  } else if (!grepl("nstained", name)){MainAF <- mainAF
-                                      MainAF <- gsub("-A", "", MainAF)
-  } else {na_counts <- colSums(is.na(Normalized))
-    Normalized[is.na(Normalized)] <- 0
-    Counts <- colSums(Normalized == 1)
-    PeakDetectorCounts <- data.frame(Fluors = names(Counts), Counts = Counts)
-    rownames(PeakDetectorCounts) <- NULL
-    MainAF <- PeakDetectorCounts %>% arrange(desc(Counts)) %>% slice(1) %>% pull(Fluors)
-  }
-
-  # Grabbing Main AF Peak and the Associated Raw Values
-  This <- WorkAround %>% filter(.data[[MainAF]] == 1) %>%
-    select(all_of(1:ColsN))
-
-  # Deriving Middle Autofluorescence Measurement
-  if(stats == "mean"){Samples <- This %>% summarize_all(mean)
-  } else if (stats == "median"){Samples <- This %>%
-    summarize_all(median) #%>% select(-Backups)
-  } else(stop("Please specify stats parameter mean or median"))
-
-  ################
-  # Fluorophores #
-  ################
-
-  #Deriving Peak Detector Counts and Detectors of Interest
-  InitialRatio <- 0.0075  #Possible Parameter Add Here
+  ####################################
+  # Enumerating Peak Detector Counts #
+  ####################################
 
   na_counts <- colSums(is.na(Normalized))
   Normalized[is.na(Normalized)] <- 0
   Counts <- colSums(Normalized == 1)
   PeakDetectorCounts <- data.frame(Fluors = names(Counts), Counts = Counts)
   rownames(PeakDetectorCounts) <- NULL
-  cutoff <- startingcells*InitialRatio
-  Detectors <- PeakDetectorCounts %>% filter(Counts > cutoff) %>%
-    arrange(desc(Counts))
+  PeakDetectorCounts <- PeakDetectorCounts %>% arrange(desc(Counts))
+
+  if (Type == "Cells_Unstained") {CellCutoff <- startingcells*ratiopopcutoff
+                                 Detectors <- PeakDetectorCounts %>% filter(Counts > CellCutoff)
+  }
+
+  if (Type == "Cells") {CellCutoff <- startingcells*ratiopopcutoff
+                        Detectors <- PeakDetectorCounts %>% filter(Counts > CellCutoff)
+  }
+
+  if (Type == "Beads_Unstained") {BeadCutoff <- startingcells/ColsN #EqualDistributionAssumption
+                                  Detectors <- PeakDetectorCounts %>% filter(Counts > BeadCutoff)
+  }
+
+
+  if (Type == "Beads") {BeadCutoff <- startingcells*ratiopopcutoff
+                        Detectors <- PeakDetectorCounts %>% filter(Counts > BeadCutoff)
+  }
+
+  ###########################################
+  # Internal Averaged Main Autofluorescence #
+  ###########################################
+  #InitialRatio <- 0.0075
+  #cutoff <- startingcells*InitialRatio
+  #MainAF <- PeakDetectorCounts %>% slice(1) %>% pull(Fluors)
+  #This <- WorkAround %>% filter(.data[[MainAF]] == 1) %>% select(all_of(1:ColsN))
+  #Samples <- AveragedSignature(x=This, stats=stats)
+
+
 
   ################################################################
   # Bringing in known AF detectors, and overlapping fluorophores #
@@ -266,6 +262,15 @@ TroubleChannelExclusion <- function(x, SCData, MainDetector, AFChannels){
   Internal <- gsub("-A", "", Internal)
   Exclusion <- setdiff(AFChannels, Internal)
   return(Exclusion)
+}
+
+#' Internal for Utility_SingleColorQC
+#'
+#' @importFrom dplyr summarize_all
+#' @noRd
+AveragedSignature <- function(x, stats){
+  Signature <- x %>% summarize_all(stats)
+  return(Signature)
 }
 
 
