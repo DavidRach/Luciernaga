@@ -23,9 +23,13 @@
 #' @param Brightness Whether sum of detectors should be returned.
 #' @param Unstained Whether the sample is Unstained.
 #'
-#' @importFrom dplyr select
-#' @importFrom dplyr filter
+#' @importFrom flowWorkspace gs_pop_get_data
+#' @importFrom BiocGenerics nrow
 #' @importFrom dplyr mutate
+#' @importFrom dplyr select
+#'
+#' @importFrom dplyr filter
+#'
 #' @importFrom dplyr summarize_all
 #' @importFrom dplyr pull
 #' @importFrom dplyr arrange
@@ -33,11 +37,11 @@
 #' @importFrom dplyr left_join
 #' @importFrom dplyr case_when
 #' @importFrom dplyr rename
-#' @importFrom BiocGenerics nrow
+#'
 #' @importFrom flowWorkspace keyword
 #' @importFrom stringr str_detect
 #' @importFrom stringr str_split
-#' @importFrom flowWorkspace gs_pop_get_data
+#'
 #' @importFrom flowCore exprs
 #' @importFrom purrr map
 #' @importFrom purrr set_names
@@ -80,52 +84,50 @@ Utility_SingleColorQC <- function(x, subsets, sample.name, removestrings, unmixi
   #Retrieving the exprs data for the target population
   ff <- gs_pop_get_data(x, subsets)
   startingcells <- nrow(ff)[[1]]
-  df <- exprs(ff[[1]])
-  DF <- as.data.frame(df, check.names = FALSE)
-
-  #For Future Column Reordering
-  OriginalColumnsVector <- colnames(DF)
-  OriginalColumns <- colnames(DF)
-  OriginalColumns <- data.frame(OriginalColumns)
-  OriginalColumnsIndex <- OriginalColumns %>% mutate(IndexLocation = 1:nrow(.))
+  DF <- as.data.frame(exprs(ff[[1]]), check.names=FALSE)
 
   #For Future Row Reordering
   Backups <- DF %>% mutate(Backups = 1:nrow(DF)) %>% select(Backups)
 
-  #Stashing Away Time FSC SSC For Later Use
+  #For Future Column Reordering
+  OriginalColumns <- colnames(DF)
+  OriginalColumns <- data.frame(OriginalColumns)
+  OriginalColumnsIndex <- OriginalColumns %>% mutate(IndexLocation = 1:nrow(.))
+
+  OriginalColumnsVector <- colnames(DF)
+
+  # Storing Other Parameter (Time, FSC, SSC) for Later Return
   StashedDF <- DF[,grep("Time|FS|SC|SS|Original|W$|H$", names(DF))]
   StashedDF <- cbind(Backups, StashedDF)
 
-  #Consolidating Columns Going Forward
-  CleanedDF <- DF[,-grep("Time|FS|SC|SS|Original|W$|H$", names(DF))]
-  BackupNames <- colnames(CleanedDF)
-  n <- CleanedDF
+  # Consolidating Desired Parameters
+  n <- DF[,-grep("Time|FS|SC|SS|Original|W$|H$", names(DF))]
+
+  # Next Step Will Remove Negative Values, to what extent is an ordinary .fcs file affected?
+  if (Verbose == TRUE){
+    TheTotal <- nrow(n) * ncol(n)
+    BelowZero <- sum(apply(n, 2, function(x) x < 0))
+    message(round(BelowZero/TheTotal,2), " of all events were negative and will be rounded to 0")
+  }
 
   #################
   # Peak Detector #
   #################
 
-  # Enumerating Negative Values Ratio
-  if (Verbose == TRUE){
-  TotalCells <- nrow(n) * ncol(n)
-  BelowZero <- sum(apply(n, 2, function(x) x < 0))
-  message(round(BelowZero/TotalCells,2), " of all events were negative and rounded to 0")
-  }
-
-  #Normalizing By Peak Detector
+  # Normalizing Individual Cells By Peak Detector
   n[n < 0] <- 0
   A <- do.call(pmax, n)
   Normalized <- n/A
   Normalized <- round(Normalized, 1)
   colnames(Normalized) <- gsub("-A", "", colnames(Normalized))
 
-  #Towards Generalizing
+  # Figuring out where Raw and Normalized Columns Start and End
   ColsN <- ncol(n)
   ColsNormalized <- ncol(Normalized)
   StartNormalizedMergedCol <- ColsN + 1
-  EndNormalizedMergedCol <- ColsNormalized*2
+  EndNormalizedMergedCol <- ColsN + ColsNormalized
 
-  #Bringing Together Raw And Normalized and deriving Autofluorescence Negative
+  # Bringing Together Raw And Normalized Data.Frames
   WorkAround <- cbind(n, Normalized)
 
   ####################
