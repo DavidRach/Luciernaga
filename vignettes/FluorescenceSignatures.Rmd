@@ -215,16 +215,25 @@ IteratedPlots
 The main workhorse of the Luciernaga is `Utility_SingleColorQC()`. Briefly, it will take individual raw .fcs files, process them and return distinct fluorescence signatures as their own .fcs files.
 
 ```{r}
+FileLocation <- system.file("extdata", package = "Luciernaga")
+pattern = "AutofluorescentOverlaps.csv"
+AFOverlap <- list.files(path=FileLocation, pattern=pattern, full.names = TRUE)
+AFOverlap <- read.csv(file=AFOverlap, check.names = FALSE)
+
+
+
+
 removestrings <- ".fcs"
 
-Utility_SingleColorQC(x=MyBeadsGatingSet[1], subsets = "singlets", sample.name="GUID", removestrings=removestrings, unmixingcontroltype = "beads", Unstained=FALSE)
+x=MyGatingSet[2]
+subsets = "lymphocytes"
+sample.name="TUBENAME"
+experiment.name <- "$FLOWRATE"
+condition.name <- "$DATE"
+removestrings=removestrings
+unmixingcontroltype = "cells"
+Unstained=FALSE
 
-
-
-pData(MyGatingSet)
-
-?Utility_SingleColorQC(x=MyGatingSet[2], subsets="lymphocytes", sample.name="GUID", removestrings=removestrings, 
-                       )
 
 ```
 

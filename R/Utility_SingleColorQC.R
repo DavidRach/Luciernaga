@@ -55,7 +55,7 @@
 Utility_SingleColorQC <- function(x, subsets, sample.name, removestrings, unmixingcontroltype,
                                   experiment = NULL, experiment.name = NULL,
                                   mainAF, AFOverlap, stats="median", Unstained=FALSE, Beads=FALSE, Verbose = FALSE,
-                                  external = NULL, fcsexport, sourcelocation, outpath, artificial, Brightness=FALSE, ratiopopcutoff, ...){
+                                  external = NULL, fcsexport, sourcelocation, outpath, artificial, Brightness=FALSE, ratiopopcutoff=0.01, ...){
 
   name <- keyword(x, sample.name)
   Type <- Luciernaga:::Internal_Typing(name=name, unmixingcontroltype=unmixingcontroltype, Unstained=Unstained)
@@ -158,22 +158,17 @@ Utility_SingleColorQC <- function(x, subsets, sample.name, removestrings, unmixi
                         Detectors <- PeakDetectorCounts %>% filter(Counts > BeadCutoff)
   }
 
-  ###########################################
-  # Internal Averaged Main Autofluorescence #
-  ###########################################
-  #InitialRatio <- 0.0075
-  #cutoff <- startingcells*InitialRatio
-  #MainAF <- PeakDetectorCounts %>% slice(1) %>% pull(Fluors)
-  #This <- WorkAround %>% filter(.data[[MainAF]] == 1) %>% select(all_of(1:ColsN))
-  #Samples <- AveragedSignature(x=This, stats=stats)
+  if (Verbose == TRUE){
+  print(Detectors)
+  }
 
+  #####################################################
+  # Handling Fluorophore and Autofluorescent Overlaps #
+  #####################################################
+  if (is.data.frame(AFOverlap)){AFData <- AFOverlap
+  } else {AFData <- read.csv(file=AFOverlap, check.names = FALSE)
+  }
 
-
-  ################################################################
-  # Bringing in known AF detectors, and overlapping fluorophores #
-  ################################################################
-
-  AFData <- AFOverlap
   AFChannels <- AFData %>% filter(Fluorophore %in% "Unstained") %>%
     pull(MainDetector) %>% str_split(",", simplify = TRUE)
   AFChannels <- AFChannels[1,]
@@ -183,7 +178,6 @@ Utility_SingleColorQC <- function(x, subsets, sample.name, removestrings, unmixi
   SCData$Fluorophore <- gsub("-A", "", SCData$Fluorophore)
   TroubleChannels <- SCData %>% pull(Fluorophore)
 
-  # Handling the Exceptions
   results <- map(.x=TroubleChannels, .f=TroubleChannelExclusion, SCData=SCData, MainDetector=MainDetector, AFChannels=AFChannels) %>%
     set_names(TroubleChannels)
 
@@ -195,18 +189,35 @@ Utility_SingleColorQC <- function(x, subsets, sample.name, removestrings, unmixi
   } else {Retained <- Detectors %>% filter(!Fluors %in% AFChannels) %>%
     pull(Fluors)}
 
-  if (length(Retained) == 0) {
-    stop("There were no Retained detectors in ", name)
-  }
+  if (length(Retained) == 0) {stop("There were no Retained detectors in ", name)}
+
+  if (Verbose == TRUE){print(Retained)}
+
+
+  #############################
+  # Internal Autofluorescense #
+  #############################
+
 
   if (!str_detect(name, "nstained")){
     Intermediate <- Detectors %>% filter(!Fluors %in% Retained)
     if (nrow(Intermediate) >0){
       TheMainAF <- Intermediate %>% slice(1) %>% pull(Fluors)
-    } else {TheMainAF <- MainAF}
+    }
   }
 
-  if(Beads == TRUE){Retained <- Retained[[1]]}
+
+  ########################
+  # Intermediate Version #
+  ########################
+
+  #InitialRatio <- 0.0075
+  #cutoff <- startingcells*InitialRatio
+  #MainAF <- PeakDetectorCounts %>% slice(1) %>% pull(Fluors)
+  #This <- WorkAround %>% filter(.data[[MainAF]] == 1) %>% select(all_of(1:ColsN))
+  #Samples <- AveragedSignature(x=This, stats=stats)
+  #TheMainAF <- MainAF
+  #if(Beads == TRUE){Retained <- Retained[[1]]}
 
   #####################################
   # We resume our regular programming #
