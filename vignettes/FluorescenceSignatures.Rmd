@@ -267,6 +267,33 @@ DifferentPeakDetectors
 
 These data.frame consist of raw measurements from the .fcs file for the given detectors. These can be used by the xyz function to plot averaged normalized signature. Similarly, providing one of these data.frames containing a single row of our autofluorescence of interest can be used by the externalAF measurement to allow for subtraction of that reference from single color controls (to be discussed below). 
 
+It's important before continuing to discuss the role of AFOverlap. Luciernaga works on the basis of filtering using the peak detectors, and then processsing out variations in signature from these filtered populations. Most fluorophores don't share overlaps with autofluorescence for peak detectors, but certain fluorophores will match either the primary or rarer autofluorescences in their primary detector (main examples are BUV496-A, BV510-A, Spark Blue 550-A). Since these vary by panel, and name of the fluorophore, we provision a .csv file that gets imported and is used for special handling of these fluorophores. 
+
+```{r}
+FileLocation <- system.file("extdata", package = "Luciernaga")
+pattern = "AutofluorescentOverlaps.csv"
+AFOverlap <- list.files(path=FileLocation, pattern=pattern, full.names = TRUE)
+TheAFOverlaps <- read.csv(AFOverlap, check.names = FALSE)
+gt(TheAFOverlaps)
+```
+
+For your own systems, you can update the Unstained Main Detectors Autofluorescence list, and provide unique fluorophores that overlap to a .csv styled like the example above, and provide the file.path to that csv to `Utility_SingleColorQC()` to similarly handle the exceptions (more details to follow below). 
+
+Once the AFOverlaps .csv has been updated, when `Utility_SingleColorQC()` processes a single color unmixing control and finds peak detectors, it will remove the peak detectors that match the Unstained row in AFOverlap, leaving only the single-color driven peaks to be used for further processing. 
+
+In the case ofsingle color unmixing control (in this case, APC-Fire 750, the other specimen in our GatingSet):
+
+```{r}
+SC_InternalAF <- Utility_SingleColorQC(x=MyGatingSet[1], subsets="lymphocytes", removestrings=removestrings, sample.name="GUID", 
+                      unmixingcontroltype = "cells", Unstained = FALSE, ratiopopcutoff = 0.01, Verbose = TRUE,
+                      AFOverlap = AFOverlap, stats = "median", ExportType = "data.frame", SignatureReturnNow = TRUE, 
+                      sourcelocation = NULL, outpath = NULL, artificial = NULL, Brightness = FALSE)
+SC_InternalAF
+```
+
+As you can see from the Verbose=TRUE return arguments, the main detector present in this sample was R7 (the single-color stained cells), but additional detector peaks are present for the autofluorescences we saw in the above example of the unstained cell. These can be extracted as data.frame values similar to the process above, including use of the desiredAF argument, for average signature plotting. The one caveat is they will include both fully unstained cells, as well as non-specific/dim staining cells for APC-Fire 750 that didn't exceed the brightness of the main autofluorescent signature. Luciernaga futher sorts these, so exporting these for future use is not recommended, but is useful for some initial visualization purposes. 
+
+A special note about beads.
 In the case of unstained bead controls, it's recommended to use externalAF in this manner. In our experience with UltraComp beads, there is rarely a single peak detector for unstained beads given their low background, which causes oversplitting due to instrumental noise into hundreds of signatures. This and the rest will be detailed as we continue into the example workthrough. 
 
 Continuing, we will switch SignatureReturnNow to False. Each of the peak detectors that has more events than specified by the ratiopopcutoff will be passed on to the unstained autofluorescence processing module, which will filter by these peak detectors and proceed to characterize their peaks.

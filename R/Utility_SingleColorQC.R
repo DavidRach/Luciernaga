@@ -196,9 +196,9 @@ Utility_SingleColorQC <- function(x, subsets, sample.name, removestrings, Verbos
   if (Verbose == TRUE){print(Retained)}
 
 
-  ###########################################
-  # Internal Main Autofluorescence Detector #
-  ###########################################
+  ##################################
+  # Main Autofluorescence Detector #
+  ##################################
 
   # Inverse of retained, then top for peak
 
@@ -215,7 +215,10 @@ Utility_SingleColorQC <- function(x, subsets, sample.name, removestrings, Verbos
           This <- WorkAround %>% filter(.data[[desiredAF]] == 1) %>% select(all_of(1:ColsN))}
 
   if (is.null(externalAF)){Samples <- AveragedSignature(x=This, stats=stats)
-  } else {if(is.data.frame(externalAF)){Samples <- externalAF} else {stop("externalAF needs to be a single row of a data.frame")}}
+  } else {if(is.data.frame(externalAF)){
+
+    #Filter and designate the new MainAF from the example (without requiring matching name)
+    Samples <- externalAF} else {stop("externalAF needs to be a single row of a data.frame")}}
 
   }
 
@@ -232,7 +235,10 @@ Utility_SingleColorQC <- function(x, subsets, sample.name, removestrings, Verbos
     This <- WorkAround %>% filter(.data[[desiredAF]] == 1) %>% select(all_of(1:ColsN))}
 
     if (is.null(externalAF)){Samples <- AveragedSignature(x=This, stats=stats)
-    } else {if(is.data.frame(externalAF)){Samples <- externalAF} else {stop("externalAF needs to be a single row of a data.frame")}}
+    } else {if(is.data.frame(externalAF)){
+
+      #Filter and designate the new MainAF from the example (without requiring matching name)
+      Samples <- externalAF} else {stop("externalAF needs to be a single row of a data.frame")}}
 
   }
 
