@@ -20,23 +20,30 @@ NameForSample <- function(x, sample.name, removestrings, experiment.name = NULL,
                           experiment = NULL, condition.name = NULL, condition = NULL){
 
   name <- keyword(x, sample.name)
-  name <- Luciernaga:::NameCleanUp(name = name, removestrings)
+  name <- NameCleanUp(name = name, removestrings)
 
-  if (exists("experiment")){experiment <- experiment
-  } else if (exists("experiment.name")){
-     if(!is.null(experiment.name)){theexperiment <- keyword(x, experiment.name)
-                                   experiment <- pull(experiment)}
-   } else {experiment <- NULL}
+  if (exists("experiment")){
+    if (!is.null(experiment)) {experiment <- experiment
+    } else if (is.null(experiment)) {Internal <- "A"}
+  }
 
-  if (exists("condition")){condition <- condition
-  } else if (exists("condition.name")){
+
+  if (exists("experiment.name")){
+     if(!is.null(experiment.name)){experiment <- keyword(x, experiment.name)
+                                   experiment <- pull(experiment)
+     } else if (is.null(experiment.name)) {Internal <- "A"}
+  }
+
+  if (exists("condition")){
+    if (!is.null(condition)) {condition <- condition
+    } else if (is.null(condition)) {Internal <- "A"}
+  }
+
+  if (exists("condition.name")){
     if(!is.null(condition.name)){condition <- keyword(x, condition.name)
-                                 condition <- pull(condition)}
-  } else {condition <- NULL}
-
-  message(name)
-  message(experiment)
-  message(condition)
+    experiment <- pull(condition)
+    } else if (is.null(condition.name)) {Internal <- "A"}
+  }
 
   if (is.null(experiment) && is.null(condition)){AggregateName <- name
   } else if (!is.null(experiment) && is.null(condition)){AggregateName <- paste(name, experiment, sep="_")
