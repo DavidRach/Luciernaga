@@ -120,7 +120,7 @@ Utility_SingleColorQC <- function(x, subsets, sample.name, removestrings, Verbos
   n[n < 0] <- 0
   A <- do.call(pmax, n)
   Normalized <- n/A
-  Normalized <- round(Normalized, 2) # Previously at 1
+  #Normalized <- round(Normalized, 4) # Previously at 1
   colnames(Normalized) <- gsub("-A", "", colnames(Normalized))
 
   # Figuring out where Raw and Normalized Columns Start and End
@@ -251,22 +251,22 @@ Utility_SingleColorQC <- function(x, subsets, sample.name, removestrings, Verbos
   WorkAround1 <- WorkAround %>% mutate(Backups = Backups$Backups) %>%
     relocate(Backups, .before = 1) #This will change the start/end count
 
-  StartN <- StartNormalizedMergedCol+1
-  EndN <- EndNormalizedMergedCol+1
-  DoublePeaks <- WorkAround1 %>% filter(rowSums(WorkAround1[, StartN:EndN] == 1.00) >= 2)
-  TheDoublePeaks <- DoublePeaks %>% select(Backups) %>% pull()
-  WorkAround2 <- WorkAround1 %>% filter(!Backups %in% TheDoublePeaks)
+  #StartN <- StartNormalizedMergedCol+1
+  #EndN <- EndNormalizedMergedCol+1
+  #DoublePeaks <- WorkAround1 %>% filter(rowSums(WorkAround1[, StartN:EndN] == 1.00) >= 2)
+  #TheDoublePeaks <- DoublePeaks %>% select(Backups) %>% pull()
+  #WorkAround2 <- WorkAround1 %>% filter(!Backups %in% TheDoublePeaks)
 
   ###############################
   # Back to Regular Programming #
   ###############################
 
   if (str_detect(name, "nstained")){
-    # x <- Retained[1]
+    # x <- Retained[3]
     RetainedDF <- map(.x= Retained, .f=Luciernaga:::UnstainedSignatures,
-                      WorkAround1=WorkAround2, alternatename=AggregateName,
+                      WorkAround1=WorkAround1, alternatename=AggregateName,
                       ColsN=ColsN, StartNormalizedMergedCol=StartNormalizedMergedCol,
-                      EndNormalizedMergedCol=EndNormalizedMergedCol) %>% bind_rows()
+                      EndNormalizedMergedCol=EndNormalizedMergedCol, Verbose=Verbose) %>% bind_rows()
 
   } else {
 
@@ -290,6 +290,7 @@ Utility_SingleColorQC <- function(x, subsets, sample.name, removestrings, Verbos
   OriginalEnd <- length(BackupsCol) + length(OriginalColumnsVector)
 
   Reintegrated1 <- Reintegrated %>% relocate(all_of(RearrangedColumns))
+  Reintegrated1 <- Reintegrated1 %>% arrange(Backups)
 
   if (ExportType == "fcs"){source(sourcelocation, local = TRUE)
   }

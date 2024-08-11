@@ -20,19 +20,24 @@
 #' @noRd
 
 UnstainedSignatures <- function(x, WorkAround1, alternatename, ColsN, StartNormalizedMergedCol,
-                                EndNormalizedMergedCol, Increments=0.1){
+                                EndNormalizedMergedCol, Increments=0.1, Verbose = FALSE,
+                                LocalMaximaRatio=0.15, SecondaryPeaks=2){
 
+  # Filter for Detector of Interest
   MySubset <- WorkAround1 %>% dplyr::filter(.data[[x]] == 1.000)
-
   #DetectorPeakCounts(x=MySubset, StartN=StartNormalizedMergedCol, EndN=EndNormalizedMergedCol)
+
+  # Segment into required components
+  DetectorName <- x
+  alternatename <- alternatename
+  Verbose <- Verbose
 
   StashedIDs <- MySubset %>% select(Backups)
   MySubset <- MySubset %>% select(-Backups)
-  DetectorName <- x
+  MyRawData <- MySubset %>% select(all_of(1:ColsN))
   MyData <- MySubset %>% select(all_of(
     StartNormalizedMergedCol:EndNormalizedMergedCol)) %>%
     mutate(across(where(is.numeric), ~ ceiling(. / Increments) * Increments))
-  MyRawData <- MySubset %>% select(all_of(1:ColsN))
 
   #Preparation for Local Maxima
   Conversion <- data.frame(t(MyData), check.names = FALSE)
@@ -45,46 +50,45 @@ UnstainedSignatures <- function(x, WorkAround1, alternatename, ColsN, StartNorma
     relocate(TheDetector, .before = Detectors)
 
   #Deriving an average y-vector for local maxima
-  Conversion <- Conversion %>% mutate(TheSums = rowSums(.[2:ncol(.)],
-                                                        na.rm = TRUE) /(ncol(Conversion) - 1)) %>% relocate(TheSums,
-                                                                                                            .after = Detectors)
+  Conversion <- Conversion %>%
+    mutate(TheSums = rowSums(.[2:ncol(.)], na.rm = TRUE) /(ncol(Conversion) - 1)) %>%
+    relocate(TheSums, .after = Detectors)
+
   Conversion$Detectors <- 1:nrow(Conversion)
   LocalX <- Conversion$Detectors
   LocalY <- Conversion$TheSums
 
-  #I made it export, now just need to rebuild, then remove extra :
-  alternatename <- alternatename
   PointData <- Utility_LocalMaxima(theX = LocalX, theY = LocalY,
-                                               therepeats = 3, w = 3, span = 0.11, alternatename = alternatename)
+       therepeats = 3, w = 3, span = 0.11, alternatename = alternatename, Verbose=Verbose)
 
   colnames(PointData)[1] <- "TheDetector"
   colnames(PointData)[2] <- "TheHeight"
-
-  LocalMaximaRatio <- 0.15 #Possible Relocate Out
-  SecondaryPeaks <- 2
 
   Newest2 <- PointData %>% filter(TheHeight > LocalMaximaRatio) %>% arrange(desc(TheHeight))
   Assembled <- left_join(Newest2, Decoys, by = "TheDetector")
   if(nrow(Assembled) == 0){stop("Failed at Assembled, no local maxima greater than 0.15")}
   These <- Assembled %>% pull(Detectors)
-  if (any(These %in% x)) {These <- These[These != x]}
-  if (length(These) > SecondaryPeaks) {These <- head(These, SecondaryPeaks)} #If we wanted to institute a number of peaks argument, it would be here.
 
-  if(length(These) == 0){message("Solitary Peak")
-  } else if (length(These) > SecondaryPeaks) {message("More than ", SecondaryPeaks+1, " peaks. Abbreviated.")
+  if (any(These %in% x)) {These <- These[These != x]}
+  if (length(These) == 0) {
+    if (Verbose == TRUE) {message("Solitary Peak")}
+  } else if (length(These) > SecondaryPeaks) {
+    if (Verbose == TRUE) {message("More than ", SecondaryPeaks+1, " peaks. Abbreviated.")}
     These <- head(These, SecondaryPeaks)
   }
 
   MyData <- cbind(StashedIDs, MyRawData, MyData)
   MyData$Cluster <- paste(DetectorName, "10-", sep = "_")
 
-  if (length(These) == 3){second <- These[[1]]
+  if (length(These) > 3){stop("Only currently set up to handle up to 4 fluorescence peaks per fluorophore")
+  } else if (length(These) == 3){second <- These[[1]]
   third <- These[[2]]
   fourth <- These[[3]]
   } else if (length(These) == 2){second <- These[[1]]
   third <- These[[2]]
   } else if (length(These) == 1){second <- These[[1]]
-  } else if (length(These) == 0){message("No second peak")}
+  } else if (length(These) == 0){
+    if (Verbose == TRUE) {message("No second peak")}}
 
   if (length(These) >= 1){MyData <- MyData %>% mutate(Cluster = case_when(
     near(MyData[[second]], 0.0) ~ paste0(MyData$Cluster, second, "_00-"),

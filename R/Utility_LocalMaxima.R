@@ -7,6 +7,7 @@
 #' allow for peak detection
 #' @param w The span around which rolling will happen
 #' @param alternatename The cleaned up name passed to the plots (internal)
+#' @param Verbose Whether to print line plot outputs
 #' @param ... Additional arguments passed to zoo package
 #'
 #' @importFrom dplyr filter
@@ -20,7 +21,7 @@
 #' @keywords internal
 #'
 #' @examples NULL
-Utility_LocalMaxima <- function(theX, theY, therepeats, w, alternatename, ...){
+Utility_LocalMaxima <- function(theX, theY, therepeats, w, alternatename, Verbose = FALSE, ...){
 
   #Adding Margins
   repeats <- therepeats*2
@@ -63,7 +64,8 @@ Utility_LocalMaxima <- function(theX, theY, therepeats, w, alternatename, ...){
     theme(plot.title = element_text(hjust = 0.5),
           axis.title.x = element_blank(), axis.title.y = element_blank(),
           panel.grid.major = element_blank(), panel.grid.minor = element_blank())
-  print(Views)
+
+  if (Verbose == TRUE) {print(Views)}
 
   PointData <- PointData %>% select(-y)
 
