@@ -51,11 +51,13 @@
 #'
 #' @examples NULL
 
-Utility_SingleColorQC <- function(x, subsets, sample.name, removestrings, Verbose = FALSE,
+LuciernagaQC <- function(x, subsets, sample.name, removestrings, Verbose = FALSE,
                                   unmixingcontroltype="both", Unstained=FALSE, ratiopopcutoff=0.01,
                                   experiment = NULL, experiment.name = NULL, condition = NULL, condition.name = NULL,
                                   AFOverlap, stats="median", desiredAF=NULL, externalAF = NULL,
-                                  ExportType, SignatureReturnNow=FALSE, sourcelocation, outpath, artificial, Brightness=FALSE){
+                                  ExportType, SignatureReturnNow=FALSE, sourcelocation, outpath,
+                                  minimalfcscutoff = 0.05, NegativeType= "default",
+                                  TotalNegatives = 500, Brightness=FALSE){
 
   name <- keyword(x, sample.name)
   Type <- Luciernaga:::Internal_Typing(name=name, unmixingcontroltype=unmixingcontroltype, Unstained=Unstained)
@@ -305,6 +307,11 @@ Utility_SingleColorQC <- function(x, subsets, sample.name, removestrings, Verbos
   Reintegrated1 <- Reintegrated1 %>% arrange(Backups)
 
   if (ExportType == "fcs"){
+    BrightnessReturn <- Genesis(x=Reintegrated1, ff=ff, minimalfcscutoff = 0.05,
+                        AggregateName=AggregateName, Brightness = FALSE,
+                        outpath=outpath, OriginalStart = OriginalStart,
+                        OriginalEnd = OriginalEnd, stats=stats, NegativeType=NegativeType,
+                        TotalNegatives=TotalNegatives, Samples=Samples, ExportType=ExportType)
   }
 
   if (ExportType == "data.frame"){return(Reintegrated1)}
@@ -312,7 +319,7 @@ Utility_SingleColorQC <- function(x, subsets, sample.name, removestrings, Verbos
 
 
 
-#' Internal for Utility_SingleColorQC
+#' Internal for LuciernagaQC
 #'
 #' @importFrom dplyr filter
 #' @importFrom dplyr pull
@@ -324,7 +331,7 @@ TroubleChannelExclusion <- function(x, SCData, MainDetector, AFChannels){
   return(Exclusion)
 }
 
-#' Internal for Utility_SingleColorQC
+#' Internal for LuciernagaQC
 #'
 #' @importFrom dplyr summarize_all
 #' @noRd
@@ -333,7 +340,7 @@ AveragedSignature <- function(x, stats){
   return(Signature)
 }
 
-#' Internal for Utility_SingleColorQC
+#' Internal for LuciernagaQC
 #'
 #' @importFrom package function
 #' @noRd

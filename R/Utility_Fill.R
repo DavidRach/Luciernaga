@@ -9,7 +9,7 @@
 #' @importFrom dplyr coalesce
 #'
 #' @return Additional information to be added
-#' @export
+#' @keywords internal
 #'
 #' @examples NULL
 Utility_Fill <- function(x){

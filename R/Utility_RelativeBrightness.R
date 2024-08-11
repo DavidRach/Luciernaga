@@ -11,9 +11,8 @@
 #' @importFrom tidyr unnest_wider
 #' @importFrom tidyr starts_with
 #'
-#'
 #' @return A value to be determined later
-#' @export
+#' @keyword internal
 #'
 #' @examples NULL
 Utility_RelativeBrightness <- function(x){
