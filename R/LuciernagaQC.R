@@ -21,7 +21,6 @@
 #' @param externalAF A data.frame row containing external autofluorescence to subtract from single colors.
 #' @param ExportType Whether to return "fcs", "data.frame" or "csv"
 #' @param SignatureReturnNow Short circuits the function and returns signature for specified autofluorescence.
-#' @param sourcelocation Location where .fcs creation file is stored
 #' @param outpath  Location where created .fcs and .csv files are sent
 #' @param artificial Whether an artificial 0 population should be added for
 #'  a background autofluorescence stand in.
@@ -307,8 +306,8 @@ LuciernagaQC <- function(x, subsets, sample.name, removestrings, Verbose = FALSE
   Reintegrated1 <- Reintegrated1 %>% arrange(Backups)
 
   if (ExportType == "fcs"){
-    BrightnessReturn <- Genesis(x=Reintegrated1, ff=ff, minimalfcscutoff = 0.05,
-                        AggregateName=AggregateName, Brightness = FALSE,
+    BrightnessReturn <- Luciernaga:::Genesis(x=Reintegrated1, ff=ff, minimalfcscutoff = 0.05,
+                        AggregateName=AggregateName, Brightness = Brightness,
                         outpath=outpath, OriginalStart = OriginalStart,
                         OriginalEnd = OriginalEnd, stats=stats, NegativeType=NegativeType,
                         TotalNegatives=TotalNegatives, Samples=Samples, ExportType=ExportType)

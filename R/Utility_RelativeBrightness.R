@@ -15,6 +15,7 @@
 #' @keywords internal
 #'
 #' @examples NULL
+
 Utility_RelativeBrightness <- function(x){
   Regular <- x %>% filter(!str_detect(Cluster, "-$"))
 

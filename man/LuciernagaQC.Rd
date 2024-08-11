@@ -69,8 +69,6 @@ overlap of individual fluorophores for exclusion}
 
 \item{SignatureReturnNow}{Short circuits the function and returns signature for specified autofluorescence.}
 
-\item{sourcelocation}{Location where .fcs creation file is stored}
-
 \item{outpath}{Location where created .fcs and .csv files are sent}
 
 \item{Brightness}{Whether sum of detectors should be returned.}

@@ -28,7 +28,7 @@
 #' @keywords internal
 
 Genesis <- function(x, ff, minimalfcscutoff=0.05, AggregateName,
-                    Brightness = FALSE, outpath=NULL, OriginalStart, OriginalEnd,
+                    Brightness, outpath=NULL, OriginalStart, OriginalEnd,
                     stats = "median", NegativeType="default", TotalNegatives=500,
                     Samples=NULL, ExportType){
 
@@ -48,13 +48,16 @@ Genesis <- function(x, ff, minimalfcscutoff=0.05, AggregateName,
 
   Data <- x
 
-  Brightness <- map(x=fcs_clusters, .f=InternalGenesis, Data=Data, AggregateName=AggregateName,
+  TheBrightness <- map(.x=fcs_clusters, .f=Luciernaga:::InternalGenesis, Data=Data, AggregateName=AggregateName,
                     outpath=outpath, OriginalStart=OriginalStart, OriginalEnd=OriginalEnd,
                     stats=stats, NegativeType=NegativeType, TotalNegatives=TotalNegatives,
-                    Samples=Samples, ExportType=ExportType) %>% bind_rows()
+                    Samples=Samples, ExportType=ExportType, parameters=original_p,
+                    description=original_d) %>% bind_rows()
+
+  message("TargetReached")
 
   if (Brightness == TRUE){
-    RelativeBrightness <- Utility_RelativeBrightness(Brightness)
+    RelativeBrightness <- Luciernaga:::Utility_RelativeBrightness(TheBrightness)
     CSVName <- paste0("RelativeBrightness", AggregateName, ".csv")
     CSVSpot <- file.path(outpath, CSVName)
     write.csv(RelativeBrightness, CSVSpot, row.names = FALSE)
@@ -75,6 +78,8 @@ Genesis <- function(x, ff, minimalfcscutoff=0.05, AggregateName,
 #' @param TotalNegatives How many of the above rows to append, default is set to 500
 #' @param Samples When Negative type = "Internal", the data.frame of averaged fluorescence per detector
 #' @param ExportType Passed from above, set to "fcs" for fcs.file return
+#' @param parameters Passed parameters for .fcs creation
+#' @param description Passed description for .fcs creation
 #'
 #' @importFrom dplyr filter
 #' @importFrom dplyr select
@@ -90,7 +95,7 @@ Genesis <- function(x, ff, minimalfcscutoff=0.05, AggregateName,
 
 InternalGenesis <- function(x, Data, AggregateName, outpath=NULL, OriginalStart, OriginalEnd,
                             stats="median", NegativeType="default", TotalNegatives = 500,
-                            Samples = NULL, ExportType){
+                            Samples = NULL, ExportType, parameters, description){
 
   internalstrings <- c("-", "_")
   FCSname <- NameCleanUp(x, removestrings=internalstrings)
@@ -139,15 +144,14 @@ InternalGenesis <- function(x, Data, AggregateName, outpath=NULL, OriginalStart,
   }
 
   FCSSubset <- data.matrix(FCSSubset)
-  new_fcs <- new("flowFrame", exprs=FCSSubset, parameters=original_p, description=original_d)
+  new_fcs <- new("flowFrame", exprs=FCSSubset, parameters=parameters, description=description)
 
   TheFileName <- paste(AggregateName, FCSname, sep="_")
   TheFileFCS <- paste0(TheFileName, ".fcs")
   if (is.null(outpath)) {outpath <- getwd()}
   fileSpot <- file.path(outpath, TheFileFCS)
 
-  if (ExportType == "fcs") {write.FCS(new_fcs, filename = fileSpot, delimiter="#")
-  }
+  if (ExportType == "fcs") {write.FCS(new_fcs, filename = fileSpot, delimiter="#")}
 
   return(HowBright)
 }

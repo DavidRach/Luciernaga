@@ -9,7 +9,7 @@ Genesis(
   ff,
   minimalfcscutoff = 0.05,
   AggregateName,
-  Brightness = FALSE,
+  Brightness,
   outpath = NULL,
   OriginalStart,
   OriginalEnd,
