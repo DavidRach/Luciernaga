@@ -20,7 +20,7 @@
 #' @noRd
 
 ClusterIteration <- function(x, data, TheDetector, RatioCutoff, StartNormalizedMergedCol,
-                             EndNormalizedMergedCol, ColsN, AggregateName){
+                             EndNormalizedMergedCol, ColsN, AggregateName, Verbose){
   subset <- data %>% filter(Cluster %in% x)
 
   StashedIDs <- subset %>% select(Backups)
@@ -48,8 +48,9 @@ ClusterIteration <- function(x, data, TheDetector, RatioCutoff, StartNormalizedM
   #I made it export, now just need to rebuild, then remove extra :
   alternatename <- AggregateName
 
-  PointData <- Utility_LocalMaxima(theX = LocalX, theY = LocalY,
-                                               therepeats = 3, w = 3, span = 0.11, alternatename = alternatename)
+  PointData <- Utility_LocalMaxima(theX = LocalX, theY = LocalY, therepeats = 3,
+                                   w = 3, span = 0.11, alternatename = alternatename,
+                                   Verbose = Verbose)
 
   colnames(PointData)[1] <- "TheDetector"
   colnames(PointData)[2] <- "TheHeight"

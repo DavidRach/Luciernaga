@@ -282,13 +282,13 @@ LuciernagaQC <- function(x, subsets, sample.name, removestrings, Verbose = FALSE
                       EndNormalizedMergedCol=EndNormalizedMergedCol, Verbose=Verbose) %>% bind_rows()
 
   } else {
-
-    RetainedDF <- map(.x= Retained, .f=SingleStainSignatures,
+    # x <- Retained[1]
+    RetainedDF <- map(.x= Retained, .f=Luciernaga:::SingleStainSignatures,
                       WorkAround1=WorkAround1, alternatename=AggregateName,
                       ColsN=ColsN, StartNormalizedMergedCol=StartNormalizedMergedCol,
                       EndNormalizedMergedCol=EndNormalizedMergedCol, Samples=Samples, name=name,
                       results=results, stats=stats, TheMainAF=TheMainAF,
-                      AggregateName=AggregateName) %>% bind_rows()
+                      AggregateName=AggregateName, Verbose = Verbose) %>% bind_rows()
   }
 
   Reintegrated <- left_join(RetainedDF, StashedDF, by = "Backups")

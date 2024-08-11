@@ -298,7 +298,7 @@ In the case of unstained bead controls, it's recommended to use externalAF in th
 
 Continuing, we will switch SignatureReturnNow to False. Each of the peak detectors that has more events than specified by the ratiopopcutoff will be passed on to the unstained autofluorescence processing module, which will filter by these peak detectors and proceed to characterize their peaks.
 
-```{r}
+```{r, eval = FALSE}
 FileLocation <- system.file("extdata", package = "Luciernaga")
 pattern = "AutofluorescentOverlaps.csv"
 AFOverlap <- list.files(path=FileLocation, pattern=pattern, full.names = TRUE)
@@ -312,7 +312,21 @@ LuciernagaQC(x=MyGatingSet[2], subsets="lymphocytes", sample.name="GUID", experi
              ExportType = "fcs", outpath=StorageLocation, Brightness = TRUE, SignatureReturnNow = FALSE)
 ```
 
+And for single-color controls:
 
+```{r}
+FileLocation <- system.file("extdata", package = "Luciernaga")
+pattern = "AutofluorescentOverlaps.csv"
+AFOverlap <- list.files(path=FileLocation, pattern=pattern, full.names = TRUE)
+removestrings <- c(".fcs", "(Cells)")
+StorageLocation <- file.path("C:", "Users", "12692", "Desktop")
+
+LuciernagaQC(x=MyGatingSet[1], subsets="lymphocytes", sample.name="GUID", experiment = "Monocytes", 
+             condition = "exvivo", removestrings = removestrings, Verbose = TRUE, unmixingcontroltype="both",
+             Unstained=FALSE, ratiopopcutoff = 0.01, AFOverlap=AFOverlap, desiredAF=NULL, externalAF = NULL, 
+             stats = "median", NegativeType = "default",
+             ExportType = "fcs", outpath=StorageLocation, Brightness = FALSE, SignatureReturnNow = FALSE)
+```
 
 
 

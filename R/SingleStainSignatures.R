@@ -1,11 +1,18 @@
 #' Internal to Utility_SingleColorQC
+#'
 #' @importFrom dplyr select
-#' @importFrom dplyr filter
+#' @importFrom tidyselect all_of
 #' @importFrom dplyr mutate
+#' @importFrom tidyselect where
+#' @importFrom dplyr relocate
+#'
+#'
+#' @importFrom dplyr filter
+#'
 #' @importFrom dplyr summarize_all
 #' @importFrom dplyr pull
 #' @importFrom dplyr arrange
-#' @importFrom dplyr relocate
+#'
 #' @importFrom dplyr left_join
 #' @importFrom dplyr case_when
 #' @importFrom dplyr rename
@@ -22,23 +29,34 @@
 SingleStainSignatures <- function(x, WorkAround1, alternatename, ColsN, StartNormalizedMergedCol,
                                   EndNormalizedMergedCol, Samples, name, results, Increments=0.1,
                                   Subtraction = "Internal", stats, RatioCutoff=0.01, TheMainAF,
-                                  AggregateName){
+                                  AggregateName, Verbose = FALSE){
 
-  WorkAround1b <- WorkAround1 %>% select(all_of(
+  # Filtering the Non-Rounded Values First
+  AutofluorescentSubset <- WorkAround1 %>% dplyr::filter(.data[[TheMainAF]] %in% 1.000) %>% arrange(desc(.data[[x]]))
+  #nrow(AutofluorescentSubset)
+  #DetectorPeakCounts(x=AutofluorescentSubset, StartN=65, EndN=128)
+
+  SingleColorSubset <- WorkAround1 %>% dplyr::filter(.data[[x]] %in% 1.000) %>% arrange(desc(.data[[TheMainAF]]))
+  #nrow(SingleColorSubset)
+  #DetectorPeakCounts(x=SingleColorSubset, StartN=65, EndN=128)
+
+  # Rounding to Desired Increments, no double dipping this way.
+  AutofluorescentSubsetB <- AutofluorescentSubset %>% select(all_of(
     (StartNormalizedMergedCol+1):(EndNormalizedMergedCol+1))) %>%
     mutate(across(where(is.numeric), ~ ceiling(. / Increments) * Increments)) %>%
-    mutate(Backups = WorkAround1$Backups) %>% relocate(Backups, .before=1)
+    mutate(Backups = AutofluorescentSubset$Backups) %>% relocate(Backups, .before=1)
 
-  #x <- Retained[1]
-  #TheMainAF
+  SingleColorSubsetB <- SingleColorSubset %>% select(all_of(
+    (StartNormalizedMergedCol+1):(EndNormalizedMergedCol+1))) %>%
+    mutate(across(where(is.numeric), ~ ceiling(. / Increments) * Increments)) %>%
+    mutate(Backups = SingleColorSubset$Backups) %>% relocate(Backups, .before=1)
 
-  # The Arguments would be mapping elements in Retained, therefore Retained below would be swapped out for the x argument.
-  AutofluorescentSubset <- WorkAround1b %>% dplyr::filter(.data[[TheMainAF]] == 1.000) %>% arrange(desc(.data[[x]]))
-  SingleColorSubset <- WorkAround1b %>% dplyr::filter(.data[[x]] == 1.000) %>% arrange(desc(.data[[TheMainAF]])) %>%
-    dplyr::filter(!.data[[TheMainAF]] == 1.00)  #To avoid double dipping
+  #nrow(AutofluorescentSubsetB) #nrow(SingleColorSubsetB)
 
-  AutofluorescenceNamed <- SignatureCluster(Arg1=TheMainAF, Arg2=x, data=AutofluorescentSubset)
-  SingleColorNamed <- SignatureCluster(Arg1=x, Arg2=TheMainAF, data=SingleColorSubset)
+  #x <- Retained[1] #TheMainAF
+
+  AutofluorescenceNamed <- Luciernaga:::SignatureCluster(Arg1=TheMainAF, Arg2=x, data=AutofluorescentSubsetB)
+  SingleColorNamed <- Luciernaga:::SignatureCluster(Arg1=x, Arg2=TheMainAF, data=SingleColorSubsetB)
   SignatureData <- bind_rows(AutofluorescenceNamed, SingleColorNamed)
   TheClusters <- data.frame(table(SignatureData$Cluster), check.names=FALSE)
   colnames(TheClusters)[1] <- "Clusters"
@@ -148,7 +166,7 @@ SingleStainSignatures <- function(x, WorkAround1, alternatename, ColsN, StartNor
                  TheDetector=TheDetector, RatioCutoff=RatioCutoff,
                  StartNormalizedMergedCol=StartNormalizedMergedCol,
                  EndNormalizedMergedCol=EndNormalizedMergedCol,
-                 ColsN=ColsN, AggregateName=AggregateName) %>%
+                 ColsN=ColsN, AggregateName=AggregateName, Verbose=Verbose) %>%
     bind_rows()
 
   NewTable <- data.frame(table(AllData$Cluster), check.names=FALSE)
