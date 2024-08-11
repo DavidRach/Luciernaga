@@ -120,7 +120,7 @@ Utility_SingleColorQC <- function(x, subsets, sample.name, removestrings, Verbos
   n[n < 0] <- 0
   A <- do.call(pmax, n)
   Normalized <- n/A
-  Normalized <- round(Normalized, 1)
+  Normalized <- round(Normalized, 2) # Previously at 1
   colnames(Normalized) <- gsub("-A", "", colnames(Normalized))
 
   # Figuring out where Raw and Normalized Columns Start and End
@@ -244,17 +244,27 @@ Utility_SingleColorQC <- function(x, subsets, sample.name, removestrings, Verbos
 
   if (SignatureReturnNow == TRUE){return(Samples)}
 
-  #####################################
-  # We resume our regular programming #
-  #####################################
+  ######################################
+  # Handling the Double Peak Detectors #
+  ######################################
 
   WorkAround1 <- WorkAround %>% mutate(Backups = Backups$Backups) %>%
     relocate(Backups, .before = 1) #This will change the start/end count
 
-  if (str_detect(name, "nstained")){
+  StartN <- StartNormalizedMergedCol+1
+  EndN <- EndNormalizedMergedCol+1
+  DoublePeaks <- WorkAround1 %>% filter(rowSums(WorkAround1[, StartN:EndN] == 1.00) >= 2)
+  TheDoublePeaks <- DoublePeaks %>% select(Backups) %>% pull()
+  WorkAround2 <- WorkAround1 %>% filter(!Backups %in% TheDoublePeaks)
 
+  ###############################
+  # Back to Regular Programming #
+  ###############################
+
+  if (str_detect(name, "nstained")){
+    # x <- Retained[1]
     RetainedDF <- map(.x= Retained, .f=Luciernaga:::UnstainedSignatures,
-                      WorkAround1=WorkAround1, alternatename=AggregateName,
+                      WorkAround1=WorkAround2, alternatename=AggregateName,
                       ColsN=ColsN, StartNormalizedMergedCol=StartNormalizedMergedCol,
                       EndNormalizedMergedCol=EndNormalizedMergedCol) %>% bind_rows()
 
@@ -310,6 +320,21 @@ AveragedSignature <- function(x, stats){
   return(Signature)
 }
 
+#' Internal for Utility_SingleColorQC
+#'
+#' @importFrom package function
+#' @noRd
+#'
 
+DetectorPeakCounts <- function(x, StartN, EndN){
+x <- x %>% select(-Backups)
+Normalized <- x %>% select(all_of(
+  StartN:EndN))
+Counts <- colSums(Normalized == 1)
+PeakDetectorCounts <- data.frame(Fluors = names(Counts), Counts = Counts)
+rownames(PeakDetectorCounts) <- NULL
+PeakDetectorCounts <- PeakDetectorCounts %>% arrange(desc(Counts))
+return(PeakDetectorCounts)
+}
 
 

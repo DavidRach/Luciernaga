@@ -21,7 +21,11 @@
 
 UnstainedSignatures <- function(x, WorkAround1, alternatename, ColsN, StartNormalizedMergedCol,
                                 EndNormalizedMergedCol, Increments=0.1){
+
   MySubset <- WorkAround1 %>% dplyr::filter(.data[[x]] == 1.000)
+
+  #DetectorPeakCounts(x=MySubset, StartN=StartNormalizedMergedCol, EndN=EndNormalizedMergedCol)
+
   StashedIDs <- MySubset %>% select(Backups)
   MySubset <- MySubset %>% select(-Backups)
   DetectorName <- x

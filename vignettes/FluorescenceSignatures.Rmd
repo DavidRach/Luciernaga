@@ -220,6 +220,36 @@ Let's work through it's compabilities individually. First off, let's profile Aut
 FileLocation <- system.file("extdata", package = "Luciernaga")
 pattern = "AutofluorescentOverlaps.csv"
 AFOverlap <- list.files(path=FileLocation, pattern=pattern, full.names = TRUE)
+removestrings <- ".fcs"
+x=MyGatingSet[2]
+subsets="lymphocytes"
+sample.name="GUID"
+unmixingcontroltype = "cells"
+Unstained = TRUE
+ratiopopcutoff = 0.01
+Verbose = TRUE
+stats = "median"
+ExportType = "data.frame"
+sourcelocation = NULL
+outpath = NULL
+artificial = NULL
+Brightness = FALSE
+SignatureReturnNow = FALSE
+
+experiment = NULL
+experiment.name = NULL
+condition = NULL
+condition.name = NULL
+desiredAF=NULL
+externalAF = NULL
+                                  
+```
+
+
+```{r}
+FileLocation <- system.file("extdata", package = "Luciernaga")
+pattern = "AutofluorescentOverlaps.csv"
+AFOverlap <- list.files(path=FileLocation, pattern=pattern, full.names = TRUE)
 
 removestrings <- ".fcs"
 
