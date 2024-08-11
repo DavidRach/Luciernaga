@@ -4,7 +4,15 @@
 \alias{Utility_LocalMaxima}
 \title{Detecting Fluorophore Peak Detectors by Local Maxima}
 \usage{
-Utility_LocalMaxima(theX, theY, therepeats, w, alternatename, ...)
+Utility_LocalMaxima(
+  theX,
+  theY,
+  therepeats,
+  w,
+  alternatename,
+  Verbose = FALSE,
+  ...
+)
 }
 \arguments{
 \item{theX}{A vector of detectors from 1:n}
@@ -18,6 +26,8 @@ allow for peak detection}
 \item{w}{The span around which rolling will happen}
 
 \item{alternatename}{The cleaned up name passed to the plots (internal)}
+
+\item{Verbose}{Whether to print line plot outputs}
 
 \item{...}{Additional arguments passed to zoo package}
 }

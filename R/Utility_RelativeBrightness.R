@@ -12,7 +12,7 @@
 #' @importFrom tidyr starts_with
 #'
 #' @return A value to be determined later
-#' @keyword internal
+#' @keywords internal
 #'
 #' @examples NULL
 Utility_RelativeBrightness <- function(x){

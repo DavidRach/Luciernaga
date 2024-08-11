@@ -84,7 +84,7 @@ Genesis <- function(x, ff, minimalfcscutoff=0.05, AggregateName,
 #' @importFrom tidyselect one_of
 #' @importFrom dplyr bind_cols
 #' @importFrom dplyr relocate
-#' @importFrom flowCore write.fcs
+#' @importFrom flowCore write.FCS
 #'
 #' @noRd
 

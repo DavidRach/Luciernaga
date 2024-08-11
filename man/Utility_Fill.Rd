@@ -18,3 +18,4 @@ Internal function for relative brightness
 \examples{
 NULL
 }
+\keyword{internal}

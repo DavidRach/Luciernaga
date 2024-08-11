@@ -342,7 +342,9 @@ AveragedSignature <- function(x, stats){
 
 #' Internal for LuciernagaQC
 #'
-#' @importFrom package function
+#' @importFrom dplyr select
+#' @importFrom tidyselect all_of
+#' @importFrom dplyr arrange
 #' @noRd
 #'
 

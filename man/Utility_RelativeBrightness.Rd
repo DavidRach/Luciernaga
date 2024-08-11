@@ -18,3 +18,4 @@ Helper function splits Cluster into individual components
 \examples{
 NULL
 }
+\keyword{internal}
