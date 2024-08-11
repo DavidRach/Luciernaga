@@ -216,9 +216,15 @@ Utility_SingleColorQC <- function(x, subsets, sample.name, removestrings, Verbos
 
   if (is.null(externalAF)){Samples <- AveragedSignature(x=This, stats=stats)
   } else {if(is.data.frame(externalAF)){
-
-    #Filter and designate the new MainAF from the example (without requiring matching name)
-    Samples <- externalAF} else {stop("externalAF needs to be a single row of a data.frame")}}
+    Samples <- externalAF
+    MaxVal <- do.call(pmax, Samples)
+    TheNormed <- Samples/MaxVal
+    TheCounts <- colSums(TheNormed == 1)
+    ThePeakDetectorCounts <- data.frame(Fluors = names(TheCounts), Counts = TheCounts)
+    rownames(ThePeakDetectorCounts) <- NULL
+    TheMainAF <- ThePeakDetectorCounts %>% arrange(desc(Counts)) %>% slice(1) %>% pull(Fluors)
+    TheMainAF <- gsub("-A", "", TheMainAF)
+    } else {stop("externalAF needs to be a single row of a data.frame")}}
 
   }
 
@@ -236,9 +242,15 @@ Utility_SingleColorQC <- function(x, subsets, sample.name, removestrings, Verbos
 
     if (is.null(externalAF)){Samples <- AveragedSignature(x=This, stats=stats)
     } else {if(is.data.frame(externalAF)){
-
-      #Filter and designate the new MainAF from the example (without requiring matching name)
-      Samples <- externalAF} else {stop("externalAF needs to be a single row of a data.frame")}}
+      Samples <- externalAF
+      MaxVal <- do.call(pmax, Samples)
+      TheNormed <- Samples/MaxVal
+      TheCounts <- colSums(TheNormed == 1)
+      ThePeakDetectorCounts <- data.frame(Fluors = names(TheCounts), Counts = TheCounts)
+      rownames(ThePeakDetectorCounts) <- NULL
+      TheMainAF <- ThePeakDetectorCounts %>% arrange(desc(Counts)) %>% slice(1) %>% pull(Fluors)
+      TheMainAF <- gsub("-A", "", TheMainAF)
+      } else {stop("externalAF needs to be a single row of a data.frame")}}
 
   }
 
@@ -292,7 +304,7 @@ Utility_SingleColorQC <- function(x, subsets, sample.name, removestrings, Verbos
   Reintegrated1 <- Reintegrated %>% relocate(all_of(RearrangedColumns))
   Reintegrated1 <- Reintegrated1 %>% arrange(Backups)
 
-  if (ExportType == "fcs"){source(sourcelocation, local = TRUE)
+  if (ExportType == "fcs"){
   }
 
   if (ExportType == "data.frame"){return(Reintegrated1)}
