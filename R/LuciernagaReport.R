@@ -63,13 +63,10 @@ LuciernagaReport <- function(data, FluorophoreColumnName, ClusterColumnName,
   ##############
 
   Items <- data.frame(table(data$Sample)) %>% pull(Var1) %>% as.character(.)
+  #x <- Items[1]
+  #data <- Replaced
 
-
-  A <-  data %>% group_by(Sample, Cluster) %>% mutate(Denominator=sum(Count)) %>% ungroup()
-
-  x <- Items[1]
-  data <- data
-  theplots <- map(.x=Items, .f=InternalReport, data=data, FluorophoreColumnName=FluorophoreColumnName,
+  theplots <- map(.x=Items, .f=InternalReport, data=Replaced, FluorophoreColumnName=FluorophoreColumnName,
                   ClusterColumnName=ClusterColumnName, FirstDetectorColumn=FirstDetectorColumn,
                   LastDetectorColumn=LastDetectorColumn, RetainedType=RetainedType,
                   CellPopRatio=CellPopRatio)
@@ -85,21 +82,22 @@ LuciernagaReport <- function(data, FluorophoreColumnName, ClusterColumnName,
 }
 
 InternalReport <- function(){
+  First <- FirstDetectorColumn+1
+  Last <- LastDetectorColumn+1
 
-  subset <- data %>% filter(.data[[FluorophoreColumnName]] %in% c(x))
+  subset <- data %>% filter(Sample %in% c(x))
   colnames(subset) <- Luciernaga:::NameCleanUp(colnames(subset), removestrings="-A")
 
-  ZeroBuggedRows <- subset %>% filter(rowSums(select(.,
-      all_of(FirstDetectorColumn:LastDetectorColumn)), na.rm = TRUE) == 0) %>% nrow(.)
+  #ZeroBuggedRows <- subset %>% filter(rowSums(select(.,
+  #    all_of(First:Last)), na.rm = TRUE) == 0) %>% nrow(.)
 
-  if (ZeroBuggedRows > 0) {subset <- subset %>% filter(rowSums(select(
-    ., all_of(FirstDetectorColumn:LastDetectorColumn)), na.rm = TRUE) != 0)}
+  #if (ZeroBuggedRows > 0) {subset <- subset %>% filter(rowSums(select(
+  #  ., all_of(First:Last)), na.rm = TRUE) != 0)}
 
-  LinePlotData <- subset %>% select({{ClusterColumnName}},
-                    {{FirstDetectorColumn}}:{{LastDetectorColumn}})
+  LinePlotData <- subset %>% select(Cluster, {{First}}:{{Last}})
 
   LineColN <- ncol(LinePlotData)
-  DetectorOrder <- colnames(subset)[FirstDetectorColumn:LastDetectorColumn]
+  DetectorOrder <- colnames(subset)[First:Last]
 
   Melted <- LinePlotData %>% gather(key = "Detector", value = "value", all_of(2:LineColN))
   Melted$Detector <- factor(Melted$Detector, levels = DetectorOrder)
