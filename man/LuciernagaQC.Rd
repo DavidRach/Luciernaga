@@ -32,7 +32,7 @@ LuciernagaQC(
   Brightness = FALSE,
   LocalMaximaRatio = 0.15,
   SecondaryPeaks = 2,
-  Increments = 0.1,
+  Increments,
   RetainedType = "normalized"
 )
 }

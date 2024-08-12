@@ -37,7 +37,7 @@
 
 
 SingleStainSignatures <- function(x, WorkAround1, ColsN, StartNormalizedMergedCol,
-                                  EndNormalizedMergedCol, Samples, Increments=0.1,
+                                  EndNormalizedMergedCol, Samples, Increments,
                                   Subtraction = "Internal", stats, ratioSCcutoff=0.01, TheMainAF,
                                   AggregateName, Verbose = FALSE, SCData = "subtracted",
                                   LocalMaximaRatio, SecondaryPeaks){

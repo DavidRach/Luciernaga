@@ -11,7 +11,7 @@ UnstainedSignatures(
   ColsN,
   StartNormalizedMergedCol,
   EndNormalizedMergedCol,
-  Increments = 0.1,
+  Increments,
   Verbose = FALSE,
   LocalMaximaRatio = 0.15,
   SecondaryPeaks = 2

@@ -26,7 +26,7 @@
 #' @keywords Internal
 
 UnstainedSignatures <- function(x, WorkAround1, alternatename, ColsN, StartNormalizedMergedCol,
-                                EndNormalizedMergedCol, Increments=0.1, Verbose = FALSE,
+                                EndNormalizedMergedCol, Increments, Verbose = FALSE,
                                 LocalMaximaRatio=0.15, SecondaryPeaks=2){
 
   # Filter for Detector of Interest

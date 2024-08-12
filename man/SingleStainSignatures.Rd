@@ -11,7 +11,7 @@ SingleStainSignatures(
   StartNormalizedMergedCol,
   EndNormalizedMergedCol,
   Samples,
-  Increments = 0.1,
+  Increments,
   Subtraction = "Internal",
   stats,
   ratioSCcutoff = 0.01,

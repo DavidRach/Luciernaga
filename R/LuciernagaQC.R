@@ -63,7 +63,7 @@ LuciernagaQC <- function(x, subsets, sample.name, removestrings, Verbose = FALSE
                                   ExportType, SignatureReturnNow=FALSE, outpath,
                                   minimalfcscutoff = 0.05, Subtraction = "Internal", SCData = "subtracted",
                                   NegativeType= "default", TotalNegatives = 500, Brightness=FALSE,
-                                  LocalMaximaRatio=0.15, SecondaryPeaks=2, Increments=0.1, RetainedType="normalized"){
+                                  LocalMaximaRatio=0.15, SecondaryPeaks=2, Increments, RetainedType="normalized"){
 
   name <- keyword(x, sample.name)
   Type <- Luciernaga:::Internal_Typing(name=name, unmixingcontroltype=unmixingcontroltype, Unstained=Unstained)
@@ -286,7 +286,8 @@ LuciernagaQC <- function(x, subsets, sample.name, removestrings, Verbose = FALSE
     RetainedDF <- map(.x= Retained, .f=Luciernaga:::UnstainedSignatures,
                       WorkAround1=WorkAround1, alternatename=AggregateName,
                       ColsN=ColsN, StartNormalizedMergedCol=StartNormalizedMergedCol,
-                      EndNormalizedMergedCol=EndNormalizedMergedCol, Verbose=Verbose) %>%
+                      EndNormalizedMergedCol=EndNormalizedMergedCol, Verbose=Verbose,
+                      Increments=Increments) %>%
       bind_rows()
 
   } else {
