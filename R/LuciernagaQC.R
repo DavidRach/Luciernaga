@@ -330,7 +330,7 @@ LuciernagaQC <- function(x, subsets, sample.name, removestrings, Verbose = FALSE
     Data <- Data %>% dplyr::arrange(desc(Freq))
     colnames(Data)[1] <- "Cluster"
     colnames(Data)[2] <- "Count"
-    Data
+    #Data
 
     Data$Sample <- AggregateName
     Data$Experiment <- Experiment

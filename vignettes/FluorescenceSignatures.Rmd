@@ -347,7 +347,20 @@ CombinedData <- map(.x=MyGatingSet, .f=LuciernagaQC, subsets="lymphocytes", samp
              SCData = "subtracted", RetainedType="normalized", Increments=0.2) %>% bind_rows()
 ```
 
+### Downstream
 
+```{r}
+CombinedData
+
+
+```
+
+
+```{r}
+data <- CombinedData
+FluorophoreColumnName <- "Sample"
+ClusterColumnName <- "Cluster"
+```
 
 The working unit for most of Luciernaga's functions is a GatingSet object. Let's now workthrough the main Luciernaga function to characterize single color reference controls. First, let's provide a .csv file to provide information about where to expect to have overlapping autofluorescent signatures with fluorophore signatures. 
 
