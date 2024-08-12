@@ -94,7 +94,9 @@ InternalReport <- function(){
   #if (ZeroBuggedRows > 0) {subset <- subset %>% filter(rowSums(select(
   #  ., all_of(First:Last)), na.rm = TRUE) != 0)}
 
-  LinePlotData <- subset %>% select(Cluster, {{First}}:{{Last}})
+  if (LinePlot == TRUE){
+  LinePlotData <- subset %>% filter(!Cluster %in% "Other") %>%
+    select(Cluster, {{First}}:{{Last}})
 
   LineColN <- ncol(LinePlotData)
   DetectorOrder <- colnames(subset)[First:Last]
@@ -124,31 +126,26 @@ InternalReport <- function(){
           panel.background = element_rect(fill = NA), plot.background = element_rect(
           colour = NA), legend.background = element_rect(fill = NA),
           axis.text.x = element_text(size = 5, angle = 45, hjust = 1))
+  }
 
-  Names <- LinePlotData$Cluster
-  Numbers <- LinePlotData %>% select_if(is.numeric)
-  NumericsT <- t(Numbers)
-  rownames(NumericsT) <- NULL
-  colnames(NumericsT) <- Names
-  NumericsT <- data.matrix(NumericsT)
+  if (CosinePlot == TRUE){
+    CosineData <- subset %>% filter(!Cluster %in% "Other") %>%
+      select(Cluster, {{First}}:{{Last}})
+    Names <- CosineData$Cluster
+    Numbers <- CosineData %>% select(where(is.numeric))
+    NumericsT <- t(Numbers)
+    rownames(NumericsT) <- NULL
+    colnames(NumericsT) <- Names
+    NumericsT <- data.matrix(NumericsT)
 
-  if(!ncol(NumericsT) == 1){
+  if (ncol(NumericsT) > 1){
     CosineMatrix <- lsa::cosine(NumericsT)
     CosineMatrix <- round(CosineMatrix, 2)
-
-    # Reorder By Similarity
-    reorder_cormat <- function(cormat){
-      dd <- as.dist((1-cormat)/2)
-      hc <- hclust(dd)
-      cormat <-cormat[hc$order, hc$order]
-    }
-
-    # Reorder the correlation matrix
-    cormat <- reorder_cormat(CosineMatrix)
-    melted_cormat <- reshape2::melt(cormat)
+    Reordered <- ReorderedCosine(CosineMatrix)
+    MeltedCosine <- melt(Reordered)
 
     #Generate a Red to Blue Heatmap
-    CosineHeatMap <- ggplot(melted_cormat, aes(Var2, Var1, fill = value)) +
+    CosineHeatMap <- ggplot(MeltedCosine, aes(Var2, Var1, fill = value)) +
       geom_tile(color = "white") +
       scale_fill_gradient2(low = "lightblue", high = "orange", mid = "white",
                            midpoint = 0.7, limit = c(0.4,1), space = "Lab",
@@ -158,20 +155,20 @@ InternalReport <- function(){
       theme(axis.title.x = element_blank(), axis.title.y = element_blank(),
             panel.grid.major = element_blank(), panel.border = element_blank(),
             panel.background = element_blank(), axis.ticks = element_blank(),
-            legend.position = c(1.2, 0.5),
+            legend.position.inside = c(1.2, 0.5),
             legend.direction = "vertical", axis.text.x = element_text(
               angle = 45, vjust = 1, hjust = 1, size = 6),
             axis.text.y = element_text(size = 6),
             legend.key.size = unit(0.4, "cm"))
 
-
-    #print(CosineHeatMap)
-
-    CosineOrder <- data.frame(table(melted_cormat$Var1)) %>% pull(Var1) %>%
+    CosineOrder <- data.frame(table(MeltedCosine$Var1)) %>% pull(Var1) %>%
       as.character(.)
-  } else{CosineHeatMap <- NULL}
 
-  #CosineOrder
+  } else {CosineHeatMap <- NULL}
+
+  }
+
+  if (BarPlot == TRUE){
 
   BarChartData <- LuciernagaSubset %>% mutate(Ratio = round(Ratio, 2))
 
@@ -196,11 +193,23 @@ InternalReport <- function(){
                                                    axis.title.x = element_blank(), axis.line = element_blank(),
                                                    axis.ticks = element_blank(), legend.key.size = unit(0.4, "cm"))  +
     coord_fixed(ratio = 1.1)
+  }
 
   theNegplots <- list(TheNormPlot, HeatMapChart, CosineHeatMap)
   #theNegplots <- list(TheNormPlot, StackedBarChart, HeatMapChart,
   #CosineHeatMap)
 
   theplots[[length(theplots) +1]] <- theNegplots
+}
+
+#' Internal for LuciernagaReport
+#'
+#'
+#' @noRd
+
+ReorderedCosine <- function(CosineMatrix){
+  Day <- as.dist((1-CosineMatrix)/2)
+  Night <- hclust(Day)
+  Twilight <- CosineMatrix[Night$order, Night$order]
 }
 
