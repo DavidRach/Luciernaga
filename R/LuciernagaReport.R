@@ -5,6 +5,7 @@
 #' @param ClusterColumnName The name of the data.frame column containing your cluster IDs.
 #' @param outfolder The location that you want to save the .pdf output to.
 #' @param filename The name you want to save your .pdf file as.
+#' @param returntype Passed to Utility_Patchwork for "pdf" or "patchwork"
 #'
 #' @importFrom dplyr group_by
 #' @importFrom dplyr summarize
@@ -28,7 +29,8 @@
 
 LuciernagaReport <- function(data, RetainedType, CellPopRatio, outfolder, filename,
                              LinePlots=TRUE, CosinePlots=TRUE,
-                             StackedBarPlots=TRUE, HeatmapPlots=TRUE){
+                             StackedBarPlots=TRUE, HeatmapPlots=TRUE,
+                             returntype = "patchwork"){
 
   ################################################
   # Filtered by CellPopRatio, and creating other #
@@ -76,10 +78,17 @@ LuciernagaReport <- function(data, RetainedType, CellPopRatio, outfolder, filena
                   LinePlots=LinePlots, CosinePlots=CosinePlots,
                   StackedBarPlots=StackedBarPlots, HeatmapPlots=HeatmapPlots)
 
-   theflattenedplots <- flatten(theplots)
+  if (returntype == "pdf"){
+  Utility_Patchwork(x=ThePlots, filename = filename, outfolder = outfolder,
+                    thecolumns = 2, therows = 2, width = 9, height = 7, returntype = "pdf",
+                    NotListofList = FALSE)
+  } else {
+  Hey <-Utility_Patchwork(x=ThePlots, filename = filename, outfolder = outfolder,
+                      thecolumns = 2, therows = 2, width = 9, height = 7, returntype = "patchwork",
+                      NotListofList = FALSE)
+  return(Hey)
+  }
 
-   Utility_Patchwork(x, filename=filename, outfolder=outfolder, thecolumns,
-                     therows, width, weight, returntype)
 }
 
 
@@ -108,6 +117,7 @@ LuciernagaReport <- function(data, RetainedType, CellPopRatio, outfolder, filena
 #' @importFrom dplyr pull
 #' @importFrom dplyr mutate
 #' @importFrom viridis scale_fill_viridis
+#' @importFrom figpatch fig
 #'
 #' @noRd
 
@@ -196,13 +206,15 @@ InternalReport <- function(x, data, FirstDetectorColumn, LastDetectorColumn,
     CosineOrder <- data.frame(table(MeltedCosine$Var1)) %>% pull(Var1) %>%
       as.character(.)
 
-  } else {CosineHeatMap <- NULL}
+  } else {image_path <- system.file("hex", "hex.png", package = "Luciernaga", mustWork = TRUE)
+          CosineHeatMap <- fig(image_path)
+          }
 
   }
 
   Bd <- subset %>% mutate(Ratio = round(Ratio, 2))
 
-  if (exists("CosineOrder")) {BarData$Cluster <- factor(Bd$Cluster,
+  if (exists("CosineOrder")) {Bd$Cluster <- factor(Bd$Cluster,
       levels = unique(Bd$Cluster)[order(match(unique(Bd$Cluster), CosineOrder))])
   }
 

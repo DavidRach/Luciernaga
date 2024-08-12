@@ -350,9 +350,8 @@ CombinedData <- map(.x=MyGatingSet, .f=LuciernagaQC, subsets="lymphocytes", samp
 ### Downstream
 
 ```{r}
-CombinedData
-
-
+ThePlots <- LuciernagaReport(data=CombinedData, RetainedType = "normalized", CellPopRatio = 0.05, outfolder = NULL,
+                             filename = NULL, returntype = "patchwork")
 ```
 
 

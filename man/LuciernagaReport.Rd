@@ -13,13 +13,16 @@ LuciernagaReport(
   LinePlots = TRUE,
   CosinePlots = TRUE,
   StackedBarPlots = TRUE,
-  HeatmapPlots = TRUE
+  HeatmapPlots = TRUE,
+  returntype = "patchwork"
 )
 }
 \arguments{
 \item{outfolder}{The location that you want to save the .pdf output to.}
 
 \item{filename}{The name you want to save your .pdf file as.}
+
+\item{returntype}{Passed to Utility_Patchwork for "pdf" or "patchwork"}
 
 \item{LuciernagaData}{A data.frame}
 

@@ -12,7 +12,8 @@ Utility_Patchwork(
   therows = 3,
   width = 7,
   height = 9,
-  returntype = "pdf"
+  returntype = "pdf",
+  NotListofList = TRUE
 )
 }
 \arguments{
@@ -31,6 +32,8 @@ Utility_Patchwork(
 \item{height}{Desired page height}
 
 \item{returntype}{Whether to return "pdf" (to desired location) or "patchwork" (to R)}
+
+\item{NotListOfList}{Internal default is True, don't touch.}
 }
 \value{
 Some additional value to edit
