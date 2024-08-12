@@ -1,28 +1,33 @@
-#' Internal to Utility_SingleColorQC
-#' @importFrom dplyr select
+#' Internal for LuciernagaQC SingleStainSignatures
+#'
+#' @param x A cluster identity in the cluster column
+#' @param data A data.frame
+#' @param StartNormalizedMergedCol Indicated Start Normalized Columns
+#' @param EndNormalizedMergedCol Indicated End Normalized Columns
+#' @param ColsN Indicated end of Raw Value Columns
+#' @param AggregateName The sample.name derrived name
+#' @param Verbose Whether to return intermediate objects
+#' @param LocalMaximaRatio Height of peaks to proceed
+#' @param SecondaryPeaks Number of Secondary Peaks, default is set to 2.
+#'
 #' @importFrom dplyr filter
+#' @importFrom dplyr select
+#' @importFrom tidyselect all_of
 #' @importFrom dplyr mutate
-#' @importFrom dplyr summarize_all
-#' @importFrom dplyr pull
-#' @importFrom dplyr arrange
 #' @importFrom dplyr relocate
+#' @importFrom dplyr arrange
 #' @importFrom dplyr left_join
+#' @importFrom dplyr pull
 #' @importFrom dplyr case_when
-#' @importFrom dplyr rename
-#' @importFrom BiocGenerics nrow
-#' @importFrom flowWorkspace keyword
-#' @importFrom stringr str_detect
-#' @importFrom stringr str_split
-#' @importFrom flowWorkspace gs_pop_get_data
-#' @importFrom flowCore exprs
-#' @importFrom purrr map
-#' @importFrom purrr set_names
+#' @importFrom dplyr near
+#'
 #' @noRd
 
-ClusterIteration <- function(x, data, TheDetector, RatioCutoff, StartNormalizedMergedCol,
-                             EndNormalizedMergedCol, ColsN, AggregateName, Verbose){
-  subset <- data %>% filter(Cluster %in% x)
+ClusterIteration <- function(x, data, TheDetector, StartNormalizedMergedCol,
+                             EndNormalizedMergedCol, ColsN, AggregateName, Verbose,
+                             LocalMaximaRatio = 0.15, SecondaryPeaks = 2){
 
+  subset <- data %>% filter(Cluster %in% x)
   StashedIDs <- subset %>% select(Backups)
   TheNormalized <- subset %>% select(-Backups) %>% select(all_of(StartNormalizedMergedCol:EndNormalizedMergedCol))
   MyRawData <- subset %>% select(-Backups) %>% select(all_of(1:ColsN))
@@ -48,37 +53,38 @@ ClusterIteration <- function(x, data, TheDetector, RatioCutoff, StartNormalizedM
   #I made it export, now just need to rebuild, then remove extra :
   alternatename <- AggregateName
 
-  PointData <- Utility_LocalMaxima(theX = LocalX, theY = LocalY, therepeats = 3,
+  PointData <- Luciernaga:::Utility_LocalMaxima(theX = LocalX, theY = LocalY, therepeats = 3,
                                    w = 3, span = 0.11, alternatename = alternatename,
                                    Verbose = Verbose)
 
   colnames(PointData)[1] <- "TheDetector"
   colnames(PointData)[2] <- "TheHeight"
 
-  LocalMaximaRatio <- 0.15 #Possible Relocate Out
-  SecondaryPeaks <- 2
-
   Newest2 <- PointData %>% filter(TheHeight > LocalMaximaRatio) %>% arrange(desc(TheHeight))
   Assembled <- left_join(Newest2, Decoys, by = "TheDetector")
   if(nrow(Assembled) == 0){stop("Failed at Assembled, no local maxima greater than 0.15")}
   These <- Assembled %>% pull(Detectors)
+
   if (any(These %in% TheDetector)) {These <- These[These != TheDetector]}
 
-  if(length(These) == 0){message("Solitary Peak")
-  } else if (length(These) > SecondaryPeaks) {message("More than ", SecondaryPeaks+1, " peaks. Abbreviated.")
+  if(length(These) == 0){if (Verbose == TRUE) {message("Solitary Peak")}
+  } else if (length(These) > SecondaryPeaks) {
+    if (Verbose == TRUE) {message("More than ", SecondaryPeaks+1, " peaks. Abbreviated.")}
     These <- head(These, SecondaryPeaks)
   }
 
   MyData <- cbind(StashedIDs, MyRawData, TheNormalized)
   MyData$Cluster <- paste(TheDetector, "10-", sep = "_")
 
-  if (length(These) == 3){second <- These[[1]]
+  if (length(These) > 3){stop("Only currently set up to handle up to 4 fluorescence peaks per fluorophore")
+  } else if (length(These) == 3){second <- These[[1]]
   third <- These[[2]]
   fourth <- These[[3]]
   } else if (length(These) == 2){second <- These[[1]]
   third <- These[[2]]
   } else if (length(These) == 1){second <- These[[1]]
-  } else if (length(These) == 0){message("No second peak")}
+  } else if (length(These) == 0){
+    if (Verbose == TRUE) {message("No second peak")}}
 
   if (length(These) >= 1){MyData <- MyData %>% mutate(Cluster = case_when(
     near(MyData[[second]], 0.0) ~ paste0(MyData$Cluster, second, "_00-"),

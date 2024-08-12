@@ -1,22 +1,9 @@
-#' Internal to Utility_SingleColorQC
-#' @importFrom dplyr select
-#' @importFrom dplyr filter
-#' @importFrom dplyr mutate
-#' @importFrom dplyr summarize_all
-#' @importFrom dplyr pull
-#' @importFrom dplyr arrange
-#' @importFrom dplyr relocate
-#' @importFrom dplyr left_join
-#' @importFrom dplyr case_when
-#' @importFrom dplyr rename
-#' @importFrom BiocGenerics nrow
-#' @importFrom flowWorkspace keyword
-#' @importFrom stringr str_detect
-#' @importFrom stringr str_split
-#' @importFrom flowWorkspace gs_pop_get_data
-#' @importFrom flowCore exprs
-#' @importFrom purrr map
-#' @importFrom purrr set_names
+#' Internal for LuciernagaQC SingleStainSignatures
+#'
+#' @param Arg1 The first Detector Column
+#' @param Arg2 The second Detector Column
+#' @param data A data.frame
+#'
 #' @noRd
 
 SignatureCluster <- function(Arg1, Arg2, data){

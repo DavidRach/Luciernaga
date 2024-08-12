@@ -306,6 +306,7 @@ LuciernagaQC <- function(x, subsets, sample.name, removestrings, Verbose = FALSE
   Reintegrated1 <- Reintegrated1 %>% arrange(Backups)
 
   if (ExportType == "fcs"){
+
     BrightnessReturn <- Luciernaga:::Genesis(x=Reintegrated1, ff=ff, minimalfcscutoff = 0.05,
                         AggregateName=AggregateName, Brightness = Brightness,
                         outpath=outpath, OriginalStart = OriginalStart,

@@ -10,12 +10,12 @@
 #' @param Verbose Whether to print line plot outputs
 #' @param ... Additional arguments passed to zoo package
 #'
-#' @importFrom dplyr filter
-#' @importFrom dplyr select
 #' @importFrom stats loess
 #' @importFrom zoo rollapply
 #' @importFrom zoo zoo
-#' @import ggplot2
+#' @importFrom dplyr filter
+#' @importFrom ggplot2 ggplot
+#' @importFrom dplyr select
 #'
 #' @return A value to be determined later
 #' @keywords internal

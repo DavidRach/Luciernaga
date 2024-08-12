@@ -1,23 +1,29 @@
-#' Internal to Utility_SingleColorQC
-#' @importFrom dplyr select
+#' Internal to LuciernagaQC
+#'
+#' @param x A passed detector used for filtering
+#' @param WorkAround1 A passed data.frame
+#' @param ColsN Indicated end of Raw Value Columns
+#' @param StartNormalizedMergedCol Indicated Start Normalized Columns
+#' @param EndNormalizedMergedCol Indicated End Normalized Columns
+#' @param Increments A numeric to round the normalized bins by. Default is 0.1
+#' @param Verbose Whether to return intermediate objects via print and plot for progress monitoring
+#' @param LocalMaximaRatio Height of peaks to proceed
+#' @param SecondaryPeaks Number of Secondary Peaks, default is set to 2.
+#'
 #' @importFrom dplyr filter
+#' @importFrom dplyr select
+#' @importFrom tidyselect all_of
 #' @importFrom dplyr mutate
-#' @importFrom dplyr summarize_all
-#' @importFrom dplyr pull
-#' @importFrom dplyr arrange
+#' @importFrom dplyr across
+#' @importFrom tidyselect where
 #' @importFrom dplyr relocate
+#' @importFrom dplyr arrange
 #' @importFrom dplyr left_join
+#' @importFrom dplyr pull
 #' @importFrom dplyr case_when
-#' @importFrom dplyr rename
-#' @importFrom BiocGenerics nrow
-#' @importFrom flowWorkspace keyword
-#' @importFrom stringr str_detect
-#' @importFrom stringr str_split
-#' @importFrom flowWorkspace gs_pop_get_data
-#' @importFrom flowCore exprs
-#' @importFrom purrr map
-#' @importFrom purrr set_names
-#' @noRd
+#' @importFrom dplyr near
+#'
+#' @keywords Internal
 
 UnstainedSignatures <- function(x, WorkAround1, alternatename, ColsN, StartNormalizedMergedCol,
                                 EndNormalizedMergedCol, Increments=0.1, Verbose = FALSE,

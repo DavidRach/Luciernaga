@@ -1,36 +1,48 @@
-#' Internal to Utility_SingleColorQC
+#' Internal to LuciernagaQC
 #'
+#' @param x The Detector being mapped in
+#' @param WorkAround1 The data.frame being used
+#' @param Substraction Dictates what autofluorescence gets extracted. Options include "Internal", "Average"
+#' @param ColsN Indicated end of Raw Value Columns
+#' @param StartNormalizedMergedCol Indicated Start Normalized Columns
+#' @param EndNormalizedMergedCol Indicated End Normalized Columns
+#' @param Samples A data.frame row containing raw data of external Autofluorescence
+#' @param Increments A numeric to round the normalized bins by. Default is 0.1
+#' @param stats A passed param, usually "median" or "mean"
+#' @param ratioSCcutoff The ratio dictating mininum size return for single colors, default is 0.01
+#' @param TheMainAF A passed parameter dictating what detector column the autofluorescence is
+#' @param AggregateName A passed parameter deriving from edits to sample.name and removestrings
+#' @param Verbose Whether to return intermediate objects via print and plot for progress monitoring
+#' @param SCData Whether to return "subtracted" or "raw" data at the end.
+#' @param LocalMaximaRatio Height of peaks to proceed
+#' @param SecondaryPeaks Number of Secondary Peaks, default is set to 2.
+#'
+#' @importFrom dplyr filter
+#' @importFrom dplyr arrange
 #' @importFrom dplyr select
 #' @importFrom tidyselect all_of
 #' @importFrom dplyr mutate
+#' @importFrom dplyr across
 #' @importFrom tidyselect where
 #' @importFrom dplyr relocate
-#'
-#'
-#' @importFrom dplyr filter
-#'
-#' @importFrom dplyr summarize_all
+#' @importFrom dplyr bind_rows
+#' @importFrom stringr str_starts
+#' @importFrom ggplot2 ggplot
+#' @importFrom dplyr slice
 #' @importFrom dplyr pull
-#' @importFrom dplyr arrange
-#'
 #' @importFrom dplyr left_join
-#' @importFrom dplyr case_when
-#' @importFrom dplyr rename
-#' @importFrom BiocGenerics nrow
-#' @importFrom flowWorkspace keyword
-#' @importFrom stringr str_detect
-#' @importFrom stringr str_split
-#' @importFrom flowWorkspace gs_pop_get_data
-#' @importFrom flowCore exprs
 #' @importFrom purrr map
-#' @importFrom purrr set_names
-#' @noRd
+#'
+#' @keywords internal
+
 
 SingleStainSignatures <- function(x, WorkAround1, alternatename, ColsN, StartNormalizedMergedCol,
-                                  EndNormalizedMergedCol, Samples, name, results, Increments=0.1,
+                                  EndNormalizedMergedCol, Samples, Increments=0.1,
                                   Subtraction = "Internal", stats, ratioSCcutoff=0.01, TheMainAF,
-                                  AggregateName, Verbose = FALSE, SCData = "subtracted"){
+                                  AggregateName, Verbose = FALSE, SCData = "subtracted",
+                                  LocalMaximaRatio, SecondaryPeaks){
 
+  if (Subtraction == "Internal"){
   # Filtering the Non-Rounded Values First
   AutofluorescentSubset <- WorkAround1 %>% dplyr::filter(.data[[TheMainAF]] %in% 1.000) %>% arrange(desc(.data[[x]]))
   #nrow(AutofluorescentSubset)
@@ -88,6 +100,8 @@ SingleStainSignatures <- function(x, WorkAround1, alternatename, ColsN, StartNor
   ################################
 
   AFforSubtraction <- Total %>% filter(str_starts(Clusters, TheMainAF)) %>% arrange(desc(Counts)) %>% slice(1) %>% pull(Clusters) #%>% as.character()
+  }
+
 
   if (Subtraction == "Internal"){
 
@@ -199,7 +213,8 @@ SingleStainSignatures <- function(x, WorkAround1, alternatename, ColsN, StartNor
                  TheDetector=TheDetector,
                  StartNormalizedMergedCol=StartNormalizedMergedCol,
                  EndNormalizedMergedCol=EndNormalizedMergedCol,
-                 ColsN=ColsN, AggregateName=AggregateName, Verbose=Verbose) %>% bind_rows()
+                 ColsN=ColsN, AggregateName=AggregateName, Verbose=Verbose,
+                 LocalMaximaRatio=LocalMaximaRatio, SecondaryPeaks=SecondaryPeaks) %>% bind_rows()
 
   NewTable <- data.frame(table(AllData$Cluster), check.names=FALSE)
   colnames(NewTable)[1] <- "Cluster"
