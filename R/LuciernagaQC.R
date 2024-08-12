@@ -218,7 +218,7 @@ LuciernagaQC <- function(x, subsets, sample.name, removestrings, Verbose = FALSE
 
   # Adding way to switch to alternate AFs.
   if (is.null(desiredAF)){This <- WorkAround %>% filter(.data[[TheMainAF]] == 1) %>% select(all_of(1:ColsN))
-  } else {desiredAF <- NameCleanUp(desiredAF, c("-A"))
+  } else {desiredAF <- Luciernaga:::NameCleanUp(desiredAF, c("-A"))
           TheMainAF <- desiredAF
           This <- WorkAround %>% filter(.data[[desiredAF]] == 1) %>% select(all_of(1:ColsN))}
 
@@ -244,7 +244,7 @@ LuciernagaQC <- function(x, subsets, sample.name, removestrings, Verbose = FALSE
 
     # Adding way to switch to alternate AFs.
     if (is.null(desiredAF)){This <- WorkAround %>% filter(.data[[TheMainAF]] == 1) %>% select(all_of(1:ColsN))
-    } else {desiredAF <- NameCleanUp(desiredAF, c("-A"))
+    } else {desiredAF <- Luciernaga:::NameCleanUp(desiredAF, c("-A"))
     TheMainAF <- desiredAF
     This <- WorkAround %>% filter(.data[[desiredAF]] == 1) %>% select(all_of(1:ColsN))}
 
@@ -339,7 +339,8 @@ LuciernagaQC <- function(x, subsets, sample.name, removestrings, Verbose = FALSE
     TheClusters <- Data %>% pull(Cluster)
 
     TheSummary <- map(.x=TheClusters, .f=LuciernagaReport, Data=ExportData, RetainedType=RetainedType,
-        ColsN=ColsN, stats=stats)
+        ColsN=ColsN, StartNormalizedMergedCol=StartNormalizedMergedCol,
+        EndNormalizedMergedCol=EndNormalizedMergedCol, stats=stats) %>% bind_rows()
 
     FinalData <- left_join(Data, TheSummary, by = "Cluster")
     return(FinalData)
@@ -364,7 +365,7 @@ LuciernagaReport <- function(x, Data, RetainedType, ColsN, StartNormalizedMerged
       StartNormalizedMergedCol:EndNormalizedMergedCol))}
 
     Averaged <- AveragedSignature(Data, stats)
-    Summart <- cbind(x, Averaged) %>% rename(Cluster = x)
+    Summary <- cbind(x, Averaged) %>% rename(Cluster = x)
     return(Summary)
 }
 

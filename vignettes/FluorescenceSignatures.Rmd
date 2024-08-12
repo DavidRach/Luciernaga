@@ -226,7 +226,7 @@ removestrings <- ".fcs"
 LuciernagaQC(x=MyGatingSet[2], subsets="lymphocytes", removestrings=removestrings, sample.name="GUID", 
                       unmixingcontroltype = "cells", Unstained = TRUE, ratiopopcutoff = 0.001, Verbose = TRUE,
                       AFOverlap = AFOverlap, stats = "median", ExportType = "data.frame", SignatureReturnNow = TRUE, 
-                      sourcelocation = NULL, outpath = NULL, Brightness = FALSE)
+                      outpath = NULL, Brightness = FALSE)
 ``` 
 
 The important parameters for the above outputs where Verbose, ratiopopcutoff, stats, and SignatureReturnNow.
@@ -238,7 +238,7 @@ Here is an example when we restrict it to detectors with 1% of starting lymphocy
 LuciernagaQC(x=MyGatingSet[2], subsets="lymphocytes", removestrings=removestrings, sample.name="GUID", 
                       unmixingcontroltype = "cells", Unstained = TRUE, ratiopopcutoff = 0.01, Verbose = TRUE,
                       AFOverlap = AFOverlap, stats = "median", ExportType = "data.frame", SignatureReturnNow = TRUE, 
-                      sourcelocation = NULL, outpath = NULL, Brightness = FALSE)
+                      outpath = NULL, Brightness = FALSE)
 ``` 
 
 The SignatureReturnNow short circuits the downstream analysis. It calculates the main autofluorescence by taking the most abundant detector, filtering those cells, and then taking the selected stat for each detector from those cells. It then returns these values as a data.frame. 
@@ -249,17 +249,17 @@ If by contrast, we wanted the signature of the second and third peak detectors (
 UV7 <- LuciernagaQC(x=MyGatingSet[2], subsets="lymphocytes", removestrings=removestrings, sample.name="GUID", 
                       unmixingcontroltype = "cells", Unstained = TRUE, ratiopopcutoff = 0.01, Verbose = FALSE,
                       AFOverlap = AFOverlap, stats = "median", ExportType = "data.frame", SignatureReturnNow = TRUE, 
-                      sourcelocation = NULL, outpath = NULL, Brightness = FALSE)
+                      outpath = NULL, Brightness = FALSE)
 
 V7 <- LuciernagaQC(x=MyGatingSet[2], desiredAF = "V7-A", subsets="lymphocytes", removestrings=removestrings, sample.name="GUID", 
                       unmixingcontroltype = "cells", Unstained = TRUE, ratiopopcutoff = 0.01, Verbose = FALSE,
                       AFOverlap = AFOverlap, stats = "median", ExportType = "data.frame", SignatureReturnNow = TRUE, 
-                      sourcelocation = NULL, outpath = NULL, Brightness = FALSE)
+                      outpath = NULL, Brightness = FALSE)
 
 V3 <- LuciernagaQC(x=MyGatingSet[2], desiredAF = "V3-A", subsets="lymphocytes", removestrings=removestrings, sample.name="GUID", 
                       unmixingcontroltype = "cells", Unstained = TRUE, ratiopopcutoff = 0.01, Verbose = FALSE,
                       AFOverlap = AFOverlap, stats = "median", ExportType = "data.frame", SignatureReturnNow = TRUE, 
-                      sourcelocation = NULL, outpath = NULL, Brightness = FALSE)
+                      outpath = NULL, Brightness = FALSE)
 
 DifferentPeakDetectors <- bind_rows(UV7, V7, V3)
 DifferentPeakDetectors
@@ -287,7 +287,7 @@ In the case ofsingle color unmixing control (in this case, APC-Fire 750, the oth
 SC_InternalAF <- LuciernagaQC(x=MyGatingSet[1], subsets="lymphocytes", removestrings=removestrings, sample.name="GUID", 
                       unmixingcontroltype = "cells", Unstained = FALSE, ratiopopcutoff = 0.01, Verbose = TRUE,
                       AFOverlap = AFOverlap, stats = "median", ExportType = "data.frame", SignatureReturnNow = TRUE, 
-                      sourcelocation = NULL, outpath = NULL, Brightness = FALSE)
+                      outpath = NULL, Brightness = FALSE)
 SC_InternalAF
 ```
 
@@ -314,7 +314,7 @@ LuciernagaQC(x=MyGatingSet[2], subsets="lymphocytes", sample.name="GUID", experi
 
 And for single-color controls:
 
-```{r}
+```{r, eval= FALSE}
 FileLocation <- system.file("extdata", package = "Luciernaga")
 pattern = "AutofluorescentOverlaps.csv"
 AFOverlap <- list.files(path=FileLocation, pattern=pattern, full.names = TRUE)
@@ -328,6 +328,18 @@ LuciernagaQC(x=MyGatingSet[1], subsets="lymphocytes", sample.name="GUID", experi
              Brightness = TRUE, SignatureReturnNow = FALSE, minimalfcscutoff = 0.05, Subtraction = "Internal",
              SCData = "subtracted")
 ```
+
+And finally, we can RetainedType = "normalized and ExportType = "data"
+```{r}
+
+Data <- LuciernagaQC(x=MyGatingSet[1], subsets="lymphocytes", sample.name="GUID", experiment = "Monocytes", 
+             condition = "exvivo", removestrings = removestrings, Verbose = FALSE, unmixingcontroltype="both",
+             Unstained=FALSE, ratiopopcutoff = 0.01, AFOverlap=AFOverlap, desiredAF="V3-A", externalAF = NULL, 
+             stats = "median", NegativeType = "artificial", ExportType = "data", outpath=StorageLocation,
+             Brightness = TRUE, SignatureReturnNow = FALSE, minimalfcscutoff = 0.05, Subtraction = "Internal",
+             SCData = "subtracted", RetainedType="normalized", Increments=0.1)
+```
+
 
 
 The working unit for most of Luciernaga's functions is a GatingSet object. Let's now workthrough the main Luciernaga function to characterize single color reference controls. First, let's provide a .csv file to provide information about where to expect to have overlapping autofluorescent signatures with fluorophore signatures. 
@@ -350,7 +362,7 @@ Retained single color-stain cells then have an average autofluorescence signatur
     Unstained <- map(MyGatingSet[1], Utility_SingleColorQC, subsets = "lymphocytes",
         sample.name = "GUID", group.name = "GROUPNAME", experiment = NULL,
         experiment.name = "$DATE", stats = "median", Kept = "Normalized",
-        external = NULL, sourcelocation = NULL, outpath = MainOutPath,
+        external = NULL,outpath = MainOutPath,
         artificial = FALSE, fcsexport = FALSE, mainAF = "V7-A",
         AFOverlap = AutofluorescentOverlaps, Beads = FALSE, Brightness = TRUE, 
         Unstained = FALSE) %>%
