@@ -19,7 +19,7 @@
 #' @param stats Whether to take "mean" or "median"
 #' @param desiredAF Main Autofluorescence Detector (ex. "V7-A")
 #' @param externalAF A data.frame row containing external autofluorescence to subtract from single colors.
-#' @param ExportType Whether to return "fcs", "data.frame" or "csv"
+#' @param ExportType Whether to return "fcs", "data"
 #' @param SignatureReturnNow Short circuits the function and returns signature for specified autofluorescence.
 #' @param outpath  Location where created .fcs and .csv files are sent
 #' @param minimalfcscutoff A ratio determining number cells needed for .fcs export
@@ -30,6 +30,7 @@
 #' @param LocalMaximaRatio Height of peaks to proceed
 #' @param SecondaryPeaks Number of Secondary Peaks, default is set to 2.
 #' @param Increments Rounding parameter, default is set to 0.1
+#' @param RetainedType Whether to return "raw" or "normalized" values for lineplots.
 #'
 #' @importFrom flowWorkspace gs_pop_get_data
 #' @importFrom BiocGenerics nrow
@@ -62,7 +63,7 @@ LuciernagaQC <- function(x, subsets, sample.name, removestrings, Verbose = FALSE
                                   ExportType, SignatureReturnNow=FALSE, outpath,
                                   minimalfcscutoff = 0.05, Subtraction = "Internal", SCData = "subtracted",
                                   NegativeType= "default", TotalNegatives = 500, Brightness=FALSE,
-                                  LocalMaximaRatio=0.15, SecondaryPeaks=2, Increments=0.1){
+                                  LocalMaximaRatio=0.15, SecondaryPeaks=2, Increments=0.1, RetainedType="normalized"){
 
   name <- keyword(x, sample.name)
   Type <- Luciernaga:::Internal_Typing(name=name, unmixingcontroltype=unmixingcontroltype, Unstained=Unstained)
@@ -322,10 +323,50 @@ LuciernagaQC <- function(x, subsets, sample.name, removestrings, Verbose = FALSE
                         TotalNegatives=TotalNegatives, Samples=Samples, ExportType=ExportType)
   }
 
-  if (ExportType == "data.frame"){return(Reintegrated1)}
+  if (ExportType == "data"){
+    ExportData <- RetainedDF %>% select(-Backups)
+    Data <- data.frame(table(ExportData$Cluster))
+    Data <- Data %>% dplyr::arrange(desc(Freq))
+    colnames(Data)[1] <- "Cluster"
+    colnames(Data)[2] <- "Count"
+    Data
+
+    Data$Sample <- AggregateName
+    Data$Experiment <- Experiment
+    Data$Condition <- Condition
+    Data <- Data %>% relocate(Sample, Experiment, Condition, .before=Cluster)
+
+    TheClusters <- Data %>% pull(Cluster)
+
+    TheSummary <- map(.x=TheClusters, .f=LuciernagaReport, Data=ExportData, RetainedType=RetainedType,
+        ColsN=ColsN, stats=stats)
+
+    FinalData <- left_join(Data, TheSummary, by = "Cluster")
+    return(FinalData)
+  }
+
 }
 
 
+
+#' Internal for LuciernagaQC
+#'
+#' @importFrom dplyr filter
+#' @importFrom dplyr select
+#' @importFrom tidyselect all_of
+#' @importFrom dplyr rename
+#' @noRd
+
+LuciernagaReport <- function(x, Data, RetainedType, ColsN, StartNormalizedMergedCol,
+                             EndNormalizedMergedCol, stats){
+    if (RetainedType == "raw"){Data <- Data %>% filter(Cluster %in% x) %>% select(all_of(1:ColsN))}
+    if (RetainedType == "normalized"){Data <- Data %>% filter(Cluster %in% x) %>%select(all_of(
+      StartNormalizedMergedCol:EndNormalizedMergedCol))}
+
+    Averaged <- AveragedSignature(Data, stats)
+    Summart <- cbind(x, Averaged) %>% rename(Cluster = x)
+    return(Summary)
+}
 
 #' Internal for LuciernagaQC
 #'

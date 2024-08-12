@@ -32,7 +32,8 @@ LuciernagaQC(
   Brightness = FALSE,
   LocalMaximaRatio = 0.15,
   SecondaryPeaks = 2,
-  Increments = 0.1
+  Increments = 0.1,
+  RetainedType = "normalized"
 )
 }
 \arguments{
@@ -71,7 +72,7 @@ overlap of individual fluorophores for exclusion}
 
 \item{externalAF}{A data.frame row containing external autofluorescence to subtract from single colors.}
 
-\item{ExportType}{Whether to return "fcs", "data.frame" or "csv"}
+\item{ExportType}{Whether to return "fcs", "data"}
 
 \item{SignatureReturnNow}{Short circuits the function and returns signature for specified autofluorescence.}
 
@@ -92,6 +93,8 @@ overlap of individual fluorophores for exclusion}
 \item{SecondaryPeaks}{Number of Secondary Peaks, default is set to 2.}
 
 \item{Increments}{Rounding parameter, default is set to 0.1}
+
+\item{RetainedType}{Whether to return "raw" or "normalized" values for lineplots.}
 }
 \value{
 Additional information to be added

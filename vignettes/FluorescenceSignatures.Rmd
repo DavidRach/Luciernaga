@@ -330,13 +330,6 @@ LuciernagaQC(x=MyGatingSet[1], subsets="lymphocytes", sample.name="GUID", experi
 ```
 
 
-
-
-
-
-
-
-
 The working unit for most of Luciernaga's functions is a GatingSet object. Let's now workthrough the main Luciernaga function to characterize single color reference controls. First, let's provide a .csv file to provide information about where to expect to have overlapping autofluorescent signatures with fluorophore signatures. 
 
 ```{r}
