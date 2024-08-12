@@ -319,13 +319,14 @@ FileLocation <- system.file("extdata", package = "Luciernaga")
 pattern = "AutofluorescentOverlaps.csv"
 AFOverlap <- list.files(path=FileLocation, pattern=pattern, full.names = TRUE)
 removestrings <- c(".fcs", "(Cells)")
-StorageLocation <- file.path("C:", "Users", "12692", "Desktop")
+StorageLocation <- file.path("C:", "Users", "JohnDoe", "Desktop")
 
 LuciernagaQC(x=MyGatingSet[1], subsets="lymphocytes", sample.name="GUID", experiment = "Monocytes", 
-             condition = "exvivo", removestrings = removestrings, Verbose = TRUE, unmixingcontroltype="both",
-             Unstained=FALSE, ratiopopcutoff = 0.01, AFOverlap=AFOverlap, desiredAF=NULL, externalAF = NULL, 
-             stats = "median", NegativeType = "default",
-             ExportType = "fcs", outpath=StorageLocation, Brightness = FALSE, SignatureReturnNow = FALSE)
+             condition = "exvivo", removestrings = removestrings, Verbose = FALSE, unmixingcontroltype="both",
+             Unstained=FALSE, ratiopopcutoff = 0.01, AFOverlap=AFOverlap, desiredAF="V3-A", externalAF = NULL, 
+             stats = "median", NegativeType = "artificial", ExportType = "fcs", outpath=StorageLocation,
+             Brightness = TRUE, SignatureReturnNow = FALSE, minimalfcscutoff = 0.05, Subtraction = "Internal",
+             SCData = "subtracted")
 ```
 
 

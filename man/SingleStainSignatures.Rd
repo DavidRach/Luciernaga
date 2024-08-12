@@ -7,7 +7,6 @@
 SingleStainSignatures(
   x,
   WorkAround1,
-  alternatename,
   ColsN,
   StartNormalizedMergedCol,
   EndNormalizedMergedCol,

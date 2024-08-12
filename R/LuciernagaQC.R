@@ -6,7 +6,7 @@
 #' @param removestrings A string of character values to remove from sample.name
 #' @param Verbose Whether to print outputs as you go.
 #' @param unmixingcontroltype Whether your inputs are "cells", "beads" or "both"
-#' @param Unmixing Set to True when running unstained samples that don't have Unstained in the Name
+#' @param Unstained Set to True when running unstained samples that don't have Unstained in the Name
 #' @param ratiopopcutoff A numeric ratio for peak detector inclusion, default is set to 0.01 all startingcells
 #' @param experiment Provide directly experiment name (ex. "JAN2024")
 #' @param experiment.name Keyword variable which experiment information
@@ -22,9 +22,14 @@
 #' @param ExportType Whether to return "fcs", "data.frame" or "csv"
 #' @param SignatureReturnNow Short circuits the function and returns signature for specified autofluorescence.
 #' @param outpath  Location where created .fcs and .csv files are sent
-#' @param artificial Whether an artificial 0 population should be added for
-#'  a background autofluorescence stand in.
+#' @param minimalfcscutoff A ratio determining number cells needed for .fcs export
+#' @param Subtraction Whether for single color controls to use "Internal" or "External" autofluorescence
+#' @param SCData Whether to return "subtracted" or "raw" data for single colors
+#' @param NegativeType Whether to append a negative pop to .fcs file, "default", "artifical" or "samples"
 #' @param Brightness Whether sum of detectors should be returned.
+#' @param LocalMaximaRatio Height of peaks to proceed
+#' @param SecondaryPeaks Number of Secondary Peaks, default is set to 2.
+#' @param Increments Rounding parameter, default is set to 0.1
 #'
 #' @importFrom flowWorkspace gs_pop_get_data
 #' @importFrom BiocGenerics nrow
@@ -54,9 +59,10 @@ LuciernagaQC <- function(x, subsets, sample.name, removestrings, Verbose = FALSE
                                   unmixingcontroltype="both", Unstained=FALSE, ratiopopcutoff=0.01,
                                   experiment = NULL, experiment.name = NULL, condition = NULL, condition.name = NULL,
                                   AFOverlap, stats="median", desiredAF=NULL, externalAF = NULL,
-                                  ExportType, SignatureReturnNow=FALSE, sourcelocation, outpath,
-                                  minimalfcscutoff = 0.05, NegativeType= "default",
-                                  TotalNegatives = 500, Brightness=FALSE){
+                                  ExportType, SignatureReturnNow=FALSE, outpath,
+                                  minimalfcscutoff = 0.05, Subtraction = "Internal", SCData = "subtracted",
+                                  NegativeType= "default", TotalNegatives = 500, Brightness=FALSE,
+                                  LocalMaximaRatio=0.15, SecondaryPeaks=2, Increments=0.1){
 
   name <- keyword(x, sample.name)
   Type <- Luciernaga:::Internal_Typing(name=name, unmixingcontroltype=unmixingcontroltype, Unstained=Unstained)
@@ -177,11 +183,11 @@ LuciernagaQC <- function(x, subsets, sample.name, removestrings, Verbose = FALSE
   AFChannels <- AFChannels[1,]
   AFChannels <- gsub("-A", "", AFChannels)
 
-  SCData <- AFData %>% filter(Fluorophore != "Unstained")
-  SCData$Fluorophore <- gsub("-A", "", SCData$Fluorophore)
-  TroubleChannels <- SCData %>% pull(Fluorophore)
+  TheSCData <- AFData %>% filter(Fluorophore != "Unstained")
+  TheSCData$Fluorophore <- gsub("-A", "", TheSCData$Fluorophore)
+  TroubleChannels <- TheSCData %>% pull(Fluorophore)
 
-  results <- map(.x=TroubleChannels, .f=TroubleChannelExclusion, SCData=SCData, MainDetector=MainDetector, AFChannels=AFChannels) %>%
+  results <- map(.x=TroubleChannels, .f=TroubleChannelExclusion, TheSCData=TheSCData, MainDetector=MainDetector, AFChannels=AFChannels) %>%
     set_names(TroubleChannels)
 
   matching_names <- names(results)[str_detect(name, names(results))]
@@ -279,17 +285,19 @@ LuciernagaQC <- function(x, subsets, sample.name, removestrings, Verbose = FALSE
     RetainedDF <- map(.x= Retained, .f=Luciernaga:::UnstainedSignatures,
                       WorkAround1=WorkAround1, alternatename=AggregateName,
                       ColsN=ColsN, StartNormalizedMergedCol=StartNormalizedMergedCol,
-                      EndNormalizedMergedCol=EndNormalizedMergedCol, Verbose=Verbose) %>% bind_rows()
+                      EndNormalizedMergedCol=EndNormalizedMergedCol, Verbose=Verbose) %>%
+      bind_rows()
 
   } else {
     # x <- Retained[1]
     RetainedDF <- map(.x= Retained, .f=Luciernaga:::SingleStainSignatures,
-                      WorkAround1=WorkAround1, alternatename=AggregateName,
+                      WorkAround1=WorkAround1, AggregateName=AggregateName,
                       ColsN=ColsN, StartNormalizedMergedCol=StartNormalizedMergedCol,
-                      EndNormalizedMergedCol=EndNormalizedMergedCol, Samples=Samples, name=name,
-                      results=results, stats=stats, TheMainAF=TheMainAF,
-                      AggregateName=AggregateName, Verbose = Verbose) %>% bind_rows()
-  }
+                      EndNormalizedMergedCol=EndNormalizedMergedCol, Samples=Samples,
+                      Increments=Increments, Subtraction=Subtraction, stats=stats,
+                      TheMainAF=TheMainAF, Verbose = Verbose, SCData = SCData,
+                      LocalMaximaRatio=LocalMaximaRatio, SecondaryPeaks=SecondaryPeaks) %>% bind_rows()
+    }
 
   Reintegrated <- left_join(RetainedDF, StashedDF, by = "Backups")
 
@@ -324,8 +332,8 @@ LuciernagaQC <- function(x, subsets, sample.name, removestrings, Verbose = FALSE
 #' @importFrom dplyr filter
 #' @importFrom dplyr pull
 #' @noRd
-TroubleChannelExclusion <- function(x, SCData, MainDetector, AFChannels){
-  Internal <- SCData %>% filter(Fluorophore %in% x) %>% pull(MainDetector)
+TroubleChannelExclusion <- function(x, TheSCData, MainDetector, AFChannels){
+  Internal <- TheSCData %>% filter(Fluorophore %in% x) %>% pull(MainDetector)
   Internal <- gsub("-A", "", Internal)
   Exclusion <- setdiff(AFChannels, Internal)
   return(Exclusion)

@@ -36,7 +36,7 @@
 #' @keywords internal
 
 
-SingleStainSignatures <- function(x, WorkAround1, alternatename, ColsN, StartNormalizedMergedCol,
+SingleStainSignatures <- function(x, WorkAround1, ColsN, StartNormalizedMergedCol,
                                   EndNormalizedMergedCol, Samples, Increments=0.1,
                                   Subtraction = "Internal", stats, ratioSCcutoff=0.01, TheMainAF,
                                   AggregateName, Verbose = FALSE, SCData = "subtracted",

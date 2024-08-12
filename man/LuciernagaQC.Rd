@@ -23,12 +23,16 @@ LuciernagaQC(
   externalAF = NULL,
   ExportType,
   SignatureReturnNow = FALSE,
-  sourcelocation,
   outpath,
   minimalfcscutoff = 0.05,
+  Subtraction = "Internal",
+  SCData = "subtracted",
   NegativeType = "default",
   TotalNegatives = 500,
-  Brightness = FALSE
+  Brightness = FALSE,
+  LocalMaximaRatio = 0.15,
+  SecondaryPeaks = 2,
+  Increments = 0.1
 )
 }
 \arguments{
@@ -43,6 +47,8 @@ LuciernagaQC(
 \item{Verbose}{Whether to print outputs as you go.}
 
 \item{unmixingcontroltype}{Whether your inputs are "cells", "beads" or "both"}
+
+\item{Unstained}{Set to True when running unstained samples that don't have Unstained in the Name}
 
 \item{ratiopopcutoff}{A numeric ratio for peak detector inclusion, default is set to 0.01 all startingcells}
 
@@ -71,12 +77,21 @@ overlap of individual fluorophores for exclusion}
 
 \item{outpath}{Location where created .fcs and .csv files are sent}
 
+\item{minimalfcscutoff}{A ratio determining number cells needed for .fcs export}
+
+\item{Subtraction}{Whether for single color controls to use "Internal" or "External" autofluorescence}
+
+\item{SCData}{Whether to return "subtracted" or "raw" data for single colors}
+
+\item{NegativeType}{Whether to append a negative pop to .fcs file, "default", "artifical" or "samples"}
+
 \item{Brightness}{Whether sum of detectors should be returned.}
 
-\item{Unmixing}{Set to True when running unstained samples that don't have Unstained in the Name}
+\item{LocalMaximaRatio}{Height of peaks to proceed}
 
-\item{artificial}{Whether an artificial 0 population should be added for
-a background autofluorescence stand in.}
+\item{SecondaryPeaks}{Number of Secondary Peaks, default is set to 2.}
+
+\item{Increments}{Rounding parameter, default is set to 0.1}
 }
 \value{
 Additional information to be added
