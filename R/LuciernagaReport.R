@@ -170,5 +170,5 @@ InternalReport <- function(){
   #CosineHeatMap)
 
   theplots[[length(theplots) +1]] <- theNegplots
-  }
 }
+

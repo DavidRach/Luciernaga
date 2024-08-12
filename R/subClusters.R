@@ -10,7 +10,7 @@
 #'
 #'
 #' @return A variable to be defined later
-#' @export
+#' @keywords internal
 #'
 #' @examples NULL
 subClusters <- function(data){

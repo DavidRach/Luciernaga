@@ -39,4 +39,4 @@ UnstainedSignatures(
 \description{
 Internal to LuciernagaQC
 }
-\keyword{Internal}
+\keyword{internal}

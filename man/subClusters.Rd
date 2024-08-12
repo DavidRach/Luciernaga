@@ -19,3 +19,4 @@ Check identical clusters for individual variability across experiments.
 \examples{
 NULL
 }
+\keyword{internal}

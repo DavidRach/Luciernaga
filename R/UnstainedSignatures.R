@@ -23,7 +23,7 @@
 #' @importFrom dplyr case_when
 #' @importFrom dplyr near
 #'
-#' @keywords Internal
+#' @keywords internal
 
 UnstainedSignatures <- function(x, WorkAround1, alternatename, ColsN, StartNormalizedMergedCol,
                                 EndNormalizedMergedCol, Increments, Verbose = FALSE,
