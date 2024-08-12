@@ -334,14 +334,14 @@ And finally, we can RetainedType = "normalized and ExportType = "data"
 
 Data <- LuciernagaQC(x=MyGatingSet[1], subsets="lymphocytes", sample.name="GUID", experiment = "Monocytes", 
              condition = "exvivo", removestrings = removestrings, Verbose = FALSE, unmixingcontroltype="both",
-             Unstained=FALSE, ratiopopcutoff = 0.05, AFOverlap=AFOverlap, desiredAF=NULL, externalAF = NULL, 
+             Unstained=FALSE, ratiopopcutoff = 0.01, AFOverlap=AFOverlap, desiredAF=NULL, externalAF = NULL, 
              stats = "median", NegativeType = "artificial", ExportType = "data", outpath=StorageLocation,
              Brightness = TRUE, SignatureReturnNow = FALSE, minimalfcscutoff = 0.05, Subtraction = "Internal",
              SCData = "subtracted", RetainedType="normalized", Increments=0.2)
 
 CombinedData <- map(.x=MyGatingSet, .f=LuciernagaQC, subsets="lymphocytes", sample.name="GUID", experiment = "Monocytes", 
              condition = "exvivo", removestrings = removestrings, Verbose = FALSE, unmixingcontroltype="both",
-             Unstained=FALSE, ratiopopcutoff = 0.01, AFOverlap=AFOverlap, desiredAF="V3-A", externalAF = NULL, 
+             Unstained=FALSE, ratiopopcutoff = 0.01, AFOverlap=AFOverlap, desiredAF=NULL, externalAF = NULL, 
              stats = "median", NegativeType = "artificial", ExportType = "data", outpath=StorageLocation,
              Brightness = TRUE, SignatureReturnNow = FALSE, minimalfcscutoff = 0.05, Subtraction = "Internal",
              SCData = "subtracted", RetainedType="normalized", Increments=0.2) %>% bind_rows()

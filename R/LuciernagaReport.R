@@ -27,9 +27,43 @@
 LuciernagaReport <- function(data, FluorophoreColumnName, ClusterColumnName,
                              outfolder, filename, RetainedType, CellPopRatio){
 
-  Items <- data.frame(table(data$Sample)) %>% pull(Var1) %>% as.character(.)
+  ################################################
+  # Filtered by CellPopRatio, and creating other #
+  ################################################
+
+  TheCounts <- data %>% group_by(Sample, Experiment, Condition) %>%
+    summarize(TotalCells = sum(Count, na.rm = TRUE), .groups = 'drop')
+
+  TheData <- data %>% left_join(TheCounts, by = c("Sample", "Experiment", "Condition"))
+
+  TheData <- TheData %>% mutate(Ratio = round(Count/TotalCells, 3)) %>% relocate(Ratio, .after=Count) %>%
+    select(-TotalCells)
+
+  FilteredData <- TheData %>% filter(Ratio > CellPopRatio)
+
+  OtherData <- FilteredData %>% group_by(Sample, Experiment, Condition) %>%
+    summarize(LostRatio = 1 - sum(Ratio, na.rm = TRUE), .groups = 'drop')
+
+  Other <- TheCounts %>% left_join(OtherData, by = c("Sample", "Experiment", "Condition")) %>%
+    mutate(Count = round(TotalCells*LostRatio, 0)) %>% select(-TotalCells) %>%
+    relocate(Count, .before=LostRatio) %>% rename(Ratio=LostRatio) %>% mutate(Cluster="Other")
+
+  OtherN <- nrow(Other)
   FirstDetectorColumn <- which(grepl("\\d", colnames(data)))[1]
   LastDetectorColumn <- tail(which(grepl("\\d", colnames(data))), 1)
+
+  Replacement <- data %>% select(FirstDetectorColumn:LastDetectorColumn) %>% head(OtherN) %>%
+    mutate(across(everything(), ~0))
+
+  Replacements <- bind_cols(Other, Replacement) %>% ungroup()
+  Replaced <- bind_rows(FilteredData, Replacements)
+
+  ##############
+  # Lets Begin #
+  ##############
+
+  Items <- data.frame(table(data$Sample)) %>% pull(Var1) %>% as.character(.)
+
 
   A <-  data %>% group_by(Sample, Cluster) %>% mutate(Denominator=sum(Count)) %>% ungroup()
 
