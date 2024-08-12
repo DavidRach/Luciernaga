@@ -6,24 +6,26 @@
 \usage{
 LuciernagaReport(
   data,
-  FluorophoreColumnName,
-  ClusterColumnName,
+  RetainedType,
+  CellPopRatio,
   outfolder,
   filename,
-  RetainedType,
-  CellPopRatio
+  LinePlots = TRUE,
+  CosinePlots = TRUE,
+  StackedBarPlots = TRUE,
+  HeatmapPlots = TRUE
 )
 }
 \arguments{
-\item{FluorophoreColumnName}{The name of the data.frame column containing your fluorophores.}
-
-\item{ClusterColumnName}{The name of the data.frame column containing your cluster IDs.}
-
 \item{outfolder}{The location that you want to save the .pdf output to.}
 
 \item{filename}{The name you want to save your .pdf file as.}
 
 \item{LuciernagaData}{A data.frame}
+
+\item{FluorophoreColumnName}{The name of the data.frame column containing your fluorophores.}
+
+\item{ClusterColumnName}{The name of the data.frame column containing your cluster IDs.}
 }
 \value{
 A value to be determined later
@@ -33,5 +35,4 @@ Converts the Luciernaga outputs into .pdf plots.
 }
 \examples{
 NULL
-
 }

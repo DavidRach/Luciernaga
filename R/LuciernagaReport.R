@@ -6,26 +6,29 @@
 #' @param outfolder The location that you want to save the .pdf output to.
 #' @param filename The name you want to save your .pdf file as.
 #'
-#' @importFrom dplyr pull
+#' @importFrom dplyr group_by
+#' @importFrom dplyr summarize
+#' @importFrom dplyr left_join
+#' @importFrom dplyr relocate
 #' @importFrom dplyr filter
-#' @importFrom dplyr select
 #' @importFrom dplyr mutate
-#' @importFrom dplyr select_if
-#' @importFrom tidyr gather
-#' @import ggplot2
-#' @importFrom lsa cosine
-#' @importFrom reshape2 melt
+#' @importFrom dplyr rename
+#' @importFrom dplyr across
+#' @importFrom tidyselect everything
+#' @importFrom dplyr bind_rows
+#' @importFrom dplyr bind_cols
+#' @importFrom dplyr ungroup
+#' @importFrom purrr map
 #' @importFrom purrr flatten
-#'
 #'
 #' @return A value to be determined later
 #' @export
 #'
 #' @examples NULL
-#'
 
-LuciernagaReport <- function(data, FluorophoreColumnName, ClusterColumnName,
-                             outfolder, filename, RetainedType, CellPopRatio){
+LuciernagaReport <- function(data, RetainedType, CellPopRatio, outfolder, filename,
+                             LinePlots=TRUE, CosinePlots=TRUE,
+                             StackedBarPlots=TRUE, HeatmapPlots=TRUE){
 
   ################################################
   # Filtered by CellPopRatio, and creating other #
@@ -66,22 +69,51 @@ LuciernagaReport <- function(data, FluorophoreColumnName, ClusterColumnName,
   #x <- Items[1]
   #data <- Replaced
 
-  theplots <- map(.x=Items, .f=InternalReport, data=Replaced, FluorophoreColumnName=FluorophoreColumnName,
-                  ClusterColumnName=ClusterColumnName, FirstDetectorColumn=FirstDetectorColumn,
-                  LastDetectorColumn=LastDetectorColumn, RetainedType=RetainedType,
-                  CellPopRatio=CellPopRatio)
+  ThePlots <- map(.x=Items, .f=InternalReport, data=Replaced,
+                  FirstDetectorColumn=FirstDetectorColumn,
+                  LastDetectorColumn=LastDetectorColumn,
+                  RetainedType=RetainedType, CellPopRatio=CellPopRatio,
+                  LinePlots=LinePlots, CosinePlots=CosinePlots,
+                  StackedBarPlots=StackedBarPlots, HeatmapPlots=HeatmapPlots)
 
-
-
-
-
-   theflattenedplots <- purrr::flatten(theplots)
+   theflattenedplots <- flatten(theplots)
 
    Utility_Patchwork(x, filename=filename, outfolder=outfolder, thecolumns,
                      therows, width, weight, returntype)
 }
 
-InternalReport <- function(){
+
+
+#' Internal for LuciernagaReport
+#'
+#' @param x Passed Sample for filtering
+#' @param data The data.frame
+#' @param FirstDetectorColumn A passed parameter
+#' @param LastDetectorColumn A passed parameter
+#' @param RetainedType Whether "raw" or "normalized" values
+#' @param CellPopRatio Mininum cutoff for cluster size
+#' @param LinePlots Whether to return LinePlots
+#' @param CosinePlots Whether to return CosinePlots
+#' @param StackedBarPlots Whether to return StackedBarPlots
+#' @param HeatmapPlots Whether to return Heatmap Plots
+#'
+#' @importFrom dplyr filter
+#' @importFrom dplyr select
+#' @importFrom tidyr gather
+#' @importFrom tidyselect all_of
+#' @importFrom ggplot2 ggplot
+#' @importFrom tidyselect where
+#' @importFrom lsa cosine
+#' @importFrom reshape2 melt
+#' @importFrom dplyr pull
+#' @importFrom dplyr mutate
+#' @importFrom viridis scale_fill_viridis
+#'
+#' @noRd
+
+InternalReport <- function(x, data, FirstDetectorColumn, LastDetectorColumn,
+                           RetainedType, CellPopRatio, LinePlots, CosinePlots,
+                           StackedBarPlots, HeatmapPlots){
   First <- FirstDetectorColumn+1
   Last <- LastDetectorColumn+1
 
@@ -94,7 +126,7 @@ InternalReport <- function(){
   #if (ZeroBuggedRows > 0) {subset <- subset %>% filter(rowSums(select(
   #  ., all_of(First:Last)), na.rm = TRUE) != 0)}
 
-  if (LinePlot == TRUE){
+  if (LinePlots == TRUE){
   LinePlotData <- subset %>% filter(!Cluster %in% "Other") %>%
     select(Cluster, {{First}}:{{Last}})
 
@@ -128,7 +160,7 @@ InternalReport <- function(){
           axis.text.x = element_text(size = 5, angle = 45, hjust = 1))
   }
 
-  if (CosinePlot == TRUE){
+  if (CosinePlots == TRUE){
     CosineData <- subset %>% filter(!Cluster %in% "Other") %>%
       select(Cluster, {{First}}:{{Last}})
     Names <- CosineData$Cluster
@@ -139,13 +171,13 @@ InternalReport <- function(){
     NumericsT <- data.matrix(NumericsT)
 
   if (ncol(NumericsT) > 1){
-    CosineMatrix <- lsa::cosine(NumericsT)
+    CosineMatrix <- cosine(NumericsT)
     CosineMatrix <- round(CosineMatrix, 2)
     Reordered <- ReorderedCosine(CosineMatrix)
     MeltedCosine <- melt(Reordered)
 
     #Generate a Red to Blue Heatmap
-    CosineHeatMap <- ggplot(MeltedCosine, aes(Var2, Var1, fill = value)) +
+    CosinePlot <- ggplot(MeltedCosine, aes(Var2, Var1, fill = value)) +
       geom_tile(color = "white") +
       scale_fill_gradient2(low = "lightblue", high = "orange", mid = "white",
                            midpoint = 0.7, limit = c(0.4,1), space = "Lab",
@@ -168,38 +200,46 @@ InternalReport <- function(){
 
   }
 
-  if (BarPlot == TRUE){
+  Bd <- subset %>% mutate(Ratio = round(Ratio, 2))
 
-  BarChartData <- LuciernagaSubset %>% mutate(Ratio = round(Ratio, 2))
-
-  if(exists("CosineOrder")){BarChartData$Cluster <- factor(
-    BarChartData$Cluster, levels = unique(BarChartData$Cluster)[
-      order(match(unique(BarChartData$Cluster), CosineOrder))])}
-
-  StackedBarChart <- ggplot(BarChartData, aes(x= sample, y = Ratio,
-                                              fill = Cluster)) + geom_col() + theme_bw() + scale_fill_viridis(
-                                                discrete = TRUE, option = "inferno", direction = -1) + labs(title = i) +
-    theme(plot.title = element_text(hjust = 0.5),
-          panel.grid.minor = element_line(linetype = "blank"),
-          axis.title = element_text(size = 10), axis.title.x = element_blank(),
-          legend.key.size = unit(0.4, "cm")) + coord_fixed(ratio = 2)
-
-  HeatMapChart <- ggplot(BarChartData, aes(x= sample, y = Cluster, fill = Ratio)) +
-    geom_tile() + geom_text(aes(label = Ratio)) + theme_bw() +
-    scale_fill_gradient(name = "Ratio", low = "#FFFFFF", high = "#FF0000",
-                        limits = c(0, NA)) + theme(plot.title = element_text(hjust = 0.5),
-                                                   panel.grid.minor = element_line(linetype = "blank"), axis.title =
-                                                     element_text(size = 10), axis.title.y = element_blank(),
-                                                   axis.title.x = element_blank(), axis.line = element_blank(),
-                                                   axis.ticks = element_blank(), legend.key.size = unit(0.4, "cm"))  +
-    coord_fixed(ratio = 1.1)
+  if (exists("CosineOrder")) {BarData$Cluster <- factor(Bd$Cluster,
+      levels = unique(Bd$Cluster)[order(match(unique(Bd$Cluster), CosineOrder))])
   }
 
-  theNegplots <- list(TheNormPlot, HeatMapChart, CosineHeatMap)
-  #theNegplots <- list(TheNormPlot, StackedBarChart, HeatMapChart,
-  #CosineHeatMap)
+  if (StackedBarPlots == TRUE){
+  title <- as.character(x)
 
-  theplots[[length(theplots) +1]] <- theNegplots
+  StackedBarPlot <- ggplot(Bd, aes(x= Sample, y = Ratio,
+    fill = Cluster)) + geom_col() + theme_bw() + scale_fill_viridis(
+    discrete = TRUE, option = "inferno", direction = -1) + labs(title = title) +
+    theme(plot.title = element_text(hjust = 0.5), panel.grid.minor = element_line(
+    linetype = "blank"), axis.title = element_text(size = 10),
+    axis.title.x = element_blank(), legend.key.size = unit(0.4, "cm")) +
+    coord_fixed(ratio = 2)
+  }
+
+  if (HeatmapPlots == TRUE) {
+
+  HeatmapPlot <- ggplot(Bd, aes(x= Sample, y = Cluster, fill = Ratio)) +
+    geom_tile() + geom_text(aes(label = Ratio)) + theme_bw() +
+    scale_fill_gradient(name = "Ratio", low = "#FFFFFF", high = "#FF0000",
+    limits = c(0, NA)) + theme(plot.title = element_text(hjust = 0.5),
+    panel.grid.minor = element_line(linetype = "blank"), axis.title =
+    element_text(size = 10), axis.title.y = element_blank(), axis.title.x =
+    element_blank(), axis.line = element_blank(), axis.ticks = element_blank(),
+    legend.key.size = unit(0.4, "cm"))  + coord_fixed(ratio = 1.1)
+  }
+
+  ThePlots <- list()
+  if (LinePlots == TRUE){ThePlots <- append(ThePlots, list(LinePlot))}
+
+  if (CosinePlots == TRUE){ThePlots <- append(ThePlots, list(CosinePlot))}
+
+  if (StackedBarPlots == TRUE){ThePlots <- append(ThePlots, list(StackedBarPlot))}
+
+  if (HeatmapPlots == TRUE){ThePlots <- append(ThePlots, list(HeatmapPlot))}
+
+  return(ThePlots)
 }
 
 #' Internal for LuciernagaReport
