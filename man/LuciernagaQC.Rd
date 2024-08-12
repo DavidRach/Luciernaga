@@ -33,7 +33,8 @@ LuciernagaQC(
   LocalMaximaRatio = 0.15,
   SecondaryPeaks = 2,
   Increments,
-  RetainedType = "normalized"
+  RetainedType = "normalized",
+  ...
 )
 }
 \arguments{

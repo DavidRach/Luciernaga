@@ -63,7 +63,7 @@ LuciernagaQC <- function(x, subsets, sample.name, removestrings, Verbose = FALSE
                                   ExportType, SignatureReturnNow=FALSE, outpath,
                                   minimalfcscutoff = 0.05, Subtraction = "Internal", SCData = "subtracted",
                                   NegativeType= "default", TotalNegatives = 500, Brightness=FALSE,
-                                  LocalMaximaRatio=0.15, SecondaryPeaks=2, Increments, RetainedType="normalized"){
+                                  LocalMaximaRatio=0.15, SecondaryPeaks=2, Increments, RetainedType="normalized", ...){
 
   name <- keyword(x, sample.name)
   Type <- Luciernaga:::Internal_Typing(name=name, unmixingcontroltype=unmixingcontroltype, Unstained=Unstained)
@@ -71,12 +71,12 @@ LuciernagaQC <- function(x, subsets, sample.name, removestrings, Verbose = FALSE
   AggregateName <- Luciernaga:::NameForSample(x=x, sample.name=sample.name, removestrings=removestrings)
   #AggregateName <- NameForSample(x=x, sample.name=sample.name, removestrings=removestrings, ...)
 
-  Experiment <- Luciernaga:::NameForSample(x=x, sample.name=sample.name, removestrings=removestrings, experiment.name = experiment.name,
-                                           returnType = "experiment")
+  Experiment <- Luciernaga:::NameForSample(x=x, sample.name=sample.name, removestrings=removestrings, experiment = experiment,
+                                           experiment.name = experiment.name, returnType = "experiment")
   #Experiment <- Luciernaga:::NameForSample(x=x, sample.name=sample.name, removestrings=removestrings, returnType = "experiment", ...)
 
-  Condition <- Luciernaga:::NameForSample(x=x, sample.name=sample.name, removestrings=removestrings, condition.name = condition.name,
-                                           returnType = "condition")
+  Condition <- Luciernaga:::NameForSample(x=x, sample.name=sample.name, removestrings=removestrings, condition=condition,
+                                          condition.name = condition.name, returnType = "condition")
   #Condition <- Luciernaga:::NameForSample(x=x, sample.name=sample.name, removestrings=removestrings, returnType = "condition", ...)
 
   # Internal Name Cleanup, to make sure fluorophores match
@@ -326,24 +326,27 @@ LuciernagaQC <- function(x, subsets, sample.name, removestrings, Verbose = FALSE
 
   if (ExportType == "data"){
     ExportData <- RetainedDF %>% select(-Backups)
-    Data <- data.frame(table(ExportData$Cluster))
-    Data <- Data %>% dplyr::arrange(desc(Freq))
-    colnames(Data)[1] <- "Cluster"
-    colnames(Data)[2] <- "Count"
+    TheData <- data.frame(table(ExportData$Cluster))
+    TheData <- TheData%>% dplyr::arrange(desc(Freq))
+    colnames(TheData)[1] <- "Cluster"
+    colnames(TheData)[2] <- "Count"
     #Data
 
-    Data$Sample <- AggregateName
-    Data$Experiment <- Experiment
-    Data$Condition <- Condition
-    Data <- Data %>% relocate(Sample, Experiment, Condition, .before=Cluster)
+    TheExperiment <- as.character(Experiment)
+    TheCondition <- as.character(Condition)
 
-    TheClusters <- Data %>% pull(Cluster)
+    TheData <- TheData %>% mutate(Sample=AggregateName)
+    TheData <- TheData %>% mutate(Experiment=TheExperiment)
+    TheData <- TheData %>% mutate(Condition=TheCondition)
+    TheData <- TheData %>% relocate(Sample, Experiment, Condition, .before=Cluster)
 
-    TheSummary <- map(.x=TheClusters, .f=LuciernagaReport, Data=ExportData, RetainedType=RetainedType,
+    TheClusters <- TheData %>% pull(Cluster)
+
+    TheSummary <- map(.x=TheClusters, .f=LuciernagaSmallReport, Data=ExportData, RetainedType=RetainedType,
         ColsN=ColsN, StartNormalizedMergedCol=StartNormalizedMergedCol,
         EndNormalizedMergedCol=EndNormalizedMergedCol, stats=stats) %>% bind_rows()
 
-    FinalData <- left_join(Data, TheSummary, by = "Cluster")
+    FinalData <- left_join(TheData, TheSummary, by = "Cluster")
     return(FinalData)
   }
 
@@ -359,7 +362,7 @@ LuciernagaQC <- function(x, subsets, sample.name, removestrings, Verbose = FALSE
 #' @importFrom dplyr rename
 #' @noRd
 
-LuciernagaReport <- function(x, Data, RetainedType, ColsN, StartNormalizedMergedCol,
+LuciernagaSmallReport <- function(x, Data, RetainedType, ColsN, StartNormalizedMergedCol,
                              EndNormalizedMergedCol, stats){
     if (RetainedType == "raw"){Data <- Data %>% filter(Cluster %in% x) %>% select(all_of(1:ColsN))}
     if (RetainedType == "normalized"){Data <- Data %>% filter(Cluster %in% x) %>%select(all_of(
