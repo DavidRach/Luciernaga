@@ -347,13 +347,20 @@ CombinedData <- map(.x=MyGatingSet, .f=LuciernagaQC, subsets="lymphocytes", samp
              SCData = "subtracted", RetainedType="normalized", Increments=0.2) %>% bind_rows()
 ```
 
-### Downstream
+### LuciernagaReport
+
+We can take the data.frame output from LuciernagaQC and run directly into a basic report. CellPopRatio determines the mininum ratio a cluster needs to have to be plotted (anything smaller is combined into the other category). The default is set for all four plots being returned, these can be modified by specifying FALSE for their individual arguments. Outputs are sent to Utility_Patchwork for processing into either grouped ggplot or a pdf file. 
 
 ```{r}
 ThePlots <- LuciernagaReport(data=CombinedData, RetainedType = "normalized", CellPopRatio = 0.05, outfolder = NULL,
                              filename = NULL, returntype = "patchwork")
+
+ThePlots
+
+ggplotly(ThePlots[[1]])
 ```
 
+### Continuing
 
 ```{r}
 data <- CombinedData

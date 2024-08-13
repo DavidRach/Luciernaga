@@ -324,6 +324,11 @@ LuciernagaQC <- function(x, subsets, sample.name, removestrings, Verbose = FALSE
                         TotalNegatives=TotalNegatives, Samples=Samples, ExportType=ExportType)
   }
 
+  if (ExportType == "data.frame"){
+    FinalDataFrame <- Reintegrated %>% select(-Backups)
+    return(FinalDataFrame)
+  }
+
   if (ExportType == "data"){
     ExportData <- RetainedDF %>% select(-Backups)
     TheData <- data.frame(table(ExportData$Cluster))

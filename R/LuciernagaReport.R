@@ -180,7 +180,7 @@ InternalReport <- function(x, data, FirstDetectorColumn, LastDetectorColumn,
     colnames(NumericsT) <- Names
     NumericsT <- data.matrix(NumericsT)
 
-  if (ncol(NumericsT) > 1){
+  if (ncol(NumericsT) >= 2){
     CosineMatrix <- cosine(NumericsT)
     CosineMatrix <- round(CosineMatrix, 2)
     Reordered <- ReorderedCosine(CosineMatrix)
@@ -207,7 +207,7 @@ InternalReport <- function(x, data, FirstDetectorColumn, LastDetectorColumn,
       as.character(.)
 
   } else {image_path <- system.file("hex", "hex.png", package = "Luciernaga", mustWork = TRUE)
-          CosineHeatMap <- fig(image_path)
+          CosinePlot <- fig(image_path)
           }
 
   }
