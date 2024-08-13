@@ -22,7 +22,7 @@ LuciernagaReport(
 
 \item{filename}{The name you want to save your .pdf file as.}
 
-\item{returntype}{Passed to Utility_Patchwork for "pdf" or "patchwork"}
+\item{returntype}{Passed to Utility_Patchwork for "pdf" or "patchwork" or "plots"}
 
 \item{LuciernagaData}{A data.frame}
 

@@ -5,7 +5,7 @@
 #' @param ClusterColumnName The name of the data.frame column containing your cluster IDs.
 #' @param outfolder The location that you want to save the .pdf output to.
 #' @param filename The name you want to save your .pdf file as.
-#' @param returntype Passed to Utility_Patchwork for "pdf" or "patchwork"
+#' @param returntype Passed to Utility_Patchwork for "pdf" or "patchwork" or "plots"
 #'
 #' @importFrom dplyr group_by
 #' @importFrom dplyr summarize
@@ -82,11 +82,17 @@ LuciernagaReport <- function(data, RetainedType, CellPopRatio, outfolder, filena
   Utility_Patchwork(x=ThePlots, filename = filename, outfolder = outfolder,
                     thecolumns = 2, therows = 2, width = 9, height = 7, returntype = "pdf",
                     NotListofList = FALSE)
-  } else {
+  }
+
+  if (returntype == "patchwork"){
   Hey <-Utility_Patchwork(x=ThePlots, filename = filename, outfolder = outfolder,
                       thecolumns = 2, therows = 2, width = 9, height = 7, returntype = "patchwork",
                       NotListofList = FALSE)
   return(Hey)
+  }
+
+  if (returntype == "plots"){
+    return(ThePlots)
   }
 
 }
