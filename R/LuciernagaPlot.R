@@ -19,12 +19,6 @@
 #' @examples NULL
 LuciernagaPlot <- function(ListOfList, PlotType, ReturnFolder, CurrentExperiment){
 
-  ItemSelect <- function(ListOfList, n) {
-    result <- lapply(ListOfList, function(innerList) innerList[[n]])
-    #result <- list(result)
-    return(result)
-  }
-
   #ItemSelect(Combination, n)
 
   indices <- length(ListOfList[[1]])
@@ -62,26 +56,6 @@ LuciernagaPlot <- function(ListOfList, PlotType, ReturnFolder, CurrentExperiment
   if (PlotType == "html"){
     theList <- Ultimate #List of Lists
 
-    Subplots <- function(i, data) {
-      Components <- flatten(data[i])
-
-      plotlyobjs <- lapply(Components, ggplotly)
-
-      subplot <- htmltools::tagList(
-        lapply(plotlyobjs, function(x) {
-          div(
-            x,
-            style = "float:left; width:50%;",
-            tags$br()
-          )
-        }),
-        tags$br(style = "clear:both;"), # Clear both to prevent float overlap
-        tags$br(), tags$br(), tags$br() # Additional breaks as needed
-      )
-
-      return(subplot)
-    }
-
     #Subplots(data = Ultimate, i = 2)
     Rendered <- map(1:indices, ~Subplots(data = theList, .))
 
@@ -89,5 +63,30 @@ LuciernagaPlot <- function(ListOfList, PlotType, ReturnFolder, CurrentExperiment
 
     htmltools::save_html(html = Rendered, file = HtmlPath)
   }
+}
 
+ItemSelect <- function(ListOfList, n) {
+  result <- lapply(ListOfList, function(innerList) innerList[[n]])
+  #result <- list(result)
+  return(result)
+}
+
+Subplots <- function(i, data) {
+  Components <- flatten(data[i])
+
+  plotlyobjs <- lapply(Components, ggplotly)
+
+  subplot <- htmltools::tagList(
+    lapply(plotlyobjs, function(x) {
+      div(
+        x,
+        style = "float:left; width:50%;",
+        tags$br()
+      )
+    }),
+    tags$br(style = "clear:both;"), # Clear both to prevent float overlap
+    tags$br(), tags$br(), tags$br() # Additional breaks as needed
+  )
+
+  return(subplot)
 }

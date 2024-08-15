@@ -2,7 +2,7 @@
 % Please edit documentation in R/LuciernagaReport.R
 \name{LuciernagaReport}
 \alias{LuciernagaReport}
-\title{Converts the Luciernaga outputs into .pdf plots.}
+\title{Converts the Luciernaga outputs into .pdf plots}
 \usage{
 LuciernagaReport(
   data,
@@ -22,13 +22,13 @@ LuciernagaReport(
 
 \item{RetainedType}{Whether the data.frame contains "raw" or "normalized" values}
 
-\item{CellPopRatio}{What mininum ratio needed to retain cluster (ie, 0.01 = 1%, etc.)}
+\item{CellPopRatio}{What mininum ratio needed to retain cluster.}
 
 \item{outfolder}{The location that you want to save the .pdf output to.}
 
 \item{filename}{The name you want to save your .pdf file as.}
 
-\item{LinePlots}{Return this kind of plot, default is set to TRUE}
+\item{LinePlots}{Passed to Utility_Patchwork for "pdf" or "patchwork" or "plots"}
 
 \item{CosinePlots}{Return this kind of plot, default is set to TRUE}
 
@@ -36,13 +36,13 @@ LuciernagaReport(
 
 \item{HeatmapPlots}{Return this kind of plot, default is set to TRUE}
 
-\item{returntype}{Passed to Utility_Patchwork for "pdf" or "patchwork" or "plots"}
+\item{returntype}{Return this kind of plot, default is set to TRUE}
 }
 \value{
 A value to be determined later
 }
 \description{
-Converts the Luciernaga outputs into .pdf plots.
+Converts the Luciernaga outputs into .pdf plots
 }
 \examples{
 NULL

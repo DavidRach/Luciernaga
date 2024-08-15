@@ -1,15 +1,15 @@
-#' Converts the Luciernaga outputs into .pdf plots.
+#' Converts the Luciernaga outputs into .pdf plots
 #'
 #' @param data The data.frame output from LuciernagaQC
 #' @param RetainedType Whether the data.frame contains "raw" or "normalized" values
-#' @param CellPopRatio What mininum ratio needed to retain cluster (ie, 0.01 = 1%, etc.)
+#' @param CellPopRatio What mininum ratio needed to retain cluster.
 #' @param outfolder The location that you want to save the .pdf output to.
 #' @param filename The name you want to save your .pdf file as.
-#' @param returntype Passed to Utility_Patchwork for "pdf" or "patchwork" or "plots"
-#' @param LinePlots Return this kind of plot, default is set to TRUE
+#' @param LinePlots Passed to Utility_Patchwork for "pdf" or "patchwork" or "plots"
 #' @param CosinePlots Return this kind of plot, default is set to TRUE
 #' @param StackedBarPlots Return this kind of plot, default is set to TRUE
 #' @param HeatmapPlots Return this kind of plot, default is set to TRUE
+#' @param returntype Return this kind of plot, default is set to TRUE
 #'
 #' @importFrom dplyr group_by
 #' @importFrom dplyr summarize
@@ -30,15 +30,14 @@
 #' @export
 #'
 #' @examples NULL
-
 LuciernagaReport <- function(data, RetainedType, CellPopRatio, outfolder, filename,
                              LinePlots=TRUE, CosinePlots=TRUE,
                              StackedBarPlots=TRUE, HeatmapPlots=TRUE,
                              returntype = "patchwork"){
 
-  ################################################
-  # Filtered by CellPopRatio, and creating other #
-  ################################################
+  #################################################
+  # Filtered by CellPopRatio, and creating other  #
+  #################################################
 
   TheCounts <- data %>% group_by(Sample, Experiment, Condition) %>%
     summarize(TotalCells = sum(Count, na.rm = TRUE), .groups = 'drop')
@@ -130,7 +129,6 @@ LuciernagaReport <- function(data, RetainedType, CellPopRatio, outfolder, filena
 #' @importFrom figpatch fig
 #'
 #' @noRd
-
 InternalReport <- function(x, data, FirstDetectorColumn, LastDetectorColumn,
                            RetainedType, CellPopRatio, LinePlots, CosinePlots,
                            StackedBarPlots, HeatmapPlots){
@@ -268,7 +266,6 @@ InternalReport <- function(x, data, FirstDetectorColumn, LastDetectorColumn,
 #'
 #'
 #' @noRd
-
 ReorderedCosine <- function(CosineMatrix){
   Day <- as.dist((1-CosineMatrix)/2)
   Night <- hclust(Day)

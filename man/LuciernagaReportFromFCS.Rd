@@ -13,7 +13,10 @@ LuciernagaReportFromFCS(
   CosinePlots = TRUE,
   StackedBarPlots = TRUE,
   Heatmaps = TRUE,
-  RetainedType
+  RetainedType,
+  experiment,
+  condition,
+  TheSummary = TRUE
 )
 }
 \arguments{
@@ -32,13 +35,13 @@ information for the panel.}
 
 \item{RetainedType}{Whether the data.frame contains "raw" or "normalized" values}
 
-\item{HeatmapPlots}{Return this kind of plot, default is set to TRUE}
-
-\item{TheSummary}{Whether to return individual cells or summarized by stats.}
-
 \item{experiment}{Provide directly experiment name (ex. "JAN2024")}
 
 \item{condition}{Provide directly experiment name (ex. "JAN2024")}
+
+\item{TheSummary}{Whether to return individual cells or summarized by stats.}
+
+\item{HeatmapPlots}{Return this kind of plot, default is set to TRUE}
 }
 \value{
 A data.frame compatible with LuciernagaReport()

@@ -14,12 +14,14 @@
 #' @param experiment Provide directly experiment name (ex. "JAN2024")
 #' @param condition Provide directly experiment name (ex. "JAN2024")
 #'
+#'
 #' @importFrom dplyr select
 #' @importFrom dplyr pull
 #' @importFrom purrr map
 #' @importFrom dplyr bind_rows
 #' @importFrom dplyr mutate
 #' @importFrom dplyr relocate
+#' @importFrom tidyr separate
 #'
 #' @return A data.frame compatible with LuciernagaReport()
 #'
@@ -30,7 +32,8 @@
 LuciernagaReportFromFCS <- function(path, reference, stats = "median",
                                     LinePlots = TRUE, CosinePlots = TRUE,
                                     StackedBarPlots = TRUE, Heatmaps = TRUE,
-                                    RetainedType){
+                                    RetainedType, experiment, condition,
+                                    TheSummary = TRUE){
 
   if (!is.data.frame(reference)){CSV <- read.csv(reference, check.names = FALSE)
   } else {CSV <- reference}
@@ -43,26 +46,29 @@ LuciernagaReportFromFCS <- function(path, reference, stats = "median",
   #x <- Variables[2]
   #inputfiles <- fcsfiles
 
-  TheseFluorophores <- map(.x=Variables, .f=FluorophoreFilePresent, inputfiles = fcsfiles)
+  TheseFluorophores <- map(.x=Variables, .f=Luciernaga:::FluorophoreFilePresent, inputfiles = fcsfiles)
   TheseFluorophores <- Filter(Negate(is.null), TheseFluorophores)
   TheseFluorophores <- unlist(TheseFluorophores)
   #x <- TheseFluorophores[1]
   #data <- CSV
   #inputfiles = fcsfiles
 
-  TheData <- map(.x = TheseFlurophores, .f = FCSImport, data = CSV,
-                   inputfiles = fcsfiles, RetainedType=RetainedType, stats=stats) %>%
+  TheData <- map(.x = TheseFluorophores, .f = Luciernaga:::FCSImport, data = CSV,
+                   inputfiles = fcsfiles, RetainedType=RetainedType, stats=stats,
+                 TheSummary=TheSummary) %>%
     bind_rows()
 
-  TheExperiment <- as.character(Experiment)
-  TheCondition <- as.character(Condition)
+  if (TheSummary == TRUE){
+  TheExperiment <- as.character(experiment)
+  TheCondition <- as.character(condition)
 
-  #We did not retain sample name.
+  TheData <- TheData %>% separate(Cluster, into = c("Sample", "Cluster"), sep = "_")
   TheData <- TheData %>% mutate(Experiment=TheExperiment)
   TheData <- TheData %>% mutate(Condition=TheCondition)
-  TheData <- TheData %>% relocate(Experiment, Condition, .before=Cluster)
+  TheData <- TheData %>% relocate(Sample, Experiment, Condition, .before=Cluster)
 
-  return(PlotTwist)
+  return(TheData)
+  } else {return(TheData)}
 }
 
 
