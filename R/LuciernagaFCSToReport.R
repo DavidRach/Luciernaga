@@ -29,7 +29,7 @@
 #'
 #' @examples NULL
 
-LuciernagaReportFromFCS <- function(path, reference, stats = "median",
+LuciernagaFCSToReport <- function(path, reference, stats = "median",
                                     LinePlots = TRUE, CosinePlots = TRUE,
                                     StackedBarPlots = TRUE, Heatmaps = TRUE,
                                     RetainedType, experiment, condition,

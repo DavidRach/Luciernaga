@@ -20,7 +20,7 @@
 #'
 #' @examples NULL
 #'
-LibraryXMLParse <- function(x, returntype, references=TRUE){
+QCLibraryParse <- function(x, returntype, references=TRUE){
 
   doc <- read_xml(x)
   TheChildren <- xml_children(doc)

@@ -29,7 +29,7 @@
 #'
 #' @examples NULL
 
-Luciernaga_SingleColorControls <- function(x, sample.name, removestrings, subset, PanelCuts, stats, SignatureView){
+LuciernagaSingleColors <- function(x, sample.name, removestrings, subset, PanelCuts, stats, SignatureView){
   name <- keyword(x, sample.name)
   name <- NameCleanUp(name, removestrings)
 

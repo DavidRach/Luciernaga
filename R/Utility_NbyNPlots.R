@@ -108,8 +108,7 @@ UniversalIterator <- function(x, x_ff,
 #' @importFrom patchwork plot_spacer
 #' @importFrom purrr map
 #'
-#' @keywords internal
-
+#' @noRd
 ParallelUniversalIterator <- function(x, x_ff, y_ff,
                                       TheDF, yValue, columnlist, gatelines,
                                       reference, clearance, bins, AltNameX,

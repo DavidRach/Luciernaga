@@ -18,7 +18,7 @@
 #'
 #' @examples NULL
 
-CytekQCFilePrep <- function(x, TrackChange){
+QCFilePrep <- function(x, TrackChange){
 
     # Read the lines of the CSV file
     ReadInfo <- readLines(x)

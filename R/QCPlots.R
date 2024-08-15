@@ -20,7 +20,7 @@
 #'
 #' @examples NULL
 
-CytekQCPlots <- function(x, FailedFlag, MeasurementType=NULL, pdf, path, filename){
+QCPlots <- function(x, FailedFlag, MeasurementType=NULL, pdf, path, filename){
 
   if (!is.null(MeasurementType)){
   x <- x %>% select(DateTime, contains(MeasurementType))
