@@ -16,7 +16,7 @@
 #' @export
 #'
 #' @examples NULL
-LuciernagaMove <- function(x, data, input, output){
+Luciernag_Move <- function(x, data, input, output){
   Internal <- data %>% filter(sample %in% x)
 
   Fluor <- Internal %>% pull(sample)

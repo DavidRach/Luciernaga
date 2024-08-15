@@ -25,7 +25,7 @@
 #'
 #' @examples NULL
 
-LuciernagaUnmix <- function(x, controlData, sample.name, addon, removestrings, subset, multiplier, outpath){
+Luciernaga_Unmix <- function(x, controlData, sample.name, addon, removestrings, subset, multiplier, outpath){
 
   name <- keyword(x, sample.name)
   name <- NameCleanUp(name, removestrings=removestrings)

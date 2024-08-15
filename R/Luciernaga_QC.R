@@ -55,7 +55,7 @@
 #' @export
 #'
 #' @examples NULL
-LuciernagaQC <- function(x, subsets, sample.name, removestrings, Verbose = FALSE,
+Luciernaga_QC <- function(x, subsets, sample.name, removestrings, Verbose = FALSE,
                                   unmixingcontroltype="both", Unstained=FALSE, ratiopopcutoff=0.01,
                                   experiment = NULL, experiment.name = NULL, condition = NULL, condition.name = NULL,
                                   AFOverlap, stats="median", desiredAF=NULL, externalAF = NULL,

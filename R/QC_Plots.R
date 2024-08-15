@@ -20,7 +20,7 @@
 #'
 #' @examples NULL
 
-QCPlots <- function(x, FailedFlag, MeasurementType=NULL, pdf, path, filename){
+QC_Plots <- function(x, FailedFlag, MeasurementType=NULL, pdf, path, filename){
 
   if (!is.null(MeasurementType)){
   x <- x %>% select(DateTime, contains(MeasurementType))

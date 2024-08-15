@@ -17,7 +17,7 @@
 #' @export
 #'
 #' @examples NULL
-LuciernagaLists <- function(ListOfList, PlotType, ReturnFolder, CurrentExperiment){
+Luciernaga_Lists <- function(ListOfList, PlotType, ReturnFolder, CurrentExperiment){
 
   #ItemSelect(Combination, n)
 

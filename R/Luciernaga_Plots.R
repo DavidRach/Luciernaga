@@ -30,7 +30,7 @@
 #' @export
 #'
 #' @examples NULL
-LuciernagaPlots <- function(data, RetainedType, CellPopRatio, outfolder, filename,
+Luciernaga_Plots <- function(data, RetainedType, CellPopRatio, outfolder, filename,
                              LinePlots=TRUE, CosinePlots=TRUE,
                              StackedBarPlots=TRUE, HeatmapPlots=TRUE,
                              returntype = "patchwork"){

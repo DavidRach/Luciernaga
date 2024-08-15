@@ -17,7 +17,7 @@
 #'
 #' @examples NULL
 
-LuciernagaTree <- function(x, data){
+Luciernaga_Tree <- function(x, data){
   Internal <- data %>% filter(sample %in% x)
 
   if(nrow(Internal)>1){

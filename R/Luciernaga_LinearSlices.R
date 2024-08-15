@@ -30,7 +30,7 @@
 #'
 #' @examples NULL
 
-LuciernagaLinearSlices <- function(x, subset, sample.name, removestrings, stats, TheReturn){
+Luciernaga_LinearSlices <- function(x, subset, sample.name, removestrings, stats, TheReturn){
   name <- keyword(x, sample.name)
   name <- NameCleanUp(name, removestrings)
 

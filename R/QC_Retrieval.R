@@ -13,7 +13,7 @@
 #'
 #' @examples NULL
 
-QCRetrieval <- function(x, sample.name){
+QC_Retrieval <- function(x, sample.name){
   KeywordsList <- keyword(x)
   KeywordsDF <- data.frame(KeywordsList, check.names = FALSE)
   TheColumnNames <- colnames(KeywordsDF)
