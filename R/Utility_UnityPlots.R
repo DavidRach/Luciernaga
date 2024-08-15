@@ -11,7 +11,7 @@
 #' @param bins How many bins to class the cells into
 #' @param gatelines Whether to plot the reference lines
 #' @param reference A data.frame containing references
-#' @param pdf Whether to also output a pdf
+#' @param returntype Whether to return "pdf", "patchwork" or "plots"
 #' @param outpath The desired location to send the assembled pdf to
 #'
 #' @importFrom Biobase pData
@@ -35,7 +35,7 @@
 #' @examples  NULL
 
 Utility_UnityPlot <- function(x, y, GatingSet, marginsubset, gatesubset, sample.name, removestrings,
-                              clearance, bins, gatelines, reference, pdf, outpath){
+                              clearance, bins, gatelines, reference, returntype, outpath){
   TheX <- x
   TheY <- y
   PlotNumber <- length(pData(GatingSet)[["name"]])
@@ -47,11 +47,15 @@ Utility_UnityPlot <- function(x, y, GatingSet, marginsubset, gatesubset, sample.
       sample.name=sample.name, removestrings=removestrings, clearance=clearance, bins=bins, gatelines=gatelines,
       reference=reference)
 
- if (pdf == TRUE){
-   AssembledPlots <- Utility_Patchwork(x=Plots, filename=AggregateName, outfolder=outpath, returntype = "pdf")
- } else {
-   AssembledPlots <- Utility_Patchwork(x=Plots, filename=AggregateName, outfolder=outpath, returntype = "patchwork")
+ if (returntype == "plots"){
+   return(Plots)
  }
 
- return(AssembledPlots)
+ if (returntype == "pdf"){
+   AssembledPlots <- Utility_Patchwork(x=Plots, filename=AggregateName, outfolder=outpath, returntype = "pdf")
+ }
+
+ if (returntype == "patchwork"){
+   AssembledPlots <- Utility_Patchwork(x=Plots, filename=AggregateName, outfolder=outpath, returntype = "patchwork")
+ }
 }

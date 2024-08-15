@@ -16,7 +16,7 @@ Utility_UnityPlot(
   bins,
   gatelines,
   reference,
-  pdf,
+  returntype,
   outpath
 )
 }
@@ -43,7 +43,7 @@ Utility_UnityPlot(
 
 \item{reference}{A data.frame containing references}
 
-\item{pdf}{Whether to also output a pdf}
+\item{returntype}{Whether to return "pdf", "patchwork" or "plots"}
 
 \item{outpath}{The desired location to send the assembled pdf to}
 }
