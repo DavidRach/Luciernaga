@@ -18,17 +18,25 @@ LuciernagaReport(
 )
 }
 \arguments{
+\item{data}{The data.frame output from LuciernagaQC}
+
+\item{RetainedType}{Whether the data.frame contains "raw" or "normalized" values}
+
+\item{CellPopRatio}{What mininum ratio needed to retain cluster (ie, 0.01 = 1%, etc.)}
+
 \item{outfolder}{The location that you want to save the .pdf output to.}
 
 \item{filename}{The name you want to save your .pdf file as.}
 
+\item{LinePlots}{Return this kind of plot, default is set to TRUE}
+
+\item{CosinePlots}{Return this kind of plot, default is set to TRUE}
+
+\item{StackedBarPlots}{Return this kind of plot, default is set to TRUE}
+
+\item{HeatmapPlots}{Return this kind of plot, default is set to TRUE}
+
 \item{returntype}{Passed to Utility_Patchwork for "pdf" or "patchwork" or "plots"}
-
-\item{LuciernagaData}{A data.frame}
-
-\item{FluorophoreColumnName}{The name of the data.frame column containing your fluorophores.}
-
-\item{ClusterColumnName}{The name of the data.frame column containing your cluster IDs.}
 }
 \value{
 A value to be determined later

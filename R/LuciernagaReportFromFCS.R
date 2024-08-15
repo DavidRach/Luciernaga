@@ -1,17 +1,23 @@
 #' Visualize cosine similarity of raw .fcs files to evaluate single color
 #' controls.
 #'
-#' @param thedata A data.frame with columns Fluorophore and Detector.
-#' @param input The location where the .fcs files are stored.
-#' @param stats Whether to use the median or mean measurement for MFI
+#' @param path The location to the folder where the Luciernaga .fcs files are stored
+#' @param reference A path to a .csv file or a dataframe containing Fluorophore and Detector column
+#' information for the panel.
+#' @param stats Whether to use the median or mean for fluorescent intensity.
+#' @param LinePlots Return this kind of plot, default is set to TRUE
+#' @param CosinePlots Return this kind of plot, default is set to TRUE
+#' @param StackedBarPlots Return this kind of plot, default is set to TRUE
+#' @param HeatmapPlots Return this kind of plot, default is set to TRUE
+#'
+#' @importFrom dplyr select
+#' @importFrom dplyr pull
 #'
 #' @importFrom tidyr nest
 #' @importFrom stringr str_detect
 #' @importFrom flowCore exprs
 #' @importFrom flowWorkspace keyword
 #' @importFrom flowWorkspace load_cytoset_from_fcs
-#' @importFrom dplyr select
-#' @importFrom dplyr pull
 #' @importFrom dplyr filter
 #' @importFrom dplyr mutate
 #' @importFrom dplyr relocate
@@ -37,24 +43,20 @@
 #'
 #' @examples NULL
 
-LuciernagaReportFromFCS <- function(thedata, input, stats = NULL){
-  data <- thedata
-  data$Fluorophore <- gsub("-A$", "", data$Fluorophore)
-  #data$Fluorophore <- gsub(".", "", fixed = TRUE, data$Fluorophore)
-  data$Fluorophore <- gsub("-", "", data$Fluorophore)
-  data$Fluorophore <- gsub("_", "", data$Fluorophore)
-  data$Fluorophore <- gsub(" ", "", data$Fluorophore)
+LuciernagaReportFromFCS <- function(path, reference, stats = "median",
+                                    LinePlots = TRUE, CosinePlots = TRUE,
+                                    StackedBarPlots = TRUE, Heatmaps = TRUE){
 
-  data$Detector <- gsub("-A$", "", data$Detector)
-  data$Detector <- gsub(" ", "", data$Detector)
+  if (!is.data.frame(reference)){CSV <- read.csv(reference, check.names = FALSE)
+  } else {CSV <- reference}
 
-  InternalData <- data
+  internalstrings <- c("-A", ".", "-", "_", " ")
+  CSV$Fluorophore <- Luciernaga:::NameCleanUp(name=CSV$Fluorophore, removestrings=internalstrings)
+  CSV$Detector <- Luciernaga:::NameCleanUp(name=CSV$Detector, removestrings=internalstrings)
+  Variables <- CSV %>% select(Fluorophore) %>% pull(.)
 
-  Variables <- InternalData %>% select(Fluorophore) %>% pull(.)
+  fcsfiles <- list.files(path, pattern=".fcs", full.names = TRUE)
 
-  inputfiles <- list.files(input, full.names = TRUE)
-
-  #Present <- list()
 
   Present <- map(Variables, InternalList, inputfiles = inputfiles)
   Present <- Filter(Negate(is.null), Present)
