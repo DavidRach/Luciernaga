@@ -9,6 +9,7 @@
 #' @param CosinePlots Return this kind of plot, default is set to TRUE
 #' @param StackedBarPlots Return this kind of plot, default is set to TRUE
 #' @param HeatmapPlots Return this kind of plot, default is set to TRUE
+#' @param RetainedType Whether the data.frame contains "raw" or "normalized" values
 #'
 #' @importFrom dplyr select
 #' @importFrom dplyr pull
@@ -45,171 +46,72 @@
 
 LuciernagaReportFromFCS <- function(path, reference, stats = "median",
                                     LinePlots = TRUE, CosinePlots = TRUE,
-                                    StackedBarPlots = TRUE, Heatmaps = TRUE){
+                                    StackedBarPlots = TRUE, Heatmaps = TRUE,
+                                    RetainedType){
 
   if (!is.data.frame(reference)){CSV <- read.csv(reference, check.names = FALSE)
   } else {CSV <- reference}
 
-  internalstrings <- c("-A", ".", "-", "_", " ")
+  internalstrings <- c("-A", ".", "_", " ")
   CSV$Fluorophore <- Luciernaga:::NameCleanUp(name=CSV$Fluorophore, removestrings=internalstrings)
   CSV$Detector <- Luciernaga:::NameCleanUp(name=CSV$Detector, removestrings=internalstrings)
   Variables <- CSV %>% select(Fluorophore) %>% pull(.)
-
   fcsfiles <- list.files(path, pattern=".fcs", full.names = TRUE)
+  #x <- Variables[2]
+  #inputfiles <- fcsfiles
 
+  TheseFluorophores <- map(.x=Variables, .f=FluorophoreFilePresent, inputfiles = fcsfiles)
+  TheseFluorophores <- Filter(Negate(is.null), TheseFluorophores)
+  TheseFluorophores <- unlist(TheseFluorophores)
+  #x <- TheseFluorophores[1]
+  #data <- CSV
+  #inputfiles = fcsfiles
 
-  Present <- map(Variables, InternalList, inputfiles = inputfiles)
-  Present <- Filter(Negate(is.null), Present)
-  Present <- unlist(Present)
-
-  theplotlist <- list()
-
-  #thex <- Present[20]
-
-  PlotTwist <- map(.x = Present, .f = InternalExprs, data = InternalData,
-                   inputfiles = inputfiles)
-  PlotTwist <- Filter(Negate(is.null), PlotTwist)
-  PlotTwist <- unlist( PlotTwist)
+  PlotTwist <- map(.x = TheseFlurophores, .f = FCSImport, data = CSV,
+                   inputfiles = fcsfiles, RetainedType=RetainedType, stats=stats)
+  #PlotTwist <- Filter(Negate(is.null), PlotTwist)
+  #PlotTwist <- unlist( PlotTwist)
 
   return(PlotTwist)
 }
 
 
-InternalList <- function(x, inputfiles){
+#' Internal for LuciernagaReportFromFCS
+#'
+#' @param x Passed Fluorophore Name
+#' @param inputfiles List of .fcs files from path
+#'
+#' @importFrom stringr str_detect
+#' @noRd
+
+FluorophoreFilePresent <- function(x, inputfiles){
   fcs_files <- inputfiles[str_detect(basename(inputfiles), x) &
                             str_detect(basename(inputfiles), ".fcs$")]
   if (length(fcs_files) > 0){return(x)}
 }
 
-InternalExprs <- function(thex, data, inputfiles){
-  TheDetector <- data %>% filter(Fluorophore %in% thex) %>% pull(Detector)
 
-  if (thex %in% c("PE", "APC")){thex <- paste0(thex, "_")}
+#' Internal for LuciernagaReportFromFCS
+#'
+#' @param x A passed single cytoset object
+#' @param Fluorophore The detector
+#'
+#' @importFrom flowCore keyword
+#' @importFrom flowCore exprs
+#' @importFrom dplyr mutate
+#' @importFrom dplyr relocate
+#'
+#' @noRd
 
-  fcs_files <- inputfiles[str_detect(basename(inputfiles), thex) &
-                            str_detect(basename(inputfiles), ".fcs$")]
-
-  if (thex %in% c("PE_", "APC_")){thex <- gsub("_", "", thex)}
-
-  if (!length(fcs_files) == 0){
-
-    cs <- load_cytoset_from_fcs(fcs_files, truncate_max_range = FALSE,
-                                transformation = FALSE)
-
-    TheDataFrames <- map(.x = cs, .f = InternalExprs2, thex2 = thex) %>%
-      bind_rows()
-
-    #Removing the artificial negatives
-    TheDataFrames <- TheDataFrames %>% mutate(Summed = rowSums(select_if(.,
-                                                                         is.numeric), na.rm = TRUE))
-    TheDataFrames <- TheDataFrames %>% filter(!Summed == 0) %>% select(-Summed)
-
-    #Normalizing
-    BackupNames <- colnames(TheDataFrames)
-    BackupClusters <- TheDataFrames %>% select(Cluster)
-    n <- TheDataFrames[,2:length(TheDataFrames)]
-
-    #Normalizing By Peak Detector
-    n[n < 0] <- 0
-    A <- do.call(pmax, n)
-    Normalized <- n/A
-    Normalized <- round(Normalized, 1)
-    detector_order <- colnames(Normalized)
-    LinePlotData <- cbind(BackupClusters, Normalized)
-
-    if(stats == "mean"){Samples <- LinePlotData %>% group_by(Cluster) %>%
-      nest(data = where(is.numeric)) %>%
-      mutate(mean_data = map(data, ~ summarise_all(., ~ round(mean(.,
-                                                                   na.rm = TRUE),2)))) %>% select(Cluster, mean_data) %>%
-      unnest(mean_data) %>% ungroup()
-    } else if (stats == "median"){Samples <- LinePlotData %>%
-      group_by(Cluster) %>%  nest(data = where(is.numeric)) %>%
-      mutate(median_data = map(data, ~ summarise_all(., ~ round(median(.,
-                                                                       na.rm = TRUE),2)))) %>% select(Cluster, median_data) %>%
-      unnest(median_data) %>% ungroup()
-    } else(print("NA"))
-
-    if (!nrow(Samples) == 1){
-
-      Names <- Samples$Cluster
-      Numbers <- Samples %>% select_if(is.numeric)
-      NumericsT <- t(Numbers)
-      rownames(NumericsT) <- NULL
-      colnames(NumericsT) <- Names
-
-      NumericsT <- data.matrix(NumericsT)
-
-      CosineMatrix <- cosine(NumericsT)
-      CosineMatrix <- round(CosineMatrix, 2)
-
-      # Reorder By Similarity
-      reorder_cormat <- function(cormat){
-        dd <- as.dist((1-cormat)/2)
-        hc <- hclust(dd)
-        cormat <-cormat[hc$order, hc$order]
-      }
-
-      # Reorder the correlation matrix
-      cormat <- reorder_cormat(CosineMatrix)
-      melted_cormat <- melt(cormat)
-
-      #Generate a Heatmap
-      plot <- ggplot(melted_cormat, aes(Var2, Var1, fill = value)) +
-        geom_tile(color = "white") + geom_text(aes(Var2, Var1, label = value),
-                                               color = "black", size = 2) +
-        scale_fill_gradient2(low = "lightblue", high = "orange", mid = "white",
-                             midpoint = 0.7, limit = c(0.4,1),
-                             space = "Lab", name="Cosine\nSimilarity") +
-        theme_bw() + theme(
-          axis.title.x = element_blank(),
-          axis.title.y = element_blank(),
-          panel.grid.major = element_blank(),
-          panel.grid.minor = element_blank(),
-          axis.text.x = element_text(angle = 25, hjust = 1)
-        )
-
-      theplotlist[[thex]] <- plot
-
-    } else {
-      LineCols <- ncol(Samples)
-
-      Melted <- gather(Samples, key = "Detector", value = "value",
-                       all_of(2:LineCols)) #Gather is my New Best Friend
-
-      Melted$Detector <- factor(Melted$Detector, levels = detector_order)
-      Melted$Cluster <- factor(Melted$Cluster)
-
-      #Change this in case raw values provided instead of normalized?
-      Low <- 0
-      High <- 1.1
-
-      Melted1 <- data.frame(Melted)
-
-      plot <- ggplot(Melted1, aes(x = Detector, y = value, group = Cluster,
-                                  color = Cluster)) + geom_line() +
-        ylim(min = Low, max = High) + scale_color_hue(direction = 1) +
-        labs(title = thex, x = "Detectors", y = "Normalized Values") +
-        theme_linedraw() + theme_bw() +
-        theme(axis.title.x = element_text(face = "plain"),
-              axis.title.y = element_blank(),
-              axis.text.x = element_text(size = 5, angle = 45, hjust = 1),
-              panel.grid.major = element_blank(),
-              panel.grid.minor = element_blank()
-        )
-
-      theplotlist[[thex]] <- plot
-    }
-  } else {theplotlist[[thex]] <- NULL}
-}
-
-InternalExprs2 <- function(x, thex2){
-  they <- x
-  filename <- keyword(they, "FILENAME")
+FCSImportFile <- function(x, Fluorophore, sample.name = "FILENAME"){
+  filename <- keyword(x, sample.name)
   filename <- sub(".*\\\\", "", filename)
-  filename <- sub(paste0(".*", thex2), thex2, filename)
+  filename <- sub(paste0(".*", Fluorophore), Fluorophore, filename)
   filename <- gsub(".fcs$", "", filename)
+  rownames(filename) <- NULL
 
-  df <- exprs(they)
+  #df <- exprs(x[[1]])
+  df <- exprs(x)
   TheDF <- data.frame(df, check.names = FALSE)
   TheDF <- TheDF[,-grep("Time|FS|SC|SS|Original|W$|H$", names(TheDF))]
   colnames(TheDF) <- gsub("-A$", "", colnames(TheDF))
@@ -217,3 +119,62 @@ InternalExprs2 <- function(x, thex2){
                                                                .before = 1)
   return(DFNames)
 }
+
+#' Internal for LuciernagaReportFromFCS
+#'
+#' @param x Passed Fluorophore Name
+#' @param data Passed data.frame of Fluorophore with Detectors
+#' @param inputfiles List of .fcs files from path
+#'
+#' @importFrom dplyr filter
+#' @importFrom dplyr pull
+#' @importFrom stringr str_detect
+#' @importFrom flowWorkspace load_cytoset_from_fcs
+#' @importFrom purrr map
+#' @noRd
+
+
+FCSImport <- function(x, data, inputfiles, RetainedType, stats){
+
+  # For each Fluorophore
+  TheDetector <- data %>% filter(Fluorophore %in% x) %>% pull(Detector)
+
+  if (x %in% c("PE", "APC")){x <- paste0(x, "_")} #ExceptionHandling
+  fcs_files <- inputfiles[str_detect(basename(inputfiles), x) &
+                            str_detect(basename(inputfiles), ".fcs$")]
+  if (x %in% c("PE_", "APC_")){x <- gsub("_", "", x)} #ExceptionHandling
+
+  if (!length(fcs_files) == 0){
+
+    cs <- load_cytoset_from_fcs(fcs_files, truncate_max_range = FALSE,
+                                transformation = FALSE)
+    thex <- x
+
+    # Retrieve exprs data from each .fcs file and create cluster column
+    # x <- cs[1]
+    TheData <- map(.x = cs, .f = FCSImportFile, Fluorophore = thex) %>%
+      bind_rows()
+
+    # Removing Any Artificial Negatives Inserted By Luciernaga
+    TheData <- TheData %>% mutate(Summed = rowSums(across(where(is.numeric)), na.rm = TRUE))
+
+    TheData <- TheData %>% group_by(Summed) %>% dplyr::filter(n() <= 5) %>%
+      ungroup() %>% dplyr::filter(!Summed == 0) %>% select(-Summed)
+
+    # Return Summarized Data
+    if (RetainedType == "normalized"){
+
+
+    }
+
+
+  }
+
+}
+
+
+
+
+
+
+

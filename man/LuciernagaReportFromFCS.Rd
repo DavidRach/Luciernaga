@@ -12,7 +12,8 @@ LuciernagaReportFromFCS(
   LinePlots = TRUE,
   CosinePlots = TRUE,
   StackedBarPlots = TRUE,
-  Heatmaps = TRUE
+  Heatmaps = TRUE,
+  RetainedType
 )
 }
 \arguments{
@@ -28,6 +29,8 @@ information for the panel.}
 \item{CosinePlots}{Return this kind of plot, default is set to TRUE}
 
 \item{StackedBarPlots}{Return this kind of plot, default is set to TRUE}
+
+\item{RetainedType}{Whether the data.frame contains "raw" or "normalized" values}
 
 \item{HeatmapPlots}{Return this kind of plot, default is set to TRUE}
 }
