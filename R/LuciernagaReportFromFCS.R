@@ -37,7 +37,7 @@
 #'
 #' @examples NULL
 
-CosinePlots <- function(thedata, input, stats = NULL){
+LuciernagaReportFromFCS <- function(thedata, input, stats = NULL){
   data <- thedata
   data$Fluorophore <- gsub("-A$", "", data$Fluorophore)
   #data$Fluorophore <- gsub(".", "", fixed = TRUE, data$Fluorophore)
@@ -56,14 +56,6 @@ CosinePlots <- function(thedata, input, stats = NULL){
 
   #Present <- list()
 
-  InternalList <- function(x, inputfiles){
-    fcs_files <- inputfiles[str_detect(basename(inputfiles), x) &
-                              str_detect(basename(inputfiles), ".fcs$")]
-    if (length(fcs_files) > 0){return(x)}
-  }
-
-
-
   Present <- map(Variables, InternalList, inputfiles = inputfiles)
   Present <- Filter(Negate(is.null), Present)
   Present <- unlist(Present)
@@ -72,43 +64,42 @@ CosinePlots <- function(thedata, input, stats = NULL){
 
   #thex <- Present[20]
 
-  InternalExprs <- function(thex, data, inputfiles){
-    TheDetector <- data %>% filter(Fluorophore %in% thex) %>% pull(Detector)
+  PlotTwist <- map(.x = Present, .f = InternalExprs, data = InternalData,
+                   inputfiles = inputfiles)
+  PlotTwist <- Filter(Negate(is.null), PlotTwist)
+  PlotTwist <- unlist( PlotTwist)
 
-    if (thex %in% c("PE", "APC")){thex <- paste0(thex, "_")}
+  return(PlotTwist)
+}
 
-    fcs_files <- inputfiles[str_detect(basename(inputfiles), thex) &
-                              str_detect(basename(inputfiles), ".fcs$")]
 
-    if (thex %in% c("PE_", "APC_")){thex <- gsub("_", "", thex)}
+InternalList <- function(x, inputfiles){
+  fcs_files <- inputfiles[str_detect(basename(inputfiles), x) &
+                            str_detect(basename(inputfiles), ".fcs$")]
+  if (length(fcs_files) > 0){return(x)}
+}
 
-    if (!length(fcs_files) == 0){
+InternalExprs <- function(thex, data, inputfiles){
+  TheDetector <- data %>% filter(Fluorophore %in% thex) %>% pull(Detector)
 
-      cs <- load_cytoset_from_fcs(fcs_files, truncate_max_range = FALSE,
-                                  transformation = FALSE)
+  if (thex %in% c("PE", "APC")){thex <- paste0(thex, "_")}
 
-    InternalExprs2 <- function(x, thex2){
-      they <- x
-      filename <- keyword(they, "FILENAME")
-      filename <- sub(".*\\\\", "", filename)
-      filename <- sub(paste0(".*", thex2), thex2, filename)
-      filename <- gsub(".fcs$", "", filename)
+  fcs_files <- inputfiles[str_detect(basename(inputfiles), thex) &
+                            str_detect(basename(inputfiles), ".fcs$")]
 
-      df <- exprs(they)
-      TheDF <- data.frame(df, check.names = FALSE)
-      TheDF <- TheDF[,-grep("Time|FS|SC|SS|Original|W$|H$", names(TheDF))]
-      colnames(TheDF) <- gsub("-A$", "", colnames(TheDF))
-      DFNames <- TheDF %>% mutate(Cluster = filename) %>% relocate(Cluster,
-          .before = 1)
-      return(DFNames)
-    }
+  if (thex %in% c("PE_", "APC_")){thex <- gsub("_", "", thex)}
+
+  if (!length(fcs_files) == 0){
+
+    cs <- load_cytoset_from_fcs(fcs_files, truncate_max_range = FALSE,
+                                transformation = FALSE)
 
     TheDataFrames <- map(.x = cs, .f = InternalExprs2, thex2 = thex) %>%
       bind_rows()
 
     #Removing the artificial negatives
     TheDataFrames <- TheDataFrames %>% mutate(Summed = rowSums(select_if(.,
-              is.numeric), na.rm = TRUE))
+                                                                         is.numeric), na.rm = TRUE))
     TheDataFrames <- TheDataFrames %>% filter(!Summed == 0) %>% select(-Summed)
 
     #Normalizing
@@ -127,12 +118,12 @@ CosinePlots <- function(thedata, input, stats = NULL){
     if(stats == "mean"){Samples <- LinePlotData %>% group_by(Cluster) %>%
       nest(data = where(is.numeric)) %>%
       mutate(mean_data = map(data, ~ summarise_all(., ~ round(mean(.,
-          na.rm = TRUE),2)))) %>% select(Cluster, mean_data) %>%
+                                                                   na.rm = TRUE),2)))) %>% select(Cluster, mean_data) %>%
       unnest(mean_data) %>% ungroup()
     } else if (stats == "median"){Samples <- LinePlotData %>%
       group_by(Cluster) %>%  nest(data = where(is.numeric)) %>%
       mutate(median_data = map(data, ~ summarise_all(., ~ round(median(.,
-        na.rm = TRUE),2)))) %>% select(Cluster, median_data) %>%
+                                                                       na.rm = TRUE),2)))) %>% select(Cluster, median_data) %>%
       unnest(median_data) %>% ungroup()
     } else(print("NA"))
 
@@ -163,7 +154,7 @@ CosinePlots <- function(thedata, input, stats = NULL){
       #Generate a Heatmap
       plot <- ggplot(melted_cormat, aes(Var2, Var1, fill = value)) +
         geom_tile(color = "white") + geom_text(aes(Var2, Var1, label = value),
-        color = "black", size = 2) +
+                                               color = "black", size = 2) +
         scale_fill_gradient2(low = "lightblue", high = "orange", mid = "white",
                              midpoint = 0.7, limit = c(0.4,1),
                              space = "Lab", name="Cosine\nSimilarity") +
@@ -175,7 +166,7 @@ CosinePlots <- function(thedata, input, stats = NULL){
           axis.text.x = element_text(angle = 25, hjust = 1)
         )
 
-    theplotlist[[thex]] <- plot
+      theplotlist[[thex]] <- plot
 
     } else {
       LineCols <- ncol(Samples)
@@ -206,13 +197,21 @@ CosinePlots <- function(thedata, input, stats = NULL){
 
       theplotlist[[thex]] <- plot
     }
-    } else {theplotlist[[thex]] <- NULL}
-  }
+  } else {theplotlist[[thex]] <- NULL}
+}
 
-  PlotTwist <- map(.x = Present, .f = InternalExprs, data = InternalData,
-                   inputfiles = inputfiles)
-  PlotTwist <- Filter(Negate(is.null), PlotTwist)
-  PlotTwist <- unlist( PlotTwist)
+InternalExprs2 <- function(x, thex2){
+  they <- x
+  filename <- keyword(they, "FILENAME")
+  filename <- sub(".*\\\\", "", filename)
+  filename <- sub(paste0(".*", thex2), thex2, filename)
+  filename <- gsub(".fcs$", "", filename)
 
-  return(PlotTwist)
+  df <- exprs(they)
+  TheDF <- data.frame(df, check.names = FALSE)
+  TheDF <- TheDF[,-grep("Time|FS|SC|SS|Original|W$|H$", names(TheDF))]
+  colnames(TheDF) <- gsub("-A$", "", colnames(TheDF))
+  DFNames <- TheDF %>% mutate(Cluster = filename) %>% relocate(Cluster,
+                                                               .before = 1)
+  return(DFNames)
 }

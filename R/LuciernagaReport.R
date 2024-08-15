@@ -1,11 +1,15 @@
 #' Converts the Luciernaga outputs into .pdf plots.
 #'
-#' @param LuciernagaData A data.frame
-#' @param FluorophoreColumnName  The name of the data.frame column containing your fluorophores.
-#' @param ClusterColumnName The name of the data.frame column containing your cluster IDs.
+#' @param data The data.frame output from LuciernagaQC
+#' @param RetainedType Whether the data.frame contains "raw" or "normalized" values
+#' @param CellPopRatio What mininum ratio needed to retain cluster (ie, 0.01 = 1%, etc.)
 #' @param outfolder The location that you want to save the .pdf output to.
 #' @param filename The name you want to save your .pdf file as.
 #' @param returntype Passed to Utility_Patchwork for "pdf" or "patchwork" or "plots"
+#' @param LinePlots Return this kind of plot, default is set to TRUE
+#' @param CosinePlots Return this kind of plot, default is set to TRUE
+#' @param StackedBarPlots Return this kind of plot, default is set to TRUE
+#' @param HeatmapPlots Return this kind of plot, default is set to TRUE
 #'
 #' @importFrom dplyr group_by
 #' @importFrom dplyr summarize
