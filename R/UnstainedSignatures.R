@@ -24,7 +24,6 @@
 #' @importFrom dplyr near
 #'
 #' @keywords internal
-
 UnstainedSignatures <- function(x, WorkAround1, alternatename, ColsN, StartNormalizedMergedCol,
                                 EndNormalizedMergedCol, Increments, Verbose = FALSE,
                                 LocalMaximaRatio=0.15, SecondaryPeaks=2){
@@ -64,7 +63,7 @@ UnstainedSignatures <- function(x, WorkAround1, alternatename, ColsN, StartNorma
   LocalX <- Conversion$Detectors
   LocalY <- Conversion$TheSums
 
-  PointData <- Utility_LocalMaxima(theX = LocalX, theY = LocalY,
+  PointData <- LocalMaxima(theX = LocalX, theY = LocalY,
        therepeats = 3, w = 3, span = 0.11, alternatename = alternatename, Verbose=Verbose)
 
   colnames(PointData)[1] <- "TheDetector"
@@ -140,3 +139,5 @@ UnstainedSignatures <- function(x, WorkAround1, alternatename, ColsN, StartNorma
 
   return(MyData)
 }
+
+

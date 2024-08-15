@@ -61,7 +61,7 @@ Utility_NbyNPlots <- function(x, sample.name, removestrings, experiment = NULL, 
 
   } else {
     columnlist <- DFNames[DFNames != ycolumn]
-    Plots <- map(.x = columnlist, .f = Utility_GeneralGating, name = name, ff = ff, yValue = ycolumn, columnlist = DFNames,
+    Plots <- map(.x = columnlist, .f = GeneralGating, name = name, ff = ff, yValue = ycolumn, columnlist = DFNames,
                  TheDF = TheDF, gatelines = gatelines, reference = reference, clearance, bins)
   }
 
@@ -74,4 +74,133 @@ Utility_NbyNPlots <- function(x, sample.name, removestrings, experiment = NULL, 
 
   return(AssembledPlots)
 
+}
+
+#' Internal for Utility_NbyNPlots
+#' @importFrom flowWorkspace keyword
+#' @importFrom flowWorkspace gs_pop_get_data
+#' @importFrom flowCore exprs
+#' @importFrom patchwork wrap_plots
+#' @importFrom patchwork plot_spacer
+#' @importFrom purrr map
+#'
+#' @noRd
+UniversalIterator <- function(x, x_ff,
+                              TheDF, yValue, columnlist, gatelines,
+                              reference, clearance, bins, AltNameX,
+                              AltNameY, colorX, colorY){
+  ff <- x_ff
+  DFNames <- columnlist
+  columnlist <- columnlist[columnlist != x] # Remove the universal Y value
+
+  Plots <- map(.x = columnlist, .f = GeneralGating, name = name, ff = ff, yValue = x, columnlist = DFNames,
+               TheDF = TheDF, gatelines = gatelines, reference = reference, clearance=clearance, bins=bins)
+
+  #Plots <- flatten(Plots)
+  #Plots1 <- Plots
+}
+
+#' Internal for Utility_ParallelNbyNPlots
+#' @importFrom flowWorkspace keyword
+#' @importFrom flowWorkspace gs_pop_get_data
+#' @importFrom flowCore exprs
+#' @importFrom patchwork wrap_plots
+#' @importFrom patchwork plot_spacer
+#' @importFrom purrr map
+#'
+#' @keywords internal
+
+ParallelUniversalIterator <- function(x, x_ff, y_ff,
+                                      TheDF, yValue, columnlist, gatelines,
+                                      reference, clearance, bins, AltNameX,
+                                      AltNameY, colorX, colorY){
+  DFNames <- columnlist
+  columnlist <- columnlist[columnlist != x] # Remove the universal Y value
+
+  Plots <- map(.x = columnlist, .f = ParallelGating, x_ff=x_ff, y_ff=y_ff,
+               TheDF=TheDF, yValue=x, columnlist=DFNames, gatelines=gatelines,
+               reference=reference, clearance=clearance, bins=bins, AltNameX=AltNameX,
+               AltNameY=AltNameY, colorX=colorX, colorY=colorY) #Name
+  Plots <- flatten(Plots)
+
+  #Plots1 <- Plots
+  #Plots <- flatten(Plots)
+  return(Plots)
+}
+
+#' An internal function that generates ggplots for given channels
+#'
+#' @param x Passed channel
+#' @param name The name that matches to the data.frame and gs object,
+#' ex. altered.name
+#' @param ff The dataframe data for that sample
+#' @param yValue What wanted on the yaxis
+#' @param bins Bins for which the plotted cells will be divided into
+#'  providing granularity
+#' @param clearance Space around the plot
+#' @param columnlist list all channels with x removed
+#' @param TheDF the external limits settings
+#' @param gatelines whether to plot the ModernCutoffLines from reference
+#'  dataframe
+#' @param reference location ModernCutoff dataframe.
+#'
+#' @importFrom dplyr select
+#' @importFrom dplyr pull
+#' @importFrom flowCore keyword
+#' @importFrom ggcyto ggcyto
+#' @importFrom ggcyto as.ggplot
+#' @import ggplot2
+#'
+#' @return A value to be determined later
+#' @noRd
+GeneralGating <- function(x, name, ff, yValue, clearance, bins,
+                          columnlist, TheDF, gatelines, reference = NULL) {
+
+  if (yValue == x){stop("x equals yValue and can't be plotted")}
+
+  xValue <- x
+
+  if (!grepl("FSC|SSC", yValue)) {ExprsData <- TheDF %>%
+    select(all_of(yValue)) %>% pull()
+  theYmin <- ExprsData %>% quantile(., 0.001)
+  theYmax <- ExprsData %>% quantile(., 0.999)
+  theYmin <- theYmin - abs((clearance*theYmin))
+  theYmax <- theYmax + (clearance*theYmax)}
+
+  if (!grepl("FSC|SSC", xValue)) {ExprsData <- TheDF %>%
+    select(all_of(xValue)) %>% pull()
+  theXmin <- ExprsData %>% quantile(., 0.001)
+  theXmax <- ExprsData %>% quantile(., 0.999)
+  theXmin <- theXmin - abs((clearance*theXmin))
+  theXmax <- theXmax + (clearance*theXmax)}
+
+
+  if (!exists("theYmax") || !exists("theXmax")){
+    Plot <- as.ggplot(ggcyto(ff, aes(x = .data[[xValue]], y = .data[[yValue]]),
+                             subset = "root") + geom_hex(bins=bins) + theme_bw() + labs(title = NULL) +
+                        theme(strip.background = element_blank(), strip.text.x = element_blank(),
+                              panel.grid.major = element_line(linetype = "blank"),
+                              panel.grid.minor = element_line(linetype = "blank"),
+                              axis.title = element_text(size = 10, face = "bold"),
+                              legend.position = "none"))
+
+    if (gatelines == TRUE){Value <- reference[reference$specimen == name, xValue]
+    Plot <- Plot + geom_vline(xintercept = c(seq(0,200,25)), colour = "gray") +
+      geom_vline(xintercept = Value, colour = "red")}
+
+  } else {Plot <- as.ggplot(ggcyto(ff, aes(x = .data[[xValue]],
+                                           y = .data[[yValue]]), subset = "root") + geom_hex(bins=bins) +
+                              coord_cartesian(xlim = c(theXmin, theXmax), ylim = c(theYmin, theYmax),
+                                              default = TRUE) + theme_bw() + labs(title = NULL) +
+                              theme(strip.background = element_blank(),
+                                    strip.text.x = element_blank(), panel.grid.major = element_line(
+                                      linetype = "blank"), panel.grid.minor = element_line(linetype = "blank"),
+                                    axis.title = element_text(size = 10, face = "bold"), legend.position = "none"))
+
+  if (gatelines == TRUE){Value <- reference[reference$specimen == name, xValue]
+  Plot <- Plot + geom_vline(xintercept = c(seq(0,200,25)), colour = "gray") +
+    geom_vline(xintercept = Value, colour = "red")}
+  }
+
+  return(Plot)
 }

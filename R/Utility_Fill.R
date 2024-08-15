@@ -9,10 +9,10 @@
 #' @importFrom dplyr coalesce
 #'
 #' @return Additional information to be added
-#' @keywords internal
+#' @noRd
 #'
 #' @examples NULL
-Utility_Fill <- function(x){
+TheFill <- function(x){
   colnames(x) <- gsub("-A", "",  colnames(x))
 
   TheClusters <- x %>% select(Cluster) %>% pull()

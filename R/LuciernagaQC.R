@@ -55,7 +55,6 @@
 #' @export
 #'
 #' @examples NULL
-
 LuciernagaQC <- function(x, subsets, sample.name, removestrings, Verbose = FALSE,
                                   unmixingcontroltype="both", Unstained=FALSE, ratiopopcutoff=0.01,
                                   experiment = NULL, experiment.name = NULL, condition = NULL, condition.name = NULL,
@@ -66,8 +65,8 @@ LuciernagaQC <- function(x, subsets, sample.name, removestrings, Verbose = FALSE
                                   LocalMaximaRatio=0.15, SecondaryPeaks=2, Increments, RetainedType="normalized", ...){
 
   name <- keyword(x, sample.name)
-  Type <- Luciernaga:::Internal_Typing(name=name, unmixingcontroltype=unmixingcontroltype, Unstained=Unstained)
-  #Type <- Internal_Typing(name=name, unmixingcontroltype=unmixingcontroltype, Unstained=Unstained)
+  Type <- Luciernaga:::Typing(name=name, unmixingcontroltype=unmixingcontroltype, Unstained=Unstained)
+  #Type <- Typing(name=name, unmixingcontroltype=unmixingcontroltype, Unstained=Unstained)
   AggregateName <- Luciernaga:::NameForSample(x=x, sample.name=sample.name, removestrings=removestrings)
   #AggregateName <- NameForSample(x=x, sample.name=sample.name, removestrings=removestrings, ...)
 
@@ -366,7 +365,6 @@ LuciernagaQC <- function(x, subsets, sample.name, removestrings, Verbose = FALSE
 #' @importFrom tidyselect all_of
 #' @importFrom dplyr rename
 #' @noRd
-
 LuciernagaSmallReport <- function(x, Data, RetainedType, ColsN, StartNormalizedMergedCol,
                              EndNormalizedMergedCol, stats){
     if (RetainedType == "raw"){Data <- Data %>% filter(Cluster %in% x) %>% select(all_of(1:ColsN))}
@@ -404,9 +402,8 @@ AveragedSignature <- function(x, stats){
 #' @importFrom dplyr select
 #' @importFrom tidyselect all_of
 #' @importFrom dplyr arrange
-#' @noRd
 #'
-
+#' @noRd
 DetectorPeakCounts <- function(x, StartN, EndN){
 x <- x %>% select(-Backups)
 Normalized <- x %>% select(all_of(
@@ -416,6 +413,329 @@ PeakDetectorCounts <- data.frame(Fluors = names(Counts), Counts = Counts)
 rownames(PeakDetectorCounts) <- NULL
 PeakDetectorCounts <- PeakDetectorCounts %>% arrange(desc(Counts))
 return(PeakDetectorCounts)
+}
+
+#' Internal LuciernagaQC detects Fluorophore Peak Detectors by Local Maxima
+#'
+#' @param theX A vector of detectors from 1:n
+#' @param theY The corresponding y values corresponding to the measurements
+#' of theX
+#' @param therepeats Additional values to temporarily add to the edges to
+#' allow for peak detection
+#' @param w The span around which rolling will happen
+#' @param alternatename The cleaned up name passed to the plots (internal)
+#' @param Verbose Whether to print line plot outputs
+#' @param ... Additional arguments passed to zoo package
+#'
+#' @importFrom stats loess
+#' @importFrom zoo rollapply
+#' @importFrom zoo zoo
+#' @importFrom dplyr filter
+#' @importFrom ggplot2 ggplot
+#' @importFrom dplyr select
+#'
+#' @return A value to be determined later
+#' @noRd
+LocalMaxima <- function(theX, theY, therepeats, w, alternatename, Verbose = FALSE, ...){
+
+  #Adding Margins
+  repeats <- therepeats*2
+  NewX <- length(theX) + repeats
+  NewX <- 1:NewX
+  NewYmin <- theY[[1]]*0.99
+  LengthY <- length(theY)
+  NewYmax <- theY[[LengthY]]*0.80
+  replicatedYmin <- rep(NewYmin, each = therepeats)
+  replicatedYmax <- rep(NewYmax, each = therepeats)
+  NewY <- c(replicatedYmin, theY, replicatedYmax)
+
+  x <- NewX
+  y <- NewY
+
+  ##Local Maxima Functions
+  n <- length(y)
+  #y.smooth <- loess(y ~ x)$fitted
+  y.smooth <- loess(y ~ x, ...)$fitted
+  y.max <- rollapply(zoo(y.smooth), 2*w+1, max, align="center")
+  delta <- y.max - y.smooth[-c(1:w, n+1-1:w)]
+  i.max <- which(delta <= 0) + w
+  peaks <- list(x=x[i.max]-therepeats, i=i.max-therepeats,
+                y.hat=y.smooth[(therepeats + 1):(length(y.smooth) - therepeats)])
+
+  peak_points <- peaks$x
+
+  MainData <- data.frame(x = theX, y = theY, yhat = peaks$y.hat)
+
+  PointData <- MainData %>% filter(x %in% peak_points)
+
+  Views <- ggplot(MainData, aes(x = x, y = y)) +
+    geom_point(size = 2, color = "Gray") +
+    geom_line(aes(y = yhat), linewidth = 1) +
+    geom_point(data = PointData, aes(x, yhat),
+               color = "Red", shape = 19, size = 2) +
+    geom_segment(data = PointData, aes(x = x, xend = x, y = 0, yend = yhat),
+                 color = "Red", linewidth = 1, linetype = "dashed") +
+    labs(title = alternatename) + theme_bw() +
+    theme(plot.title = element_text(hjust = 0.5),
+          axis.title.x = element_blank(), axis.title.y = element_blank(),
+          panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+
+  if (Verbose == TRUE) {print(Views)}
+
+  PointData <- PointData %>% select(-y)
+
+  return(PointData)
+}
+
+
+#' Helper function splits Cluster into individual components
+#'
+#' @param x A data.frame containing column Cluster
+#'
+#' @importFrom dplyr filter
+#' @importFrom stringr str_detect
+#' @importFrom stringr str_split
+#' @importFrom dplyr relocate
+#' @importFrom dplyr mutate
+#' @importFrom dplyr rename_with
+#' @importFrom tidyr unnest_wider
+#' @importFrom tidyr starts_with
+#'
+#' @return A value to be determined later
+#' @noRd
+RelativeBrightness <- function(x){
+  Regular <- x %>% filter(!str_detect(Cluster, "-$"))
+
+  if(nrow(Regular) > 0){
+    Regular <- Regular %>% mutate(regular_split = str_split(
+      as.character(Cluster), "-")) %>% relocate(regular_split, .after = Cluster)
+    Regular <- Regular %>%  unnest_wider(regular_split, names_sep = "_") %>%
+      rename_with(~ c("Detector1", "Detector2", "Detector3"), starts_with("regular"))
+
+    Regular <- Regular %>% mutate(Detector1 = str_split(as.character(Detector1),
+                                                        "_"))
+    Regular <- Regular %>%  unnest_wider(Detector1, names_sep = "_") %>%
+      rename_with(~ c("Detector1", "Detector1Value"), starts_with("Detector1"))
+
+    Regular <- Regular %>% mutate(Detector2 = str_split(as.character(Detector2),
+                                                        "_"))
+    Regular <- Regular %>%  unnest_wider(Detector2, names_sep = "_") %>%
+      rename_with(~ c("Detector2", "Detector2Value"), starts_with("Detector2"))
+
+    Regular <- Regular %>% mutate(Detector3 = str_split(as.character(Detector3),
+                                                        "_"))
+    Regular <- Regular %>%  unnest_wider(Detector3, names_sep = "_") %>%
+      rename_with(~ c("Detector3", "Detector3Value"), starts_with("Detector3"))
+  }
+
+  Exceptions <- x %>% filter(str_detect(Cluster, "-$"))
+
+  if(nrow(Exceptions) > 0){
+
+    Exceptions$Cluster <- gsub("-$", "", Exceptions$Cluster)
+    Exceptions <- Exceptions %>% mutate(regular_split = str_split(as.character(
+      Cluster), "-")) %>% relocate(regular_split, .after = Cluster)
+    Exceptions <- Exceptions %>%  unnest_wider(regular_split, names_sep = "_") %>%
+      rename_with(~ c("Detector1", "Detector2"), starts_with("regular"))
+
+    Exceptions <- Exceptions %>% mutate(Detector1 = str_split(as.character(
+      Detector1), "_"))
+    Exceptions <- Exceptions %>%  unnest_wider(Detector1, names_sep = "_") %>%
+      rename_with(~ c("Detector1", "Detector1Value"), starts_with("Detector1"))
+
+    Exceptions <- Exceptions %>% mutate(Detector2 = str_split(as.character(
+      Detector2), "_"))
+    Exceptions <- Exceptions %>%  unnest_wider(Detector2, names_sep = "_") %>%
+      rename_with(~ c("Detector2", "Detector2Value"), starts_with("Detector2"))
+
+    Exceptions <- Exceptions %>% mutate(Detector3 = rep(NA, nrow(Exceptions))) %>%
+      relocate(Detector3, .after = Detector2Value)
+    Exceptions$Detector3 <- as.character(Exceptions$Detector3)
+
+    Exceptions <- Exceptions %>% mutate(Detector3Value = rep(NA,
+                                                             nrow(Exceptions))) %>% relocate(Detector3Value, .after = Detector3)
+    Exceptions$Detector3Value <- as.character(Exceptions$Detector3Value)
+
+  }
+
+  Combined <- rbind(Regular, Exceptions)
+
+  Combined$Detector1Value <- as.numeric(Combined$Detector1Value)
+  Combined$Detector2Value <- as.numeric(Combined$Detector2Value)
+  Combined$Detector3Value <- as.numeric(Combined$Detector3Value)
+
+  Combined <- Combined %>% mutate(Brightness = rowSums(select(., Detector1Value,
+                                                              Detector2Value, Detector3Value), na.rm = TRUE)) %>%
+    relocate(Brightness, .after = Cluster)
+
+  Combined <- Combined %>% mutate(Detector1Raw = rep(NA, nrow(Combined)),
+                                  Detector2Raw = rep(NA, nrow(Combined)),
+                                  Detector3Raw = rep(NA, nrow(Combined))) %>%
+    relocate(Detector1Raw, .after = Detector1Value) %>%
+    relocate(Detector2Raw, .after = Detector2Value) %>%
+    relocate(Detector3Raw, .after = Detector3Value)
+
+  Combined <- TheFill(Combined)
+
+  return(Combined)
+}
+
+
+
+#' Internal for LuciernagaQC, creates .fcs files
+#'
+#' @param x The data.frame of Luciernaga data.
+#' @param ff An individual cytoset object.
+#' @param minimalfcscutoff A ratio indicating mininum of the total population needed to split off
+#'  into own file, default is set to 0.05
+#' @param AggregateName Passed final name with modifications from name
+#' @param Brightness Whether to additionally return a brightness .csv to the outpath
+#' @param outpath Location to export the fcs and .csv files to
+#' @param OriginalStart Passed Argument indicating start column for Raw .fcs values
+#' @param OrigingalEnd Passed argument indicating end column for raw .fcs values
+#' @param stats Whether "median" or "mean", default is "median"
+#' @param NegativeType Whether to append a negative pop. Args are "artificial", "internal" and "default"
+#' @param TotalNegatives How many of the above rows to append, default is set to 500
+#' @param Samples When Negative type = "Internal", the data.frame of averaged fluorescence per detector
+#' @param ExportType Passed from above, set to "fcs" for fcs.file return
+#'
+#'
+#' @importFrom flowCore parameters
+#' @importFrom flowWorkspace keyword
+#' @importFrom dplyr arrange
+#' @importFrom dplyr filter
+#' @importFrom dplyr pull
+#' @importFrom purrr map
+#' @importFrom dplyr bind_rows
+#' @importFrom utils write.csv
+#'
+#' @noRd
+Genesis <- function(x, ff, minimalfcscutoff=0.05, AggregateName,
+                    Brightness, outpath=NULL, OriginalStart, OriginalEnd,
+                    stats = "median", NegativeType="default", TotalNegatives=500,
+                    Samples=NULL, ExportType){
+
+  # Replicate the Original FCS Parameters
+  FlowFrameTest <- ff[[1, returnType = "flowFrame"]]
+  original_p <- parameters(FlowFrameTest)
+  original_d <- keyword(FlowFrameTest)
+
+  # Figure out what clusters to split from the file.
+  x$Cluster <- factor(x$Cluster)
+  ZZZ <- data.frame(table(x$Cluster))
+  ZZZ <- ZZZ %>% arrange(desc(Freq))
+  colnames(ZZZ)[1] <- "Cluster"
+  colnames(ZZZ)[2] <- "Count"
+  fcs_cutoff <- nrow(x)*minimalfcscutoff
+  fcs_clusters <- ZZZ %>% filter(Count > fcs_cutoff) %>% pull(Cluster)
+
+  Data <- x
+
+  TheBrightness <- map(.x=fcs_clusters, .f=Luciernaga:::InternalGenesis, Data=Data, AggregateName=AggregateName,
+                       outpath=outpath, OriginalStart=OriginalStart, OriginalEnd=OriginalEnd,
+                       stats=stats, NegativeType=NegativeType, TotalNegatives=TotalNegatives,
+                       Samples=Samples, ExportType=ExportType, parameters=original_p,
+                       description=original_d) %>% bind_rows()
+
+  message("TargetReached")
+
+  if (Brightness == TRUE){
+    RelativeBrightness <- Luciernaga:::RelativeBrightness(TheBrightness)
+    CSVName <- paste0("RelativeBrightness", AggregateName, ".csv")
+    CSVSpot <- file.path(outpath, CSVName)
+    write.csv(RelativeBrightness, CSVSpot, row.names = FALSE)
+  }
+}
+
+
+#' Internal for LuciernagaQC, creates .fcs files
+#'
+#' @param x Individual fluorescence cluster for filtering
+#' @param Data The data.frame containing the many of the above
+#' @param AggregateName Passed final name with modifications from name
+#' @param outpath Location to export the fcs and .csv files to
+#' @param OriginalStart Passed Argument indicating start column for Raw .fcs values
+#' @param OriginalEnd Passed argument indicating end column for raw .fcs values
+#' @param stats Whether "median" or "mean", default is "median"
+#' @param NegativeType Whether to append a negative pop. Args are "artificial", "internal" and "default"
+#' @param TotalNegatives How many of the above rows to append, default is set to 500
+#' @param Samples When Negative type = "Internal", the data.frame of averaged fluorescence per detector
+#' @param ExportType Passed from above, set to "fcs" for fcs.file return
+#' @param parameters Passed parameters for .fcs creation
+#' @param description Passed description for .fcs creation
+#'
+#' @importFrom dplyr filter
+#' @importFrom dplyr select
+#' @importFrom tidyselect all_of
+#' @importFrom dplyr mutate
+#' @importFrom dplyr across
+#' @importFrom tidyselect one_of
+#' @importFrom dplyr bind_cols
+#' @importFrom dplyr relocate
+#' @importFrom flowCore write.FCS
+#'
+#' @noRd
+InternalGenesis <- function(x, Data, AggregateName, outpath=NULL, OriginalStart, OriginalEnd,
+                            stats="median", NegativeType="default", TotalNegatives = 500,
+                            Samples = NULL, ExportType, parameters, description){
+
+  internalstrings <- c("-", "_")
+  FCSname <- NameCleanUp(x, removestrings=internalstrings)
+  FCSName <- paste(AggregateName, FCSname, sep = "_")
+  #FCSName
+
+  FCSSubset <- Data %>% filter(Cluster %in% x)
+
+  # If Return Type No Add Ons
+  RawFCSSubset <- FCSSubset %>% select(all_of(OriginalStart:OriginalEnd))
+
+  HowBright <- AveragedSignature(RawFCSSubset, stats=stats)
+  HowBright <- cbind(x, HowBright)
+  colnames(HowBright)[1] <- "Cluster"
+  #HowBright #Exported to bind_row with data.frame.
+  #RawFCSSubset
+
+  if (NegativeType == "artificial"){
+    MeanFCS <- colMeans(RawFCSSubset)
+    MeanFCS <- data.frame(t(MeanFCS), check.names = FALSE)
+    mutateCols <- MeanFCS[,-grep("Time|FS|SC|SS|Original|W$|H$", names(MeanFCS))] %>% colnames(.)
+    MeanFCS <- MeanFCS %>% mutate(across(all_of(mutateCols), ~ifelse(. >= 0, 0, .)))
+    MeanFCS$Time <- round(MeanFCS$Time, 1)
+    ArtificialNegative <- MeanFCS[rep(1, each = TotalNegatives),]
+    rownames(ArtificialNegative) <- NULL
+    FCSSubset <- rbind(RawFCSSubset, ArtificialNegative)
+  }
+
+  if (NegativeType == "samples"){
+    if(!is.data.frame(Samples)){stop("Samples needs to be a single row of a data.frame
+                                     for just the raw detectors")}
+    SamplesCols <- colnames(Samples)
+    MeanFCS <- colMeans(RawFCSSubset)
+    MeanFCS <- data.frame(t(MeanFCS), check.names = FALSE)
+    BackboneCols <- colnames(MeanFCS)
+    Residual <- MeanFCS %>% select(-one_of(SamplesCols))
+    Combined <- bind_cols(Residual, Samples)
+    Combined <- Combined %>% relocate(all_of(BackboneCols))
+    SampleNegative <- Combined[rep(1, each = TotalNegatives),]
+    rownames(SampleNegative) <- NULL
+    FCSSubset <- rbind(RawFCSSubset, SampleNegative)
+  }
+
+  if (NegativeType == "default"){
+    FCSSubset <- RawFCSSubset
+  }
+
+  FCSSubset <- data.matrix(FCSSubset)
+  new_fcs <- new("flowFrame", exprs=FCSSubset, parameters=parameters, description=description)
+
+  TheFileName <- paste(AggregateName, FCSname, sep="_")
+  TheFileFCS <- paste0(TheFileName, ".fcs")
+  if (is.null(outpath)) {outpath <- getwd()}
+  fileSpot <- file.path(outpath, TheFileFCS)
+
+  if (ExportType == "fcs") {write.FCS(new_fcs, filename = fileSpot, delimiter="#")}
+
+  return(HowBright)
 }
 
 
