@@ -10,35 +10,18 @@
 #' @param StackedBarPlots Return this kind of plot, default is set to TRUE
 #' @param HeatmapPlots Return this kind of plot, default is set to TRUE
 #' @param RetainedType Whether the data.frame contains "raw" or "normalized" values
+#' @param TheSummary Whether to return individual cells or summarized by stats.
+#' @param experiment Provide directly experiment name (ex. "JAN2024")
+#' @param condition Provide directly experiment name (ex. "JAN2024")
 #'
 #' @importFrom dplyr select
 #' @importFrom dplyr pull
-#'
-#' @importFrom tidyr nest
-#' @importFrom stringr str_detect
-#' @importFrom flowCore exprs
-#' @importFrom flowWorkspace keyword
-#' @importFrom flowWorkspace load_cytoset_from_fcs
-#' @importFrom dplyr filter
+#' @importFrom purrr map
+#' @importFrom dplyr bind_rows
 #' @importFrom dplyr mutate
 #' @importFrom dplyr relocate
-#' @importFrom dplyr select_if
-#' @importFrom dplyr bind_rows
-#' @importFrom dplyr group_by
-#' @importFrom dplyr ungroup
-#' @importFrom dplyr summarise_all
-#' @importFrom tidyr nest
-#' @importFrom tidyr unnest
-#' @importFrom purrr map
-#' @importFrom lsa cosine
-#' @importFrom reshape2 melt
-#' @import ggplot2
-#' @importFrom stats as.dist
-#' @importFrom stats hclust
 #'
-#'
-#'
-#' @return Visualized ggplots for each fluorophore.
+#' @return A data.frame compatible with LuciernagaReport()
 #'
 #' @export
 #'
@@ -67,10 +50,17 @@ LuciernagaReportFromFCS <- function(path, reference, stats = "median",
   #data <- CSV
   #inputfiles = fcsfiles
 
-  PlotTwist <- map(.x = TheseFlurophores, .f = FCSImport, data = CSV,
-                   inputfiles = fcsfiles, RetainedType=RetainedType, stats=stats)
-  #PlotTwist <- Filter(Negate(is.null), PlotTwist)
-  #PlotTwist <- unlist( PlotTwist)
+  TheData <- map(.x = TheseFlurophores, .f = FCSImport, data = CSV,
+                   inputfiles = fcsfiles, RetainedType=RetainedType, stats=stats) %>%
+    bind_rows()
+
+  TheExperiment <- as.character(Experiment)
+  TheCondition <- as.character(Condition)
+
+  #We did not retain sample name.
+  TheData <- TheData %>% mutate(Experiment=TheExperiment)
+  TheData <- TheData %>% mutate(Condition=TheCondition)
+  TheData <- TheData %>% relocate(Experiment, Condition, .before=Cluster)
 
   return(PlotTwist)
 }
@@ -125,16 +115,28 @@ FCSImportFile <- function(x, Fluorophore, sample.name = "FILENAME"){
 #' @param x Passed Fluorophore Name
 #' @param data Passed data.frame of Fluorophore with Detectors
 #' @param inputfiles List of .fcs files from path
+#' @param RetainedType Whether the data.frame contains "raw" or "normalized" values
+#' @param TheSummary Whether to return individual cells or summarized by stats.
+#' RetainedType Whether the data.frame contains "raw" or "normalized" values
 #'
 #' @importFrom dplyr filter
 #' @importFrom dplyr pull
 #' @importFrom stringr str_detect
 #' @importFrom flowWorkspace load_cytoset_from_fcs
 #' @importFrom purrr map
+#' @importFrom dplyr mutate
+#' @importFrom dplyr across
+#' @importFrom tidyselect where
+#' @importFrom dplyr select
+#' @importFrom dplyr group_by
+#' @importFrom dplyr ungroup
+#' @importFrom dplyr arrange
+#' @importFrom dplyr left_join
+#'
 #' @noRd
 
 
-FCSImport <- function(x, data, inputfiles, RetainedType, stats){
+FCSImport <- function(x, data, inputfiles, RetainedType, TheSummary, stats){
 
   # For each Fluorophore
   TheDetector <- data %>% filter(Fluorophore %in% x) %>% pull(Detector)
@@ -163,11 +165,36 @@ FCSImport <- function(x, data, inputfiles, RetainedType, stats){
 
     # Return Summarized Data
     if (RetainedType == "normalized"){
-
-
+      Cluster <- TheData %>% dplyr::select(Cluster)
+      DetectorData <- TheData %>% dplyr::select(-Cluster)
+      DetectorData[DetectorData < 0] <- 0
+      A <- do.call(pmax, DetectorData)
+      Normalized <- DetectorData/A
+      Normalized <- round(Normalized, 3)
+      TheData <- cbind(Cluster, Normalized)
     }
 
+    if (TheSummary == TRUE){
+      TheTable <- data.frame(table(TheData$Cluster), check.names = FALSE)
+      TheTable <- TheTable %>% dplyr::arrange(desc(Freq))
+      colnames(TheTable)[1] <- "Cluster"
+      colnames(TheTable)[2] <- "Count"
 
+      TheClusters <- TheTable$Cluster
+
+      SmallHelper <- function(x, data, stats){
+      Cluster <- x
+      Internal <- data %>% filter(Cluster %in% x) %>% select(where(is.numeric))
+      Summarized <- Luciernaga:::AveragedSignature(x=Internal, stats=stats)
+      Summarized <- cbind(Cluster, Summarized)
+      }
+
+      Summarized <- map(.x=TheClusters, .f=SmallHelper, data = TheData, stats=stats) %>%
+        bind_rows()
+
+      ReturnFrame <- left_join(TheTable, Summarized, by="Cluster")
+      return(ReturnFrame)
+    } else {return(TheData)}
   }
 
 }
