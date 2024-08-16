@@ -10,7 +10,8 @@ Luciernaga_LinearSlices(
   sample.name,
   removestrings,
   stats,
-  TheReturn
+  returntype,
+  probsratio
 )
 }
 \arguments{
@@ -24,7 +25,9 @@ Luciernaga_LinearSlices(
 
 \item{stats}{Whether to use "mean" or "median"}
 
-\item{TheReturn}{Whether to return a "raw" or "normalized" value lineplot.}
+\item{returntype}{Whether to return a "raw" or "normalized" value lineplot.}
+
+\item{probsratio}{Ratio increments to break quantiles into, default is set to 0.1.}
 }
 \value{
 A ggplot2 object of lineplots from the sliced .fcs file

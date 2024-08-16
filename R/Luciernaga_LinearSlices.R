@@ -5,7 +5,8 @@
 #' @param sample.name Keyword for which sample name is stored
 #' @param removestrings A list of values to remove from the name
 #' @param stats Whether to use "mean" or "median"
-#' @param TheReturn Whether to return a "raw" or "normalized" value lineplot.
+#' @param returntype Whether to return a "raw" or "normalized" value lineplot.
+#' @param probsratio Ratio increments to break quantiles into, default is set to 0.1.
 #'
 #' @importFrom BiocGenerics nrow
 #' @importFrom flowCore exprs
@@ -30,61 +31,57 @@
 #'
 #' @examples NULL
 
-Luciernaga_LinearSlices <- function(x, subset, sample.name, removestrings, stats, TheReturn){
+Luciernaga_LinearSlices <- function(x, subset, sample.name, removestrings, stats,
+                                    returntype, probsratio){
+
   name <- keyword(x, sample.name)
   name <- NameCleanUp(name, removestrings)
 
   cs <- gs_pop_get_data(x, subset)
   startingcells <- nrow(cs)[[1]]
-  Data <- exprs(cs[[1]])
-  Data <- data.frame(Data, check.names = FALSE)
-
-  TheColumns <- Data[,-grep("Time|FS|SC|SS|Original|W$|H$", names(Data))]
-  detector_order <- colnames(TheColumns)
+  Data <- data.frame(exprs(cs[[1]]), check.names = FALSE)
+  n <- Data[,-grep("Time|FS|SC|SS|Original|W$|H$", names(Data))]
+  DetectorOrder <- colnames(TheColumns)
 
   # Triangulating on Detector
-  n <- TheColumns
   n[n < 0] <- 0
   A <- do.call(pmax, n)
   Normalized <- n/A
-  Normalized <- round(Normalized, 1)
+  #Normalized <- round(Normalized, 1)
   na_counts <- colSums(is.na(Normalized))
   Normalized[is.na(Normalized)] <- 0
   Counts <- colSums(Normalized == 1)
-  PeakDetectorCounts <- data.frame(Fluors = names(Counts), Counts = Counts)
+  PeakDetectorCounts <- data.frame(Fluors = names(Counts),
+                                   Counts = Counts) %>% arrange(desc(Counts))
   rownames(PeakDetectorCounts) <- NULL
-  cutoff <- startingcells*0.0075
-  Detectors <- PeakDetectorCounts %>% filter(Counts > cutoff) %>%
-    arrange(desc(Counts))
-  TheDetector <- Detectors[1,1]
+  Detectors <- PeakDetectorCounts %>% filter(Counts > 0)
 
-
-  if (TheReturn == "raw"){
-    #Assigning by Percentiles
-    percentiles <- quantile(TheColumns[[TheDetector]], probs = seq(0, 1, by = 0.1), na.rm = TRUE)
-
-    TheColumns1int <- TheColumns %>% mutate(Percentiles = cut(.data[[TheDetector]],
-                                                              breaks = c(-Inf, percentiles), labels = seq(0, 100, by = 10),
-                                                              include.lowest = TRUE))
-
-    TheColumns1 <- TheColumns1int
-
-  } else if (TheReturn == "normalized"){
-    percentiles <- quantile(TheColumns[[TheDetector]], probs = seq(0, 1, by = 0.1), na.rm = TRUE)
-
-    TheColumns1int <- TheColumns %>% mutate(Percentiles = cut(.data[[TheDetector]],
-                                                              breaks = c(-Inf, percentiles), labels = seq(0, 100, by = 10),
-                                                              include.lowest = TRUE))
-
-    TheColumns1 <- Normalized %>% mutate(Percentiles = TheColumns1int$Percentiles)
+  if(nrow(Detectors) > 1){message("Luciernaga_LinearSlices is only meant to work
+                          on LuciernagaQC output .fcs files, your file ", name, " contained
+                          two peak detectors, only the first was selected")
+                          Detectors <- Detectors %>% slice(1)
   }
 
-  TheValues <- table(TheColumns1$Percentiles) %>% data.frame() %>% pull(Var1)
-  TheValues <- TheValues %>% as.character()
+  TheDetector <- Detectors %>% pull(Fluors)
+  data <- n
 
-  if(stats == "mean"){Samples <- TheColumns1 %>% group_by(Percentiles) %>%
-    nest(data = where(is.numeric)) %>% mutate(mean_data = map(data, ~ summarise_all(., ~ round(mean(., na.rm = TRUE),2)))) %>% select(Percentiles, mean_data) %>% unnest(mean_data) %>% ungroup()
-  } else if (stats == "median"){Samples <- TheColumns1 %>% group_by(Percentiles) %>%  nest(data = where(is.numeric)) %>% mutate(median_data = map(data, ~ summarise_all(., ~ round(median(., na.rm = TRUE),2)))) %>% select(Percentiles, median_data) %>% unnest(median_data) %>% ungroup()} else(message("NA"))
+  #Assigning by Percentiles
+  #probsratio <- 0.1
+  probslabel <- probsratio*100
+
+  percentiles <- quantile(data[[TheDetector]], probs = seq(0, 1, by = probsratio), na.rm = TRUE)
+
+  ByPercentiles <- data %>% mutate(Percentiles = cut(.data[[TheDetector]],
+                      breaks = c(-Inf, percentiles), labels = seq(0, 100, by = probslabel),
+                      include.lowest = TRUE))
+
+  if (returntype == "normalized"){
+    ByPercentiles <- Normalized %>% mutate(Percentiles = ByPercentiles$Percentiles)
+  }
+
+  Samples <- ByPercentiles %>% group_by(Percentiles) %>% nest(data = where(is.numeric)) %>%
+    mutate(Averaged = map(data, .f=AveragedSignature, stats=stats)) %>%
+    select(Percentiles, Averaged) %>% unnest(Averaged) %>% ungroup()
 
   LineCols <- ncol(Samples)
 

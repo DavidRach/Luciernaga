@@ -80,7 +80,8 @@ Utility_GatingPlots <- function(x, sample.name, removestrings, subset="root", gt
 #' @importFrom tidyselect all_of
 #' @importFrom ggcyto ggcyto
 #' @importFrom ggcyto as.ggplot
-#' @import ggplot2
+#' @importFrom ggcyto geom_gate
+#' @importFrom ggplot2 ggplot
 #'
 #' @return A ggplot corresponding to the given inputs
 #' @noRd
