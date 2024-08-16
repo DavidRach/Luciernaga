@@ -161,7 +161,7 @@ library(ggplot2)
 })
 ```
 
-```{r Load Libraries}
+```{r}
 library(Luciernaga)
 library(xml2)
 library(tidyr)

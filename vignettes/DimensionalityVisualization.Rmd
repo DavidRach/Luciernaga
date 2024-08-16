@@ -51,7 +51,7 @@ library(htmltools)
 })
 ```
 
-```{r Load Libraries}
+```{r}
 library(Luciernaga)
 library(flowCore)
 library(flowWorkspace)
@@ -69,14 +69,14 @@ library(htmltools)
 
 ## Create a GatingSet
 
-```{r Access Package Data}
+```{r}
 File_Location <- system.file("extdata", package = "Luciernaga")
 FCS_Pattern <- ".fcs$"
 FCS_Files <- list.files(path = File_Location, pattern = FCS_Pattern, full.names = TRUE, recursive = FALSE)
 FCS_Files
 ```
 
-```{r Selecting Desired Files}
+```{r}
 SubsetFCSFiles <- FCS_Files[c(1:2, 6)]
 SubsetFCSFiles
 ```

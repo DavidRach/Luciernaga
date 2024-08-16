@@ -55,7 +55,7 @@ library(htmltools)
 })
 ```
 
-```{r Load Libraries}
+```{r}
 library(Luciernaga)
 library(flowCore)
 library(flowWorkspace)
@@ -74,7 +74,7 @@ library(htmltools)
 ### Locating .fcs files
 To get started, you will first need to provide the location on your computer where the .fcs files of interest are being stored. An example of how the author does this is provided below and can be modified for your own user and desired computer folder. 
 
-```{r Additional Example, eval = FALSE}
+```{r, eval = FALSE}
 File_Location <- file.path("C:", "Users", "JohnDoe", "Desktop", "TodaysExperiment")
 FCS_Pattern <- ".fcs$"
 FCS_Files <- list.files(path = File_Location, pattern = FCS_Pattern, full.names = TRUE, recursive = FALSE)
@@ -82,7 +82,7 @@ FCS_Files <- list.files(path = File_Location, pattern = FCS_Pattern, full.names 
 
 For this vignette, we will using several small .fcs files that can be found in Luciernaga's extdata folder for our example. 
 
-```{r Access Package Data}
+```{r}
 File_Location <- system.file("extdata", package = "Luciernaga")
 FCS_Pattern <- ".fcs$"
 FCS_Files <- list.files(path = File_Location, pattern = FCS_Pattern, full.names = TRUE, recursive = FALSE)
@@ -90,7 +90,7 @@ FCS_Files
 ```
 ### Creating a GatingSet Beads
 
-```{r Selecting Desired Files}
+```{r}
 #SubsetFCSFiles <- FCS_Files[c(1:2, 6)]
 BeadsFCSFiles <- FCS_Files[c(1)]
 BeadsFCSFiles
@@ -163,7 +163,7 @@ Unstained=FALSE
 ### Creating a GatingSet Cells
 Three of these files are raw unmixing controls (APCFire810, BUV496, Unstained), while the others are unmixed full-stained samples from a 29-color SFC panel (ND050). For now, let's subset the desired files to only select the raw .fcs unmixing controls as shown below:
 
-```{r Selecting Desired Files}
+```{r}
 #SubsetFCSFiles <- FCS_Files[c(1:2, 6)]
 SubsetFCSFiles <- FCS_Files[c(2,7)]
 SubsetFCSFiles

@@ -41,7 +41,7 @@ Imports:
     htmltools,
     plotly,
     methods
-Depends: R (>= 4.0.0)
+Depends: R (>= 4.3.0)
 Suggests: 
     shiny,
     BiocStyle,
@@ -55,6 +55,6 @@ Suggests:
     shinyjs,
     testthat (>= 3.0.0),
     withr
-biocViews: FlowCytometry, Preprocessing, Software
+biocViews: FlowCytometry, Preprocessing, Software, QualityControl
 Config/testthat/edition: 3
 VignetteBuilder: knitr
