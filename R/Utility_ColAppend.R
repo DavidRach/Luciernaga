@@ -11,6 +11,7 @@
 #' @importFrom flowCore parameters
 #' @importFrom flowCore exprs
 #' @importFrom Biobase pData
+#' @importFrom methods new
 #'
 #' @return A new flow_frame object.
 #' @export

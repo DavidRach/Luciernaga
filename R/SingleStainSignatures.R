@@ -254,6 +254,7 @@ SingleStainSignatures <- function(x, WorkAround1, ColsN, StartNormalizedMergedCo
 #' @importFrom dplyr pull
 #' @importFrom dplyr case_when
 #' @importFrom dplyr near
+#' @importFrom utils head
 #'
 #' @noRd
 ClusterIteration <- function(x, data, TheDetector, StartNormalizedMergedCol,

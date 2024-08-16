@@ -25,6 +25,8 @@
 #' @importFrom dplyr ungroup
 #' @importFrom purrr map
 #' @importFrom purrr flatten
+#' @importFrom utils head
+#' @importFrom utils tail
 #'
 #' @return A value to be determined later
 #' @export
@@ -264,6 +266,8 @@ InternalReport <- function(x, data, FirstDetectorColumn, LastDetectorColumn,
 
 #' Internal for LuciernagaReport
 #'
+#'  @importFrom stats as.dist
+#'  @importFrom stats hclust
 #'
 #' @noRd
 ReorderedCosine <- function(CosineMatrix){

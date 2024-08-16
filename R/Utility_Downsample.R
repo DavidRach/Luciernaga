@@ -17,6 +17,7 @@
 #' @importFrom flowCore parameters
 #' @importFrom flowCore write.FCS
 #' @importFrom dplyr mutate
+#' @importFrom methods new
 #'
 #' @return Either a data.frame, a flow.frame or an .fcs file depending on your selected options
 #' @export

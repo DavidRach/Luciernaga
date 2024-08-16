@@ -12,7 +12,7 @@ Luciernaga_FCSToReport(
   LinePlots = TRUE,
   CosinePlots = TRUE,
   StackedBarPlots = TRUE,
-  Heatmaps = TRUE,
+  HeatmapPlots = TRUE,
   RetainedType,
   experiment,
   condition,
@@ -33,6 +33,8 @@ information for the panel.}
 
 \item{StackedBarPlots}{Return this kind of plot, default is set to TRUE}
 
+\item{HeatmapPlots}{Return this kind of plot, default is set to TRUE}
+
 \item{RetainedType}{Whether the data.frame contains "raw" or "normalized" values}
 
 \item{experiment}{Provide directly experiment name (ex. "JAN2024")}
@@ -40,8 +42,6 @@ information for the panel.}
 \item{condition}{Provide directly experiment name (ex. "JAN2024")}
 
 \item{TheSummary}{Whether to return individual cells or summarized by stats.}
-
-\item{HeatmapPlots}{Return this kind of plot, default is set to TRUE}
 }
 \value{
 A data.frame compatible with LuciernagaReport()

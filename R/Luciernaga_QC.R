@@ -50,6 +50,8 @@
 #' @importFrom flowCore exprs
 #' @importFrom purrr map
 #' @importFrom purrr set_names
+#' @importFrom methods new
+#' @importFrom utils read.csv
 #'
 #' @return Additional information to be added
 #' @export
@@ -62,26 +64,19 @@ Luciernaga_QC <- function(x, subsets, sample.name, removestrings, Verbose = FALS
                                   ExportType, SignatureReturnNow=FALSE, outpath,
                                   minimalfcscutoff = 0.05, Subtraction = "Internal", SCData = "subtracted",
                                   NegativeType= "default", TotalNegatives = 500, Brightness=FALSE,
-                                  LocalMaximaRatio=0.15, SecondaryPeaks=2, Increments, RetainedType="normalized", ...){
+                                  LocalMaximaRatio=0.15, SecondaryPeaks=2, Increments, RetainedType="normalized"){
 
   name <- keyword(x, sample.name)
   Type <- Luciernaga:::Typing(name=name, unmixingcontroltype=unmixingcontroltype, Unstained=Unstained)
-  #Type <- Typing(name=name, unmixingcontroltype=unmixingcontroltype, Unstained=Unstained)
   AggregateName <- Luciernaga:::NameForSample(x=x, sample.name=sample.name, removestrings=removestrings)
-  #AggregateName <- NameForSample(x=x, sample.name=sample.name, removestrings=removestrings, ...)
-
   Experiment <- Luciernaga:::NameForSample(x=x, sample.name=sample.name, removestrings=removestrings, experiment = experiment,
                                            experiment.name = experiment.name, returnType = "experiment")
-  #Experiment <- Luciernaga:::NameForSample(x=x, sample.name=sample.name, removestrings=removestrings, returnType = "experiment", ...)
-
   Condition <- Luciernaga:::NameForSample(x=x, sample.name=sample.name, removestrings=removestrings, condition=condition,
                                           condition.name = condition.name, returnType = "condition")
-  #Condition <- Luciernaga:::NameForSample(x=x, sample.name=sample.name, removestrings=removestrings, returnType = "condition", ...)
 
   # Internal Name Cleanup, to make sure fluorophores match
   InternalCleanupList <- c(".fcs", "Cells", "Beads", " ", "_", "-", ".", "(", ")")
   name <- Luciernaga:::NameCleanUp(name, InternalCleanupList)
-  #name <- NameCleanUp(name, InternalCleanupList)
 
   # Brought back until overlap is converted from name reliant to type reliant.
   if (Unstained == TRUE) {if(!str_detect(name, "stained")){name <- paste0(name, "_Unstained")}}

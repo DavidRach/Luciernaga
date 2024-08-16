@@ -18,6 +18,8 @@
 #' @importFrom dplyr select
 #' @importFrom ggplot2 ggplot
 #' @importFrom ggcyto scale_x_logicle
+#' @importFrom utils head
+#' @importFrom utils read.csv
 #'
 #' @return ggplot objects for each fluorophore containing the various clusters
 #' @export

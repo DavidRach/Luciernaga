@@ -22,6 +22,7 @@
 #' @importFrom dplyr mutate
 #' @importFrom dplyr relocate
 #' @importFrom tidyr separate
+#' @importFrom utils read.csv
 #'
 #' @return A data.frame compatible with LuciernagaReport()
 #'
@@ -31,7 +32,7 @@
 
 Luciernaga_FCSToReport <- function(path, reference, stats = "median",
                                     LinePlots = TRUE, CosinePlots = TRUE,
-                                    StackedBarPlots = TRUE, Heatmaps = TRUE,
+                                    StackedBarPlots = TRUE, HeatmapPlots = TRUE,
                                     RetainedType, experiment, condition,
                                     TheSummary = TRUE){
 

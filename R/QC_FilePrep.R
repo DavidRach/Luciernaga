@@ -138,6 +138,8 @@ QC_FilePrep <- function(x, TrackChange){
 
 #' Internal for CytekQCFilePrep
 #'
+#' @importFrom utils read.csv
+#'
 #' @noRd
 #'
 

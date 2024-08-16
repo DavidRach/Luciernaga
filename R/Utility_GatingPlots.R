@@ -25,6 +25,7 @@
 #' @importFrom flowCore exprs
 #' @importFrom dplyr pull
 #' @importFrom purrr map
+#' @importFrom stats alias
 #'
 #' @return Additional information to be added
 #' @export
