@@ -68,7 +68,8 @@ Luciernaga_FCSToReport <- function(path, reference, stats = "median",
   TheData <- TheData %>% relocate(Sample, Experiment, Condition, .before=Cluster)
 
   return(TheData)
-  } else {return(TheData)}
+  } else {TheData <- TheData %>% separate(Cluster, into = c("Sample", "Cluster"), sep = "_")
+          return(TheData)}
 }
 
 
