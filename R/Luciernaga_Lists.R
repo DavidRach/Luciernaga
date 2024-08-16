@@ -39,7 +39,8 @@ Luciernaga_Lists <- function(ListOfList, SecondaryList, PlotType,
 
   if (PlotType == "html"){
     Rendered <- map(1:indices, ~Subplots(data = Transposed, .))
-    HtmlPath <- paste0(ReturnFolder, CurrentExperiment, '_All', '.html')
+    TheFile <- paste0(CurrentExperiment, ".html")
+    HtmlPath <- file.path(ReturnFolder, TheFile)
     save_html(html = Rendered, file = HtmlPath)
   }
 }
