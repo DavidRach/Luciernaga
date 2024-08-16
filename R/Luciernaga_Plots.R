@@ -9,7 +9,7 @@
 #' @param CosinePlots Return this kind of plot, default is set to TRUE
 #' @param StackedBarPlots Return this kind of plot, default is set to TRUE
 #' @param HeatmapPlots Return this kind of plot, default is set to TRUE
-#' @param returntype Return this kind of plot, default is set to TRUE
+#' @param returntype Return "pdf", "patchwork" or "plots"
 #'
 #' @importFrom dplyr group_by
 #' @importFrom dplyr summarize

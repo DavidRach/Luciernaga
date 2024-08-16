@@ -36,7 +36,7 @@ Luciernaga_Plots(
 
 \item{HeatmapPlots}{Return this kind of plot, default is set to TRUE}
 
-\item{returntype}{Return this kind of plot, default is set to TRUE}
+\item{returntype}{Return "pdf", "patchwork" or "plots"}
 }
 \value{
 A value to be determined later

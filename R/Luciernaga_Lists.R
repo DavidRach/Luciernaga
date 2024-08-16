@@ -32,22 +32,6 @@ Luciernaga_Lists <- function(ListOfList, PlotType, ReturnFolder, CurrentExperime
 
     pdf(file = PDFPath, width = 8.5, height = 11) #Optional Adjustments for Second
 
-    SubplotsPDF <- function(i, data){
-      Components <- flatten(data[i])
-
-      layout <- "
-                AAAAAA
-                BBBBBB
-                CCC#DD
-                "
-
-      Patchworked <- wrap_plots(Components, design = layout, heights = c(1, 1, 2),
-                                widths = c(1, 1, 1, 1, 1, 1))
-      Patchworked <- Patchworked + plot_annotation(caption =
-                                                     "Made with Luciernaga")
-      print(Patchworked)
-    }
-
     Rendered <- map(1:indices, ~SubplotsPDF(data = theList, .))
 
     dev.off()
@@ -70,6 +54,23 @@ ItemSelect <- function(ListOfList, n) {
   #result <- list(result)
   return(result)
 }
+
+SubplotsPDF <- function(i, data){
+  Components <- flatten(data[i])
+
+  layout <- "
+                AAAAAA
+                BBBBBB
+                CCC#DD
+                "
+
+  Patchworked <- wrap_plots(Components, design = layout, heights = c(1, 1, 2),
+                            widths = c(1, 1, 1, 1, 1, 1))
+  Patchworked <- Patchworked + plot_annotation(caption =
+                                                 "Made with Luciernaga")
+  print(Patchworked)
+}
+
 
 Subplots <- function(i, data) {
   Components <- flatten(data[i])
