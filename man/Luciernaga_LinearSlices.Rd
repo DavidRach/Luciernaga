@@ -11,7 +11,8 @@ Luciernaga_LinearSlices(
   removestrings,
   stats,
   returntype,
-  probsratio
+  probsratio,
+  output
 )
 }
 \arguments{
@@ -28,9 +29,11 @@ Luciernaga_LinearSlices(
 \item{returntype}{Whether to return a "raw" or "normalized" value lineplot.}
 
 \item{probsratio}{Ratio increments to break quantiles into, default is set to 0.1.}
+
+\item{Whether}{to return "plot"}
 }
 \value{
-A ggplot2 object of lineplots from the sliced .fcs file
+Either ggplots or the summarized data.frame object preceeding
 }
 \description{
 Takes a Lucierna SingleColorQC .fcs, splits into percentiles, and plots the results.

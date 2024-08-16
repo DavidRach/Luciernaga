@@ -7,32 +7,34 @@
 #' @param stats Whether to use "mean" or "median"
 #' @param returntype Whether to return a "raw" or "normalized" value lineplot.
 #' @param probsratio Ratio increments to break quantiles into, default is set to 0.1.
+#' @param Whether to return "plot"
 #'
+#' @importFrom flowCore keyword
+#' @importFrom flowWorkspace gs_pop_get_data
 #' @importFrom BiocGenerics nrow
 #' @importFrom flowCore exprs
-#' @importFrom flowWorkspace keyword
-#' @importFrom flowWorkspace gs_pop_get_data
-#' @importFrom dplyr filter
-#' @importFrom dplyr select
 #' @importFrom dplyr arrange
+#' @importFrom dplyr desc
+#' @importFrom dplyr filter
+#' @importFrom dplyr slice
 #' @importFrom dplyr pull
+#' @importFrom stats quantile
 #' @importFrom dplyr mutate
-#' @importFrom dplyr summarise_all
 #' @importFrom dplyr group_by
-#' @importFrom dplyr ungroup
 #' @importFrom tidyr nest
+#' @importFrom dplyr select
 #' @importFrom tidyr unnest
-#' @importFrom tidyr gather
+#' @importFrom dplyr ungroup
+#' @importFrom tidyr pivot_longer
+#' @importFrom tidyselect all_of
 #' @importFrom ggplot2 ggplot
 #'
-#'
-#' @return A ggplot2 object of lineplots from the sliced .fcs file
+#' @return Either ggplots or the summarized data.frame object preceeding
 #' @export
 #'
 #' @examples NULL
-
 Luciernaga_LinearSlices <- function(x, subset, sample.name, removestrings, stats,
-                                    returntype, probsratio){
+                                    returntype, probsratio, output){
 
   name <- keyword(x, sample.name)
   name <- NameCleanUp(name, removestrings)
@@ -57,8 +59,8 @@ Luciernaga_LinearSlices <- function(x, subset, sample.name, removestrings, stats
   Detectors <- PeakDetectorCounts %>% filter(Counts > 0)
 
   if(nrow(Detectors) > 1){message("Luciernaga_LinearSlices is only meant to work
-                          on LuciernagaQC output .fcs files, your file ", name, " contained
-                          two peak detectors, only the first was selected")
+                          on LuciernagaQC output .fcs files, your file ", name,
+                          " contained two peak detectors, only the first was selected")
                           Detectors <- Detectors %>% slice(1)
   }
 
@@ -69,46 +71,42 @@ Luciernaga_LinearSlices <- function(x, subset, sample.name, removestrings, stats
   #probsratio <- 0.1
   probslabel <- probsratio*100
 
-  percentiles <- quantile(data[[TheDetector]], probs = seq(0, 1, by = probsratio), na.rm = TRUE)
+  percentiles <- quantile(data[[TheDetector]], probs = seq(0, 1, by = probsratio),
+                          na.rm = TRUE)
 
   ByPercentiles <- data %>% mutate(Percentiles = cut(.data[[TheDetector]],
-                      breaks = c(-Inf, percentiles), labels = seq(0, 100, by = probslabel),
-                      include.lowest = TRUE))
+                      breaks = c(-Inf, percentiles),
+                      labels = seq(0, 100, by = probslabel), include.lowest = TRUE))
 
   if (returntype == "normalized"){
     ByPercentiles <- Normalized %>% mutate(Percentiles = ByPercentiles$Percentiles)
   }
 
-  Samples <- ByPercentiles %>% group_by(Percentiles) %>% nest(data = where(is.numeric)) %>%
+  Samples <- ByPercentiles %>% group_by(Percentiles) %>%
+    nest(data = where(is.numeric)) %>%
     mutate(Averaged = map(data, .f=AveragedSignature, stats=stats)) %>%
     select(Percentiles, Averaged) %>% unnest(Averaged) %>% ungroup()
 
+  if (output == "data"){
+    return(Samples)
+  }
+
+  if (output == "plot"){
   LineCols <- ncol(Samples)
+  Melted <- Samples %>%
+    pivot_longer(all_of(2:LineCols),names_to = "Detector", values_to = "value")
 
-  Melted <- gather(Samples, key = "Detector", value = "value", all_of(
-    2:LineCols)) #Gather is my New Best Friend
+  Melted$Detector <- factor(Melted$Detector, levels = DetectorOrder)
 
-  Melted$Detector <- factor(Melted$Detector, levels = detector_order)
-  Melted$Percentiles <- factor(Melted$Percentiles)
-
-  #Change this in case raw values provided instead of normalized?
-  #Low <- 0
-  #High <- 1.1
-
-  Melted1 <- data.frame(Melted)
-
-  plot <- ggplot(Melted1, aes(x = Detector, y = value, group = Percentiles,
-                              color = Percentiles)) + geom_line() +
-    scale_color_hue(direction = 1) +
-    labs(title = TheDetector, x = "Detectors", y = "Normalized Values") +
-    theme_linedraw() + theme_bw() +
-    theme(axis.title.x = element_text(face = "plain"),
-          axis.title.y = element_text(face = "plain",
-                                      margin = margin(r = -120)),
-          axis.text.x = element_text(size = 5, angle = 45, hjust = 1),
-          panel.grid.major = element_blank(),
-          panel.grid.minor = element_blank()
-    )
+  plot <- ggplot(Melted, aes(x = Detector, y = value, group = Percentiles,
+          color = Percentiles)) + geom_line() + scale_color_hue(direction = 1) +
+          labs(title = name, x = "Detectors", y = "Normalized Values") +
+          theme_linedraw() + theme_bw() + theme(axis.title.x = element_text(
+          face = "plain"), axis.title.y = element_text(face = "plain"),
+          axis.text.x = element_text(size = 5,
+          angle = 45, hjust = 1), panel.grid.major = element_blank(),
+          panel.grid.minor = element_blank())
 
   return(plot)
+  }
 }
