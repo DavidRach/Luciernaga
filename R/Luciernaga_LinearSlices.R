@@ -34,7 +34,7 @@
 #'
 #' @examples NULL
 Luciernaga_LinearSlices <- function(x, subset, sample.name, removestrings, stats,
-                                    returntype, probsratio, output){
+                                    returntype, probsratio=0.1, output){
 
   name <- keyword(x, sample.name)
   name <- NameCleanUp(name, removestrings)
@@ -43,7 +43,7 @@ Luciernaga_LinearSlices <- function(x, subset, sample.name, removestrings, stats
   startingcells <- nrow(cs)[[1]]
   Data <- data.frame(exprs(cs[[1]]), check.names = FALSE)
   n <- Data[,-grep("Time|FS|SC|SS|Original|W$|H$", names(Data))]
-  DetectorOrder <- colnames(TheColumns)
+  DetectorOrder <- colnames(n)
 
   # Triangulating on Detector
   n[n < 0] <- 0
@@ -91,6 +91,9 @@ Luciernaga_LinearSlices <- function(x, subset, sample.name, removestrings, stats
     return(Samples)
   }
 
+  if (returntype == "normalized"){Expression <- "Normalized Values"
+  } else {Expression <- "Raw MFI"}
+
   if (output == "plot"){
   LineCols <- ncol(Samples)
   Melted <- Samples %>%
@@ -100,7 +103,7 @@ Luciernaga_LinearSlices <- function(x, subset, sample.name, removestrings, stats
 
   plot <- ggplot(Melted, aes(x = Detector, y = value, group = Percentiles,
           color = Percentiles)) + geom_line() + scale_color_hue(direction = 1) +
-          labs(title = name, x = "Detectors", y = "Normalized Values") +
+          labs(title = name, x = "Detectors", y = Expression) +
           theme_linedraw() + theme_bw() + theme(axis.title.x = element_text(
           face = "plain"), axis.title.y = element_text(face = "plain"),
           axis.text.x = element_text(size = 5,

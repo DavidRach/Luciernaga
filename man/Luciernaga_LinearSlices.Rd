@@ -11,7 +11,7 @@ Luciernaga_LinearSlices(
   removestrings,
   stats,
   returntype,
-  probsratio,
+  probsratio = 0.1,
   output
 )
 }
