@@ -2,12 +2,12 @@
 % Please edit documentation in R/QC_Retrieval.R
 \name{QC_Retrieval}
 \alias{QC_Retrieval}
-\title{Returns the Detector and Laser settings from individual CytoSet files}
+\title{Returns Detector Gains, Laser Delay and Scalings from individual .fcs files in a CytoSet.}
 \usage{
 QC_Retrieval(x, sample.name)
 }
 \arguments{
-\item{x}{A CytoSet object when mapped, or its frame (cs[1])}
+\item{x}{A CytoSet (when mapped) or an individual cytoset, example (x=MyCytoSet[[1]])}
 
 \item{sample.name}{The keyword value that distinguishes individual .fcs files}
 }
@@ -15,7 +15,7 @@ QC_Retrieval(x, sample.name)
 A dataframe row
 }
 \description{
-Returns the Detector and Laser settings from individual CytoSet files
+Returns Detector Gains, Laser Delay and Scalings from individual .fcs files in a CytoSet.
 }
 \examples{
 NULL

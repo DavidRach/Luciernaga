@@ -1,5 +1,3 @@
-
-
 #' Transfer the .fcs files selected by LuciernagaTree to a new location
 #'
 #' @param x A vector containing fluorophore names found within data.
