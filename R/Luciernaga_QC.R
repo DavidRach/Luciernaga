@@ -581,6 +581,62 @@ RelativeBrightness <- function(x){
 }
 
 
+#' Internal function for relative brightness
+#'
+#' @param x The data.frame object passed by relative brightness
+#'
+#' @importFrom dplyr select
+#' @importFrom dplyr pull
+#' @importFrom purrr map
+#' @importFrom dplyr bind_rows
+#'
+#' @noRd
+TheFill <- function(x){
+  colnames(x) <- gsub("-A", "",  colnames(x))
+  TheClusters <- x %>% select(Cluster) %>% pull()
+  TheX <- x
+  Generated <- map(.x=TheClusters, data=TheX, .f=FillIterate) %>% bind_rows()
+  return(Generated)
+}
+
+
+
+#' Internal function for relative brightness TheFill
+#'
+#' @param x The passed cluster
+#' @param data The passed data.frame
+#'
+#' @importFrom dplyr filter
+#' @importFrom dplyr select
+#' @importFrom dplyr pull
+#' @importFrom tidyselect all_of
+#' @importFrom dplyr mutate
+#' @importFrom dplyr coalesce
+#'
+#' @noRd
+FillIterate <- function(x, data){
+  IndividualCluster <- data %>% filter(Cluster %in% x)
+  IndividualCluster <- data.frame(IndividualCluster, check.names = FALSE)
+  Detectors <- IndividualCluster %>% select(Detector1, Detector2, Detector3) %>%
+    unlist() %>% as.vector()
+
+  D1 <- Detectors[[1]]
+  D2 <- Detectors[[2]]
+  D3 <- Detectors[[3]]
+
+  D1Value <- IndividualCluster %>% pull(all_of(D1))
+  D2Value <- IndividualCluster %>% pull(all_of(D2))
+
+  if (!is.na(D3)){D3Value <- IndividualCluster %>% pull(all_of(D3))
+  FilledCluster <- IndividualCluster %>% mutate(
+    Detector1Raw = coalesce(Detector1Raw, D1Value),
+    Detector2Raw = coalesce(Detector2Raw, D2Value),
+    Detector3Raw = coalesce(Detector3Raw, D3Value))
+  } else {FilledCluster <- IndividualCluster %>%
+    mutate(Detector1Raw = coalesce(Detector1Raw, D1Value),
+           Detector2Raw = coalesce(Detector2Raw, D2Value))}
+}
+
 
 #' Internal for LuciernagaQC, creates .fcs files
 #'
