@@ -46,24 +46,25 @@ Luciernaga_Plots <- function(data, RetainedType, CellPopRatio, outfolder, filena
 
   TheData <- data %>% left_join(TheCounts, by = c("Sample", "Experiment", "Condition"))
 
-  TheData <- TheData %>% mutate(Ratio = round(Count/TotalCells, 3)) %>% relocate(Ratio, .after=Count) %>%
-    select(-TotalCells)
+  TheData <- TheData %>% mutate(Ratio = round(Count/TotalCells, 3)) %>%
+    relocate(Ratio, .after=Count) %>% select(-TotalCells)
 
   FilteredData <- TheData %>% filter(Ratio > CellPopRatio)
 
   OtherData <- FilteredData %>% group_by(Sample, Experiment, Condition) %>%
     summarize(LostRatio = 1 - sum(Ratio, na.rm = TRUE), .groups = 'drop')
 
-  Other <- TheCounts %>% left_join(OtherData, by = c("Sample", "Experiment", "Condition")) %>%
-    mutate(Count = round(TotalCells*LostRatio, 0)) %>% select(-TotalCells) %>%
-    relocate(Count, .before=LostRatio) %>% rename(Ratio=LostRatio) %>% mutate(Cluster="Other")
+  Other <- TheCounts %>% left_join(OtherData, by = c("Sample", "Experiment",
+    "Condition")) %>% mutate(Count = round(TotalCells*LostRatio, 0)) %>%
+    select(-TotalCells) %>% relocate(Count, .before=LostRatio) %>%
+    rename(Ratio=LostRatio) %>% mutate(Cluster="Other")
 
   OtherN <- nrow(Other)
   FirstDetectorColumn <- which(grepl("\\d", colnames(data)))[1]
   LastDetectorColumn <- tail(which(grepl("\\d", colnames(data))), 1)
 
-  Replacement <- data %>% select(FirstDetectorColumn:LastDetectorColumn) %>% head(OtherN) %>%
-    mutate(across(everything(), ~0))
+  Replacement <- data %>% select(FirstDetectorColumn:LastDetectorColumn) %>%
+    head(OtherN) %>% mutate(across(everything(), ~0))
 
   Replacements <- bind_cols(Other, Replacement) %>% ungroup()
   Replaced <- bind_rows(FilteredData, Replacements)
@@ -85,14 +86,14 @@ Luciernaga_Plots <- function(data, RetainedType, CellPopRatio, outfolder, filena
 
   if (returntype == "pdf"){
   Utility_Patchwork(x=ThePlots, filename = filename, outfolder = outfolder,
-                    thecolumns = 2, therows = 2, width = 9, height = 7, returntype = "pdf",
-                    NotListofList = FALSE)
+                    thecolumns = 2, therows = 2, width = 9, height = 7,
+                    returntype = "pdf", NotListofList = FALSE)
   }
 
   if (returntype == "patchwork"){
   Hey <-Utility_Patchwork(x=ThePlots, filename = filename, outfolder = outfolder,
-                      thecolumns = 2, therows = 2, width = 9, height = 7, returntype = "patchwork",
-                      NotListofList = FALSE)
+                      thecolumns = 2, therows = 2, width = 9, height = 7,
+                      returntype = "patchwork", NotListofList = FALSE)
   return(Hey)
   }
 
@@ -153,7 +154,8 @@ InternalReport <- function(x, data, FirstDetectorColumn, LastDetectorColumn,
   LineColN <- ncol(LinePlotData)
   DetectorOrder <- colnames(subset)[First:Last]
 
-  Melted <- LinePlotData %>% gather(key = "Detector", value = "value", all_of(2:LineColN))
+  Melted <- LinePlotData %>%
+    gather(key = "Detector", value = "value", all_of(2:LineColN))
   Melted$Detector <- factor(Melted$Detector, levels = DetectorOrder)
   Melted$Cluster <- factor(Melted$Cluster)
 
@@ -216,7 +218,8 @@ InternalReport <- function(x, data, FirstDetectorColumn, LastDetectorColumn,
     CosineOrder <- data.frame(table(MeltedCosine$Var1)) %>% pull(Var1) %>%
       as.character(.)
 
-  } else {image_path <- system.file("hex", "hex.png", package = "Luciernaga", mustWork = TRUE)
+  } else {image_path <- system.file("hex", "hex.png", package = "Luciernaga",
+                        mustWork = TRUE)
           CosinePlot <- fig(image_path)
           }
 

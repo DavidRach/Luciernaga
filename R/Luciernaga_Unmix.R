@@ -5,7 +5,8 @@
 #' @param sample.name The keyword containing the fcs file name
 #' @param addon Additional addon to append to the new .fcs file name
 #' @param removestrings A list of values to remove from name
-#' @param subset A gating hierarchy level to sort cells at, expression values retrieved from these
+#' @param subset A gating hierarchy level to sort cells at, expression values retrieved
+#' from these
 #' @param multiplier A number to scale the OLS coefficients by
 #' @param outpath The return folder for the .fcs files
 #'
@@ -25,7 +26,8 @@
 #'
 #' @examples NULL
 
-Luciernaga_Unmix <- function(x, controlData, sample.name, addon, removestrings, subset, multiplier, outpath){
+Luciernaga_Unmix <- function(x, controlData, sample.name, addon, removestrings,
+                             subset, multiplier, outpath){
 
   name <- keyword(x, sample.name)
   name <- NameCleanUp(name, removestrings=removestrings)

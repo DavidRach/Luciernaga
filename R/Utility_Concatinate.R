@@ -4,12 +4,15 @@
 #' @param sample.name Keyword specifying sample name
 #' @param removestrings Value to be removed from sample name
 #' @param subsets The gating hierarchy subset you want to include
-#' @param subsample Default is set to NULL. If down-sample is desired, Total number of events to subsample from each specimen
-#' @param ReturnType Whether to return as a "data.frame", a "flow.frame", or export to an "fcs" file to the outpath location
+#' @param subsample Default is set to NULL. If down-sample is desired, Total number of
+#' events to subsample from each specimen
+#' @param ReturnType Whether to return as a "data.frame", a "flow.frame", or export
+#' to an "fcs" file to the outpath location
 #' @param newName File Name for the Concatenate File
 #' @param outpath Location to store the concatenated file
 #' @param export Whether to export as a .fcs file.
-#' @param inverse.transform Whether to reverse the GatingSet Transform on the data, default is set to FALSE.
+#' @param inverse.transform Whether to reverse the GatingSet Transform on the data,
+#' default is set to FALSE.
 #'
 #' @importFrom purrr map
 #' @importFrom dplyr mutate
@@ -19,13 +22,14 @@
 #' @importFrom flowWorkspace gs_pop_get_data
 #' @importFrom flowCore write.FCS
 #'
-#' @return A concatenated data.frame, flow.frame or fcs file, with reference .csv for the specimen information
+#' @return A concatenated data.frame, flow.frame or fcs file, with reference .csv for
+#' the specimen information
 #' @export
 #'
 #' @examples NULL
 
-Utility_Concatinate <- function(gs, sample.name, removestrings, subsets, subsample=NULL, ReturnType, newName, outpath=NULL, export=FALSE,
-                                inverse.transform = FALSE) {
+Utility_Concatinate <- function(gs, sample.name, removestrings, subsets, subsample=NULL,
+  ReturnType, newName, outpath=NULL, export=FALSE, inverse.transform = FALSE) {
 
 gs <- gs
 sample.name <- sample.name
@@ -33,11 +37,13 @@ removestrings <- removestrings
 subsample <- subsample
 
 if (!is.null(subsample)){
-  if (!is.numeric(subsample)) {stop("Subsample argument is not numeric, enter just a number, no quotes needed")}
+  if (!is.numeric(subsample)) {
+    stop("Subsample argument is not numeric, enter just a number, no quotes needed")}
 }
 
-ConcatenatedFile <- map(gs, .f=Utility_Downsample, sample.name=sample.name, removestrings=removestrings,
-                        subsets=subsets, subsample=subsample, internal = TRUE, export=FALSE) %>% bind_rows
+ConcatenatedFile <- map(gs, .f=Utility_Downsample, sample.name=sample.name,
+  removestrings=removestrings, subsets=subsets, subsample=subsample,
+  internal = TRUE, export=FALSE) %>% bind_rows
 
 if (ReturnType == "data.frame"){return(ConcatenatedFile)
 }

@@ -33,8 +33,9 @@ Luciernaga_Lists <- function(ListOfList, SecondaryList, PlotType,
 
   if (PlotType == "pdf"){
 
-    Utility_Patchwork(x=Transposed, filename=CurrentExperiment, outfolder=ReturnFolder, thecolumns=thecolumns, therows=therows,
-                      width=width, height=height, returntype="pdf", NotListofList = FALSE)
+    Utility_Patchwork(x=Transposed, filename=CurrentExperiment, outfolder=ReturnFolder,
+                      thecolumns=thecolumns, therows=therows, width=width, height=height,
+                      returntype="pdf", NotListofList = FALSE)
   }
 
   if (PlotType == "html"){

@@ -21,12 +21,14 @@
 #'
 #' @examples NULL
 
-Utility_IterativeGating <- function(x, subset, gate, xValue, yValue, sample.name, removestrings, bins=270){
+Utility_IterativeGating <- function(x, subset, gate, xValue, yValue, sample.name,
+                                    removestrings, bins=270){
   gs <- x
   TheSpecimens <- pData(gs)$name
 
-  ThePlots <- map(.x=TheSpecimens, .f=Iterator, gs=gs, subset=subset, gate=gate, xValue=xValue, yValue=yValue,
-                  sample.name=sample.name, removestrings=removestrings, bins=bins)
+  ThePlots <- map(.x=TheSpecimens, .f=Iterator, gs=gs, subset=subset, gate=gate,
+                  xValue=xValue, yValue=yValue, sample.name=sample.name,
+                  removestrings=removestrings, bins=bins)
 
   return(ThePlots)
 }
@@ -52,26 +54,28 @@ Utility_IterativeGating <- function(x, subset, gate, xValue, yValue, sample.name
 #'
 #' @return A ggplot corresponding to the given inputs
 #' @noRd
-InternalIterator <- function(x, gs, subset, gate, xValue, yValue, sample.name, removestrings, bins){
+InternalIterator <- function(x, gs, subset, gate, xValue, yValue, sample.name,
+                             removestrings, bins){
   theGSsubset <- subset(gs, name == x)
   name <- keyword(theGSsubset, sample.name)
   name <- NameCleanUp(name, removestrings)
 
   if(!is.null(gate)){
 
-    Plot <- as.ggplot(ggcyto(theGSsubset, aes(x=.data[[xValue]], y=.data[[yValue]]), subset=subset) + geom_gate(gate) + geom_hex(bins=bins) +
-                        labs(title = name) + theme_bw() + theme(strip.background = element_blank(), strip.text.x = element_blank(),
-                                                                panel.grid.major = element_line(linetype = "blank"),
-                                                                panel.grid.minor = element_line(linetype = "blank"),
-                                                                axis.title = element_text(size = 10, face = "bold"),
-                                                                legend.position = "none"))
+    Plot <- as.ggplot(ggcyto(theGSsubset, aes(x=.data[[xValue]], y=.data[[yValue]]),
+      subset=subset) + geom_gate(gate) + geom_hex(bins=bins) + labs(title = name) +
+      theme_bw() + theme(strip.background = element_blank(),
+      strip.text.x = element_blank(), panel.grid.major = element_line(
+      linetype = "blank"), panel.grid.minor = element_line(linetype = "blank"),
+      axis.title = element_text(size = 10, face = "bold"), legend.position = "none"))
   } else {
-    Plot <- as.ggplot(ggcyto(theGSsubset, aes(x=.data[[xValue]], y=.data[[yValue]]), subset=subset) + geom_hex(bins=bins) +
-                        labs(title = name) + theme_bw() + theme(strip.background = element_blank(), strip.text.x = element_blank(),
-                                                                panel.grid.major = element_line(linetype = "blank"),
-                                                                panel.grid.minor = element_line(linetype = "blank"),
-                                                                axis.title = element_text(size = 10, face = "bold"),
-                                                                legend.position = "none"))
+    Plot <- as.ggplot(ggcyto(theGSsubset, aes(x=.data[[xValue]], y=.data[[yValue]]),
+     subset=subset) + geom_hex(bins=bins) + labs(title = name) + theme_bw() +
+     theme(strip.background = element_blank(), strip.text.x = element_blank(),
+     panel.grid.major = element_line(linetype = "blank"),
+     panel.grid.minor = element_line(linetype = "blank"),
+     axis.title = element_text(size = 10, face = "bold"),
+     legend.position = "none"))
   }
 
 

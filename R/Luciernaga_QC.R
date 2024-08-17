@@ -6,26 +6,33 @@
 #' @param removestrings A string of character values to remove from sample.name
 #' @param Verbose Whether to print outputs as you go.
 #' @param unmixingcontroltype Whether your inputs are "cells", "beads" or "both"
-#' @param Unstained Set to True when running unstained samples that don't have Unstained in the Name
-#' @param ratiopopcutoff A numeric ratio for peak detector inclusion, default is set to 0.01 all startingcells
+#' @param Unstained Set to True when running unstained samples that don't have
+#' Unstained in the Name
+#' @param ratiopopcutoff A numeric ratio for peak detector inclusion, default is
+#' set to 0.01 all startingcells
 #' @param experiment Provide directly experiment name (ex. "JAN2024")
 #' @param experiment.name Keyword variable which experiment information
 #' is stored (ex. "TUBENAME")
 #' @param condition Provide directly experiment name (ex. "JAN2024")
 #' @param condition.name Keyword variable which experiment information
 #' is stored (ex. "TUBENAME")
-#' @param AFOverlap A data.frame or a filepath to the CSV containing the Autofluorescence
+#' @param AFOverlap A data.frame or a filepath to the CSV containing the
+#' Autofluorescence
 #' overlap of individual fluorophores for exclusion
 #' @param stats Whether to take "mean" or "median"
 #' @param desiredAF Main Autofluorescence Detector (ex. "V7-A")
-#' @param externalAF A data.frame row containing external autofluorescence to subtract from single colors.
+#' @param externalAF A data.frame row containing external autofluorescence
+#' to subtract from single colors.
 #' @param ExportType Whether to return "fcs", "data"
-#' @param SignatureReturnNow Short circuits the function and returns signature for specified autofluorescence.
+#' @param SignatureReturnNow Short circuits the function and returns signature
+#' for specified autofluorescence.
 #' @param outpath  Location where created .fcs and .csv files are sent
 #' @param minimalfcscutoff A ratio determining number cells needed for .fcs export
-#' @param Subtraction Whether for single color controls to use "Internal" or "External" autofluorescence
+#' @param Subtraction Whether for single color controls to use "Internal" or
+#' "External" autofluorescence
 #' @param SCData Whether to return "subtracted" or "raw" data for single colors
-#' @param NegativeType Whether to append a negative pop to .fcs file, "default", "artifical" or "samples"
+#' @param NegativeType Whether to append a negative pop to .fcs file, "default",
+#' "artifical" or "samples"
 #' @param Brightness Whether sum of detectors should be returned.
 #' @param LocalMaximaRatio Height of peaks to proceed
 #' @param SecondaryPeaks Number of Secondary Peaks, default is set to 2.
@@ -58,28 +65,33 @@
 #'
 #' @examples NULL
 Luciernaga_QC <- function(x, subsets, sample.name, removestrings, Verbose = FALSE,
-                                  unmixingcontroltype="both", Unstained=FALSE, ratiopopcutoff=0.01,
-                                  experiment = NULL, experiment.name = NULL, condition = NULL, condition.name = NULL,
-                                  AFOverlap, stats="median", desiredAF=NULL, externalAF = NULL,
-                                  ExportType, SignatureReturnNow=FALSE, outpath,
-                                  minimalfcscutoff = 0.05, Subtraction = "Internal", SCData = "subtracted",
-                                  NegativeType= "default", TotalNegatives = 500, Brightness=FALSE,
-                                  LocalMaximaRatio=0.15, SecondaryPeaks=2, Increments, RetainedType="normalized"){
+ unmixingcontroltype="both", Unstained=FALSE, ratiopopcutoff=0.01, experiment = NULL,
+ experiment.name = NULL, condition = NULL, condition.name = NULL, AFOverlap,
+ stats="median", desiredAF=NULL, externalAF = NULL, ExportType,
+ SignatureReturnNow=FALSE, outpath, minimalfcscutoff = 0.05, Subtraction = "Internal",
+ SCData = "subtracted", NegativeType= "default", TotalNegatives = 500,
+ Brightness=FALSE, LocalMaximaRatio=0.15, SecondaryPeaks=2, Increments,
+ RetainedType="normalized"){
 
   name <- keyword(x, sample.name)
-  Type <- Luciernaga:::Typing(name=name, unmixingcontroltype=unmixingcontroltype, Unstained=Unstained)
-  AggregateName <- Luciernaga:::NameForSample(x=x, sample.name=sample.name, removestrings=removestrings)
-  Experiment <- Luciernaga:::NameForSample(x=x, sample.name=sample.name, removestrings=removestrings, experiment = experiment,
-                                           experiment.name = experiment.name, returnType = "experiment")
-  Condition <- Luciernaga:::NameForSample(x=x, sample.name=sample.name, removestrings=removestrings, condition=condition,
-                                          condition.name = condition.name, returnType = "condition")
+  Type <- Typing(name=name, unmixingcontroltype=unmixingcontroltype,
+                 Unstained=Unstained)
+  AggregateName <- NameForSample(x=x, sample.name=sample.name,
+                                 removestrings=removestrings)
+  Experiment <- NameForSample(x=x, sample.name=sample.name,
+    removestrings=removestrings, experiment = experiment,
+    experiment.name = experiment.name, returnType = "experiment")
+  Condition <- NameForSample(x=x, sample.name=sample.name,
+    removestrings=removestrings, condition=condition,
+    condition.name = condition.name, returnType = "condition")
 
   # Internal Name Cleanup, to make sure fluorophores match
   InternalCleanupList <- c(".fcs", "Cells", "Beads", " ", "_", "-", ".", "(", ")")
   name <- Luciernaga:::NameCleanUp(name, InternalCleanupList)
 
   # Brought back until overlap is converted from name reliant to type reliant.
-  if (Unstained == TRUE) {if(!str_detect(name, "stained")){name <- paste0(name, "_Unstained")}}
+  if (Unstained == TRUE) {if(!str_detect(name, "stained")){
+    name <- paste0(name, "_Unstained")}}
 
   ###############
   # Exprs Setup #
@@ -107,11 +119,13 @@ Luciernaga_QC <- function(x, subsets, sample.name, removestrings, Verbose = FALS
   # Consolidating Desired Parameters
   n <- DF[,-grep("Time|FS|SC|SS|Original|W$|H$", names(DF))]
 
-  # Next Step Will Remove Negative Values, to what extent is an ordinary .fcs file affected?
+  # Next Step Will Remove Negative Values, to what extent is
+  # an ordinary .fcs file affected?
   if (Verbose == TRUE){
     TheTotal <- nrow(n) * ncol(n)
     BelowZero <- sum(apply(n, 2, function(x) x < 0))
-    message(round(BelowZero/TheTotal,2), " of all events were negative and will be rounded to 0")
+    message(round(BelowZero/TheTotal,2),
+            " of all events were negative and will be rounded to 0")
   }
 
   ##########################################
@@ -146,20 +160,24 @@ Luciernaga_QC <- function(x, subsets, sample.name, removestrings, Verbose = FALS
   PeakDetectorCounts <- PeakDetectorCounts %>% arrange(desc(Counts))
 
   if (Type == "Cells_Unstained") {CellCutoff <- startingcells*ratiopopcutoff
-                                 Detectors <- PeakDetectorCounts %>% filter(Counts > CellCutoff)
+                                 Detectors <- PeakDetectorCounts %>%
+                                   filter(Counts > CellCutoff)
   }
 
-  if (Type == "Cells") {CellCutoff <- startingcells*ratiopopcutoff
-                        Detectors <- PeakDetectorCounts %>% filter(Counts > CellCutoff)
+  if (Type == "Cells") {
+    CellCutoff <- startingcells*ratiopopcutoff
+    Detectors <- PeakDetectorCounts %>% filter(Counts > CellCutoff)
   }
 
-  if (Type == "Beads_Unstained") {BeadCutoff <- startingcells/ColsN #EqualDistributionAssumption
-                                  Detectors <- PeakDetectorCounts %>% filter(Counts > BeadCutoff)
+  if (Type == "Beads_Unstained") {
+    BeadCutoff <- startingcells/ColsN #EqualDistributionAssumption
+    Detectors <- PeakDetectorCounts %>% filter(Counts > BeadCutoff)
   }
 
 
-  if (Type == "Beads") {BeadCutoff <- startingcells*ratiopopcutoff
-                        Detectors <- PeakDetectorCounts %>% filter(Counts > BeadCutoff)
+  if (Type == "Beads") {
+    BeadCutoff <- startingcells*ratiopopcutoff
+    Detectors <- PeakDetectorCounts %>% filter(Counts > BeadCutoff)
   }
 
   if (Verbose == TRUE){
@@ -182,8 +200,9 @@ Luciernaga_QC <- function(x, subsets, sample.name, removestrings, Verbose = FALS
   TheSCData$Fluorophore <- gsub("-A", "", TheSCData$Fluorophore)
   TroubleChannels <- TheSCData %>% pull(Fluorophore)
 
-  results <- map(.x=TroubleChannels, .f=TroubleChannelExclusion, TheSCData=TheSCData, MainDetector=MainDetector, AFChannels=AFChannels) %>%
-    set_names(TroubleChannels)
+  results <- map(.x=TroubleChannels, .f=TroubleChannelExclusion,
+                 TheSCData=TheSCData, MainDetector=MainDetector,
+                 AFChannels=AFChannels) %>% set_names(TroubleChannels)
 
   matching_names <- names(results)[str_detect(name, names(results))]
   if (length(matching_names) > 0) {ExclusionList <- results[[matching_names[1]]]
@@ -211,10 +230,12 @@ Luciernaga_QC <- function(x, subsets, sample.name, removestrings, Verbose = FALS
     }
 
   # Adding way to switch to alternate AFs.
-  if (is.null(desiredAF)){This <- WorkAround %>% filter(.data[[TheMainAF]] == 1) %>% select(all_of(1:ColsN))
+  if (is.null(desiredAF)){
+    This <- WorkAround %>% filter(.data[[TheMainAF]] == 1) %>% select(all_of(1:ColsN))
   } else {desiredAF <- Luciernaga:::NameCleanUp(desiredAF, c("-A"))
           TheMainAF <- desiredAF
-          This <- WorkAround %>% filter(.data[[desiredAF]] == 1) %>% select(all_of(1:ColsN))}
+          This <- WorkAround %>% filter(.data[[desiredAF]] == 1) %>%
+            select(all_of(1:ColsN))}
 
   if (is.null(externalAF)){Samples <- AveragedSignature(x=This, stats=stats)
   } else {if(is.data.frame(externalAF)){
@@ -224,7 +245,8 @@ Luciernaga_QC <- function(x, subsets, sample.name, removestrings, Verbose = FALS
     TheCounts <- colSums(TheNormed == 1)
     ThePeakDetectorCounts <- data.frame(Fluors = names(TheCounts), Counts = TheCounts)
     rownames(ThePeakDetectorCounts) <- NULL
-    TheMainAF <- ThePeakDetectorCounts %>% arrange(desc(Counts)) %>% slice(1) %>% pull(Fluors)
+    TheMainAF <- ThePeakDetectorCounts %>% arrange(desc(Counts)) %>%
+      slice(1) %>% pull(Fluors)
     TheMainAF <- gsub("-A", "", TheMainAF)
     } else {stop("externalAF needs to be a single row of a data.frame")}}
 
@@ -237,10 +259,13 @@ Luciernaga_QC <- function(x, subsets, sample.name, removestrings, Verbose = FALS
     }
 
     # Adding way to switch to alternate AFs.
-    if (is.null(desiredAF)){This <- WorkAround %>% filter(.data[[TheMainAF]] == 1) %>% select(all_of(1:ColsN))
+    if (is.null(desiredAF)){
+      This <- WorkAround %>% filter(.data[[TheMainAF]] == 1) %>%
+        select(all_of(1:ColsN))
     } else {desiredAF <- Luciernaga:::NameCleanUp(desiredAF, c("-A"))
     TheMainAF <- desiredAF
-    This <- WorkAround %>% filter(.data[[desiredAF]] == 1) %>% select(all_of(1:ColsN))}
+    This <- WorkAround %>% filter(.data[[desiredAF]] == 1) %>%
+      select(all_of(1:ColsN))}
 
     if (is.null(externalAF)){Samples <- AveragedSignature(x=This, stats=stats)
     } else {if(is.data.frame(externalAF)){
@@ -250,7 +275,8 @@ Luciernaga_QC <- function(x, subsets, sample.name, removestrings, Verbose = FALS
       TheCounts <- colSums(TheNormed == 1)
       ThePeakDetectorCounts <- data.frame(Fluors = names(TheCounts), Counts = TheCounts)
       rownames(ThePeakDetectorCounts) <- NULL
-      TheMainAF <- ThePeakDetectorCounts %>% arrange(desc(Counts)) %>% slice(1) %>% pull(Fluors)
+      TheMainAF <- ThePeakDetectorCounts %>% arrange(desc(Counts)) %>%
+        slice(1) %>% pull(Fluors)
       TheMainAF <- gsub("-A", "", TheMainAF)
       } else {stop("externalAF needs to be a single row of a data.frame")}}
 
@@ -267,7 +293,8 @@ Luciernaga_QC <- function(x, subsets, sample.name, removestrings, Verbose = FALS
 
   #StartN <- StartNormalizedMergedCol+1
   #EndN <- EndNormalizedMergedCol+1
-  #DoublePeaks <- WorkAround1 %>% filter(rowSums(WorkAround1[, StartN:EndN] == 1.00) >= 2)
+  #DoublePeaks <- WorkAround1 %>%
+  # filter(rowSums(WorkAround1[, StartN:EndN] == 1.00) >= 2)
   #TheDoublePeaks <- DoublePeaks %>% select(Backups) %>% pull()
   #WorkAround2 <- WorkAround1 %>% filter(!Backups %in% TheDoublePeaks)
 
@@ -292,7 +319,8 @@ Luciernaga_QC <- function(x, subsets, sample.name, removestrings, Verbose = FALS
                       EndNormalizedMergedCol=EndNormalizedMergedCol, Samples=Samples,
                       Increments=Increments, Subtraction=Subtraction, stats=stats,
                       TheMainAF=TheMainAF, Verbose = Verbose, SCData = SCData,
-                      LocalMaximaRatio=LocalMaximaRatio, SecondaryPeaks=SecondaryPeaks) %>% bind_rows()
+                      LocalMaximaRatio=LocalMaximaRatio,
+                      SecondaryPeaks=SecondaryPeaks) %>% bind_rows()
     }
 
   Reintegrated <- left_join(RetainedDF, StashedDF, by = "Backups")
@@ -311,11 +339,12 @@ Luciernaga_QC <- function(x, subsets, sample.name, removestrings, Verbose = FALS
 
   if (ExportType == "fcs"){
 
-    BrightnessReturn <- Luciernaga:::Genesis(x=Reintegrated1, ff=ff, minimalfcscutoff = 0.05,
+    BrightnessReturn <- Genesis(x=Reintegrated1, ff=ff, minimalfcscutoff = 0.05,
                         AggregateName=AggregateName, Brightness = Brightness,
                         outpath=outpath, OriginalStart = OriginalStart,
-                        OriginalEnd = OriginalEnd, stats=stats, NegativeType=NegativeType,
-                        TotalNegatives=TotalNegatives, Samples=Samples, ExportType=ExportType)
+                        OriginalEnd = OriginalEnd, stats=stats,
+                        NegativeType=NegativeType, TotalNegatives=TotalNegatives,
+                        Samples=Samples, ExportType=ExportType)
   }
 
   if (ExportType == "data.frame"){
@@ -341,9 +370,11 @@ Luciernaga_QC <- function(x, subsets, sample.name, removestrings, Verbose = FALS
 
     TheClusters <- TheData %>% pull(Cluster)
 
-    TheSummary <- map(.x=TheClusters, .f=LuciernagaSmallReport, Data=ExportData, RetainedType=RetainedType,
-        ColsN=ColsN, StartNormalizedMergedCol=StartNormalizedMergedCol,
-        EndNormalizedMergedCol=EndNormalizedMergedCol, stats=stats) %>% bind_rows()
+    TheSummary <- map(.x=TheClusters, .f=LuciernagaSmallReport, Data=ExportData,
+                  RetainedType=RetainedType, ColsN=ColsN,
+                  StartNormalizedMergedCol=StartNormalizedMergedCol,
+                  EndNormalizedMergedCol=EndNormalizedMergedCol, stats=stats) %>%
+                  bind_rows()
 
     FinalData <- left_join(TheData, TheSummary, by = "Cluster")
     return(FinalData)
@@ -360,11 +391,13 @@ Luciernaga_QC <- function(x, subsets, sample.name, removestrings, Verbose = FALS
 #' @importFrom tidyselect all_of
 #' @importFrom dplyr rename
 #' @noRd
-LuciernagaSmallReport <- function(x, Data, RetainedType, ColsN, StartNormalizedMergedCol,
-                             EndNormalizedMergedCol, stats){
-    if (RetainedType == "raw"){Data <- Data %>% filter(Cluster %in% x) %>% select(all_of(1:ColsN))}
-    if (RetainedType == "normalized"){Data <- Data %>% filter(Cluster %in% x) %>%select(all_of(
-      StartNormalizedMergedCol:EndNormalizedMergedCol))}
+LuciernagaSmallReport <- function( x, Data, RetainedType, ColsN,
+    StartNormalizedMergedCol, EndNormalizedMergedCol, stats){
+
+    if (RetainedType == "raw"){Data <- Data %>% filter(Cluster %in% x) %>%
+      select(all_of(1:ColsN))}
+    if (RetainedType == "normalized"){Data <- Data %>% filter(Cluster %in% x) %>%
+      select(all_of(StartNormalizedMergedCol:EndNormalizedMergedCol))}
 
     Averaged <- AveragedSignature(Data, stats)
     Summary <- cbind(x, Averaged) %>% rename(Cluster = x)
@@ -431,7 +464,8 @@ return(PeakDetectorCounts)
 #'
 #' @return A value to be determined later
 #' @noRd
-LocalMaxima <- function(theX, theY, therepeats, w, alternatename, Verbose = FALSE, ...){
+LocalMaxima <- function(theX, theY, therepeats, w, alternatename,
+                        Verbose = FALSE, ...){
 
   #Adding Margins
   repeats <- therepeats*2
@@ -548,7 +582,7 @@ RelativeBrightness <- function(x){
     Exceptions$Detector3 <- as.character(Exceptions$Detector3)
 
     Exceptions <- Exceptions %>% mutate(Detector3Value = rep(NA,
-                                                             nrow(Exceptions))) %>% relocate(Detector3Value, .after = Detector3)
+                  nrow(Exceptions))) %>% relocate(Detector3Value, .after = Detector3)
     Exceptions$Detector3Value <- as.character(Exceptions$Detector3Value)
 
   }
@@ -560,8 +594,8 @@ RelativeBrightness <- function(x){
   Combined$Detector3Value <- as.numeric(Combined$Detector3Value)
 
   Combined <- Combined %>% mutate(Brightness = rowSums(select(., Detector1Value,
-                                                              Detector2Value, Detector3Value), na.rm = TRUE)) %>%
-    relocate(Brightness, .after = Cluster)
+              Detector2Value, Detector3Value), na.rm = TRUE)) %>%
+              relocate(Brightness, .after = Cluster)
 
   Combined <- Combined %>% mutate(Detector1Raw = rep(NA, nrow(Combined)),
                                   Detector2Raw = rep(NA, nrow(Combined)),
@@ -637,17 +671,19 @@ FillIterate <- function(x, data){
 #'
 #' @param x The data.frame of Luciernaga data.
 #' @param ff An individual cytoset object.
-#' @param minimalfcscutoff A ratio indicating mininum of the total population needed to split off
-#'  into own file, default is set to 0.05
+#' @param minimalfcscutoff A ratio indicating mininum of the total population needed
+#' to split off into own file, default is set to 0.05
 #' @param AggregateName Passed final name with modifications from name
 #' @param Brightness Whether to additionally return a brightness .csv to the outpath
 #' @param outpath Location to export the fcs and .csv files to
 #' @param OriginalStart Passed Argument indicating start column for Raw .fcs values
 #' @param OrigingalEnd Passed argument indicating end column for raw .fcs values
 #' @param stats Whether "median" or "mean", default is "median"
-#' @param NegativeType Whether to append a negative pop. Args are "artificial", "internal" and "default"
+#' @param NegativeType Whether to append a negative pop. Args are "artificial",
+#' "internal" and "default"
 #' @param TotalNegatives How many of the above rows to append, default is set to 500
-#' @param Samples When Negative type = "Internal", the data.frame of averaged fluorescence per detector
+#' @param Samples When Negative type = "Internal", the data.frame of averaged
+#' fluorescence per detector
 #' @param ExportType Passed from above, set to "fcs" for fcs.file return
 #'
 #'
@@ -682,11 +718,11 @@ Genesis <- function(x, ff, minimalfcscutoff=0.05, AggregateName,
 
   Data <- x
 
-  TheBrightness <- map(.x=fcs_clusters, .f=Luciernaga:::InternalGenesis, Data=Data, AggregateName=AggregateName,
-                       outpath=outpath, OriginalStart=OriginalStart, OriginalEnd=OriginalEnd,
-                       stats=stats, NegativeType=NegativeType, TotalNegatives=TotalNegatives,
-                       Samples=Samples, ExportType=ExportType, parameters=original_p,
-                       description=original_d) %>% bind_rows()
+  TheBrightness <- map(.x=fcs_clusters, .f=Luciernaga:::InternalGenesis, Data=Data,
+    AggregateName=AggregateName, outpath=outpath, OriginalStart=OriginalStart,
+    OriginalEnd=OriginalEnd, stats=stats, NegativeType=NegativeType,
+    TotalNegatives=TotalNegatives, Samples=Samples, ExportType=ExportType,
+    parameters=original_p, description=original_d) %>% bind_rows()
 
   message("TargetReached")
 
@@ -708,9 +744,11 @@ Genesis <- function(x, ff, minimalfcscutoff=0.05, AggregateName,
 #' @param OriginalStart Passed Argument indicating start column for Raw .fcs values
 #' @param OriginalEnd Passed argument indicating end column for raw .fcs values
 #' @param stats Whether "median" or "mean", default is "median"
-#' @param NegativeType Whether to append a negative pop. Args are "artificial", "internal" and "default"
+#' @param NegativeType Whether to append a negative pop. Args are "artificial",
+#' "internal" and "default"
 #' @param TotalNegatives How many of the above rows to append, default is set to 500
-#' @param Samples When Negative type = "Internal", the data.frame of averaged fluorescence per detector
+#' @param Samples When Negative type = "Internal", the data.frame of averaged
+#' fluorescence per detector
 #' @param ExportType Passed from above, set to "fcs" for fcs.file return
 #' @param parameters Passed parameters for .fcs creation
 #' @param description Passed description for .fcs creation
@@ -726,9 +764,9 @@ Genesis <- function(x, ff, minimalfcscutoff=0.05, AggregateName,
 #' @importFrom flowCore write.FCS
 #'
 #' @noRd
-InternalGenesis <- function(x, Data, AggregateName, outpath=NULL, OriginalStart, OriginalEnd,
-                            stats="median", NegativeType="default", TotalNegatives = 500,
-                            Samples = NULL, ExportType, parameters, description){
+InternalGenesis <- function(x, Data, AggregateName, outpath=NULL, OriginalStart,
+  OriginalEnd, stats="median", NegativeType="default", TotalNegatives = 500,
+  Samples = NULL, ExportType, parameters, description){
 
   internalstrings <- c("-", "_")
   FCSname <- NameCleanUp(x, removestrings=internalstrings)
@@ -749,7 +787,8 @@ InternalGenesis <- function(x, Data, AggregateName, outpath=NULL, OriginalStart,
   if (NegativeType == "artificial"){
     MeanFCS <- colMeans(RawFCSSubset)
     MeanFCS <- data.frame(t(MeanFCS), check.names = FALSE)
-    mutateCols <- MeanFCS[,-grep("Time|FS|SC|SS|Original|W$|H$", names(MeanFCS))] %>% colnames(.)
+    mutateCols <- MeanFCS[,-grep("Time|FS|SC|SS|Original|W$|H$", names(MeanFCS))] %>%
+      colnames(.)
     MeanFCS <- MeanFCS %>% mutate(across(all_of(mutateCols), ~ifelse(. >= 0, 0, .)))
     MeanFCS$Time <- round(MeanFCS$Time, 1)
     ArtificialNegative <- MeanFCS[rep(1, each = TotalNegatives),]
@@ -777,7 +816,8 @@ InternalGenesis <- function(x, Data, AggregateName, outpath=NULL, OriginalStart,
   }
 
   FCSSubset <- data.matrix(FCSSubset)
-  new_fcs <- new("flowFrame", exprs=FCSSubset, parameters=parameters, description=description)
+  new_fcs <- new("flowFrame", exprs=FCSSubset, parameters=parameters,
+                 description=description)
 
   TheFileName <- paste(AggregateName, FCSname, sep="_")
   TheFileFCS <- paste0(TheFileName, ".fcs")

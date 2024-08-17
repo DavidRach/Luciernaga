@@ -1,8 +1,9 @@
 #' Converts the Cytek Aurora (TM)'s QC report into a data frame.
 #'
-#' @param x  Takes a Levy-Jennings QC tracking report saved as a .csv file, and converts into a "tidyed" dataframe for plotting.
-#'           Currently works on our 3L, 4L, 5L Auroras. Please reach out if you find an issue, the .csv export varies a bit and
-#'           I want to continue to improve on the code to handle these odd exceptions.
+#' @param x  Takes a Levy-Jennings QC tracking report saved as a .csv file, and
+#' converts into a "tidyed" dataframe for plotting. Currently works on our 3L, 4L, 5L
+#' Auroras. Please reach out if you find an issue, the .csv export varies a bit and
+#' I want to continue to improve on the code to handle these odd exceptions.
 #' @param TrackChange Whether to derive a change between previous QC days.
 #'
 #' @importFrom purrr map
@@ -33,8 +34,10 @@ QC_FilePrep <- function(x, TrackChange){
     FSCIndex <- grep("^FSC Area Scaling Factor", ReadInfo)
     LaserPowerIndex <- grep("^Laser Power", ReadInfo)
 
-    ThePositions <- c(GainIndex, rCVIndex, LaserIndex, AreaIndex, FSCIndex, LaserPowerIndex)
-    #ThePositions <- c(GainIndex, LaserIndex, AreaIndex, rCVIndex,  FSCIndex, LaserPowerIndex)
+    ThePositions <- c(GainIndex, rCVIndex, LaserIndex, AreaIndex, FSCIndex,
+                      LaserPowerIndex)
+    #ThePositions <- c(GainIndex, LaserIndex, AreaIndex, rCVIndex,  FSCIndex,
+    #LaserPowerIndex)
 
     ThePositions <- sort(ThePositions) #In case not everything was exported
 
@@ -67,7 +70,8 @@ QC_FilePrep <- function(x, TrackChange){
     difference <- StartPositions - EndPositions
 
     if (length(unique(difference)) > 1) {
-      stop("There are different number of blank rows in the .csv file. Please make sure   there is a single space in between chunks ")
+      stop("There are different number of blank rows in the .csv file.
+           Please make sure   there is a single space in between chunks ")
     }
 
     TheLineChunks <- list()
@@ -82,7 +86,8 @@ QC_FilePrep <- function(x, TrackChange){
     for (i in seq_along(TheLineChunks)) {
       filename <- paste0("LineChunk_", i, ".txt")
       writeLines(TheLineChunks[[i]], filename)
-      cat("Lines extracted from", StartPositions[i], "to", EndPositions[i], "written to", filename, "\n")
+      cat("Lines extracted from", StartPositions[i], "to",
+          EndPositions[i], "written to", filename, "\n")
     }
 
     pattern <- "LineChunk_.*\\.txt$"
@@ -107,12 +112,15 @@ QC_FilePrep <- function(x, TrackChange){
       }
     }
 
-    RedundantColumns <- df %>% select(starts_with("DateTime")) %>% select(-1) %>% colnames()
-    UpdatedDF <- df %>% select(-one_of(RedundantColumns)) %>% rename(DateTime = "DateTime...1")
+    RedundantColumns <- df %>% select(starts_with("DateTime")) %>%
+      select(-1) %>% colnames()
+    UpdatedDF <- df %>% select(-one_of(RedundantColumns)) %>%
+      rename(DateTime = "DateTime...1")
     #colnames(UpdatedDF)
     #str(UpdatedDF)
 
-    if (any(grepl("AM", UpdatedDF$DateTime))) {UpdatedDF$DateTime <- mdy_hms(UpdatedDF$DateTime)
+    if (any(grepl("AM", UpdatedDF$DateTime))) {
+      UpdatedDF$DateTime <- mdy_hms(UpdatedDF$DateTime)
     } else {UpdatedDF$DateTime <- mdy_hm(UpdatedDF$DateTime)}
 
     if (TrackChange == TRUE){
@@ -126,7 +134,8 @@ QC_FilePrep <- function(x, TrackChange){
       Main_Columns <- colnames(Main_Columns)
       Flag_Columns <- colnames(Flag_Columns)
 
-      NewlyUpdatedDF <- map2(.x=Main_Columns, .y=Flag_Columns, .f=Internal_ChangeCalcs, TheData=MainData) %>% bind_cols()
+      NewlyUpdatedDF <- map2(.x=Main_Columns, .y=Flag_Columns,
+         .f=Internal_ChangeCalcs, TheData=MainData) %>% bind_cols()
       NewlyUpdatedDF <- cbind(DateTime, NewlyUpdatedDF)
 
     } else {NewlyUpdatedDF <- UpdatedDF}

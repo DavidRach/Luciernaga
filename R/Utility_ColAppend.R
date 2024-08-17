@@ -25,7 +25,8 @@ Utility_ColAppend <- function(ff, DF, columnframe, shift=FALSE){
   #x <- TheColNames[1]
 
   if (shift == TRUE){
-  NotNegativeColumns <- map(.x=TheColNames, .f=InternalShift, columnframe=columnframe) %>% bind_cols #Values not below
+  NotNegativeColumns <- map(.x=TheColNames, .f=InternalShift,
+                            columnframe=columnframe) %>% bind_cols #Values not below
   } else {NotNegativeColumns <- columnframe}
 
   Shifted <- as.matrix(NotNegativeColumns)
@@ -35,12 +36,14 @@ Utility_ColAppend <- function(ff, DF, columnframe, shift=FALSE){
   FlowFrameTest <- ff[[1, returnType = "flowFrame"]]
   original_p <- parameters(FlowFrameTest)
   original_d <- keyword(FlowFrameTest)
-  new_fcs <- new("flowFrame", exprs=FCSSubset, parameters=original_p, description=original_d)
+  new_fcs <- new("flowFrame", exprs=FCSSubset, parameters=original_p,
+                 description=original_d)
 
   #Adding new columns (modified flowCore utilities)
   fr <- new_fcs
   cols <- Shifted
-  new_pd <- flowCore:::cols_to_pd(fr=fr, cols=cols) #Using Internal Function :( Bioconductor?
+  new_pd <- flowCore:::cols_to_pd(fr=fr, cols=cols) #Using Internal Function
+  # :( Bioconductor?
 
   pd <- pData(parameters(fr))
   pd <- rbind(pd, new_pd)
@@ -66,7 +69,8 @@ Utility_ColAppend <- function(ff, DF, columnframe, shift=FALSE){
   UpdatedParameters <- parameters(fr)
   UpdatedExprs <- exprs(fr)
 
-  new_fcs <- new("flowFrame", exprs=UpdatedExprs, parameters=UpdatedParameters, description=new_kw)
+  new_fcs <- new("flowFrame", exprs=UpdatedExprs, parameters=UpdatedParameters,
+                 description=new_kw)
 
   return(new_fcs)
 }

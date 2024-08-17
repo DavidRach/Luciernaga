@@ -2,15 +2,22 @@
 #'
 #' @param x A GatingSet object (ex. gs or gs[[1]])
 #' @param sample.name Keyword for which samples names are stored (ex. "GUID")
-#' @param removestrings A string of characters to remove from name (ex. c("DR_ILT_2023_", "Cord"))
+#' @param removestrings A string of characters to remove from name (
+#' ex. c("DR_ILT_2023_", "Cord"))
 #' @param experiment Provide directly an experiment name (ex. "Jan2024")
-#' @param experiment.name Keyword for which experiment name is stored (ex. "GROUPNAME")
+#' @param experiment.name Keyword for which experiment name is stored (
+#' ex. "GROUPNAME")
 #' @param outpath Location for which to store the generated .pdf
-#' @param marginsubset The Gating Hierarchy level from which values will be used to estimate the plot margins (ex. "nonDebris")
-#' @param gatesubset The Gating Hierarchy level of the cells that you want to see plotted (ex. "lymph")
-#' @param ycolumn The ycolumn that you want to see everything plotted by (ex. "APC-A") or ALL to see all comparisons
-#' @param bins Bins for which the plotted cells will be divided into providing granularity
-#' @param clearance The additional ratio added to the margins to avoid clipping main population but exclude outliers.
+#' @param marginsubset The Gating Hierarchy level from which values will be used to
+#'  estimate the plot margins (ex. "nonDebris")
+#' @param gatesubset The Gating Hierarchy level of the cells that you want to see
+#'  plotted (ex. "lymph")
+#' @param ycolumn The ycolumn that you want to see everything plotted by (ex. "APC-A")
+#'  or ALL to see all comparisons
+#' @param bins Bins for which the plotted cells will be divided into providing
+#'  granularity
+#' @param clearance The additional ratio added to the margins to avoid clipping
+#'  main population but exclude outliers.
 #' @param pdf Prints default NxN plot, TRUE or FALSE.
 #' @param condition Provide a condition name
 #' @param condition.name The keyword in the .fcs file storing the condition.name
@@ -31,15 +38,15 @@
 #'
 #' @examples NULL
 
-Utility_NbyNPlots <- function(x, sample.name, removestrings, experiment = NULL, experiment.name = NULL,
-                              condition = NULL, condition.name = NULL, marginsubset, gatesubset,
-                              ycolumn, bins, clearance, gatelines, reference = NULL, outpath, pdf,
-                              width = 9, height = 7, ...) {
+Utility_NbyNPlots <- function(x, sample.name, removestrings, experiment = NULL,
+  experiment.name = NULL, condition = NULL, condition.name = NULL, marginsubset,
+  gatesubset, ycolumn, bins, clearance, gatelines, reference = NULL, outpath, pdf,
+  width = 9, height = 7, ...) {
   #ycolumn <- ycolumn
   #x <- x
 
-  AggregateName <- NameForSample(x=x, sample.name=sample.name, removestrings=removestrings, ...)
-  # AggregateName <- Luciernaga:::NameForSample(x=x, sample.name=sample.name, removestrings=removestrings)
+  AggregateName <- NameForSample(
+    x=x, sample.name=sample.name, removestrings=removestrings, ...)
 
   StorageLocation <- file.path(outpath, AggregateName)
 
@@ -61,15 +68,18 @@ Utility_NbyNPlots <- function(x, sample.name, removestrings, experiment = NULL, 
 
   } else {
     columnlist <- DFNames[DFNames != ycolumn]
-    Plots <- map(.x = columnlist, .f = GeneralGating, name = name, ff = ff, yValue = ycolumn, columnlist = DFNames,
-                 TheDF = TheDF, gatelines = gatelines, reference = reference, clearance, bins)
+    Plots <- map(.x = columnlist, .f = GeneralGating, name = name, ff = ff,
+      yValue = ycolumn, columnlist = DFNames, TheDF = TheDF, gatelines = gatelines,
+      reference = reference, clearance, bins)
   }
 
 
   if (pdf == TRUE){
-      AssembledPlots <- Utility_Patchwork(x=Plots, filename=AggregateName, outfolder=outpath, returntype = "pdf")
+      AssembledPlots <- Utility_Patchwork(x=Plots, filename=AggregateName,
+                                          outfolder=outpath, returntype = "pdf")
       } else {
-      AssembledPlots <- Utility_Patchwork(x=Plots, filename=AggregateName, outfolder=outpath, returntype = "patchwork")
+      AssembledPlots <- Utility_Patchwork(x=Plots, filename=AggregateName,
+                                          outfolder=outpath, returntype = "patchwork")
   }
 
   return(AssembledPlots)
@@ -93,8 +103,9 @@ UniversalIterator <- function(x, x_ff,
   DFNames <- columnlist
   columnlist <- columnlist[columnlist != x] # Remove the universal Y value
 
-  Plots <- map(.x = columnlist, .f = GeneralGating, name = name, ff = ff, yValue = x, columnlist = DFNames,
-               TheDF = TheDF, gatelines = gatelines, reference = reference, clearance=clearance, bins=bins)
+  Plots <- map(.x = columnlist, .f = GeneralGating, name = name, ff = ff,
+    yValue = x, columnlist = DFNames, TheDF = TheDF, gatelines = gatelines,
+    reference = reference, clearance=clearance, bins=bins)
 
   #Plots <- flatten(Plots)
   #Plots1 <- Plots
@@ -176,25 +187,25 @@ GeneralGating <- function(x, name, ff, yValue, clearance, bins,
 
   if (!exists("theYmax") || !exists("theXmax")){
     Plot <- as.ggplot(ggcyto(ff, aes(x = .data[[xValue]], y = .data[[yValue]]),
-                             subset = "root") + geom_hex(bins=bins) + theme_bw() + labs(title = NULL) +
-                        theme(strip.background = element_blank(), strip.text.x = element_blank(),
-                              panel.grid.major = element_line(linetype = "blank"),
-                              panel.grid.minor = element_line(linetype = "blank"),
-                              axis.title = element_text(size = 10, face = "bold"),
-                              legend.position = "none"))
+     subset = "root") + geom_hex(bins=bins) + theme_bw() + labs(title = NULL) +
+     theme(strip.background = element_blank(), strip.text.x = element_blank(),
+     panel.grid.major = element_line(linetype = "blank"),
+     panel.grid.minor = element_line(linetype = "blank"),
+     axis.title = element_text(size = 10, face = "bold"),
+     legend.position = "none"))
 
     if (gatelines == TRUE){Value <- reference[reference$specimen == name, xValue]
     Plot <- Plot + geom_vline(xintercept = c(seq(0,200,25)), colour = "gray") +
       geom_vline(xintercept = Value, colour = "red")}
 
-  } else {Plot <- as.ggplot(ggcyto(ff, aes(x = .data[[xValue]],
-                                           y = .data[[yValue]]), subset = "root") + geom_hex(bins=bins) +
-                              coord_cartesian(xlim = c(theXmin, theXmax), ylim = c(theYmin, theYmax),
-                                              default = TRUE) + theme_bw() + labs(title = NULL) +
-                              theme(strip.background = element_blank(),
-                                    strip.text.x = element_blank(), panel.grid.major = element_line(
-                                      linetype = "blank"), panel.grid.minor = element_line(linetype = "blank"),
-                                    axis.title = element_text(size = 10, face = "bold"), legend.position = "none"))
+  } else {Plot <- as.ggplot(ggcyto(ff, aes(x = .data[[xValue]], y = .data[[yValue]]),
+          subset = "root") + geom_hex(bins=bins) + coord_cartesian(
+          xlim = c(theXmin, theXmax), ylim = c(theYmin, theYmax), default = TRUE) +
+          theme_bw() + labs(title = NULL) + theme(strip.background = element_blank(),
+          strip.text.x = element_blank(), panel.grid.major = element_line(
+          linetype = "blank"), panel.grid.minor = element_line(linetype = "blank"),
+          axis.title = element_text(size = 10, face = "bold"),
+          legend.position = "none"))
 
   if (gatelines == TRUE){Value <- reference[reference$specimen == name, xValue]
   Plot <- Plot + geom_vline(xintercept = c(seq(0,200,25)), colour = "gray") +

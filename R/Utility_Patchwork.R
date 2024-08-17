@@ -21,8 +21,8 @@
 #' @examples NULL
 #'
 
-Utility_Patchwork <- function(x, filename, outfolder, thecolumns=2, therows=3, width = 7,
-                              height = 9, returntype="pdf", NotListofList = TRUE){
+Utility_Patchwork <- function(x, filename, outfolder, thecolumns=2, therows=3,
+  width = 7, height = 9, returntype="pdf", NotListofList = TRUE){
 
   if (NotListofList == TRUE){
   theList <- x

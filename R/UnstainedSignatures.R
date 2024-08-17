@@ -6,7 +6,8 @@
 #' @param StartNormalizedMergedCol Indicated Start Normalized Columns
 #' @param EndNormalizedMergedCol Indicated End Normalized Columns
 #' @param Increments A numeric to round the normalized bins by. Default is 0.1
-#' @param Verbose Whether to return intermediate objects via print and plot for progress monitoring
+#' @param Verbose Whether to return intermediate objects via print and plot for
+#' progress monitoring
 #' @param LocalMaximaRatio Height of peaks to proceed
 #' @param SecondaryPeaks Number of Secondary Peaks, default is set to 2.
 #'
@@ -25,13 +26,14 @@
 #' @importFrom utils head
 #'
 #' @keywords internal
-UnstainedSignatures <- function(x, WorkAround1, alternatename, ColsN, StartNormalizedMergedCol,
-                                EndNormalizedMergedCol, Increments, Verbose = FALSE,
-                                LocalMaximaRatio=0.15, SecondaryPeaks=2){
+UnstainedSignatures <- function(x, WorkAround1, alternatename, ColsN,
+  StartNormalizedMergedCol, EndNormalizedMergedCol, Increments, Verbose = FALSE,
+  LocalMaximaRatio=0.15, SecondaryPeaks=2){
 
   # Filter for Detector of Interest
   MySubset <- WorkAround1 %>% dplyr::filter(.data[[x]] == 1.000)
-  #DetectorPeakCounts(x=MySubset, StartN=StartNormalizedMergedCol, EndN=EndNormalizedMergedCol)
+  #DetectorPeakCounts(x=MySubset, StartN=StartNormalizedMergedCol,
+  #EndN=EndNormalizedMergedCol)
 
   # Segment into required components
   DetectorName <- x
@@ -56,37 +58,41 @@ UnstainedSignatures <- function(x, WorkAround1, alternatename, ColsN, StartNorma
     relocate(TheDetector, .before = Detectors)
 
   #Deriving an average y-vector for local maxima
-  Conversion <- Conversion %>%
-    mutate(TheSums = rowSums(.[2:ncol(.)], na.rm = TRUE) /(ncol(Conversion) - 1)) %>%
+  Conversion <- Conversion %>% mutate(
+    TheSums = rowSums(.[2:ncol(.)], na.rm = TRUE) /(ncol(Conversion) - 1)) %>%
     relocate(TheSums, .after = Detectors)
 
   Conversion$Detectors <- 1:nrow(Conversion)
   LocalX <- Conversion$Detectors
   LocalY <- Conversion$TheSums
 
-  PointData <- LocalMaxima(theX = LocalX, theY = LocalY,
-       therepeats = 3, w = 3, span = 0.11, alternatename = alternatename, Verbose=Verbose)
+  PointData <- LocalMaxima(theX = LocalX, theY = LocalY, therepeats = 3, w = 3,
+               span = 0.11, alternatename = alternatename, Verbose=Verbose)
 
   colnames(PointData)[1] <- "TheDetector"
   colnames(PointData)[2] <- "TheHeight"
 
-  Newest2 <- PointData %>% filter(TheHeight > LocalMaximaRatio) %>% arrange(desc(TheHeight))
+  Newest2 <- PointData %>% filter(TheHeight > LocalMaximaRatio) %>%
+    arrange(desc(TheHeight))
   Assembled <- left_join(Newest2, Decoys, by = "TheDetector")
-  if(nrow(Assembled) == 0){stop("Failed at Assembled, no local maxima greater than 0.15")}
+  if(nrow(Assembled) == 0){
+    stop("Failed at Assembled, no local maxima greater than 0.15")}
   These <- Assembled %>% pull(Detectors)
 
   if (any(These %in% x)) {These <- These[These != x]}
   if (length(These) == 0) {
     if (Verbose == TRUE) {message("Solitary Peak")}
   } else if (length(These) > SecondaryPeaks) {
-    if (Verbose == TRUE) {message("More than ", SecondaryPeaks+1, " peaks. Abbreviated.")}
+    if (Verbose == TRUE) {
+      message("More than ", SecondaryPeaks+1, " peaks. Abbreviated.")}
     These <- head(These, SecondaryPeaks)
   }
 
   MyData <- cbind(StashedIDs, MyRawData, MyData)
   MyData$Cluster <- paste(DetectorName, "10-", sep = "_")
 
-  if (length(These) > 3){stop("Only currently set up to handle up to 4 fluorescence peaks per fluorophore")
+  if (length(These) > 3){stop(
+    "Only currently set up to handle up to 4 fluorescence peaks per fluorophore")
   } else if (length(These) == 3){second <- These[[1]]
   third <- These[[2]]
   fourth <- These[[3]]

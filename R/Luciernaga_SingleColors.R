@@ -1,10 +1,12 @@
-#' Calculates the single color control matrix for a given quantile cutoffs and a given statistic
+#' Calculates the single color control matrix for a given quantile cutoffs and a given
+#' statistic
 #'
 #' @param x A Gating Set Object
 #' @param sample.name The Keyword for which the Fluorophore Name is stored
 #' @param removestrings Values to remove from the name
 #' @param subset A desired Gating Hierarchy level of cells to filter in
-#' @param PanelCuts A .csv or dataframe containing columns Fluorophore, From and To. Fluorophore name should match sample.name style
+#' @param PanelCuts A .csv or dataframe containing columns Fluorophore, From and To
+#' Fluorophore name should match sample.name style
 #' @param stats Whether to use "mean" or "median"
 #' @param SignatureView Whether to also return a normalized signature plot.
 #'
@@ -30,7 +32,8 @@
 #'
 #' @examples NULL
 
-Luciernaga_SingleColors <- function(x, sample.name, removestrings, subset, PanelCuts, stats, SignatureView){
+Luciernaga_SingleColors <- function(x, sample.name, removestrings, subset, PanelCuts,
+                                    stats, SignatureView){
   name <- keyword(x, sample.name)
   name <- NameCleanUp(name, removestrings)
 
@@ -58,7 +61,9 @@ Luciernaga_SingleColors <- function(x, sample.name, removestrings, subset, Panel
   TheDetector <- Detectors[1,1]
 
   # Bringing in the Panel and Cut Quantiles
-  if (!is.data.frame(PanelCuts)) {PanelCuts <- read.csv(PanelCuts, check.names = FALSE)} else {PanelCuts <- PanelCuts}
+  if (!is.data.frame(PanelCuts)) {
+    PanelCuts <- read.csv(PanelCuts, check.names = FALSE)
+    } else {PanelCuts <- PanelCuts}
 
   # Importing the Quantile Cut Parameters
   name <- sub(" ", "_", name)
@@ -71,7 +76,8 @@ Luciernaga_SingleColors <- function(x, sample.name, removestrings, subset, Panel
 
   TheInfo <- PanelCuts %>% filter(Fluorophore %in% TheFluorophore)
 
-  if(base::nrow(TheInfo) > 1){error("More than two rows retrieved when selecting Fluorophore")}
+  if(base::nrow(TheInfo) > 1){
+    error("More than two rows retrieved when selecting Fluorophore")}
 
   LowerBound <- TheInfo %>% select(From) %>% pull()
   UpperBound <- TheInfo %>% select(To) %>% pull()
@@ -89,14 +95,18 @@ Luciernaga_SingleColors <- function(x, sample.name, removestrings, subset, Panel
   UpperBoundMFI <- QuantileData %>% quantile(., UpperBound)
 
 
-  ValuesInterest <- TheColumns %>% filter(.data[[TheDetector]]  >= LowerBoundMFI & .data[[TheDetector]] <= UpperBoundMFI)
+  ValuesInterest <- TheColumns %>% filter(
+    .data[[TheDetector]]  >= LowerBoundMFI & .data[[TheDetector]] <= UpperBoundMFI)
 
-  if (stats == "mean") {Samples <- ValuesInterest %>% nest(data = where(is.numeric)) %>%
-    mutate(mean_data = map(data, ~ summarise_all(., ~ round(mean(., na.rm = TRUE),2)))) %>%
+  if (stats == "mean") {Samples <- ValuesInterest %>%
+    nest(data = where(is.numeric)) %>% mutate(mean_data = map(
+      data, ~ summarise_all(., ~ round(mean(., na.rm = TRUE),2)))) %>%
     select(mean_data) %>% unnest(mean_data)
-  } else if (stats == "median"){Samples <- ValuesInterest %>%  nest(data = where(is.numeric)) %>%
-    mutate(median_data = map(data, ~ summarise_all(., ~ round(median(., na.rm = TRUE),2)))) %>%
-    select(median_data) %>% unnest(median_data)} else {error("Choice of statistical summary not found")}
+  } else if (stats == "median"){Samples <- ValuesInterest %>%  nest(
+    data = where(is.numeric)) %>% mutate(median_data = map(
+      data, ~ summarise_all(., ~ round(median(., na.rm = TRUE),2)))) %>%
+    select(median_data) %>% unnest(median_data)
+  } else {error("Choice of statistical summary not found")}
 
   Data <- cbind(name, Samples) %>% rename(Fluorophore = name)
 

@@ -5,7 +5,8 @@
 #' @param removestrings A list of things to remove from sample.name
 #' @param subset The subset of interest from gating hierarchy
 #' @param columns Which columns to use. Not combinable with notcolumns, use one or other.
-#' @param notcolumns Which columns not to use. Not combinable with columns, use one or other.
+#' @param notcolumns Which columns not to use. Not combinable with columns, use one
+#' or other.
 #' @param subsample If downsampling is wanted.
 #' @param outpath Location to store new .fcs files
 #' @param max_iter Rtsne argument, default is set to 1000
@@ -26,9 +27,9 @@
 #'
 #' @examples NULL
 
-Utility_tSNE <- function(x, sample.name, removestrings, subset, columns=NULL, notcolumns=NULL,
-                         subsample=NULL, export=FALSE, outpath=NULL,
-                         max_iter = 1000, perplexity = 30, ...){
+Utility_tSNE <- function(x, sample.name, removestrings, subset, columns=NULL,
+  notcolumns=NULL, subsample=NULL, export=FALSE, outpath=NULL, max_iter = 1000,
+  perplexity = 30, ...){
 
   # Retrieving the metadata # the abbreviated version
   name <- keyword(x, sample.name)
@@ -65,8 +66,8 @@ Utility_tSNE <- function(x, sample.name, removestrings, subset, columns=NULL, no
   CleanedDF <- DF[,-grep("Time|FS|SC|SS|Original|W$|H$", names(DF))]
   BackupNames <- colnames(CleanedDF)
 
-  #if (is.null(columns) && is.null(notcolumns)) {stop("Please specify either columns or notcolumns")}
-  if (!is.null(columns) && !is.null(notcolumns)) {stop("Columns and notcolumns are not currently combinable. Pick one")}
+ if (!is.null(columns) && !is.null(notcolumns)) {
+   stop("Columns and notcolumns are not currently combinable. Pick one")}
 
   # If external columns interest specified
   if (!is.null(columns)){CleanedDF1 <- CleanedDF %>% select(all_of(columns))
@@ -77,8 +78,8 @@ Utility_tSNE <- function(x, sample.name, removestrings, subset, columns=NULL, no
 
   X <- CleanedDF1
 
-  # ThetSNE <- Rtsne(as.matrix(X), dims=2, max_iter = max_iter, perplexity = perplexity)
-   ThetSNE <- Rtsne(as.matrix(X), dims=2, max_iter = max_iter, perplexity = perplexity, ...)
+  ThetSNE <- Rtsne(as.matrix(X), dims=2, max_iter = max_iter,
+                   perplexity = perplexity, ...)
 
   ThetSNEcols <- ThetSNE$Y
 

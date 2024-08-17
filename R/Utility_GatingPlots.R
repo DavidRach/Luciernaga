@@ -4,15 +4,21 @@
 #' @param sample.name The .fcs keyword that contains an unique name for that sample
 #' @param removestrings A string of character values to remove from the sample.name
 #' @param experiment.name The .fcs keyword that contains the name of the experiment
-#' @param experiment Directly provide the name of the experiment (alternative to experiment.name)
+#' @param experiment Directly provide the name of the experiment (alternative to
+#' experiment.name)
 #' @param condition.name The .fcs keyword that contains the name of the condition.
-#' @param condition Directly provide the name of the condition (alternative to condition.name)
-#' @param subset The GatingSet subset that you want to visualize for data plotting, "root" is the default.
-#' @param bins Argument to geom_hex for number of bins to visualize the plotted data density.
+#' @param condition Directly provide the name of the condition (alternative to
+#' condition.name)
+#' @param subset The GatingSet subset that you want to visualize for data plotting,
+#' "root" is the default.
+#' @param bins Argument to geom_hex for number of bins to visualize the plotted
+#' data density.
 #' @param clearance A buffer area around the plot edge
 #' @param gtFile The data.table imported .csv file containing the gating template.
-#' @param DesiredGates A vector of gates that you want plotted, for example Desired <- c("nonDebris, "lymphocytes")
-#' @param export Whether to return as a .pdf file or as individual patchwork ggplot objects.
+#' @param DesiredGates A vector of gates that you want plotted, for example
+#' Desired <- c("nonDebris, "lymphocytes")
+#' @param export Whether to return as a .pdf file or as individual patchwork ggplot
+#' objects.
 #' @param thecolumns Number of desired columns for the .pdf file
 #' @param therows Number of desired rows for the .pdf file
 #' @param width Desired page width
@@ -32,14 +38,14 @@
 #'
 #' @examples NULL
 
-Utility_GatingPlots <- function(x, sample.name, removestrings, subset="root", gtFile, DesiredGates = NULL,
-                                outpath = NULL, export = TRUE, ...){
+Utility_GatingPlots <- function(x, sample.name, removestrings, subset="root", gtFile,
+  DesiredGates = NULL, outpath = NULL, export = TRUE, ...){
 
   # Setting up individual file name
   if (is.null(outpath)){outpath <- getwd()}
 
-  AggregateName <- NameForSample(x=x, sample.name=sample.name, removestrings=removestrings, ...)
-  # AggregateName <- Luciernaga:::NameForSample(x=x, sample.name=sample.name, removestrings=removestrings)
+  AggregateName <- NameForSample(x=x, sample.name=sample.name,
+                                 removestrings=removestrings, ...)
 
   # Pulling Gating Information
   TheXYZgates <- gtFile %>% pull(alias)
@@ -54,13 +60,17 @@ Utility_GatingPlots <- function(x, sample.name, removestrings, subset="root", gt
   x2 <- x
 
   #Plot Generation
-  CompiledPlots <- map(.x = TheXYZgates, .f = GatePlot, data=x2, TheDF = TheDF, gtFile = gtFile)
-  # CompiledPlots <- map(.x = TheXYZgates, .f = Luciernaga:::GatePlot, data=x2, gtFile = gtFile)
+  CompiledPlots <- map(.x = TheXYZgates, .f = GatePlot, data=x2, TheDF = TheDF,
+                       gtFile = gtFile)
+  # CompiledPlots <- map(.x = TheXYZgates, .f = Luciernaga:::GatePlot, data=x2,
+  #gtFile = gtFile)
 
   if (export == TRUE){
-    AssembledPlots <- Utility_Patchwork(x=CompiledPlots, filename=AggregateName, outfolder=outpath, returntype = "pdf")
+    AssembledPlots <- Utility_Patchwork(x=CompiledPlots, filename=AggregateName,
+                                        outfolder=outpath, returntype = "pdf")
   } else if (export == FALSE){
-    AssembledPlots <- Utility_Patchwork(x=CompiledPlots, filename=AggregateName, outfolder=outpath, returntype = "patchwork")}
+    AssembledPlots <- Utility_Patchwork(x=CompiledPlots, filename=AggregateName,
+                                        outfolder=outpath, returntype = "patchwork")}
 
   return(AssembledPlots)
 }
@@ -71,7 +81,8 @@ Utility_GatingPlots <- function(x, sample.name, removestrings, subset="root", gt
 #' @param data A GatingSet object
 #' @param TheDF A data.frame object of the flow file's expr data
 #' @param gtFile The data.table imported .csv file containing the gating template.
-#' @param bins Argument to geom_hex for number of bins to visualize the plotted data density.
+#' @param bins Argument to geom_hex for number of bins to visualize the plotted
+#' data density.
 #' @param clearance A buffer area around the plot edge
 #'
 #' @importFrom dplyr filter
@@ -120,24 +131,20 @@ GatePlot <- function(x, data, TheDF, gtFile, bins=270, clearance = 0.2){
 
   if (!exists("theYmax") || !exists("theXmax")){
     Plot <- as.ggplot(ggcyto(data, aes(x = .data[[xValue]], y = .data[[yValue]]),
-                             subset = theSubset) + geom_hex(bins=bins) + geom_gate(theGate) +
-                        theme_bw() + labs(title = NULL) + theme(
-                          strip.background = element_blank(), strip.text.x = element_blank(),
-                          panel.grid.major = element_line(linetype = "blank"),
-                          panel.grid.minor = element_line(linetype = "blank"),
-                          axis.title = element_text(size = 10, face = "bold"),
-                          legend.position = "none"))
+       subset = theSubset) + geom_hex(bins=bins) + geom_gate(theGate) + theme_bw() +
+       labs(title = NULL) + theme(strip.background = element_blank(),
+       strip.text.x = element_blank(), panel.grid.major = element_line(
+       linetype = "blank"), panel.grid.minor = element_line(linetype = "blank"),
+       axis.title = element_text(size = 10, face = "bold"), legend.position = "none"))
 
-  } else {Plot <- as.ggplot(ggcyto(data, aes(
-    x = .data[[xValue]], y = .data[[yValue]]), subset = theSubset) +
-      geom_hex(bins=bins) + coord_cartesian(xlim = c(theXmin, theXmax),
-                                            ylim = c(theYmin, theYmax), default = TRUE) + geom_gate(theGate) +
-      theme_bw() + labs(title = NULL) + theme(strip.background = element_blank(),
-                                              strip.text.x = element_blank(), panel.grid.major = element_line(
-                                                linetype = "blank"), panel.grid.minor = element_line(
-                                                  linetype = "blank"), axis.title = element_text(size = 10,
-                                                                                                 face = "bold"),
-                                              legend.position = "none"))
+  } else {Plot <- as.ggplot(ggcyto(data, aes(x = .data[[xValue]], y = .data[[yValue]]),
+      subset = theSubset) + geom_hex(bins=bins) + coord_cartesian(
+      xlim = c(theXmin, theXmax), ylim = c(theYmin, theYmax), default = TRUE) +
+      geom_gate(theGate) + theme_bw() + labs(title = NULL) + theme(
+      strip.background = element_blank(), strip.text.x = element_blank(),
+      panel.grid.major = element_line(linetype = "blank"),
+      panel.grid.minor = element_line( linetype = "blank"),
+      axis.title = element_text(size = 10, legend.position = "none"))
 
   }
 }

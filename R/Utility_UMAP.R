@@ -5,7 +5,8 @@
 #' @param removestrings A list of things to remove from sample.name
 #' @param subset The subset of interest from gating hierarchy
 #' @param columns Which columns to use. Not combinable with notcolumns, use one or other.
-#' @param notcolumns Which columns not to use. Not combinable with columns, use one or other.
+#' @param notcolumns Which columns not to use. Not combinable with columns,
+#'  use one or other.
 #' @param subsample If downsampling is wanted.
 #' @param outpath Location to store new .fcs files
 #' @param metric umap Argument, default is set to "euclidean"
@@ -27,8 +28,9 @@
 #'
 #' @examples NULL
 
-Utility_UMAP <- function(x, sample.name, removestrings, subset, columns=NULL, notcolumns=NULL, subsample=NULL, export=FALSE, outpath=NULL,
-                         metric = "euclidean", n_neighbors = 15, min_dist = 0.5, ...){
+Utility_UMAP <- function(x, sample.name, removestrings, subset, columns=NULL,
+  notcolumns=NULL, subsample=NULL, export=FALSE, outpath=NULL, metric = "euclidean",
+  n_neighbors = 15, min_dist = 0.5, ...){
   # Retrieving the metadata # the abbreviated version
   name <- keyword(x, sample.name)
   alternatename <- NameCleanUp(name, removestrings)
@@ -63,8 +65,8 @@ Utility_UMAP <- function(x, sample.name, removestrings, subset, columns=NULL, no
   CleanedDF <- DF[,-grep("Time|FS|SC|SS|Original|W$|H$", names(DF))]
   BackupNames <- colnames(CleanedDF)
 
-  #if (is.null(columns) && is.null(notcolumns)) {stop("Please specify either columns or notcolumns")}
-  if (!is.null(columns) && !is.null(notcolumns)) {stop("Columns and notcolumns are not currently combinable. Pick one")}
+ if (!is.null(columns) && !is.null(notcolumns)) {
+   stop("Columns and notcolumns are not currently combinable. Pick one")}
 
   # If external columns interest specified
   if (!is.null(columns)){CleanedDF1 <- CleanedDF %>% select(all_of(columns))
@@ -75,7 +77,8 @@ Utility_UMAP <- function(x, sample.name, removestrings, subset, columns=NULL, no
 
   X <- CleanedDF1
 
-  TheUMAP <- umap(X, metric=metric, n_components=2, n_neighbors=n_neighbors, min_dist=min_dist, ...)
+  TheUMAP <- umap(X, metric=metric, n_components=2, n_neighbors=n_neighbors,
+                  min_dist=min_dist, ...)
 
   colnames(TheUMAP) <- c("UMAP_1", "UMAP_2")
   TheUMAP <- data.frame(TheUMAP)

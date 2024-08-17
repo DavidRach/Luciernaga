@@ -31,9 +31,11 @@ NameCleanUp <- function(name, removestrings, substitutestrings){
 #' @param sample.name The .fcs keyword that contains an unique name for that sample
 #' @param removestrings A string of character values to remove from the sample.name
 #' @param experiment.name The .fcs keyword that contains the name of the experiment
-#' @param experiment Directly provide the name of the experiment (alternative to experiment.name)
+#' @param experiment Directly provide the name of the experiment (alternative to
+#' experiment.name)
 #' @param condition.name The .fcs keyword that contains the name of the condition.
-#' @param condition Directly provide the name of the condition (alternative to condition.name)
+#' @param condition Directly provide the name of the condition (alternative to
+#' condition.name)
 #'
 #' @importFrom flowWorkspace keyword
 #' @importFrom dplyr pull
@@ -41,7 +43,8 @@ NameCleanUp <- function(name, removestrings, substitutestrings){
 #' @return A name matching the provided information for use in plot labeling.
 #' @noRd
 NameForSample <- function(x, sample.name, removestrings, experiment.name = NULL,
-                          experiment = NULL, condition.name = NULL, condition = NULL, returnType = "name"){
+                          experiment = NULL, condition.name = NULL, condition = NULL,
+                          returnType = "name"){
 
   name <- keyword(x, sample.name)
   name <- NameCleanUp(name = name, removestrings)
@@ -71,9 +74,12 @@ NameForSample <- function(x, sample.name, removestrings, experiment.name = NULL,
 
   if (returnType == "name"){
     if (is.null(experiment) && is.null(condition)){AggregateName <- name
-    } else if (!is.null(experiment) && is.null(condition)){AggregateName <- paste(name, experiment, sep="_")
-    } else if (is.null(experiment) && !is.null(condition)){AggregateName <- paste(name, condition, sep="_")
-    } else if (!is.null(experiment) && !is.null(condition)){AggregateName <- paste(name, experiment, condition, sep="_")}
+    } else if (!is.null(experiment) && is.null(condition)){
+      AggregateName <- paste(name, experiment, sep="_")
+    } else if (is.null(experiment) && !is.null(condition)){
+      AggregateName <- paste(name, condition, sep="_")
+    } else if (!is.null(experiment) && !is.null(condition)){
+      AggregateName <- paste(name, experiment, condition, sep="_")}
     return(AggregateName)
   } else if (returnType == "condition") {return(condition)
   } else if (returnType == "experiment") {return(experiment)}

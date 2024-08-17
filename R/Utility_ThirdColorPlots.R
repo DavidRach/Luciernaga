@@ -1,4 +1,5 @@
-#' Highlight the location of a particular cell population on a given bi-exponential axis.
+#' Highlight the location of a particular cell population on a given bi-exponential
+#' axis.
 #'
 #' @param x A GatingSet Object
 #' @param subset Desired Gate of Interest
@@ -17,12 +18,12 @@
 #' @examples NULL
 
 Utility_ThirdColorPlots <- function(x, subset, xaxis, yaxis, zaxis, splitpoint = 100,
-                                    thecolor="red", sample.name, removestrings,
-                                    tilesize=0.7, FactorNames = NULL, reference = NULL){
+  thecolor="red", sample.name, removestrings, tilesize=0.7, FactorNames = NULL,
+  reference = NULL){
 
-  AggregateName <- Luciernaga:::NameForSample(x=x, sample.name=sample.name, removestrings=removestrings)
-  #AggregateName <- NameForSample(x=x, sample.name=sample.name, removestrings=removestrings, ...)
-  #StorageLocation <- file.path(outpath, AggregateName)
+  AggregateName <- NameForSample(x=x, sample.name=sample.name,
+                                 removestrings=removestrings)
+
 
   # Retrieving margin info for the x specimen
   Margin <- gs_pop_get_data(x, subset)
@@ -50,62 +51,44 @@ Utility_ThirdColorPlots <- function(x, subset, xaxis, yaxis, zaxis, splitpoint =
 
       Plot <- ggplot() +
         geom_tile(data = TheBackground, aes(x = .data[[xaxis]], y = .data[[yaxis]]),
-                  width = tilesize, height = tilesize, color = "lightgray", fill="lightgray") +
+        width = tilesize, height = tilesize, color = "lightgray", fill="lightgray") +
         geom_tile(data = TheSubset, aes(x = .data[[xaxis]], y = .data[[yaxis]]),
-                  width = tilesize, height = tilesize, color = thecolor, fill=thecolor) + # Adjust color gradient
+        width = tilesize, height = tilesize, color = thecolor, fill=thecolor) +
         scale_fill_gradient(low="lightgray", high=thecolor) + theme_bw() +
-        labs(title = AggregateName) +
-        theme(
-          strip.background = element_blank(),
-          strip.text.x = element_blank(),
-          panel.grid.major = element_blank(),
-          panel.grid.minor = element_blank(),
-          axis.title = element_text(size = 10, face = "bold"),
-          legend.position = "none"  # Hide the legend if not needed
-        )
+        labs(title = AggregateName) + theme(strip.background = element_blank(),
+        strip.text.x = element_blank(), panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), axis.title = element_text(
+        size = 10, face = "bold"), legend.position = "none")
     return(Plot)
 
-  } else if (splitpoint == "crossreference"){message("Splitpoint is a crossreference")
+  } else if (splitpoint == "crossreference"){
 
-
-
+    message("Splitpoint is a crossreference")
 
   } else if (splitpoint == "continuous"){message("Splitpoint is a continuous")
 
-    Plot <- ggplot(TheDF) + geom_tile(aes(x = .data[[xaxis]], y = .data[[yaxis]], fill = .data[[zaxis]]),
-                width = tilesize, height = tilesize, color = "lightgray") +
-      scale_fill_gradient(low = "lightgray", high = thecolor) +
-      theme_bw() +
-      labs(title = AggregateName) +
-      theme(
-        strip.background = element_blank(),
-        strip.text.x = element_blank(),
-        panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(),
-        axis.title = element_text(size = 10, face = "bold"),
-        legend.position = "none"  # Hide the legend if not needed
-      )
+    Plot <- ggplot(TheDF) + geom_tile(aes(x = .data[[xaxis]], y = .data[[yaxis]],
+      fill = .data[[zaxis]]), width = tilesize, height = tilesize,
+      color = "lightgray") + scale_fill_gradient(low = "lightgray", high = thecolor) +
+      theme_bw() + labs(title = AggregateName) + theme(
+      strip.background = element_blank(), strip.text.x = element_blank(),
+      panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+      axis.title = element_text(size = 10, face = "bold"), legend.position = "none")
     return(Plot)
   } else if (splitpoint == "categorical"){
 
     TheSubset <- TheDF %>% dplyr::filter(.data[[zaxis]] %in% FactorNames)
     TheBackground <- TheDF %>% dplyr::filter(!.data[[zaxis]] %in% FactorNames)
 
-    Plot <- ggplot() +
-      geom_tile(data = TheBackground, aes(x = .data[[xaxis]], y = .data[[yaxis]], fill = .data[[zaxis]]),
-                width = tilesize, height = tilesize, color = "lightgray") +
-      geom_tile(data = TheSubset, aes(x = .data[[xaxis]], y = .data[[yaxis]], fill = .data[[zaxis]]),
-                width = tilesize, height = tilesize, color = thecolor) + # Adjust color gradient
-      scale_fill_gradient(low="lightgray", high=thecolor) + theme_bw() +
-      labs(title = AggregateName) +
-      theme(
-        strip.background = element_blank(),
-        strip.text.x = element_blank(),
-        panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(),
-        axis.title = element_text(size = 10, face = "bold"),
-        legend.position = "none"  # Hide the legend if not needed
-      )
+    Plot <- ggplot() + geom_tile(data = TheBackground, aes(x = .data[[xaxis]],
+      y = .data[[yaxis]],fill = .data[[zaxis]]), width = tilesize, height = tilesize,
+      color = "lightgray") + geom_tile(data = TheSubset, aes(x = .data[[xaxis]],
+      y = .data[[yaxis]], fill = .data[[zaxis]]), width = tilesize, height = tilesize,
+      color = thecolor) + scale_fill_gradient(low="lightgray", high=thecolor) +
+      theme_bw() + labs(title = AggregateName) + theme(
+      strip.background = element_blank(), strip.text.x = element_blank(),
+      panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+      axis.title = element_text(size = 10, face = "bold"), legend.position = "none")
 
     return(Plot)
   } else if (is.numeric(splitpoint)){splitpoint <- splitpoint
@@ -117,21 +100,15 @@ Utility_ThirdColorPlots <- function(x, subset, xaxis, yaxis, zaxis, splitpoint =
   TheSubset <- TheDF %>% dplyr::filter(.data[[zaxis]] >= splitpoint)
   TheBackground <- TheDF %>% dplyr::filter(.data[[zaxis]] < splitpoint)
 
-  Plot <- ggplot() +
-    geom_tile(data = TheBackground, aes(x = .data[[xaxis]], y = .data[[yaxis]], fill = .data[[zaxis]]),
-                               width = tilesize, height = tilesize, color = "lightgray") +
-    geom_tile(data = TheSubset, aes(x = .data[[xaxis]], y = .data[[yaxis]], fill = .data[[zaxis]]),
-                               width = tilesize, height = tilesize, color = thecolor) + # Adjust color gradient
-    scale_fill_gradient(low="lightgray", high=thecolor) + theme_bw() +
-    labs(title = AggregateName) +
-    theme(
-      strip.background = element_blank(),
-      strip.text.x = element_blank(),
-      panel.grid.major = element_blank(),
-      panel.grid.minor = element_blank(),
-      axis.title = element_text(size = 10, face = "bold"),
-      legend.position = "none"  # Hide the legend if not needed
-    )
+  Plot <- ggplot() + geom_tile(data = TheBackground, aes(x = .data[[xaxis]],
+    y = .data[[yaxis]], fill = .data[[zaxis]]), width = tilesize, height = tilesize,
+    color = "lightgray") + geom_tile(data = TheSubset, aes(x = .data[[xaxis]],
+    y = .data[[yaxis]], fill = .data[[zaxis]]), width = tilesize, height = tilesize,
+    color = thecolor) + scale_fill_gradient(low="lightgray", high=thecolor) +
+    theme_bw() + labs(title = AggregateName) + theme(
+    strip.background = element_blank(), strip.text.x = element_blank(),
+    panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+    axis.title = element_text(size = 10, face = "bold"), legend.position = "none")
 
   return(Plot)
   }

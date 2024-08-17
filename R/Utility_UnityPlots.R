@@ -34,8 +34,10 @@
 #'
 #' @examples  NULL
 
-Utility_UnityPlot <- function(x, y, GatingSet, marginsubset, gatesubset, sample.name, removestrings,
-                              clearance, bins, gatelines, reference, returntype, outpath){
+Utility_UnityPlot <- function(x, y, GatingSet, marginsubset, gatesubset,
+  sample.name, removestrings, clearance, bins, gatelines, reference, returntype,
+  outpath){
+
   TheX <- x
   TheY <- y
   PlotNumber <- length(pData(GatingSet)[["name"]])
@@ -43,20 +45,22 @@ Utility_UnityPlot <- function(x, y, GatingSet, marginsubset, gatesubset, sample.
   FileName <- NameCleanUp(TheX, removestrings)
   StorageLocation <- file.path(outpath, FileName)
 
- Plots <- map(GatingSet, .f=Unity, TheX=TheX, TheY=y, marginsubset=marginsubset, gatesubset=gatesubset,
-      sample.name=sample.name, removestrings=removestrings, clearance=clearance, bins=bins, gatelines=gatelines,
-      reference=reference)
+ Plots <- map(GatingSet, .f=Unity, TheX=TheX, TheY=y, marginsubset=marginsubset,
+      gatesubset=gatesubset, sample.name=sample.name, removestrings=removestrings,
+      clearance=clearance, bins=bins, gatelines=gatelines, reference=reference)
 
  if (returntype == "plots"){
    return(Plots)
  }
 
  if (returntype == "pdf"){
-   AssembledPlots <- Utility_Patchwork(x=Plots, filename=AggregateName, outfolder=outpath, returntype = "pdf")
+   AssembledPlots <- Utility_Patchwork(x=Plots, filename=AggregateName,
+                                       outfolder=outpath, returntype = "pdf")
  }
 
  if (returntype == "patchwork"){
-   AssembledPlots <- Utility_Patchwork(x=Plots, filename=AggregateName, outfolder=outpath, returntype = "patchwork")
+   AssembledPlots <- Utility_Patchwork(x=Plots, filename=AggregateName,
+                                       outfolder=outpath, returntype = "patchwork")
  }
 }
 
@@ -106,20 +110,19 @@ Unity <- function(x, TheY, TheX, marginsubset, gatesubset, sample.name, removest
 
   if (BiocGenerics::nrow(ff1) < 200) {
     Plot <- as.ggplot(ggcyto(ff1, aes(x = .data[[TheX]], y = .data[[TheY]]),
-                             subset = "root") + geom_point(size = 2, alpha = 0.8) + theme_bw() + labs(title = name) +
-                        theme(strip.background = element_blank(), strip.text.x = element_blank(),
-                              panel.grid.major = element_line(linetype = "blank"),
-                              panel.grid.minor = element_line(linetype = "blank"),
-                              axis.title = element_text(size = 10, face = "bold"),
-                              legend.position = "none"))
+     subset = "root") + geom_point(size = 2, alpha = 0.8) + theme_bw() +
+     labs(title = name) + theme(strip.background = element_blank(),
+     strip.text.x = element_blank(), panel.grid.major = element_line(
+     linetype = "blank"), panel.grid.minor = element_line(linetype = "blank"),
+     axis.title = element_text(size = 10, face = "bold"),legend.position = "none"))
   } else {
     Plot <- as.ggplot(ggcyto(ff1, aes(x = .data[[TheX]], y = .data[[TheY]]),
-                             subset = "root") + geom_hex(bins=bins) + theme_bw() + labs(title = name) +
-                        theme(strip.background = element_blank(), strip.text.x = element_blank(),
-                              panel.grid.major = element_line(linetype = "blank"),
-                              panel.grid.minor = element_line(linetype = "blank"),
-                              axis.title = element_text(size = 10, face = "bold"),
-                              legend.position = "none"))
+     subset = "root") + geom_hex(bins=bins) + theme_bw() + labs(title = name) +
+     theme(strip.background = element_blank(), strip.text.x = element_blank(),
+     panel.grid.major = element_line(linetype = "blank"),
+     panel.grid.minor = element_line(linetype = "blank"),
+     axis.title = element_text(size = 10, face = "bold"),
+     legend.position = "none"))
   }
 
 

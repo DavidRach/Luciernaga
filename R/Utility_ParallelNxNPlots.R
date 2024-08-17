@@ -34,8 +34,9 @@
 #'
 #' @examples NULL
 
-Utility_ParallelNbyNPlots <- function(x, y, sample.name, removestrings, Override = FALSE, marginsubset,
-    gatesubset, ycolumn, bins, clearance, colorX, colorY, gatelines, reference = NULL, outpath, pdf){
+Utility_ParallelNbyNPlots <- function(x, y, sample.name, removestrings,
+    Override = FALSE, marginsubset, gatesubset, ycolumn, bins, clearance,
+    colorX, colorY, gatelines, reference = NULL, outpath, pdf){
 
   nameX <- keyword(x, sample.name)
   AltNameX <- NameCleanUp(name = nameX, removestrings)
@@ -61,8 +62,10 @@ Utility_ParallelNbyNPlots <- function(x, y, sample.name, removestrings, Override
   TheXDF <- data.frame(xdf, check.names = FALSE)
 
   if(Override == TRUE){
-    X_DFNames <- colnames(TheXDF[,-grep("Time|FS|SC|SS|Original|W$|H$|-A$", names(TheXDF))])
-  } else {X_DFNames <- colnames(TheXDF[,-grep("Time|FS|SC|SS|Original|W$|H$", names(TheXDF))])
+    X_DFNames <- colnames(
+      TheXDF[,-grep("Time|FS|SC|SS|Original|W$|H$|-A$", names(TheXDF))])
+  } else {X_DFNames <- colnames(
+    TheXDF[,-grep("Time|FS|SC|SS|Original|W$|H$", names(TheXDF))])
   }
 
   X_PlotNumber <- length(X_DFNames)
@@ -73,8 +76,10 @@ Utility_ParallelNbyNPlots <- function(x, y, sample.name, removestrings, Override
   TheYDF <- data.frame(ydf, check.names = FALSE)
 
   if(Override == TRUE){
-  Y_DFNames <- colnames(TheYDF[,-grep("Time|FS|SC|SS|Original|W$|H$|-A$", names(TheYDF))])
-  } else {Y_DFNames <- colnames(TheYDF[,-grep("Time|FS|SC|SS|Original|W$|H$", names(TheYDF))])
+  Y_DFNames <- colnames(
+    TheYDF[,-grep("Time|FS|SC|SS|Original|W$|H$|-A$", names(TheYDF))])
+  } else {Y_DFNames <- colnames(
+    TheYDF[,-grep("Time|FS|SC|SS|Original|W$|H$", names(TheYDF))])
   }
 
   Y_PlotNumber <- length(Y_DFNames)
@@ -92,22 +97,24 @@ Utility_ParallelNbyNPlots <- function(x, y, sample.name, removestrings, Override
   if (ycolumn == "ALL"){
 
     Plots <- map(.x=DFNames, .f = ParallelUniversalIterator, x_ff=x_ff, y_ff=y_ff,
-                 TheDF=TheDF, yValue=ycolumn, columnlist=DFNames, gatelines=gatelines,
-                 reference=reference, clearance=clearance, bins=bins, AltNameX=AltNameX,
-                 AltNameY=AltNameY, colorX=colorX, colorY=colorY)
+       TheDF=TheDF, yValue=ycolumn, columnlist=DFNames, gatelines=gatelines,
+       reference=reference, clearance=clearance, bins=bins, AltNameX=AltNameX,
+       AltNameY=AltNameY, colorX=colorX, colorY=colorY)
   } else {
     columnlist <- DFNames[DFNames != ycolumn] # Remove the universal Y value
 
     Plots <- map(.x = columnlist, .f = ParallelGating, x_ff=x_ff, y_ff=y_ff,
-                 TheDF=TheDF, yValue=ycolumn, columnlist=DFNames, gatelines=gatelines,
-                 reference=reference, clearance=clearance, bins=bins, AltNameX=AltNameX,
-                 AltNameY=AltNameY, colorX=colorX, colorY=colorY) #Name
+         TheDF=TheDF, yValue=ycolumn, columnlist=DFNames, gatelines=gatelines,
+         reference=reference, clearance=clearance, bins=bins, AltNameX=AltNameX,
+         AltNameY=AltNameY, colorX=colorX, colorY=colorY) #Name
     }
 
   if (pdf == TRUE){
-    AssembledPlots <- Utility_Patchwork(x=Plots, filename=AggregateName, outfolder=outpath, returntype = "pdf")
+    AssembledPlots <- Utility_Patchwork(x=Plots, filename=AggregateName,
+                                        outfolder=outpath, returntype = "pdf")
   } else {
-    AssembledPlots <- Utility_Patchwork(x=Plots, filename=AggregateName, outfolder=outpath, returntype = "patchwork")
+    AssembledPlots <- Utility_Patchwork(x=Plots, filename=AggregateName,
+                                        outfolder=outpath, returntype = "patchwork")
   }
 
   return(AssembledPlots)
@@ -128,7 +135,7 @@ Utility_ParallelNbyNPlots <- function(x, y, sample.name, removestrings, Override
 #'
 #' @noRd
 ParallelGating <- function(x, x_ff, y_ff, TheDF, yValue, columnlist, gatelines,
-                           reference, clearance, bins, AltNameX, AltNameY, colorX, colorY) {
+  reference, clearance, bins, AltNameX, AltNameY, colorX, colorY) {
 
   if (yValue == x){stop("x equals yValue and can't be plotted")}
 
@@ -155,12 +162,16 @@ ParallelGating <- function(x, x_ff, y_ff, TheDF, yValue, columnlist, gatelines,
           the function now crashed ")
   } else {
 
-    x_ffXdata <- exprs(x_ff[[1]]) %>% data.frame(check.names = FALSE) %>% select(all_of(xValue))
-    x_ffYdata <- exprs(x_ff[[1]]) %>% data.frame(check.names = FALSE) %>% select(all_of(yValue))
+    x_ffXdata <- exprs(x_ff[[1]]) %>% data.frame(check.names = FALSE) %>%
+      select(all_of(xValue))
+    x_ffYdata <- exprs(x_ff[[1]]) %>% data.frame(check.names = FALSE) %>%
+      select(all_of(yValue))
     Thex_ff <- cbind(x_ffXdata, x_ffYdata) %>% mutate(specimen = AltNameX)
 
-    y_ffXdata <- exprs(y_ff[[1]]) %>% data.frame(check.names = FALSE) %>% select(all_of(xValue))
-    y_ffYdata <- exprs(y_ff[[1]]) %>% data.frame(check.names = FALSE) %>% select(all_of(yValue))
+    y_ffXdata <- exprs(y_ff[[1]]) %>% data.frame(check.names = FALSE) %>%
+      select(all_of(xValue))
+    y_ffYdata <- exprs(y_ff[[1]]) %>% data.frame(check.names = FALSE) %>%
+      select(all_of(yValue))
     They_ff <- cbind(y_ffXdata, y_ffYdata) %>% mutate(specimen = AltNameY)
 
     TheData <- rbind(Thex_ff, They_ff)
@@ -170,24 +181,26 @@ ParallelGating <- function(x, x_ff, y_ff, TheDF, yValue, columnlist, gatelines,
     sorted_specimens <- names(sort(desc(specimen_counts)))
     TheData$specimen <- factor(TheData$specimen, levels = sorted_specimens)
 
-    # Attempted Work Around for Specifying Colors while adjusting what population is displayed forward.
+    # Attempted Work Around for Specifying Colors while adjusting what
+    #population is displayed forward.
     Xscheme <- cbind(AltNameX, colorX)
     Yscheme <- cbind(AltNameY, colorY)
     ColorFrame <- rbind(Xscheme, Yscheme)
-    ColorFrame <- data.frame(ColorFrame, check.names = FALSE) %>% rename(specimen = AltNameX)
+    ColorFrame <- data.frame(ColorFrame, check.names = FALSE) %>%
+      rename(specimen = AltNameX)
     ColorFrame$specimen <- factor(ColorFrame$specimen, levels = sorted_specimens)
     ColorFrame <- ColorFrame[order(ColorFrame$specimen), ]
     color1 <- ColorFrame[1,2]
     color2 <- ColorFrame[2,2]
 
-    Plot <- ggplot(TheData, aes(x=.data[[xValue]], y = .data[[yValue]], fill = specimen)) +
-      geom_hex(bins=bins, alpha = 0.5) + scale_fill_manual(values = c(color1, color2)) +
-      coord_cartesian(xlim = c(theXmin, theXmax), ylim = c(theYmin, theYmax)) + theme_bw() +
-      labs(title = NULL) + theme(strip.background = element_blank(),
-                                 strip.text.x = element_blank(), panel.grid.major = element_line(linetype = "blank"),
-                                 panel.grid.minor = element_line(linetype = "blank"),
-                                 axis.title = element_text(size = 10, face = "bold"),
-                                 legend.position = "none")
+    Plot <- ggplot(TheData, aes(x=.data[[xValue]], y = .data[[yValue]],
+      fill = specimen)) + geom_hex(bins=bins, alpha = 0.5) + scale_fill_manual(
+      values = c(color1, color2)) + coord_cartesian(xlim = c(
+      theXmin, theXmax), ylim = c(theYmin, theYmax)) + theme_bw() + labs(
+      title = NULL) + theme(strip.background = element_blank(),
+      strip.text.x = element_blank(), panel.grid.major = element_line(
+      linetype = "blank"), panel.grid.minor = element_line(linetype = "blank"),
+      axis.title = element_text(size = 10, face = "bold"), legend.position = "none")
 
     #if (gatelines == TRUE){Value <- reference[reference$specimen == name, xValue]
     #Plot <- Plot + geom_vline(xintercept = c(seq(0,200,25)), colour = "gray") +

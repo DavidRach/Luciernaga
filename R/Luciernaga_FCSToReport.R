@@ -2,8 +2,8 @@
 #' controls.
 #'
 #' @param path The location to the folder where the Luciernaga .fcs files are stored
-#' @param reference A path to a .csv file or a dataframe containing Fluorophore and Detector column
-#' information for the panel.
+#' @param reference A path to a .csv file or a dataframe containing Fluorophore and
+#' Detector column information for the panel.
 #' @param stats Whether to use the median or mean for fluorescent intensity.
 #' @param LinePlots Return this kind of plot, default is set to TRUE
 #' @param CosinePlots Return this kind of plot, default is set to TRUE
@@ -40,14 +40,15 @@ Luciernaga_FCSToReport <- function(path, reference, stats = "median",
   } else {CSV <- reference}
 
   internalstrings <- c("-A", ".", "_", " ")
-  CSV$Fluorophore <- Luciernaga:::NameCleanUp(name=CSV$Fluorophore, removestrings=internalstrings)
-  CSV$Detector <- Luciernaga:::NameCleanUp(name=CSV$Detector, removestrings=internalstrings)
+  CSV$Fluorophore <- NameCleanUp(name=CSV$Fluorophore, removestrings=internalstrings)
+  CSV$Detector <- NameCleanUp(name=CSV$Detector, removestrings=internalstrings)
   Variables <- CSV %>% select(Fluorophore) %>% pull(.)
   fcsfiles <- list.files(path, pattern=".fcs", full.names = TRUE)
   #x <- Variables[2]
   #inputfiles <- fcsfiles
 
-  TheseFluorophores <- map(.x=Variables, .f=Luciernaga:::FluorophoreFilePresent, inputfiles = fcsfiles)
+  TheseFluorophores <- map(.x=Variables, .f=FluorophoreFilePresent,
+                           inputfiles = fcsfiles)
   TheseFluorophores <- Filter(Negate(is.null), TheseFluorophores)
   TheseFluorophores <- unlist(TheseFluorophores)
   #x <- TheseFluorophores[1]
@@ -69,8 +70,9 @@ Luciernaga_FCSToReport <- function(path, reference, stats = "median",
   TheData <- TheData %>% relocate(Sample, Experiment, Condition, .before=Cluster)
 
   return(TheData)
-  } else {TheData <- TheData %>% separate(Cluster, into = c("Sample", "Cluster"), sep = "_")
-          return(TheData)}
+  } else {TheData <- TheData %>%
+    separate(Cluster, into = c("Sample", "Cluster"), sep = "_")
+    return(TheData)}
 }
 
 
@@ -166,7 +168,8 @@ FCSImport <- function(x, data, inputfiles, RetainedType, TheSummary, stats){
       bind_rows()
 
     # Removing Any Artificial Negatives Inserted By Luciernaga
-    TheData <- TheData %>% mutate(Summed = rowSums(across(where(is.numeric)), na.rm = TRUE))
+    TheData <- TheData %>%
+      mutate(Summed = rowSums(across(where(is.numeric)), na.rm = TRUE))
 
     TheData <- TheData %>% group_by(Summed) %>% dplyr::filter(n() <= 5) %>%
       ungroup() %>% dplyr::filter(!Summed == 0) %>% select(-Summed)
@@ -197,8 +200,8 @@ FCSImport <- function(x, data, inputfiles, RetainedType, TheSummary, stats){
       Summarized <- cbind(Cluster, Summarized)
       }
 
-      Summarized <- map(.x=TheClusters, .f=SmallHelper, data = TheData, stats=stats) %>%
-        bind_rows()
+      Summarized <- map(.x=TheClusters, .f=SmallHelper, data = TheData,
+                        stats=stats) %>% bind_rows()
 
       ReturnFrame <- left_join(TheTable, Summarized, by="Cluster")
       return(ReturnFrame)

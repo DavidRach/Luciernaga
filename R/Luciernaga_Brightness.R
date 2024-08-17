@@ -2,12 +2,14 @@
 #'
 #' @param x A passed Fluorophore name corresponding to those found in the data.
 #' @param data A data.frame containing the Luciernaga_FCSToReport raw MFI values.
-#' @param Downsample Whether to Downsample, default is set to TRUE to not overly affect the y-axis
-#' @param subsample If desired, a certain number of cells to take from each cluster. Default is NULL,
-#'  selecting the number of cells found in the smallest cluster.
+#' @param Downsample Whether to Downsample, default is set to TRUE to not overly
+#' affect the y-axis
+#' @param subsample If desired, a certain number of cells to take from each cluster.
+#' Default is NULL, selecting the number of cells found in the smallest cluster.
 #' @param reference A .csv path or data.frame containing Fluorophore and Detector info.
 #' @param clearance A buffer area multiplier to xmin and xmax when Scaled equals False
-#' @param Scaled Default is set to TRUE, returning logicle transformed MFI. FALSE returns raw MFI.
+#' @param Scaled Default is set to TRUE, returning logicle transformed MFI. FALSE
+#' returns raw MFI.
 #'
 #' @importFrom dplyr filter
 #' @importFrom dplyr arrange
@@ -26,7 +28,8 @@
 #'
 #' @examples NULL
 
-BrightnessPlots <- function(x, data, Downsample=TRUE, subsample = NULL, reference, clearance=0.02, Scaled = TRUE){
+Luciernaga_Brightness <- function(x, data, Downsample=TRUE, subsample = NULL,
+                                  reference, clearance=0.02, Scaled = TRUE){
     TheFluorophore <- x
     TheData <- data %>% filter(Sample %in% x)
     TheTable <- data.frame(table(TheData$Cluster), check.names = FALSE)
@@ -47,9 +50,10 @@ BrightnessPlots <- function(x, data, Downsample=TRUE, subsample = NULL, referenc
       } else {CSV <- reference}
 
     internalstrings <- c(" ", ".", "_", "-A")
-    CSV$Fluorophore <- Luciernaga:::NameCleanUp(CSV$Fluorophore, removestrings=internalstrings)
-    CSV$Detector <- Luciernaga:::NameCleanUp(CSV$Detector, removestrings=internalstrings)
-    TheDetector <- CSV %>% dplyr::filter(Fluorophore %in% TheFluorophore) %>% pull(Detector)
+    CSV$Fluorophore <- NameCleanUp(CSV$Fluorophore, removestrings=internalstrings)
+    CSV$Detector <- NameCleanUp(CSV$Detector, removestrings=internalstrings)
+    TheDetector <- CSV %>% dplyr::filter(Fluorophore %in% TheFluorophore) %>%
+      pull(Detector)
 
     Values <- TheData %>% select(all_of(TheDetector)) %>% as.matrix()
     theXmin <- Values %>% quantile(., 0.01)
@@ -59,15 +63,15 @@ BrightnessPlots <- function(x, data, Downsample=TRUE, subsample = NULL, referenc
 
     if (Scaled == TRUE){
       plot <- ggplot(TheData, aes(x=.data[[TheDetector]], fill=Cluster)) +
-        geom_density(alpha=0.5) + ggcyto::scale_x_logicle(w=1.5, t=4200000, m=5.62) +
-        labs(title=TheFluorophore, x=TheDetector, y="Frequency") + theme_bw() + theme(
-          axis.title.x=element_text(face="plain"), axis.title.y=element_text(
+        geom_density(alpha=0.5) + scale_x_logicle(w=1.5, t=4200000, m=5.62) +
+        labs(title=TheFluorophore, x=TheDetector, y="Frequency") + theme_bw() +
+        theme(axis.title.x=element_text(face="plain"), axis.title.y=element_text(
             face="plain"))
       } else {
         plot <- ggplot(TheData, aes(x=.data[[TheDetector]], fill=Cluster)) +
           geom_density(alpha=0.5) + xlim(theXmin, theXmax) +
-          labs(title=TheFluorophore, x=TheDetector, y="Frequency") + theme_bw() + theme(
-            axis.title.x=element_text(face="plain"), axis.title.y=element_text(
+          labs(title=TheFluorophore, x=TheDetector, y="Frequency") + theme_bw() +
+          theme(axis.title.x=element_text(face="plain"), axis.title.y=element_text(
               face="plain"))
     }
 

@@ -1,4 +1,5 @@
-#' Returns Detector Gains, Laser Delay and Scalings from individual .fcs files in a CytoSet.
+#' Returns Detector Gains, Laser Delay and Scalings from individual .fcs files in a
+#' CytoSet.
 #'
 #' @param x A CytoSet (when mapped) or an individual cytoset, example (x=MyCytoSet[[1]])
 #' @param sample.name The keyword value that distinguishes individual .fcs files
@@ -30,18 +31,22 @@ QC_Retrieval <- function(x, sample.name){
   PN_Names <- PN_Names[-1] # Remove Time
   PV_Gains <- c(PV_Gains1, PV_Gains2)
 
-  ParameterRows <- map2(.x=PN_Names, .y=PV_Gains, .f=RetrievalMerge, TheData=KeywordsDF) %>% bind_cols()
+  ParameterRows <- map2(.x=PN_Names, .y=PV_Gains, .f=RetrievalMerge,
+                        TheData=KeywordsDF) %>% bind_cols()
 
   Laser_Name <- TheColumnNames[grepl("^\\LASER[0-9]{1}NAME$", TheColumnNames)]
   Laser_Delay <- TheColumnNames[grepl("^\\LASER[0-9]{1}DELAY$", TheColumnNames)]
   Laser_ASF <- TheColumnNames[grepl("^\\LASER[0-9]{1}ASF$", TheColumnNames)]
 
-  LaserDelayRows <- map2(.x=Laser_Name, .y=Laser_Delay, .f=RetrievalMerge, TheData=KeywordsDF) %>% bind_cols()
+  LaserDelayRows <- map2(.x=Laser_Name, .y=Laser_Delay, .f=RetrievalMerge,
+                         TheData=KeywordsDF) %>% bind_cols()
   colnames(LaserDelayRows) <- paste0(colnames(LaserDelayRows), "_LaserDelay")
-  LaserASFRows <- map2(.x=Laser_Name, .y=Laser_ASF, .f=RetrievalMerge, TheData=KeywordsDF) %>% bind_cols()
+  LaserASFRows <- map2(.x=Laser_Name, .y=Laser_ASF, .f=RetrievalMerge,
+                       TheData=KeywordsDF) %>% bind_cols()
   colnames(LaserASFRows) <- paste0(colnames(LaserASFRows), "_AreaScalingFactor")
 
-  RecoveredQC <- cbind(SAMPLE, DATE, CYT, CYTSN, OP, ParameterRows, LaserDelayRows, LaserASFRows)
+  RecoveredQC <- cbind(SAMPLE, DATE, CYT, CYTSN, OP, ParameterRows,
+                       LaserDelayRows, LaserASFRows)
 
   return(RecoveredQC)
 }
