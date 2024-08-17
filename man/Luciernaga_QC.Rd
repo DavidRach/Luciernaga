@@ -33,7 +33,9 @@ Luciernaga_QC(
   LocalMaximaRatio = 0.15,
   SecondaryPeaks = 2,
   Increments,
-  RetainedType = "normalized"
+  RetainedType = "normalized",
+  BeadAF = NULL,
+  BeadMainAF = NULL
 )
 }
 \arguments{
@@ -102,6 +104,10 @@ for specified autofluorescence.}
 \item{Increments}{Rounding parameter, default is set to 0.1}
 
 \item{RetainedType}{Whether to return "raw" or "normalized" values for lineplots.}
+
+\item{BeadAF}{A passed data.frame row containing the reference for bead unstained}
+
+\item{BeadMainAF}{The detector that corresponds to the "main" bead AF, albeit dim.}
 }
 \value{
 Additional information to be added

@@ -38,6 +38,8 @@
 #' @param SecondaryPeaks Number of Secondary Peaks, default is set to 2.
 #' @param Increments Rounding parameter, default is set to 0.1
 #' @param RetainedType Whether to return "raw" or "normalized" values for lineplots.
+#' @param BeadAF A passed data.frame row containing the reference for bead unstained
+#' @param BeadMainAF The detector that corresponds to the "main" bead AF, albeit dim.
 #'
 #' @importFrom flowCore keyword
 #' @importFrom stringr str_detect
@@ -72,7 +74,7 @@ Luciernaga_QC <- function(x, subsets, sample.name, removestrings=NULL, Verbose =
  SignatureReturnNow=FALSE, outpath, minimalfcscutoff = 0.05, Subtraction = "Internal",
  SCData = "subtracted", NegativeType= "default", TotalNegatives = 500,
  Brightness=FALSE, LocalMaximaRatio=0.15, SecondaryPeaks=2, Increments,
- RetainedType="normalized"){
+ RetainedType="normalized", BeadAF=NULL, BeadMainAF=NULL){
 
   name <- keyword(x, sample.name)
   Type <- Luciernaga:::Typing(name=name, unmixingcontroltype=unmixingcontroltype,
@@ -167,12 +169,13 @@ Luciernaga_QC <- function(x, subsets, sample.name, removestrings=NULL, Verbose =
     Detectors <- PeakDetectorCounts %>% filter(Counts > CellCutoff)
   }
 
-  if (Type == "Beads") {
+  if (Type == "Beads"|Type == "Beads_Unstained") {
     filtering <- (startingcells/ncol(n))*1
     TheCandidates <- PeakDetectorCounts %>% dplyr::filter(Counts > filtering) %>%
       pull(Fluors)
     TheMedians <- map(.x=TheCandidates, .f=BeadDetectors, data=WorkAround) %>%
       bind_rows()
+    if (Verbose == TRUE){print(TheMedians)}
     PeakCutoffVal <- mean(TheMedians$TheMedian)
     TheRemnant <- TheMedians %>% dplyr::filter(TheMedian > PeakCutoffVal) %>%
       pull(TheDetector)
@@ -180,17 +183,23 @@ Luciernaga_QC <- function(x, subsets, sample.name, removestrings=NULL, Verbose =
   }
 
   if (Type == "Beads_Unstained") {
-    BeadCutoff <- startingcells/ColsN #EqualDistributionAssumption
-    Detectors <- PeakDetectorCounts %>% filter(Counts > BeadCutoff)
+    message("Returning designated stats values for Beads_Unstained, please return
+    to LuciernagaQC as BeadsAF for subtraction for single color unmixing controls")
+    TheMedians
+    ReferenceUnstained <- AveragedSignature(n, stats)
+    return(ReferenceUnstained)
   }
 
   if (Verbose == TRUE){
   print(Detectors)
   }
 
-  #####################################################
-  # Handling Fluorophore and Autofluorescent Overlaps #
-  #####################################################
+  ######################################
+  # Handling Fluor AF overlap in cells #
+  ######################################
+
+  if (str_detect(Type, "ells")) {
+
   if (is.data.frame(AFOverlap)){AFData <- AFOverlap
   } else {AFData <- read.csv(file=AFOverlap, check.names = FALSE)
   }
@@ -216,7 +225,10 @@ Luciernaga_QC <- function(x, subsets, sample.name, removestrings=NULL, Verbose =
   } else {Retained <- Detectors %>% filter(!Fluors %in% AFChannels) %>%
     pull(Fluors)}
 
+  } else {Retained <- Detectors %>% pull(Fluors)}
+
   if (length(Retained) == 0) {stop("There were no Retained detectors in ", name)}
+
 
   if (Verbose == TRUE){print(Retained)}
 
@@ -227,8 +239,11 @@ Luciernaga_QC <- function(x, subsets, sample.name, removestrings=NULL, Verbose =
 
   # Inverse of retained, then top for peak
 
-  if (!str_detect(name, "nstained")){
-    Intermediate <- Detectors %>% filter(!Fluors %in% Retained)
+  if (Type == "Cells"){Intermediate <- Detectors %>% filter(!Fluors %in% Retained)}
+  if (Type == "Cells_Unstained"){Intermediate <- Detectors}
+
+  if (Type == "Cells"|Type == "Cells_Unstained"){
+
     if (nrow(Intermediate) >0){
       TheMainAF <- Intermediate %>% slice(1) %>% pull(Fluors)
     }
@@ -254,59 +269,17 @@ Luciernaga_QC <- function(x, subsets, sample.name, removestrings=NULL, Verbose =
     TheMainAF <- gsub("-A", "", TheMainAF)
     } else {stop("externalAF needs to be a single row of a data.frame")}}
 
-  }
-
-  if (str_detect(name, "nstained")){
-    Intermediate <- Detectors
-    if (nrow(Intermediate) >0){
-      TheMainAF <- Intermediate %>% slice(1) %>% pull(Fluors)
-    }
-
-    # Adding way to switch to alternate AFs.
-    if (is.null(desiredAF)){
-      This <- WorkAround %>% filter(.data[[TheMainAF]] == 1) %>%
-        select(all_of(1:ColsN))
-    } else {desiredAF <- Luciernaga:::NameCleanUp(desiredAF, c("-A"))
-    TheMainAF <- desiredAF
-    This <- WorkAround %>% filter(.data[[desiredAF]] == 1) %>%
-      select(all_of(1:ColsN))}
-
-    if (is.null(externalAF)){Samples <- AveragedSignature(x=This, stats=stats)
-    } else {if(is.data.frame(externalAF)){
-      Samples <- externalAF
-      MaxVal <- do.call(pmax, Samples)
-      TheNormed <- Samples/MaxVal
-      TheCounts <- colSums(TheNormed == 1)
-      ThePeakDetectorCounts <- data.frame(Fluors = names(TheCounts), Counts = TheCounts)
-      rownames(ThePeakDetectorCounts) <- NULL
-      TheMainAF <- ThePeakDetectorCounts %>% arrange(desc(Counts)) %>%
-        slice(1) %>% pull(Fluors)
-      TheMainAF <- gsub("-A", "", TheMainAF)
-      } else {stop("externalAF needs to be a single row of a data.frame")}}
-
-  }
-
   if (SignatureReturnNow == TRUE){return(Samples)}
-
-  ######################################
-  # Handling the Double Peak Detectors #
-  ######################################
-
-  WorkAround1 <- WorkAround %>% mutate(Backups = Backups$Backups) %>%
-    relocate(Backups, .before = 1) #This will change the start/end count
-
-  #StartN <- StartNormalizedMergedCol+1
-  #EndN <- EndNormalizedMergedCol+1
-  #DoublePeaks <- WorkAround1 %>%
-  # filter(rowSums(WorkAround1[, StartN:EndN] == 1.00) >= 2)
-  #TheDoublePeaks <- DoublePeaks %>% select(Backups) %>% pull()
-  #WorkAround2 <- WorkAround1 %>% filter(!Backups %in% TheDoublePeaks)
+  }
 
   ###############################
   # Back to Regular Programming #
   ###############################
 
-  if (str_detect(name, "nstained")){
+  WorkAround1 <- WorkAround %>% mutate(Backups = Backups$Backups) %>%
+    relocate(Backups, .before = 1) #This will change the start/end count
+
+  if (Type == "Cells_Unstained"){
     # x <- Retained[3]
     RetainedDF <- map(.x= Retained, .f=Luciernaga:::UnstainedSignatures,
                       WorkAround1=WorkAround1, alternatename=AggregateName,
@@ -315,7 +288,9 @@ Luciernaga_QC <- function(x, subsets, sample.name, removestrings=NULL, Verbose =
                       Increments=Increments) %>%
       bind_rows()
 
-  } else {
+  }
+
+  if (Type == "Cells"){
     # x <- Retained[1]
     RetainedDF <- map(.x= Retained, .f=Luciernaga:::SingleStainSignatures,
                       WorkAround1=WorkAround1, AggregateName=AggregateName,
@@ -324,8 +299,26 @@ Luciernaga_QC <- function(x, subsets, sample.name, removestrings=NULL, Verbose =
                       Increments=Increments, Subtraction=Subtraction, stats=stats,
                       TheMainAF=TheMainAF, Verbose = Verbose, SCData = SCData,
                       LocalMaximaRatio=LocalMaximaRatio,
+                      SecondaryPeaks=SecondaryPeaks, ) %>% bind_rows()
+  }
+
+  if (Type == "Beads"){
+    if (!is.null(BeadAF)){Samples <- BeadAF
+    } else if (!is.data.frame(BeadAF)){stop("Please provide data.frame of a single
+              bead unstained reference signature to the BeadAF argument")}
+    if (!is.null(BeadMainAF)){TheMainAF <- gsub("-A", "", BeadMainAF)}
+
+    RetainedDF <- map(.x= Retained, .f=Luciernaga:::SingleStainSignatures,
+                      WorkAround1=WorkAround1, AggregateName=AggregateName,
+                      ColsN=ColsN, StartNormalizedMergedCol=StartNormalizedMergedCol,
+                      EndNormalizedMergedCol=EndNormalizedMergedCol, Samples=Samples,
+                      Increments=Increments, Subtraction="Average", stats=stats,
+                      TheMainAF=TheMainAF, Verbose = Verbose, SCData = SCData,
+                      LocalMaximaRatio=LocalMaximaRatio,
                       SecondaryPeaks=SecondaryPeaks) %>% bind_rows()
-    }
+  }
+
+
 
   Reintegrated <- left_join(RetainedDF, StashedDF, by = "Backups")
 
