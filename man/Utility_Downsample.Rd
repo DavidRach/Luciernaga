@@ -27,16 +27,20 @@ Utility_Downsample(
 
 \item{subsample}{Total number of events to sub-sample from each specimen}
 
-\item{inverse.transform}{Whether to reverse the GatingSet Transform on the data, default is set to FALSE.}
+\item{inverse.transform}{Whether to reverse the GatingSet Transform on the data,
+default is set to FALSE.}
 
 \item{internal}{Whether to return as a data.frame (vs. a flow frame or .fcs file)}
 
-\item{export}{Default is set to FALSE, when TRUE (and internal = FALSE) returns a .fcs file to outpath.}
+\item{export}{Default is set to FALSE, when TRUE (and internal = FALSE) returns a
+.fcs file to outpath.}
 
-\item{outpath}{When export is true, the file.path to where you want the .fcs file stored.}
+\item{outpath}{When export is true, the file.path to where you want the .fcs file
+stored.}
 }
 \value{
-Either a data.frame, a flow.frame or an .fcs file depending on your selected options
+Either a data.frame, a flow.frame or an .fcs file depending on your
+selected options
 }
 \description{
 Downsample a gs based on subset

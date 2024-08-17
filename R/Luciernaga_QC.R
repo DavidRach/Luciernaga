@@ -74,14 +74,24 @@ Luciernaga_QC <- function(x, subsets, sample.name, removestrings, Verbose = FALS
  RetainedType="normalized"){
 
   name <- keyword(x, sample.name)
-  Type <- Typing(name=name, unmixingcontroltype=unmixingcontroltype,
+  Type <- Luciernaga:::Typing(name=name, unmixingcontroltype=unmixingcontroltype,
                  Unstained=Unstained)
-  AggregateName <- NameForSample(x=x, sample.name=sample.name,
+  AggregateName <- Luciernaga:::NameForSample(x=x, sample.name=sample.name,
                                  removestrings=removestrings)
-  Experiment <- NameForSample(x=x, sample.name=sample.name,
+
+  if (is.null(experiment) && is.null(experiment.name)){
+    message("Both experiment and experiment.name are set to NULL,
+            consider adding one or the other.")}
+
+  Experiment <- Luciernaga:::NameForSample(x=x, sample.name=sample.name,
     removestrings=removestrings, experiment = experiment,
     experiment.name = experiment.name, returnType = "experiment")
-  Condition <- NameForSample(x=x, sample.name=sample.name,
+
+  if (is.null(condition) && is.null(condition.name)){
+    message("Both condition and condition.name are set to NULL,
+            consider adding one or the other.")}
+
+  Condition <- Luciernaga:::NameForSample(x=x, sample.name=sample.name,
     removestrings=removestrings, condition=condition,
     condition.name = condition.name, returnType = "condition")
 
@@ -128,10 +138,7 @@ Luciernaga_QC <- function(x, subsets, sample.name, removestrings, Verbose = FALS
             " of all events were negative and will be rounded to 0")
   }
 
-  ##########################################
-  # Generating Normalized by Peak Detector #
-  ##########################################
-
+  if(!str_detect(Type, "eads")){
   # Normalizing Individual Cells By Peak Detector
   n[n < 0] <- 0
   A <- do.call(pmax, n)
@@ -158,6 +165,14 @@ Luciernaga_QC <- function(x, subsets, sample.name, removestrings, Verbose = FALS
   PeakDetectorCounts <- data.frame(Fluors = names(Counts), Counts = Counts)
   rownames(PeakDetectorCounts) <- NULL
   PeakDetectorCounts <- PeakDetectorCounts %>% arrange(desc(Counts))
+  }
+
+  if(!str_detect(Type, "eads")){
+
+
+  }
+
+
 
   if (Type == "Cells_Unstained") {CellCutoff <- startingcells*ratiopopcutoff
                                  Detectors <- PeakDetectorCounts %>%

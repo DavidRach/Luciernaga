@@ -11,7 +11,8 @@ QC_Plots(x, FailedFlag, MeasurementType = NULL, pdf, path, filename)
 
 \item{FailedFlag}{Whether to show red flags when a detectors "Out-of-Range" is TRUE}
 
-\item{MeasurementType}{A list containing character values, will select any present from the column names for plotting}
+\item{MeasurementType}{A list containing character values, will select any present
+from the column names for plotting}
 
 \item{pdf}{Whether to return a pdf}
 

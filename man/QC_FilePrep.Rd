@@ -7,8 +7,9 @@
 QC_FilePrep(x, TrackChange)
 }
 \arguments{
-\item{x}{Takes a Levy-Jennings QC tracking report saved as a .csv file, and converts into a "tidyed" dataframe for plotting.
-Currently works on our 3L, 4L, 5L Auroras. Please reach out if you find an issue, the .csv export varies a bit and
+\item{x}{Takes a Levy-Jennings QC tracking report saved as a .csv file, and
+converts into a "tidyed" dataframe for plotting. Currently works on our 3L, 4L, 5L
+Auroras. Please reach out if you find an issue, the .csv export varies a bit and
 I want to continue to improve on the code to handle these odd exceptions.}
 
 \item{TrackChange}{Whether to derive a change between previous QC days.}

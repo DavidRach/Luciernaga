@@ -26,9 +26,11 @@ Utility_Concatinate(
 
 \item{subsets}{The gating hierarchy subset you want to include}
 
-\item{subsample}{Default is set to NULL. If down-sample is desired, Total number of events to subsample from each specimen}
+\item{subsample}{Default is set to NULL. If down-sample is desired, Total number of
+events to subsample from each specimen}
 
-\item{ReturnType}{Whether to return as a "data.frame", a "flow.frame", or export to an "fcs" file to the outpath location}
+\item{ReturnType}{Whether to return as a "data.frame", a "flow.frame", or export
+to an "fcs" file to the outpath location}
 
 \item{newName}{File Name for the Concatenate File}
 
@@ -36,10 +38,12 @@ Utility_Concatinate(
 
 \item{export}{Whether to export as a .fcs file.}
 
-\item{inverse.transform}{Whether to reverse the GatingSet Transform on the data, default is set to FALSE.}
+\item{inverse.transform}{Whether to reverse the GatingSet Transform on the data,
+default is set to FALSE.}
 }
 \value{
-A concatenated data.frame, flow.frame or fcs file, with reference .csv for the specimen information
+A concatenated data.frame, flow.frame or fcs file, with reference .csv for
+the specimen information
 }
 \description{
 Concatenate a gs based on subset and optional subsample

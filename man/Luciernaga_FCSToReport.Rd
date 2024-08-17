@@ -22,8 +22,8 @@ Luciernaga_FCSToReport(
 \arguments{
 \item{path}{The location to the folder where the Luciernaga .fcs files are stored}
 
-\item{reference}{A path to a .csv file or a dataframe containing Fluorophore and Detector column
-information for the panel.}
+\item{reference}{A path to a .csv file or a dataframe containing Fluorophore and
+Detector column information for the panel.}
 
 \item{stats}{Whether to use the median or mean for fluorescent intensity.}
 

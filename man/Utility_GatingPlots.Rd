@@ -23,25 +23,31 @@ Utility_GatingPlots(
 
 \item{removestrings}{A string of character values to remove from the sample.name}
 
-\item{subset}{The GatingSet subset that you want to visualize for data plotting, "root" is the default.}
+\item{subset}{The GatingSet subset that you want to visualize for data plotting,
+"root" is the default.}
 
 \item{gtFile}{The data.table imported .csv file containing the gating template.}
 
-\item{DesiredGates}{A vector of gates that you want plotted, for example Desired <- c("nonDebris, "lymphocytes")}
+\item{DesiredGates}{A vector of gates that you want plotted, for example
+Desired <- c("nonDebris, "lymphocytes")}
 
 \item{outpath}{Location to store the generated .pdf file}
 
-\item{export}{Whether to return as a .pdf file or as individual patchwork ggplot objects.}
+\item{export}{Whether to return as a .pdf file or as individual patchwork ggplot
+objects.}
 
 \item{experiment.name}{The .fcs keyword that contains the name of the experiment}
 
-\item{experiment}{Directly provide the name of the experiment (alternative to experiment.name)}
+\item{experiment}{Directly provide the name of the experiment (alternative to
+experiment.name)}
 
 \item{condition.name}{The .fcs keyword that contains the name of the condition.}
 
-\item{condition}{Directly provide the name of the condition (alternative to condition.name)}
+\item{condition}{Directly provide the name of the condition (alternative to
+condition.name)}
 
-\item{bins}{Argument to geom_hex for number of bins to visualize the plotted data density.}
+\item{bins}{Argument to geom_hex for number of bins to visualize the plotted
+data density.}
 
 \item{clearance}{A buffer area around the plot edge}
 

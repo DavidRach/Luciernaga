@@ -31,25 +31,32 @@ Utility_NbyNPlots(
 
 \item{sample.name}{Keyword for which samples names are stored (ex. "GUID")}
 
-\item{removestrings}{A string of characters to remove from name (ex. c("DR_ILT_2023_", "Cord"))}
+\item{removestrings}{A string of characters to remove from name (
+ex. c("DR_ILT_2023_", "Cord"))}
 
 \item{experiment}{Provide directly an experiment name (ex. "Jan2024")}
 
-\item{experiment.name}{Keyword for which experiment name is stored (ex. "GROUPNAME")}
+\item{experiment.name}{Keyword for which experiment name is stored (
+ex. "GROUPNAME")}
 
 \item{condition}{Provide a condition name}
 
 \item{condition.name}{The keyword in the .fcs file storing the condition.name}
 
-\item{marginsubset}{The Gating Hierarchy level from which values will be used to estimate the plot margins (ex. "nonDebris")}
+\item{marginsubset}{The Gating Hierarchy level from which values will be used to
+estimate the plot margins (ex. "nonDebris")}
 
-\item{gatesubset}{The Gating Hierarchy level of the cells that you want to see plotted (ex. "lymph")}
+\item{gatesubset}{The Gating Hierarchy level of the cells that you want to see
+plotted (ex. "lymph")}
 
-\item{ycolumn}{The ycolumn that you want to see everything plotted by (ex. "APC-A") or ALL to see all comparisons}
+\item{ycolumn}{The ycolumn that you want to see everything plotted by (ex. "APC-A")
+or ALL to see all comparisons}
 
-\item{bins}{Bins for which the plotted cells will be divided into providing granularity}
+\item{bins}{Bins for which the plotted cells will be divided into providing
+granularity}
 
-\item{clearance}{The additional ratio added to the margins to avoid clipping main population but exclude outliers.}
+\item{clearance}{The additional ratio added to the margins to avoid clipping
+main population but exclude outliers.}
 
 \item{gatelines}{Whether to add estimated gate cutoff lines}
 

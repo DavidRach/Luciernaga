@@ -26,7 +26,8 @@ Luciernaga_Unmix(
 
 \item{removestrings}{A list of values to remove from name}
 
-\item{subset}{A gating hierarchy level to sort cells at, expression values retrieved from these}
+\item{subset}{A gating hierarchy level to sort cells at, expression values retrieved
+from these}
 
 \item{multiplier}{A number to scale the OLS coefficients by}
 

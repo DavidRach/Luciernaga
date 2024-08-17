@@ -30,7 +30,8 @@ UnstainedSignatures(
 
 \item{Increments}{A numeric to round the normalized bins by. Default is 0.1}
 
-\item{Verbose}{Whether to return intermediate objects via print and plot for progress monitoring}
+\item{Verbose}{Whether to return intermediate objects via print and plot for
+progress monitoring}
 
 \item{LocalMaximaRatio}{Height of peaks to proceed}
 

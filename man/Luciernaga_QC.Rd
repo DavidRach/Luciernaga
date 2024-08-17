@@ -49,9 +49,11 @@ Luciernaga_QC(
 
 \item{unmixingcontroltype}{Whether your inputs are "cells", "beads" or "both"}
 
-\item{Unstained}{Set to True when running unstained samples that don't have Unstained in the Name}
+\item{Unstained}{Set to True when running unstained samples that don't have
+Unstained in the Name}
 
-\item{ratiopopcutoff}{A numeric ratio for peak detector inclusion, default is set to 0.01 all startingcells}
+\item{ratiopopcutoff}{A numeric ratio for peak detector inclusion, default is
+set to 0.01 all startingcells}
 
 \item{experiment}{Provide directly experiment name (ex. "JAN2024")}
 
@@ -63,28 +65,33 @@ is stored (ex. "TUBENAME")}
 \item{condition.name}{Keyword variable which experiment information
 is stored (ex. "TUBENAME")}
 
-\item{AFOverlap}{A data.frame or a filepath to the CSV containing the Autofluorescence
+\item{AFOverlap}{A data.frame or a filepath to the CSV containing the
+Autofluorescence
 overlap of individual fluorophores for exclusion}
 
 \item{stats}{Whether to take "mean" or "median"}
 
 \item{desiredAF}{Main Autofluorescence Detector (ex. "V7-A")}
 
-\item{externalAF}{A data.frame row containing external autofluorescence to subtract from single colors.}
+\item{externalAF}{A data.frame row containing external autofluorescence
+to subtract from single colors.}
 
 \item{ExportType}{Whether to return "fcs", "data"}
 
-\item{SignatureReturnNow}{Short circuits the function and returns signature for specified autofluorescence.}
+\item{SignatureReturnNow}{Short circuits the function and returns signature
+for specified autofluorescence.}
 
 \item{outpath}{Location where created .fcs and .csv files are sent}
 
 \item{minimalfcscutoff}{A ratio determining number cells needed for .fcs export}
 
-\item{Subtraction}{Whether for single color controls to use "Internal" or "External" autofluorescence}
+\item{Subtraction}{Whether for single color controls to use "Internal" or
+"External" autofluorescence}
 
 \item{SCData}{Whether to return "subtracted" or "raw" data for single colors}
 
-\item{NegativeType}{Whether to append a negative pop to .fcs file, "default", "artifical" or "samples"}
+\item{NegativeType}{Whether to append a negative pop to .fcs file, "default",
+"artifical" or "samples"}
 
 \item{Brightness}{Whether sum of detectors should be returned.}
 

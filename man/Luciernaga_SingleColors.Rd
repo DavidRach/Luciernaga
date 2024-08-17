@@ -2,7 +2,8 @@
 % Please edit documentation in R/Luciernaga_SingleColors.R
 \name{Luciernaga_SingleColors}
 \alias{Luciernaga_SingleColors}
-\title{Calculates the single color control matrix for a given quantile cutoffs and a given statistic}
+\title{Calculates the single color control matrix for a given quantile cutoffs and a given
+statistic}
 \usage{
 Luciernaga_SingleColors(
   x,
@@ -23,7 +24,8 @@ Luciernaga_SingleColors(
 
 \item{subset}{A desired Gating Hierarchy level of cells to filter in}
 
-\item{PanelCuts}{A .csv or dataframe containing columns Fluorophore, From and To. Fluorophore name should match sample.name style}
+\item{PanelCuts}{A .csv or dataframe containing columns Fluorophore, From and To
+Fluorophore name should match sample.name style}
 
 \item{stats}{Whether to use "mean" or "median"}
 
@@ -33,7 +35,8 @@ Luciernaga_SingleColors(
 A tibble row for each flow object containing the summarized data.
 }
 \description{
-Calculates the single color control matrix for a given quantile cutoffs and a given statistic
+Calculates the single color control matrix for a given quantile cutoffs and a given
+statistic
 }
 \examples{
 NULL

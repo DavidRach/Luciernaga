@@ -2,7 +2,8 @@
 % Please edit documentation in R/Utility_ThirdColorPlots.R
 \name{Utility_ThirdColorPlots}
 \alias{Utility_ThirdColorPlots}
-\title{Highlight the location of a particular cell population on a given bi-exponential axis.}
+\title{Highlight the location of a particular cell population on a given bi-exponential
+axis.}
 \usage{
 Utility_ThirdColorPlots(
   x,
@@ -44,7 +45,8 @@ Utility_ThirdColorPlots(
 A ggplot object with z-axis cells highlighted from background cells
 }
 \description{
-Highlight the location of a particular cell population on a given bi-exponential axis.
+Highlight the location of a particular cell population on a given bi-exponential
+axis.
 }
 \examples{
 NULL

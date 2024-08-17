@@ -31,7 +31,8 @@ Utility_UMAP(
 
 \item{columns}{Which columns to use. Not combinable with notcolumns, use one or other.}
 
-\item{notcolumns}{Which columns not to use. Not combinable with columns, use one or other.}
+\item{notcolumns}{Which columns not to use. Not combinable with columns,
+use one or other.}
 
 \item{subsample}{If downsampling is wanted.}
 
