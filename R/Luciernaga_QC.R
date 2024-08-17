@@ -39,32 +39,33 @@
 #' @param Increments Rounding parameter, default is set to 0.1
 #' @param RetainedType Whether to return "raw" or "normalized" values for lineplots.
 #'
+#' @importFrom flowCore keyword
+#' @importFrom stringr str_detect
 #' @importFrom flowWorkspace gs_pop_get_data
 #' @importFrom BiocGenerics nrow
+#' @importFrom flowCore exprs
 #' @importFrom dplyr mutate
 #' @importFrom dplyr select
-#' @importFrom dplyr filter
-#' @importFrom dplyr summarize_all
-#' @importFrom dplyr pull
 #' @importFrom dplyr arrange
+#' @importFrom dplyr desc
+#' @importFrom purrr map
+#' @importFrom dplyr bind_rows
+#' @importFrom dplyr pull
+#' @importFrom dplyr filter
+#' @importFrom utils read.csv
+#' @importFrom stringr str_split
+#' @importFrom dplyr slice
+#' @importFrom tidyselect all_of
 #' @importFrom dplyr relocate
 #' @importFrom dplyr left_join
-#' @importFrom dplyr case_when
-#' @importFrom dplyr rename
-#' @importFrom flowWorkspace keyword
-#' @importFrom stringr str_detect
-#' @importFrom stringr str_split
-#' @importFrom flowCore exprs
-#' @importFrom purrr map
+#' @importFrom dplyr arrange
 #' @importFrom purrr set_names
-#' @importFrom methods new
-#' @importFrom utils read.csv
 #'
 #' @return Additional information to be added
 #' @export
 #'
 #' @examples NULL
-Luciernaga_QC <- function(x, subsets, sample.name, removestrings, Verbose = FALSE,
+Luciernaga_QC <- function(x, subsets, sample.name, removestrings=NULL, Verbose = FALSE,
  unmixingcontroltype="both", Unstained=FALSE, ratiopopcutoff=0.01, experiment = NULL,
  experiment.name = NULL, condition = NULL, condition.name = NULL, AFOverlap,
  stats="median", desiredAF=NULL, externalAF = NULL, ExportType,
@@ -138,7 +139,6 @@ Luciernaga_QC <- function(x, subsets, sample.name, removestrings, Verbose = FALS
             " of all events were negative and will be rounded to 0")
   }
 
-  if(!str_detect(Type, "eads")){
   # Normalizing Individual Cells By Peak Detector
   n[n < 0] <- 0
   A <- do.call(pmax, n)
@@ -155,43 +155,32 @@ Luciernaga_QC <- function(x, subsets, sample.name, removestrings, Verbose = FALS
   # Bringing Together Raw And Normalized Data.Frames
   WorkAround <- cbind(n, Normalized)
 
-  ####################################
-  # Enumerating Peak Detector Counts #
-  ####################################
-
   na_counts <- colSums(is.na(Normalized))
   Normalized[is.na(Normalized)] <- 0
   Counts <- colSums(Normalized == 1)
   PeakDetectorCounts <- data.frame(Fluors = names(Counts), Counts = Counts)
   rownames(PeakDetectorCounts) <- NULL
   PeakDetectorCounts <- PeakDetectorCounts %>% arrange(desc(Counts))
-  }
 
-  if(!str_detect(Type, "eads")){
-
-
-  }
-
-
-
-  if (Type == "Cells_Unstained") {CellCutoff <- startingcells*ratiopopcutoff
-                                 Detectors <- PeakDetectorCounts %>%
-                                   filter(Counts > CellCutoff)
-  }
-
-  if (Type == "Cells") {
+  if (Type == "Cells"|Type == "Cells_Unstained") {
     CellCutoff <- startingcells*ratiopopcutoff
     Detectors <- PeakDetectorCounts %>% filter(Counts > CellCutoff)
   }
 
-  if (Type == "Beads_Unstained") {
-    BeadCutoff <- startingcells/ColsN #EqualDistributionAssumption
-    Detectors <- PeakDetectorCounts %>% filter(Counts > BeadCutoff)
+  if (Type == "Beads") {
+    filtering <- (startingcells/ncol(n))*1
+    TheCandidates <- PeakDetectorCounts %>% dplyr::filter(Counts > filtering) %>%
+      pull(Fluors)
+    TheMedians <- map(.x=TheCandidates, .f=BeadDetectors, data=WorkAround) %>%
+      bind_rows()
+    PeakCutoffVal <- mean(TheMedians$TheMedian)
+    TheRemnant <- TheMedians %>% dplyr::filter(TheMedian > PeakCutoffVal) %>%
+      pull(TheDetector)
+    Detectors <- PeakDetectorCounts %>% dplyr::filter(Fluors %in% TheRemnant)
   }
 
-
-  if (Type == "Beads") {
-    BeadCutoff <- startingcells*ratiopopcutoff
+  if (Type == "Beads_Unstained") {
+    BeadCutoff <- startingcells/ColsN #EqualDistributionAssumption
     Detectors <- PeakDetectorCounts %>% filter(Counts > BeadCutoff)
   }
 
@@ -397,7 +386,22 @@ Luciernaga_QC <- function(x, subsets, sample.name, removestrings, Verbose = FALS
 
 }
 
-
+#' Internal for LuciernagaQC
+#'
+#' @importFrom dplyr filter
+#' @importFrom dplyr select
+#' @importFrom stats median
+#' @importFrom dplyr summarise
+#' @importFrom tidyselect all_of
+#' @noRd
+BeadDetectors <- function(x, data){
+  y <- paste0(x, "-A")
+  FuckOff <- data %>% dplyr::filter(.data[[x]] == 1) %>% select(all_of(y))
+  TheDetector <- x
+  colnames(FuckOff)[1] <- "Detector"
+  TheMedian <- FuckOff %>% summarise(TheMedian = median(Detector, na.rm = TRUE))
+  Return <- cbind(TheDetector, TheMedian)
+}
 
 #' Internal for LuciernagaQC
 #'

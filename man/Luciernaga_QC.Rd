@@ -8,7 +8,7 @@ Luciernaga_QC(
   x,
   subsets,
   sample.name,
-  removestrings,
+  removestrings = NULL,
   Verbose = FALSE,
   unmixingcontroltype = "both",
   Unstained = FALSE,
