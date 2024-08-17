@@ -198,7 +198,7 @@ SingleStainSignatures <- function(x, WorkAround1, ColsN, StartNormalizedMergedCo
     geom_bar(stat = "identity") + theme_bw() + theme(axis.text.x = element_text(
       angle = 45, hjust = 1)) +labs(title=paste(x, AggregateName, "Final"), sep=" ")
 
-  if(Verbose == TRUE){
+  if(Verbose == TRUE && Subtraction != "Average"){
   InitialPlot + FinalPlot
   }
 
