@@ -6,7 +6,7 @@
 \usage{
 Luciernaga_Lists(
   ListOfList,
-  SecondaryList,
+  SecondaryList = NULL,
   PlotType,
   thecolumns = 2,
   therows = 3,

@@ -38,8 +38,10 @@
 #' @param SecondaryPeaks Number of Secondary Peaks, default is set to 2.
 #' @param Increments Rounding parameter, default is set to 0.1
 #' @param RetainedType Whether to return "raw" or "normalized" values for lineplots.
-#' @param BeadAF A passed data.frame row containing the reference for bead unstained
+#' @param BeadAF A passed data.frame row containing the reference for bead unstained.
 #' @param BeadMainAF The detector that corresponds to the "main" bead AF, albeit dim.
+#' @param CellAF A passed data.frame row containing the reference for cell unstained.
+#' @param CellMainAF The detector that corresponds to the "main" cell AF.
 #'
 #' @importFrom flowCore keyword
 #' @importFrom stringr str_detect
@@ -74,7 +76,8 @@ Luciernaga_QC <- function(x, subsets, sample.name, removestrings=NULL, Verbose =
  SignatureReturnNow=FALSE, outpath, minimalfcscutoff = 0.05, Subtraction = "Internal",
  SCData = "subtracted", NegativeType= "default", TotalNegatives = 500,
  Brightness=FALSE, LocalMaximaRatio=0.15, SecondaryPeaks=2, Increments,
- RetainedType="normalized", BeadAF=NULL, BeadMainAF=NULL){
+ RetainedType="normalized", BeadAF=NULL, BeadMainAF=NULL, CellAF=NULL,
+ CellMainAF=NULL){
 
   name <- keyword(x, sample.name)
   Type <- Luciernaga:::Typing(name=name, unmixingcontroltype=unmixingcontroltype,
@@ -166,7 +169,7 @@ Luciernaga_QC <- function(x, subsets, sample.name, removestrings=NULL, Verbose =
 
   if (Type == "Cells"|Type == "Cells_Unstained") {
     CellCutoff <- startingcells*ratiopopcutoff
-    Detectors <- PeakDetectorCounts %>% filter(Counts > CellCutoff)
+    Detectors <- PeakDetectorCounts %>% dplyr::filter(Counts > CellCutoff)
   }
 
   if (Type == "Beads"|Type == "Beads_Unstained") {
@@ -204,25 +207,28 @@ Luciernaga_QC <- function(x, subsets, sample.name, removestrings=NULL, Verbose =
   } else {AFData <- read.csv(file=AFOverlap, check.names = FALSE)
   }
 
-  AFChannels <- AFData %>% filter(Fluorophore %in% "Unstained") %>%
+  AFChannels <- AFData %>% dplyr::filter(Fluorophore %in% "Unstained") %>%
     pull(MainDetector) %>% str_split(",", simplify = TRUE)
   AFChannels <- AFChannels[1,]
   AFChannels <- gsub("-A", "", AFChannels)
 
-  TheSCData <- AFData %>% filter(Fluorophore != "Unstained")
+  TheSCData <- AFData %>% dplyr::filter(Fluorophore != "Unstained")
   TheSCData$Fluorophore <- gsub("-A", "", TheSCData$Fluorophore)
   TroubleChannels <- TheSCData %>% pull(Fluorophore)
 
-  results <- map(.x=TroubleChannels, .f=TroubleChannelExclusion,
+  results <- map(.x=TroubleChannels, .f=Luciernaga:::TroubleChannelExclusion,
                  TheSCData=TheSCData, MainDetector=MainDetector,
                  AFChannels=AFChannels) %>% set_names(TroubleChannels)
 
+  OverlapFlag <- NULL
   matching_names <- names(results)[str_detect(name, names(results))]
-  if (length(matching_names) > 0) {ExclusionList <- results[[matching_names[1]]]
-  Retained <- Detectors %>% filter(!Fluors %in% ExclusionList) %>% pull(Fluors)
+  if (length(matching_names) > 0) {
+    OverlapFlag <- "Yep"
+    ExclusionList <- results[[matching_names[1]]]
+  Retained <- Detectors %>% dplyr::filter(!Fluors %in% ExclusionList) %>% pull(Fluors)
   } else if (str_detect(name, "nstained")){Retained <- Detectors %>%
     pull(Fluors)
-  } else {Retained <- Detectors %>% filter(!Fluors %in% AFChannels) %>%
+  } else {Retained <- Detectors %>% dplyr::filter(!Fluors %in% AFChannels) %>%
     pull(Fluors)}
 
   } else {Retained <- Detectors %>% pull(Fluors)}
@@ -269,7 +275,8 @@ Luciernaga_QC <- function(x, subsets, sample.name, removestrings=NULL, Verbose =
     TheMainAF <- gsub("-A", "", TheMainAF)
     } else {stop("externalAF needs to be a single row of a data.frame")}}
 
-  if (SignatureReturnNow == TRUE){return(Samples)}
+  if (SignatureReturnNow == TRUE){Detectors
+                                  return(Samples)}
   }
 
   ###############################
@@ -291,6 +298,15 @@ Luciernaga_QC <- function(x, subsets, sample.name, removestrings=NULL, Verbose =
   }
 
   if (Type == "Cells"){
+    if(!is.null(OverlapFlag)){
+      if (!is.null(CellAF)){Samples <- CellAF
+                            Subtraction <- "Average"
+                            if (Verbose == TRUE){message(name, " used average subtraction
+                               of provided CellAF")}
+      if (!is.null(CellMainAF)){TheMainAF <- gsub("-A", "", CellMainAF)}
+      } else {stop("Please provide a CellAF and CellMainAF argument")}
+    }
+
     # x <- Retained[1]
     RetainedDF <- map(.x= Retained, .f=Luciernaga:::SingleStainSignatures,
                       WorkAround1=WorkAround1, AggregateName=AggregateName,

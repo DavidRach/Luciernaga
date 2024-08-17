@@ -17,7 +17,7 @@
 #' @export
 #'
 #' @examples NULL
-Luciernaga_Lists <- function(ListOfList, SecondaryList, PlotType,
+Luciernaga_Lists <- function(ListOfList, SecondaryList=NULL, PlotType,
                              thecolumns=2, therows=3, width=7, height=9,
                              ReturnFolder, CurrentExperiment){
 
@@ -25,7 +25,7 @@ Luciernaga_Lists <- function(ListOfList, SecondaryList, PlotType,
 
   Ultimate <- map(1:indices, ~ItemSelect(ListOfList, .))
 
-  Ultimate <- c(Ultimate, list(SecondaryList))
+  if (!is.null(SecondaryList)){Ultimate <- c(Ultimate, list(SecondaryList))}
 
   indices <- length(Ultimate)
 

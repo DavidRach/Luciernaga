@@ -35,7 +35,9 @@ Luciernaga_QC(
   Increments,
   RetainedType = "normalized",
   BeadAF = NULL,
-  BeadMainAF = NULL
+  BeadMainAF = NULL,
+  CellAF = NULL,
+  CellMainAF = NULL
 )
 }
 \arguments{
@@ -105,9 +107,13 @@ for specified autofluorescence.}
 
 \item{RetainedType}{Whether to return "raw" or "normalized" values for lineplots.}
 
-\item{BeadAF}{A passed data.frame row containing the reference for bead unstained}
+\item{BeadAF}{A passed data.frame row containing the reference for bead unstained.}
 
 \item{BeadMainAF}{The detector that corresponds to the "main" bead AF, albeit dim.}
+
+\item{CellAF}{A passed data.frame row containing the reference for cell unstained.}
+
+\item{CellMainAF}{The detector that corresponds to the "main" cell AF.}
 }
 \value{
 Additional information to be added
