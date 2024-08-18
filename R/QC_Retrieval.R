@@ -7,6 +7,11 @@
 #' @importFrom flowCore keyword
 #' @importFrom purrr map2
 #' @importFrom dplyr bind_cols
+#' @importFrom dplyr mutate
+#' @importFrom dplyr across
+#' @importFrom tidyselect everything
+#' @importFrom lubridate dmy
+#' @importFrom lubridate hms
 #'
 #' @return A dataframe row
 #' @export
@@ -19,6 +24,9 @@ QC_Retrieval <- function(x, sample.name){
 
   SAMPLE <- keyword(x)[[sample.name]]
   DATE <- keyword(x)$`$DATE`
+  DATE <- dmy(DATE)
+  TIME <- keyword(x)$`$BTIM`
+  TIME <- hms(TIME)
   CYT <- keyword(x)$`$CYT`
   CYTSN <- keyword(x)$`$CYTSN`
   OP <- keyword(x)$`$OP`
@@ -45,7 +53,12 @@ QC_Retrieval <- function(x, sample.name){
                        TheData=KeywordsDF) %>% bind_cols()
   colnames(LaserASFRows) <- paste0(colnames(LaserASFRows), "_AreaScalingFactor")
 
-  RecoveredQC <- cbind(SAMPLE, DATE, CYT, CYTSN, OP, ParameterRows,
+  ParameterRows <- ParameterRows %>% mutate(across(everything(), as.numeric))
+  colnames(ParameterRows) <- paste0(colnames(ParameterRows), "_Gain")
+  LaserDelayRows <- LaserDelayRows %>% mutate(across(everything(), as.numeric))
+  LaserASFRows <- LaserASFRows %>% mutate(across(everything(), as.numeric))
+
+  RecoveredQC <- cbind(SAMPLE, DATE, TIME, CYT, CYTSN, OP, ParameterRows,
                        LaserDelayRows, LaserASFRows)
 
   return(RecoveredQC)
