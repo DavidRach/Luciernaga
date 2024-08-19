@@ -25,7 +25,7 @@
 #'
 #' @examples NULL
 Utility_RidgePlots <- function(gs, subset, TheX=NULL, TheY, TheFill, inverse.transform = FALSE,
-                               outpath, returntype, sample.name, removestrings, therows=2,
+                               outpath, returntype, therows=2,
                                thecolumns=1, width=7, height=9, filename){
 
   cs <- gs_pop_get_data(gs, subset, inverse.transform = inverse.transform)
@@ -40,17 +40,13 @@ Utility_RidgePlots <- function(gs, subset, TheX=NULL, TheY, TheFill, inverse.tra
     AssembledPlots <- Utility_Patchwork(x=ThePlots, filename=filename, outfolder=outpath,
        returntype = "pdf", therows=therows, thecolumns=thecolumns, width = width,
        height=height)
-    }
 
-  if (returntype == "patchwork"){
-    AssembledPlots <- Utility_Patchwork(x=Plots, filename=filename, outfolder=outpath,
+  } else if (returntype == "patchwork"){
+    AssembledPlots <- Utility_Patchwork(x=ThePlots, filename=filename, outfolder=outpath,
         returntype = "patchwork", therows=therows, thecolumns=thecolumns, width = width,
-        height=height)}
-
-  if (returntype == "plots"){
-    AssembledPlots <- Utility_Patchwork(x=Plots, filename=filename, outfolder=outpath,
-        returntype = "plots", therows=therows, thecolumns=thecolumns, width = width,
-        height=height)}
+        height=height)
+    return(AssembledPlots)
+  } else if (returntype == "plots"){return(ThePlots)}
 }
 
 

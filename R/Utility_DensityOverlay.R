@@ -32,24 +32,17 @@ Utility_DensityOverlay <- function(gs, subset, inverse.transform = FALSE, TheX=N
 
   if(!is.null(TheX)){DFNames <- TheX}
 
-  ThePlots <- map(x=DFNames, .f=InternalDensity, cs=cs, TheFill=TheFill)
+  ThePlots <- map(.x=DFNames, .f=InternalDensity, cs=cs, TheFill=TheFill)
 
   if (returntype == "pdf"){
     AssembledPlots <- Utility_Patchwork(x=ThePlots, filename=filename, outfolder=outpath,
     returntype = "pdf", therows=therows, thecolumns=thecolumns, width = width, height=height)
-  }
-
-  if (returntype == "patchwork"){
-    AssembledPlots <- Utility_Patchwork(x=Plots, filename=filename, outfolder=outpath,
+  } else if (returntype == "patchwork"){
+    AssembledPlots <- Utility_Patchwork(x=ThePlots, filename=filename, outfolder=outpath,
     returntype = "patchwork", therows=therows, thecolumns=thecolumns, width = width,
     height=height)
-  }
-
-  if (returntype == "plots"){
-    AssembledPlots <- Utility_Patchwork(x=Plots, filename=filename, outfolder=outpath,
-    returntype = "plots", therows=therows, thecolumns=thecolumns, width = width,
-    height=height)
-  }
+    return(AssembledPlots)
+  } else if (returntype == "plots"){return(ThePlots)}
 }
 
 

@@ -13,8 +13,6 @@ Utility_RidgePlots(
   inverse.transform = FALSE,
   outpath,
   returntype,
-  sample.name,
-  removestrings,
   therows = 2,
   thecolumns = 1,
   width = 7,
