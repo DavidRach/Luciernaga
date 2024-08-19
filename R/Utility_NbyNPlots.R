@@ -18,7 +18,7 @@
 #'  granularity
 #' @param clearance The additional ratio added to the margins to avoid clipping
 #'  main population but exclude outliers.
-#' @param pdf Prints default NxN plot, TRUE or FALSE.
+#' @param returntype Whether to return as "pdf", "patchwork" or "plots"
 #' @param condition Provide a condition name
 #' @param condition.name The keyword in the .fcs file storing the condition.name
 #' @param gatelines Whether to add estimated gate cutoff lines
@@ -40,13 +40,16 @@
 
 Utility_NbyNPlots <- function(x, sample.name, removestrings, experiment = NULL,
   experiment.name = NULL, condition = NULL, condition.name = NULL, marginsubset,
-  gatesubset, ycolumn, bins, clearance, gatelines, reference = NULL, outpath, pdf,
-  width = 9, height = 7, ...) {
+  gatesubset, ycolumn, bins, clearance, gatelines, reference = NULL, outpath, returntype,
+  width = 9, height = 7) {
   #ycolumn <- ycolumn
   #x <- x
 
-  AggregateName <- NameForSample(
-    x=x, sample.name=sample.name, removestrings=removestrings, ...)
+  name <- keyword(x, sample.name)
+
+  AggregateName <- NameForSample(x=x, sample.name=sample.name, removestrings=removestrings,
+                                 experiment=experiment, experiment.name=experiment.name,
+                                 condition=condition, condition.name=condition.name)
 
   StorageLocation <- file.path(outpath, AggregateName)
 
@@ -70,16 +73,23 @@ Utility_NbyNPlots <- function(x, sample.name, removestrings, experiment = NULL,
     columnlist <- DFNames[DFNames != ycolumn]
     Plots <- map(.x = columnlist, .f = GeneralGating, name = name, ff = ff,
       yValue = ycolumn, columnlist = DFNames, TheDF = TheDF, gatelines = gatelines,
-      reference = reference, clearance, bins)
+      reference = reference, clearance = clearance, bins = bins)
   }
 
 
-  if (pdf == TRUE){
+  if (returntype == "pdf"){
       AssembledPlots <- Utility_Patchwork(x=Plots, filename=AggregateName,
                                           outfolder=outpath, returntype = "pdf")
-      } else {
+  }
+
+  if (returntype == "patchwork"){
       AssembledPlots <- Utility_Patchwork(x=Plots, filename=AggregateName,
                                           outfolder=outpath, returntype = "patchwork")
+  }
+
+  if (returntype == "plots"){
+    AssembledPlots <- Utility_Patchwork(x=Plots, filename=AggregateName,
+            outfolder=outpath, returntype = "plots")
   }
 
   return(AssembledPlots)
@@ -156,10 +166,13 @@ ParallelUniversalIterator <- function(x, x_ff, y_ff,
 #'
 #' @importFrom dplyr select
 #' @importFrom dplyr pull
+#' @importFrom dplyr filter
+#' @importFrom tidyselect all_of
+#' @importFrom dplyr pull
 #' @importFrom flowCore keyword
 #' @importFrom ggcyto ggcyto
 #' @importFrom ggcyto as.ggplot
-#' @import ggplot2
+#' @importFrom ggplot2 ggplot
 #'
 #' @return A value to be determined later
 #' @noRd
@@ -194,9 +207,12 @@ GeneralGating <- function(x, name, ff, yValue, clearance, bins,
      axis.title = element_text(size = 10, face = "bold"),
      legend.position = "none"))
 
-    if (gatelines == TRUE){Value <- reference[reference$specimen == name, xValue]
+    if (gatelines == TRUE){
+    Value <- reference %>% dplyr::filter(specimen %in% name) %>%
+      select(all_of(xValue)) %>% pull(.)
     Plot <- Plot + geom_vline(xintercept = c(seq(0,200,25)), colour = "gray") +
-      geom_vline(xintercept = Value, colour = "red")}
+      geom_vline(xintercept = Value, colour = "red")
+    }
 
   } else {Plot <- as.ggplot(ggcyto(ff, aes(x = .data[[xValue]], y = .data[[yValue]]),
           subset = "root") + geom_hex(bins=bins) + coord_cartesian(
@@ -207,7 +223,8 @@ GeneralGating <- function(x, name, ff, yValue, clearance, bins,
           axis.title = element_text(size = 10, face = "bold"),
           legend.position = "none"))
 
-  if (gatelines == TRUE){Value <- reference[reference$specimen == name, xValue]
+  if (gatelines == TRUE){Value <- reference %>% dplyr::filter(specimen %in% name) %>%
+    select(all_of(xValue)) %>% pull(.)
   Plot <- Plot + geom_vline(xintercept = c(seq(0,200,25)), colour = "gray") +
     geom_vline(xintercept = Value, colour = "red")}
   }

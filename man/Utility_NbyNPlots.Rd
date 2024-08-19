@@ -20,10 +20,9 @@ Utility_NbyNPlots(
   gatelines,
   reference = NULL,
   outpath,
-  pdf,
+  returntype,
   width = 9,
-  height = 7,
-  ...
+  height = 7
 )
 }
 \arguments{
@@ -64,7 +63,7 @@ main population but exclude outliers.}
 
 \item{outpath}{Location for which to store the generated .pdf}
 
-\item{pdf}{Prints default NxN plot, TRUE or FALSE.}
+\item{returntype}{Whether to return as "pdf", "patchwork" or "plots"}
 
 \item{width}{Desired page width for a pdf, default is 9 inches.}
 

@@ -54,12 +54,12 @@ Utility_UnityPlot <- function(x, y, GatingSet, marginsubset, gatesubset,
  }
 
  if (returntype == "pdf"){
-   AssembledPlots <- Utility_Patchwork(x=Plots, filename=AggregateName,
+   AssembledPlots <- Utility_Patchwork(x=Plots, filename=FileName,
                                        outfolder=outpath, returntype = "pdf")
  }
 
  if (returntype == "patchwork"){
-   AssembledPlots <- Utility_Patchwork(x=Plots, filename=AggregateName,
+   AssembledPlots <- Utility_Patchwork(x=Plots, filename=FileName,
                                        outfolder=outpath, returntype = "patchwork")
  }
 }
@@ -127,7 +127,8 @@ Unity <- function(x, TheY, TheX, marginsubset, gatesubset, sample.name, removest
 
 
 
-  if (gatelines == TRUE){Value <- reference[reference$specimen == name, TheX]
+  if (gatelines == TRUE){Value <- reference %>% dplyr::filter(specimen %in% name) %>%
+    select(all_of(TheX)) %>% pull(.)
   Plot <- Plot + geom_vline(xintercept = c(seq(0,200,25)), colour = "gray") +
     geom_vline(xintercept = c(seq(0,200,5)), colour = "white", alpha = 0.1) +
     geom_vline(xintercept = Value, colour = "red")}
