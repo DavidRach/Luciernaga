@@ -11,7 +11,11 @@
 #' @importFrom stringr fixed
 #'
 #' @return The shortened variable
-#' @noRd
+#'
+#' @export
+#'
+#' @examples NULL
+
 NameCleanUp <- function(name, removestrings, substitutestrings){
 #InternalDevToDoList: The for-loop is iterating in place, don't believe its
   #subject to replacing
