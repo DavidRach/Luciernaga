@@ -71,6 +71,9 @@ Utility_NbyNPlots <- function(x, sample.name, removestrings, experiment = NULL,
 
   } else {
     columnlist <- DFNames[DFNames != ycolumn]
+
+    if (gatelines == TRUE){columnlist <-intersect(columnlist, colnames(reference))}
+
     Plots <- map(.x = columnlist, .f = GeneralGating, name = name, ff = ff,
       yValue = ycolumn, columnlist = DFNames, TheDF = TheDF, gatelines = gatelines,
       reference = reference, clearance = clearance, bins = bins)

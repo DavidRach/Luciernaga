@@ -104,7 +104,7 @@ Unity <- function(x, TheY, TheX, marginsubset, gatesubset, sample.name, removest
     theXmax <- XExprsData %>% quantile(., 0.999)
     theXmin <- theXmin - abs((clearance*theXmin))
     theXmax <- theXmax + (clearance*theXmax)
-  } else (error("TheX and TheY have the same value"))
+  } else (stop("TheX and TheY have the same value"))
 
   ff1 <- gs_pop_get_data(x, gatesubset)
 
