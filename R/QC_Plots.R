@@ -82,8 +82,7 @@ QC_Plots <- function(x, FailedFlag, MeasurementType=NULL, Metadata = NULL, plotT
   }
 
   if (returntype == "plots"){
-    AssembledPlots <- Utility_Patchwork(x=Plots, filename=filename, outfolder=path, returntype = "plots",
-                                        thecolumns=thecolumns, therows = therows, width=width, height=height)
+    AssembledPlots <- Plots
   }
 
   return(AssembledPlots)
