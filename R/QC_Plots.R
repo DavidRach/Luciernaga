@@ -4,15 +4,22 @@
 #' @param FailedFlag Whether to show red flags when a detectors "Out-of-Range" is TRUE
 #' @param MeasurementType A list containing character values, will select any present
 #' from the column names for plotting
-#' @param pdf Whether to return a pdf
+#' @param Metadata An optional character column to use as ggplot factor.
+#' @param plotType Whether to return "individual" plots or "comparison" plots (provide Metadata name!)
+#' @param returntype Whether to return to pdf, patchwork or plots.
 #' @param path Location path to return the pdf
 #' @param filename File name to save as.
 #'
 #' @importFrom dplyr select
-#' @importFrom tidyr starts_with
 #' @importFrom tidyselect contains
-#' @importFrom purrr map
 #' @importFrom stringr str_detect
+#' @importFrom dplyr relocate
+#' @importFrom lubridate ymd_hms
+#' @importFrom dplyr mutate
+#' @importFrom lubridate ymd
+#' @importFrom lubridate hms
+#' @importFrom tidyr starts_with
+#' @importFrom purrr map
 #' @importFrom patchwork wrap_plots
 #' @importFrom ggplot2 ggplot
 #'
@@ -21,36 +28,56 @@
 #'
 #' @examples NULL
 
-QC_Plots <- function(x, FailedFlag, MeasurementType=NULL, pdf, path, filename){
+QC_Plots <- function(x, FailedFlag, MeasurementType=NULL, Metadata = NULL, plotType = "individual",
+                     returntype, path, filename){
 
+  # Select or Create DateTime
+  if (any(str_detect(colnames(x), "DateTime"))){
+    TheDateTime <- x %>% relocate(DateTime, .before=1)
+    TheDateTime[["DateTime"]] <- lubridate::ymd_hms(x[["DateTime"]])
+  } else {TheDateTime <- x %>% mutate(DateTime = ymd(DATE) + hms(TIME)) %>% relocate(DateTime, .before=1)
+  TheDateTime[["DateTime"]] <- lubridate::ymd_hms(x[["DateTime"]])}
+
+  # Select Date Time and Optional Metadata
+  if(!is.null(Metadata)){TheDateTime <- TheDateTime %>% select(DateTime, contains(Metadata))
+  } else {TheDateTime <- TheDateTime %>% select(DateTime)}
+
+  # Select Optional Columns
   if (!is.null(MeasurementType)){
-  x <- x %>% select(DateTime, contains(MeasurementType))
+  x <- x %>% select(contains(MeasurementType))
   }
 
-  # Only specific to the QC reports, rethink for from .fcs files if call needed.
-  # Ditto the use of DateTime for first placeholder, alternate approach
+  # Remove Any Retained Character Columns
+  x <- x %>% select(where( ~ !is.character(.)))
 
-  Flagged <- x %>% select(starts_with("Flag"))
+  # Select Flag columns (alternate would be contains)
   Regular <- x %>% select(-starts_with("Flag"))
+  Flagged <- x %>% select(starts_with("Flag"))
   ReorderedData <- cbind(Regular, Flagged)
   FlaggedStart <- length(Regular)+1
   FlaggedEnd <- length(ReorderedData)
   RegularStop <- length(Regular)
-  DFNames <- colnames(ReorderedData[2:RegularStop])
-  xValue <- colnames(ReorderedData[1])
-  PlotNumber <- length(Regular)-1
+  DFNames <- colnames(ReorderedData[1:RegularStop])
 
-  StorageLocation <- file.path(path, filename)
+  #Reassemble the data.frame
+  TheData <- cbind(TheDateTime, ReorderedData)
 
-  Plots <- map(.x=DFNames, .f = LevyJennings, FailedFlag = FailedFlag, xValue=xValue,
-               TheData=ReorderedData)
+  Plots <- map(.x=DFNames, .f = LevyJennings, FailedFlag = FailedFlag, xValue="DateTime",
+               TheData=TheData, Metadata=Metadata, plotType=plotType)
 
-  if (pdf == TRUE){
-    AssembledPlots <- Utility_Patchwork(x=Plots, filename=AggregateName,
-                                        outfolder=outpath, returntype = "pdf")
-  } else {
-    AssembledPlots <- Utility_Patchwork(x=Plots, filename=AggregateName,
-                                        outfolder=outpath, returntype = "patchwork")
+  if (returntype == "pdf"){
+    AssembledPlots <- Utility_Patchwork(x=Plots, filename=filename,
+                                        outfolder=path, returntype = "pdf")
+  }
+
+  if (returntype == "patchwork"){
+    AssembledPlots <- Utility_Patchwork(x=Plots, filename=filename,
+                                        outfolder=path, returntype = "patchwork")
+  }
+
+  if (returntype == "plots"){
+    AssembledPlots <- Utility_Patchwork(x=Plots, filename=filename,
+                                        outfolder=path, returntype = "plots")
   }
 
   return(AssembledPlots)
@@ -69,21 +96,23 @@ QC_Plots <- function(x, FailedFlag, MeasurementType=NULL, pdf, path, filename){
 #' @importFrom stringr str_detect
 #' @importFrom patchwork wrap_plots
 #' @importFrom ggplot2 ggplot
+#' @importFrom lubridate ymd_hms
 #'
 #' @return The pdf and/the plots.
 #'
 #' @noRd
-LevyJennings <- function(x, FailedFlag, xValue, TheData){
+LevyJennings <- function(x, FailedFlag, xValue, TheData, Metadata, plotType){
   yValue <- x
 
-  FlagValue <- paste0("Flag-", yValue)
-  FlagColumn <- TheData %>% select(starts_with(FlagValue)) %>% colnames(.)
-  if (length(FlagColumn) >1){
-    NewFlagColumn <- str_detect(FlagColumn, paste0("^", FlagValue, "$"))
-    FlagColumn <- FlagColumn[which(NewFlagColumn)]
-  } else (FlagColumn <- FlagColumn)
-  #message("The Flag Column is", FlagColumn)
-
+  # Select Equivalent Flag Column
+  if (FailedFlag == TRUE){
+    FlagValue <- paste0("Flag-", yValue)
+    FlagColumn <- TheData %>% select(starts_with(FlagValue)) %>% colnames(.)
+    if (length(FlagColumn) >1){
+      NewFlagColumn <- str_detect(FlagColumn, paste0("^", FlagValue, "$"))
+      FlagColumn <- FlagColumn[which(NewFlagColumn)]
+    } else (FlagColumn <- FlagColumn)
+  }
 
   if (str_detect(yValue, "^UV\\d{1,2}-[A-Za-z]+(_Gain)?$")){
     mycolor <- "purple"
@@ -107,30 +136,45 @@ LevyJennings <- function(x, FailedFlag, xValue, TheData){
     mycolor <- "darkred"
   } else {mycolor <- "black"}
 
-  if (FailedFlag == TRUE){
 
-    if (any(grepl("FALSE", TheData[[FlagColumn]]))) {
-      shape_qc <- c("FALSE" = 21, "TRUE" = 22)
-      fill_qc <- c("FALSE" = mycolor, "TRUE" = "red")
-      size_qc <- c("FALSE" = 1, "TRUE" = 3)
+  if (plotType == "individual"){
 
-    } else {
-      shape_qc <- c("False" = 21, "True" = 22)
-      fill_qc <- c("False" = mycolor, "True" = "red")
-      size_qc <- c("False" = 1, "True" = 3)
+    if (FailedFlag == TRUE){
+
+      if (any(grepl("FALSE", TheData[[FlagColumn]]))) {
+        shape_qc <- c("FALSE" = 21, "TRUE" = 22)
+        fill_qc <- c("FALSE" = mycolor, "TRUE" = "red")
+        size_qc <- c("FALSE" = 1, "TRUE" = 3)
+
+      } else {
+        shape_qc <- c("False" = 21, "True" = 22)
+        fill_qc <- c("False" = mycolor, "True" = "red")
+        size_qc <- c("False" = 1, "True" = 3)
+      }
+
+      Plot <- ggplot(TheData, aes(x=.data[[xValue]], y = .data[[yValue]]))  +
+        geom_line(color = mycolor, linewidth = 1) +  geom_point(aes(
+        shape = .data[[FlagColumn]], size = .data[[FlagColumn]],
+        fill = .data[[FlagColumn]])) + scale_shape_manual(values = shape_qc) +
+        scale_fill_manual(values = fill_qc) + scale_size_manual(values = size_qc) +
+        labs(title = yValue, x = NULL, y = "Values") + theme_bw() +
+        theme(legend.position = "none")
+
+    } else {Plot <- ggplot(TheData, aes(x=.data[[xValue]], y = .data[[yValue]],
+            color = mycolor)) + geom_line(color = mycolor) + geom_point(
+            color = mycolor) + labs(title = yValue, x = NULL, y = "Values") +
+            theme_bw() + theme(legend.position = "none")
     }
-
-    Plot <- ggplot(TheData, aes(x=.data[[xValue]], y = .data[[yValue]]))  +
-      geom_line(color = mycolor, linewidth = 1) +  geom_point(aes(
-      shape = .data[[FlagColumn]], size = .data[[FlagColumn]],
-      fill = .data[[FlagColumn]])) + scale_shape_manual(values = shape_qc) +
-      scale_fill_manual(values = fill_qc) + scale_size_manual(values = size_qc) +
-      labs(title = yValue, x = NULL, y = "Values") + theme_bw() +
-      theme(legend.position = "none")
-
-  } else {Plot <- ggplot(TheData, aes(x=.data[[xValue]], y = .data[[yValue]],
-          color = mycolor)) + geom_line(color = mycolor) + geom_point(
-          color = mycolor) + labs(title = yValue, x = NULL, y = "Values") +
-          theme_bw() + theme(legend.position = "none")
   }
+
+  if (plotType == "comparison"){
+    VariantColor <- c(mycolor, adjustcolor(mycolor, alpha.f = 0.9),
+                      adjustcolor(mycolor, alpha.f = 0.5))
+
+    Plot <- ggplot(TheData, aes(x=.data[[xValue]], y = .data[[yValue]],
+                                group = .data[[Metadata]], color = .data[[Metadata]])) +
+      geom_line() + geom_point() + scale_color_manual(values = VariantColor) +
+      labs(title = yValue, x = NULL, y = "Values") + theme_bw() + theme(legend.position = "none")
+  }
+
 }
