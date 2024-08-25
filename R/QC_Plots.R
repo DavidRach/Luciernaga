@@ -27,6 +27,9 @@ QC_Plots <- function(x, FailedFlag, MeasurementType=NULL, pdf, path, filename){
   x <- x %>% select(DateTime, contains(MeasurementType))
   }
 
+  # Only specific to the QC reports, rethink for from .fcs files if call needed.
+  # Ditto the use of DateTime for first placeholder, alternate approach
+
   Flagged <- x %>% select(starts_with("Flag"))
   Regular <- x %>% select(-starts_with("Flag"))
   ReorderedData <- cbind(Regular, Flagged)
@@ -82,15 +85,15 @@ LevyJennings <- function(x, FailedFlag, xValue, TheData){
   #message("The Flag Column is", FlagColumn)
 
 
-  if (str_detect(yValue, "^UV\\d{1,2}(-[A-Za-z% ]+)?$")){
+  if (str_detect(yValue, "^UV\\d{1,2}-[A-Za-z]+(_Gain)?$")){
     mycolor <- "purple"
-  } else if (str_detect(yValue, "^V\\d{1,2}(-[A-Za-z% ]+)?$")){
+  } else if (str_detect(yValue, "^V\\d{1,2}-[A-Za-z]+(_Gain)?$")){
     mycolor <- "violet"
-  } else if (str_detect(yValue, "^B\\d{1,2}(-[A-Za-z% ]+)?$")){
+  } else if (str_detect(yValue, "^B\\d{1,2}-[A-Za-z]+(_Gain)?$")){
     mycolor <- "blue"
-  } else if (str_detect(yValue, "^YG\\d{1,2}(-[A-Za-z% ]+)?$")){
+  } else if (str_detect(yValue, "^YG\\d{1,2}-[A-Za-z]+(_Gain)?$")){
     mycolor <- "darkgreen"
-  } else if (str_detect(yValue, "^R\\d{1,2}(-[A-Za-z% ]+)?$")){
+  } else if (str_detect(yValue, "^R\\d{1,2}-[A-Za-z]+(_Gain)?$")){
     mycolor <- "darkred"
   } else if (str_detect(yValue, "^Change_UV\\d{1,2}(-[A-Za-z% ]+)?$")){
     mycolor <- "purple"
