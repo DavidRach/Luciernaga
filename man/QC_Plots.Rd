@@ -12,7 +12,11 @@ QC_Plots(
   plotType = "individual",
   returntype,
   path,
-  filename
+  filename,
+  thecolumns = 1,
+  therows = 3,
+  width = 7,
+  height = 9
 )
 }
 \arguments{
@@ -32,6 +36,14 @@ from the column names for plotting}
 \item{path}{Location path to return the pdf}
 
 \item{filename}{File name to save as.}
+
+\item{thecolumns}{The number of columns per page}
+
+\item{therows}{The number of rows per page}
+
+\item{width}{Desired page width}
+
+\item{height}{Desired page height}
 }
 \value{
 The pdf and/the plots.
