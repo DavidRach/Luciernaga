@@ -11,13 +11,14 @@ Encoding: UTF-8
 LazyData: FALSE
 URL: https://github.com/DavidRach/Luciernaga
 BugReports: https://github.com/DavidRach/Luciernaga/issues
-RoxygenNote: 7.3.1
+RoxygenNote: 7.3.2
 Imports: 
     dplyr,
     flowCore,
     flowWorkspace,
     ggplot2,
     grDevices,
+    ggridges,
     patchwork,
     purrr,
     reshape2,
