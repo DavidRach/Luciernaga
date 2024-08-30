@@ -29,7 +29,7 @@ Luciernaga_Lists <- function(ListOfList, SecondaryList=NULL, PlotType,
 
   indices <- length(Ultimate)
 
-  Transposed <- transpose(Ultimate)
+  Transposed <- transpose(Ultimate) #Test
 
   if (PlotType == "pdf"){
 
