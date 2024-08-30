@@ -40,12 +40,9 @@ Utility_UnityPlot <- function(x, y, GatingSet, marginsubset, gatesubset,
 
   TheX <- x
   TheY <- y
-  PlotNumber <- length(pData(GatingSet)[["name"]])
-
   FileName <- NameCleanUp(TheX, removestrings)
-  StorageLocation <- file.path(outpath, FileName)
 
- Plots <- map(GatingSet, .f=Unity, TheX=TheX, TheY=y, marginsubset=marginsubset,
+ Plots <- map(GatingSet, .f=Unity, TheX=TheX, TheY=TheY, marginsubset=marginsubset,
       gatesubset=gatesubset, sample.name=sample.name, removestrings=removestrings,
       clearance=clearance, bins=bins, gatelines=gatelines, reference=reference)
 
@@ -110,15 +107,18 @@ Unity <- function(x, TheY, TheX, marginsubset, gatesubset, sample.name, removest
 
   if (BiocGenerics::nrow(ff1) < 200) {
     Plot <- as.ggplot(ggcyto(ff1, aes(x = .data[[TheX]], y = .data[[TheY]]),
-     subset = "root") + geom_point(size = 2, alpha = 0.8) + theme_bw() +
-     labs(title = name) + theme(strip.background = element_blank(),
+     subset = "root") + geom_point(size = 2, alpha = 0.8) + coord_cartesian(
+       xlim = c(theXmin, theXmax), ylim = c(theYmin, theYmax), default = TRUE) +
+       theme_bw() + labs(title = name) + theme(strip.background = element_blank(),
      strip.text.x = element_blank(), panel.grid.major = element_line(
      linetype = "blank"), panel.grid.minor = element_line(linetype = "blank"),
      axis.title = element_text(size = 10, face = "bold"),legend.position = "none"))
   } else {
     Plot <- as.ggplot(ggcyto(ff1, aes(x = .data[[TheX]], y = .data[[TheY]]),
-     subset = "root") + geom_hex(bins=bins) + theme_bw() + labs(title = name) +
-     theme(strip.background = element_blank(), strip.text.x = element_blank(),
+     subset = "root") + geom_hex(bins=bins) + coord_cartesian(
+       xlim = c(theXmin, theXmax), ylim = c(theYmin, theYmax), default = TRUE) +
+       theme_bw() + labs(title = name) +
+       theme(strip.background = element_blank(), strip.text.x = element_blank(),
      panel.grid.major = element_line(linetype = "blank"),
      panel.grid.minor = element_line(linetype = "blank"),
      axis.title = element_text(size = 10, face = "bold"),
@@ -130,7 +130,7 @@ Unity <- function(x, TheY, TheX, marginsubset, gatesubset, sample.name, removest
   if (gatelines == TRUE){Value <- reference %>% dplyr::filter(specimen %in% name) %>%
     select(all_of(TheX)) %>% pull(.)
   Plot <- Plot + geom_vline(xintercept = c(seq(0,200,25)), colour = "gray") +
-    geom_vline(xintercept = c(seq(0,200,5)), colour = "white", alpha = 0.1) +
+    geom_vline(xintercept = c(seq(0,200,2)), colour = "white", alpha = 0.1) +
     geom_vline(xintercept = Value, colour = "red")}
 
   return(Plot)
