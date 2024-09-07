@@ -17,7 +17,7 @@
 #' @examples NULL
 QC_GainMonitoring <- function(x, sample.name, stats){
   Guts <- Luciernaga::QC_Retrieval(x=x, sample.name=sample.name)
-  Data <- data.frame(flowCore:exprs(x), check.names=FALSE)
+  Data <- data.frame(exprs(x), check.names=FALSE)
   Data <- Luciernaga:::AveragedSignature(Data, stats)
   Data <- Data %>% select(-Time)
   Bound <- cbind(Guts, Data)
