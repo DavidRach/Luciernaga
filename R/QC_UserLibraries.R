@@ -72,7 +72,7 @@ QC_UserLibraries <- function(x, Data, NameAppend, outpath, references=TRUE,
   if (references == TRUE){
     ThePlots <- map(.x=TheSamples, .f=QC_RefPlots, Data=TheGatheredData,
                     references=TRUE, refData=ReferenceData)
-  } else {ThePlots <- map(.x=TheSamples, .f=InternalLibraryPlot,
+  } else {ThePlots <- map(.x=TheSamples, .f=QC_RefPlots,
                           Data=TheGatheredData, references=FALSE, refData=NULL)
   }
 
