@@ -1,8 +1,8 @@
 #' Parses Library Reference Control .XML files and returns
 #'
 #' @param x An .XML file
-#' @param returntype What to Return
-#' @param references Whether to plot reference files
+#' @param returntype What to return "dataframe" or "plots"
+#' @param references Whether to add reference fluorophore signature in red
 #'
 #' @importFrom xml2 read_xml
 #' @importFrom xml2 xml_children

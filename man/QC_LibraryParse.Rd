@@ -9,9 +9,9 @@ QC_LibraryParse(x, returntype, references = TRUE)
 \arguments{
 \item{x}{An .XML file}
 
-\item{returntype}{What to Return}
+\item{returntype}{What to return "dataframe" or "plots"}
 
-\item{references}{Whether to plot reference files}
+\item{references}{Whether to add reference fluorophore signature in red}
 }
 \value{
 TBD

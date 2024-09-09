@@ -174,7 +174,8 @@ LevyJennings <- function(x, FailedFlag, xValue, TheData, Metadata, plotType){
   }
 
   if (plotType == "comparison"){
-    VariantColor <- c("black", mycolor)
+    if (mycolor != "black"){VariantColor <- c("black", mycolor)
+    } else {VariantColor <- c("gray", mycolor)}
 
     Plot <- ggplot(TheData, aes(x=.data[[xValue]], y = .data[[yValue]], group = .data[[Metadata]],
       color=.data[[Metadata]])) + geom_line(aes(color = .data[[Metadata]])) +

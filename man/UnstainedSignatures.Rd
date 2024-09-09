@@ -14,7 +14,7 @@ UnstainedSignatures(
   Increments,
   Verbose = FALSE,
   LocalMaximaRatio = 0.15,
-  SecondaryPeaks = 2
+  SecondaryPeaks
 )
 }
 \arguments{
