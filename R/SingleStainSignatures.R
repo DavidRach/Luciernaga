@@ -275,7 +275,7 @@ SingleStainSignatures <- function(x, WorkAround1, ColsN, StartNormalizedMergedCo
 #' @noRd
 ClusterIteration <- function(x, data, TheDetector, StartNormalizedMergedCol,
                              EndNormalizedMergedCol, ColsN, AggregateName, Verbose,
-                             LocalMaximaRatio = 0.15, SecondaryPeaks = 2){
+                             LocalMaximaRatio = 0.15, SecondaryPeaks){
 
   subset <- data %>% filter(Cluster %in% x)
   StashedIDs <- subset %>% select(Backups)

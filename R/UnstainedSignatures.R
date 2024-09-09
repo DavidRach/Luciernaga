@@ -28,7 +28,7 @@
 #' @keywords internal
 UnstainedSignatures <- function(x, WorkAround1, alternatename, ColsN,
   StartNormalizedMergedCol, EndNormalizedMergedCol, Increments, Verbose = FALSE,
-  LocalMaximaRatio=0.15, SecondaryPeaks=2){
+  LocalMaximaRatio=0.15, SecondaryPeaks){
 
   # Filter for Detector of Interest
   MySubset <- WorkAround1 %>% dplyr::filter(.data[[x]] == 1.000)

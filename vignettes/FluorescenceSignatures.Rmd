@@ -233,7 +233,9 @@ AFOverlap <- list.files(path=FileLocation, pattern=pattern, full.names = TRUE)
 
 removestrings <- ".fcs"
 
-LuciernagaQC(x=MyGatingSet[2], subsets="lymphocytes", removestrings=removestrings, sample.name="GUID", 
+?Luciernaga_QC
+
+Luciernaga_QC(x=MyGatingSet[2], subsets="lymphocytes", removestrings=removestrings, sample.name="GUID", 
                       unmixingcontroltype = "cells", Unstained = TRUE, ratiopopcutoff = 0.001, Verbose = TRUE,
                       AFOverlap = AFOverlap, stats = "median", ExportType = "data.frame", SignatureReturnNow = TRUE, 
                       outpath = NULL, Brightness = FALSE)
@@ -315,11 +317,11 @@ AFOverlap <- list.files(path=FileLocation, pattern=pattern, full.names = TRUE)
 removestrings <- c(".fcs", "(Cells)")
 StorageLocation <- file.path("C:", "Users", "JohnDoe", "Desktop")
 
-LuciernagaQC(x=MyGatingSet[2], subsets="lymphocytes", sample.name="GUID", experiment = "Monocytes", 
+Luciernaga_QC(x=MyGatingSet[2], subsets="lymphocytes", sample.name="GUID", experiment = "Monocytes", 
              condition = "exvivo", removestrings = removestrings, Verbose = TRUE, unmixingcontroltype="both",
              Unstained=FALSE, ratiopopcutoff = 0.01, AFOverlap=AFOverlap, desiredAF=NULL, externalAF = NULL, 
-             stats = "median", NegativeType = "default",
-             ExportType = "fcs", outpath=StorageLocation, Brightness = TRUE, SignatureReturnNow = FALSE)
+             stats = "median", NegativeType = "default", Increments=0.1, SecondaryPeaks=2,
+             ExportType = "data", outpath=StorageLocation, Brightness = TRUE, SignatureReturnNow = FALSE)
 ```
 
 And for single-color controls:

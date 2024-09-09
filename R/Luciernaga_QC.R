@@ -292,7 +292,7 @@ Luciernaga_QC <- function(x, subsets, sample.name, removestrings=NULL, Verbose =
                       WorkAround1=WorkAround1, alternatename=AggregateName,
                       ColsN=ColsN, StartNormalizedMergedCol=StartNormalizedMergedCol,
                       EndNormalizedMergedCol=EndNormalizedMergedCol, Verbose=Verbose,
-                      Increments=Increments) %>%
+                      Increments=Increments, SecondaryPeaks=SecondaryPeaks) %>%
       bind_rows()
 
   }
@@ -315,7 +315,7 @@ Luciernaga_QC <- function(x, subsets, sample.name, removestrings=NULL, Verbose =
                       Increments=Increments, Subtraction=Subtraction, stats=stats,
                       TheMainAF=TheMainAF, Verbose = Verbose, SCData = SCData,
                       LocalMaximaRatio=LocalMaximaRatio,
-                      SecondaryPeaks=SecondaryPeaks, ) %>% bind_rows()
+                      SecondaryPeaks=SecondaryPeaks) %>% bind_rows()
   }
 
   if (Type == "Beads"){
