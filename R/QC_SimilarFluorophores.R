@@ -28,13 +28,16 @@
 QC_SimilarFluorophores <- function(TheFluorophore, NumberDetectors, NumberHits, returnPlots=FALSE) {
 
   if (NumberDetectors == 64){instrument <- "FiveLaser"
-  TheFile <- file.path(getwd(), "CytekReferenceLibrary5L.csv")
+  FileLocation <- system.file("extdata", package = "Luciernaga")
+  TheFile <- file.path(FileLocation, "CytekReferenceLibrary5L.csv")
   ReferenceData <- read.csv(TheFile, check.names = FALSE)
   } else if (NumberDetectors == 54){instrument <- "FourLaser"
-  TheFile <- file.path(getwd(), "CytekReferenceLibrary4LUV.csv")
+  FileLocation <- system.file("extdata", package = "Luciernaga")
+  TheFile <- file.path(FileLocation, "CytekReferenceLibrary4LUV.csv")
   ReferenceData <- read.csv(TheFile, check.names = FALSE)
   } else if (NumberDetectors == 38){instrument <- "ThreeLaser"
-  TheFile <- file.path(getwd(), "CytekReferenceLibrary3L.csv")
+  FileLocation <- system.file("extdata", package = "Luciernaga")
+  TheFile <- file.path(FileLocation, "CytekReferenceLibrary3L.csv")
   ReferenceData <- read.csv(TheFile, check.names = FALSE)
   } else {message("No References Found")}
 
