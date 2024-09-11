@@ -561,65 +561,22 @@ LocalMaxima <- function(theX, theY, therepeats, w, alternatename,
 #' @return A value to be determined later
 #' @noRd
 RelativeBrightness <- function(x){
-  Regular <- x %>% filter(!str_detect(Cluster, "-$")) #Loss terminal hyphen?
+  Regular <- x
 
   if(nrow(Regular) > 0){
     Regular <- Regular %>% mutate(regular_split = str_split(
       as.character(Cluster), "-")) %>% relocate(regular_split, .after = Cluster)
-    Regular <- Regular %>%  unnest_wider(regular_split, names_sep = "_") %>%
-      rename_with(~ c("Detector1", "Detector2", "Detector3"), starts_with("regular"))
+    Regular <- Regular %>%  unnest_wider(regular_split, names_sep = "_")
+    Regular <- Regular %>% mutate(across(starts_with("regular_split"), ~ str_split(as.character(.), "_")))
+    Regular <- Regular %>%  unnest_wider(starts_with("Regular"), names_sep = "_")
 
-    Regular <- Regular %>% mutate(Detector1 = str_split(as.character(Detector1),
-                                                        "_"))
-    Regular <- Regular %>%  unnest_wider(Detector1, names_sep = "_") %>%
-      rename_with(~ c("Detector1", "Detector1Value"), starts_with("Detector1"))
+    Regular <- Regular %>% rename_with(~paste0("Detector", seq_along(.)), ends_with("_1"))
+    Regular <- Regular %>% rename_with(~paste0("Detector", seq_along(.), "Value"), ends_with("_2"))
+  } else {stop("No retained Clusters at this minimalfcsccutoff")}
 
-    Regular <- Regular %>% mutate(Detector2 = str_split(as.character(Detector2),
-                                                        "_"))
-    Regular <- Regular %>%  unnest_wider(Detector2, names_sep = "_") %>%
-      rename_with(~ c("Detector2", "Detector2Value"), starts_with("Detector2"))
+  Combined <- Regular %>% mutate(across(ends_with("Value"), as.numeric))
 
-    Regular <- Regular %>% mutate(Detector3 = str_split(as.character(Detector3),
-                                                        "_"))
-    Regular <- Regular %>%  unnest_wider(Detector3, names_sep = "_") %>%
-      rename_with(~ c("Detector3", "Detector3Value"), starts_with("Detector3"))
-  }
 
-  Exceptions <- x %>% filter(str_detect(Cluster, "-$"))
-
-  if(nrow(Exceptions) > 0){
-
-    Exceptions$Cluster <- gsub("-$", "", Exceptions$Cluster)
-    Exceptions <- Exceptions %>% mutate(regular_split = str_split(as.character(
-      Cluster), "-")) %>% relocate(regular_split, .after = Cluster)
-    Exceptions <- Exceptions %>%  unnest_wider(regular_split, names_sep = "_") %>%
-      rename_with(~ c("Detector1", "Detector2"), starts_with("regular"))
-
-    Exceptions <- Exceptions %>% mutate(Detector1 = str_split(as.character(
-      Detector1), "_"))
-    Exceptions <- Exceptions %>%  unnest_wider(Detector1, names_sep = "_") %>%
-      rename_with(~ c("Detector1", "Detector1Value"), starts_with("Detector1"))
-
-    Exceptions <- Exceptions %>% mutate(Detector2 = str_split(as.character(
-      Detector2), "_"))
-    Exceptions <- Exceptions %>%  unnest_wider(Detector2, names_sep = "_") %>%
-      rename_with(~ c("Detector2", "Detector2Value"), starts_with("Detector2"))
-
-    Exceptions <- Exceptions %>% mutate(Detector3 = rep(NA, nrow(Exceptions))) %>%
-      relocate(Detector3, .after = Detector2Value)
-    Exceptions$Detector3 <- as.character(Exceptions$Detector3)
-
-    Exceptions <- Exceptions %>% mutate(Detector3Value = rep(NA,
-                  nrow(Exceptions))) %>% relocate(Detector3Value, .after = Detector3)
-    Exceptions$Detector3Value <- as.character(Exceptions$Detector3Value)
-
-  }
-
-  Combined <- rbind(Regular, Exceptions)
-
-  Combined$Detector1Value <- as.numeric(Combined$Detector1Value)
-  Combined$Detector2Value <- as.numeric(Combined$Detector2Value)
-  Combined$Detector3Value <- as.numeric(Combined$Detector3Value)
 
   Combined <- Combined %>% mutate(Brightness = rowSums(select(., Detector1Value,
               Detector2Value, Detector3Value), na.rm = TRUE)) %>%
@@ -725,7 +682,7 @@ FillIterate <- function(x, data){
 #' @importFrom utils write.csv
 #'
 #' @noRd
-Genesis <- function(x, ff, minimalfcscutoff=0.05, AggregateName,
+Genesis <- function(x, ff, minimalfcscutoff, AggregateName,
                     Brightness, outpath=NULL, OriginalStart, OriginalEnd,
                     stats = "median", NegativeType="default", TotalNegatives=500,
                     Samples=NULL, ExportType){
