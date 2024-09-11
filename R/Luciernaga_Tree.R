@@ -17,7 +17,7 @@
 #'
 #' @examples NULL
 
-Luciernaga_Tree <- function(x, data, BrightnessFilePath, PanelPath){
+Luciernaga_Tree <- function(BrightnessFilePath, PanelPath){
 
   TheCSVs <- list.files(BrightnessFilePath, pattern="RelativeBrightness", full.names = TRUE)
   TheData <- map(.x=TheCSVs, .f=CSVRead) %>% bind_rows()
@@ -32,15 +32,19 @@ Luciernaga_Tree <- function(x, data, BrightnessFilePath, PanelPath){
   #TheFluorophores <- TheFluorophores[c(4, 16, 25)]
   TheFluorophores <- gsub("-A", "", TheFluorophores)
 
-  x <- TheFluorophores[1]
+  #x <- TheFluorophores[1]
 
   NewData <- map(.x=TheFluorophores, .f=InternalTree, TheData=TheData) %>% bind_rows()
 
+  return(NewData)
 }
 
 InternalTree <- function(x, TheData){
 
-  Internal <- TheData %>% filter(str_detect(sample, fixed(x, ignore_case = TRUE)))
+  Internal <- TheData %>% dplyr::filter(str_detect(sample, fixed(x, ignore_case = TRUE)))
+  Total <- sum(Internal$Count, na.rm = TRUE)
+  Internal <- Internal %>% mutate(Ratio = Count / Total) %>% relocate(Ratio, .after=Count)
+
 
   if(nrow(Internal)>1){
     Internal <- Internal %>% arrange(desc(Detector1Raw)) #First Arrange
@@ -89,10 +93,6 @@ InternalTree <- function(x, TheData){
   return(SubsetData)}
 }
 
-
-
-
-
 CSVRead <- function(x){
   name <- basename(x)
   internalstrings <- c("RelativeBrightness", ".csv")
@@ -100,3 +100,5 @@ CSVRead <- function(x){
   Data <- read.csv(x, check.names=FALSE)
   Data <- Data %>% mutate(sample = name) %>% relocate(sample, .before=Cluster)
 }
+
+
