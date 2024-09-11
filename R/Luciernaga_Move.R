@@ -17,7 +17,11 @@
 Luciernaga_Move <- function(x, data, input, output){
   #Internal <- data %>% filter(str_detect(sample %in% x))
   x <- gsub("-A", "", x)
+
+  if (x %in% c("PE", "APC")){x <- paste0(x, " ")} #ExceptionHandling
+
   Internal <- data %>% dplyr::filter(str_detect(sample, fixed(x, ignore_case = TRUE)))
+
   #Internal <- data %>% dplyr::filter(str_detect(sample, x))
 
   Fluor <- Internal %>% pull(sample) %>% unique()
@@ -29,8 +33,9 @@ Luciernaga_Move <- function(x, data, input, output){
   inputfiles <- list.files(input, full.names = TRUE)
 
   files_to_move <- inputfiles[str_detect(basename(inputfiles), fixed(Fluor, ignore_case = TRUE)) &
-                                str_detect(basename(inputfiles), Clusterlet)]
+                                str_detect(basename(inputfiles), paste0("_", Clusterlet, "\\."))]
 
   file.copy(files_to_move, output)
 
 }
+

@@ -33,7 +33,7 @@ Luciernaga_Tree <- function(BrightnessFilePath, PanelPath){
   #TheFluorophores <- TheFluorophores[c(4, 16, 25)]
   TheFluorophores <- gsub("-A", "", TheFluorophores)
 
-  #x <- TheFluorophores[1]
+  #x <- TheFluorophores[13]
 
   NewData <- map(.x=TheFluorophores, .f=InternalTree, TheData=TheData) %>% bind_rows()
 
@@ -57,11 +57,14 @@ Luciernaga_Tree <- function(BrightnessFilePath, PanelPath){
 #' @noRd
 InternalTree <- function(x, TheData){
 
+  if (x %in% c("PE", "APC")){x <- paste0(x, " ")} #ExceptionHandling
+
   Internal <- TheData %>% dplyr::filter(str_detect(sample, fixed(x, ignore_case = TRUE)))
+
   Total <- sum(Internal$Count, na.rm = TRUE)
   Internal <- Internal %>% mutate(Ratio = Count / Total) %>% relocate(Ratio, .after=Count)
 
-  if(nrow(Internal) == 0){stop("No Fluorophore for ", x, "was found")}
+  if(nrow(Internal) == 0){message("No Fluorophore for ", x, " was found")}
 
   if(nrow(Internal)>1){
     Internal <- Internal %>% arrange(desc(Detector1Raw)) #First Arrange
