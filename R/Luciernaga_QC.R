@@ -106,8 +106,10 @@ Luciernaga_QC <- function(x, subsets, sample.name, removestrings=NULL, Verbose =
   name <- Luciernaga:::NameCleanUp(name, InternalCleanupList)
 
   # Brought back until overlap is converted from name reliant to type reliant.
-  if (Unstained == TRUE) {if(!str_detect(name, "stained")){
-    name <- paste0(name, "_Unstained")}}
+  if (Unstained == TRUE) {
+    if(!str_detect(name, "stained")){name <- paste0(name, "_Unstained")}
+    if(!str_detect(Type, "stained")){Type <- paste0(Type, "_Unstained")}
+    }
 
   ###############
   # Exprs Setup #

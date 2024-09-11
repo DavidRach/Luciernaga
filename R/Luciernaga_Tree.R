@@ -61,6 +61,7 @@ InternalTree <- function(x, TheData){
   Total <- sum(Internal$Count, na.rm = TRUE)
   Internal <- Internal %>% mutate(Ratio = Count / Total) %>% relocate(Ratio, .after=Count)
 
+  if(nrow(Internal) == 0){stop("No Fluorophore for ", x, "was found")}
 
   if(nrow(Internal)>1){
     Internal <- Internal %>% arrange(desc(Detector1Raw)) #First Arrange
@@ -78,10 +79,10 @@ InternalTree <- function(x, TheData){
     if((Top/Proportion) < 0.5){MainComplexity <- Internal2 %>%
       filter(row_number() == 1) %>% pull(Brightness)
     Complexity <- Internal2 %>% arrange(desc(Brightness)) %>% pull(Brightness)
-    ComplexityLowerBound <- Complexity[1]*0.9
+    ComplexityLowerBound <- Complexity[1]*0.6
 
-    if(MainComplexity < ComplexityLowerBound){Internal3 <- Internal2 %>%
-      arrange(desc(Brightness))
+    if(MainComplexity > ComplexityLowerBound){Internal3 <- Internal2 %>%
+      arrange(Brightness)
     SubsetData <- Internal3 %>% filter(row_number() == 1)
     SubsetData <- SubsetData %>% mutate(Decision = "Contested") %>% relocate(
       Decision, .after = Cluster)
