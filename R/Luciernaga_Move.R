@@ -7,22 +7,28 @@
 #' files.
 #'
 #' @importFrom dplyr filter
-#' @importFrom dplyr pull
 #' @importFrom stringr str_detect
+#' @importFrom dplyr pull
 #'
 #' @return No return, .fcs files are moved desired folder.
 #' @export
 #'
 #' @examples NULL
-Luciernag_Move <- function(x, data, input, output){
-  Internal <- data %>% filter(sample %in% x)
+Luciernaga_Move <- function(x, data, input, output){
+  #Internal <- data %>% filter(str_detect(sample %in% x))
+  x <- gsub("-A", "", x)
+  Internal <- data %>% dplyr::filter(str_detect(sample, fixed(x, ignore_case = TRUE)))
+  #Internal <- data %>% dplyr::filter(str_detect(sample, x))
 
-  Fluor <- Internal %>% pull(sample)
-  Clusterlet <- Internal %>% pull(Cluster)
+  Fluor <- Internal %>% pull(sample) %>% unique()
+  Clusterlet <- Internal %>% pull(Cluster) %>% unique()
+
+  internalstrings <- c("_","-")
+  Clusterlet <- Luciernaga::NameCleanUp(Clusterlet, removestrings = internalstrings)
 
   inputfiles <- list.files(input, full.names = TRUE)
 
-  files_to_move <- inputfiles[str_detect(basename(inputfiles), Fluor) &
+  files_to_move <- inputfiles[str_detect(basename(inputfiles), fixed(Fluor, ignore_case = TRUE)) &
                                 str_detect(basename(inputfiles), Clusterlet)]
 
   file.copy(files_to_move, output)

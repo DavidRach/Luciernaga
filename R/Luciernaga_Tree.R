@@ -1,10 +1,14 @@
 
 #' Select candidate Luciernaga output .fcs files for future use in unmixing.
 #'
-#' @param x A vector of the fluorophores found in data.
-#' @param data  The data.frame of Luciernaga outputs used to candidate .fcs files
-#'  for unmixing.
+#' @param BrightnessFilePath A path to the folder the individual brightness files are in.
+#' @param PanelPath A path to the .csv file containing the panel information. It should include only
+#' the fluorophores captured by the BrightnessFiles
 #'
+#' @importFrom purrr map
+#' @importFrom dplyr bind_rows
+#' @importFrom utils read.csv
+#' @importFrom dplyr pull
 #' @importFrom dplyr filter
 #' @importFrom dplyr arrange
 #' @importFrom dplyr mutate
@@ -21,9 +25,6 @@ Luciernaga_Tree <- function(BrightnessFilePath, PanelPath){
 
   TheCSVs <- list.files(BrightnessFilePath, pattern="RelativeBrightness", full.names = TRUE)
   TheData <- map(.x=TheCSVs, .f=CSVRead) %>% bind_rows()
-  TheData
-
-  #PanelPath <- file.path("C:", "Users", "12692", "Desktop", "PPD_Test", "Panel.csv")
 
   if(!is.data.frame(PanelPath)){Panel <- read.csv(PanelPath, check.names = FALSE)
   } else {Panel <- PanelPath}
@@ -39,6 +40,21 @@ Luciernaga_Tree <- function(BrightnessFilePath, PanelPath){
   return(NewData)
 }
 
+#' Internal for Luciernaga_Tree
+#'
+#' @param x The iterated Fluorophore to be filtered
+#' @param TheData The Data for all fluorophores
+#'
+#' @importFrom dplyr filter
+#' @importFrom stringr str_detect
+#' @importFrom dplyr mutate
+#' @importFrom dplyr relocate
+#' @importFrom dplyr arrange
+#' @importFrom dplyr desc
+#' @importFrom dplyr pull
+#' @importFrom dplyr row_number
+#'
+#' @noRd
 InternalTree <- function(x, TheData){
 
   Internal <- TheData %>% dplyr::filter(str_detect(sample, fixed(x, ignore_case = TRUE)))
@@ -93,6 +109,15 @@ InternalTree <- function(x, TheData){
   return(SubsetData)}
 }
 
+#' Internal for Luciernaga_Tree
+#'
+#' @param x An iterated path to a .csv to be read.
+#'
+#' @param utils read.csv
+#' @param dplyr mutate
+#' @param dplyr relocate
+#'
+#' @noRd
 CSVRead <- function(x){
   name <- basename(x)
   internalstrings <- c("RelativeBrightness", ".csv")
