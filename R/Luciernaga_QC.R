@@ -352,7 +352,7 @@ Luciernaga_QC <- function(x, subsets, sample.name, removestrings=NULL, Verbose =
 
   if (ExportType == "fcs"){
 
-    BrightnessReturn <- Genesis(x=Reintegrated1, ff=ff, minimalfcscutoff = 0.05,
+    BrightnessReturn <- Genesis(x=Reintegrated1, ff=ff, minimalfcscutoff = minimalfcscutoff,
                         AggregateName=AggregateName, Brightness = Brightness,
                         outpath=outpath, OriginalStart = OriginalStart,
                         OriginalEnd = OriginalEnd, stats=stats,
@@ -561,7 +561,7 @@ LocalMaxima <- function(theX, theY, therepeats, w, alternatename,
 #' @return A value to be determined later
 #' @noRd
 RelativeBrightness <- function(x){
-  Regular <- x %>% filter(!str_detect(Cluster, "-$"))
+  Regular <- x %>% filter(!str_detect(Cluster, "-$")) #Loss terminal hyphen?
 
   if(nrow(Regular) > 0){
     Regular <- Regular %>% mutate(regular_split = str_split(
@@ -752,7 +752,7 @@ Genesis <- function(x, ff, minimalfcscutoff=0.05, AggregateName,
     TotalNegatives=TotalNegatives, Samples=Samples, ExportType=ExportType,
     parameters=original_p, description=original_d) %>% bind_rows()
 
-  message("TargetReached")
+  #message("TargetReached")
 
   if (Brightness == TRUE){
     RelativeBrightness <- Luciernaga:::RelativeBrightness(TheBrightness)

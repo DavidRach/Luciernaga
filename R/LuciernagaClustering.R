@@ -41,8 +41,7 @@ LuciernagaClustering <- function(MyData, These, DetectorName){
   } else if (length(These) == 2){second <- These[[1]]
                                  third <- These[[2]]
   } else if (length(These) == 1){second <- These[[1]]
-  } else if (length(These) == 0){
-    if (Verbose == TRUE) {message("No second peak")}}
+  } else if (length(These) == 0){message("No second peak")}
 
   if (length(These) >= 1){MyData <- MyData %>% mutate(Cluster = case_when(
     near(MyData[[second]], 0.0) ~ paste0(MyData$Cluster, second, "_00-"),
