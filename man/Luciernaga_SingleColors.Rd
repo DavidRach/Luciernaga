@@ -12,7 +12,8 @@ Luciernaga_SingleColors(
   subset,
   PanelCuts,
   stats,
-  SignatureView
+  SignatureView,
+  Verbose = FALSE
 )
 }
 \arguments{
@@ -30,6 +31,8 @@ Fluorophore name should match sample.name style}
 \item{stats}{Whether to use "mean" or "median"}
 
 \item{SignatureView}{Whether to also return a normalized signature plot.}
+
+\item{Verbose}{Provides debugging for removestrings}
 }
 \value{
 A tibble row for each flow object containing the summarized data.

@@ -30,7 +30,7 @@ Luciernaga_LinearSlices(
 
 \item{probsratio}{Ratio increments to break quantiles into, default is set to 0.1.}
 
-\item{Whether}{to return "plot"}
+\item{output}{Whether to return "plot"}
 }
 \value{
 Either ggplots or the summarized data.frame object preceeding

@@ -9,6 +9,7 @@
 #' Fluorophore name should match sample.name style
 #' @param stats Whether to use "mean" or "median"
 #' @param SignatureView Whether to also return a normalized signature plot.
+#' @param Verbose Provides debugging for removestrings
 #'
 #' @importFrom BiocGenerics nrow
 #' @importFrom flowCore exprs
@@ -33,9 +34,21 @@
 #' @examples NULL
 
 Luciernaga_SingleColors <- function(x, sample.name, removestrings, subset, PanelCuts,
-                                    stats, SignatureView){
+                                    stats, SignatureView, Verbose=FALSE){
   name <- keyword(x, sample.name)
-  name <- NameCleanUp(name, removestrings)
+  name <- NameCleanUp(name, removestrings=c("(Cells)", "(Beads)"))
+  name <- gsub("\\s+$", "", name)
+  name <- NameCleanUp(name, removestrings=removestrings)
+
+  if (Verbose == TRUE){message("After removestrings cleanup the name is ", name)}
+
+  name <- sub(" ", "_", name)
+  name <- sub("(.*)_(.*)", "\\2_\\1", name) #Swaps order
+  TheFluorophore <- strsplit(name, "_")[[1]]
+  TheFluorophores <- TheFluorophore[1]
+  TheLigand <- TheFluorophore[2]
+
+  if (Verbose == TRUE){message("The Fluorophore is ", TheFluorophores, " and the ligand is ", TheLigand)}
 
   cs <- gs_pop_get_data(x, subset)
   Data <- exprs(cs[[1]])
@@ -65,28 +78,22 @@ Luciernaga_SingleColors <- function(x, sample.name, removestrings, subset, Panel
     PanelCuts <- read.csv(PanelCuts, check.names = FALSE)
     } else {PanelCuts <- PanelCuts}
 
-  # Importing the Quantile Cut Parameters
-  name <- sub(" ", "_", name)
-  name <- sub("(.*)_(.*)", "\\2_\\1", name) #Swaps order
-  #name1 <- gsub(" ")
-  internal <- c("-", ".", " ")
-  name1 <- NameCleanUp(name, removestrings=internal)
-  TheFluorophore <- strsplit(name1, "_")[[1]]
-  TheFluorophore <- TheFluorophore[1]
+  PanelCuts$Fluorophore <- gsub("-A", "", PanelCuts$Fluorophore)
 
-  TheInfo <- PanelCuts %>% filter(Fluorophore %in% TheFluorophore)
+  TheInfo <- PanelCuts %>% dplyr::filter(Fluorophore %in% TheFluorophores)
 
-  if(base::nrow(TheInfo) > 1){
-    error("More than two rows retrieved when selecting Fluorophore")}
+  if(base::nrow(TheInfo) > 1){stop("More than two rows retrieved when selecting Fluorophore")}
 
   LowerBound <- TheInfo %>% select(From) %>% pull()
   UpperBound <- TheInfo %>% select(To) %>% pull()
 
   if (!(LowerBound > 0 & LowerBound < 1)) {
+    message("From should be between 0 and 1, proceeding to divide by 100 on assumption it was a percentage")
     LowerBound <- LowerBound / 100
   }
 
   if (!(UpperBound > 0 & UpperBound < 1)) {
+    message("To should be between 0 and 1, proceeding to divide by 100 on assumption it was a percentage")
     UpperBound <- UpperBound / 100
   }
 
@@ -98,17 +105,11 @@ Luciernaga_SingleColors <- function(x, sample.name, removestrings, subset, Panel
   ValuesInterest <- TheColumns %>% filter(
     .data[[TheDetector]]  >= LowerBoundMFI & .data[[TheDetector]] <= UpperBoundMFI)
 
-  if (stats == "mean") {Samples <- ValuesInterest %>%
-    nest(data = where(is.numeric)) %>% mutate(mean_data = map(
-      data, ~ summarise_all(., ~ round(mean(., na.rm = TRUE),2)))) %>%
-    select(mean_data) %>% unnest(mean_data)
-  } else if (stats == "median"){Samples <- ValuesInterest %>%  nest(
-    data = where(is.numeric)) %>% mutate(median_data = map(
-      data, ~ summarise_all(., ~ round(median(., na.rm = TRUE),2)))) %>%
-    select(median_data) %>% unnest(median_data)
-  } else {error("Choice of statistical summary not found")}
+  Samples <- Luciernaga:::AveragedSignature(x=ValuesInterest, stats=stats)
 
-  Data <- cbind(name, Samples) %>% rename(Fluorophore = name)
+
+  Data <- cbind(TheFluorophores, TheLigand, Samples) %>% rename(Fluorophore = TheFluorophores) %>%
+    rename(Ligand = TheLigand)
 
   if (SignatureView == TRUE){
 

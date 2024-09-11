@@ -7,7 +7,7 @@
 #' @param stats Whether to use "mean" or "median"
 #' @param returntype Whether to return a "raw" or "normalized" value lineplot.
 #' @param probsratio Ratio increments to break quantiles into, default is set to 0.1.
-#' @param Whether to return "plot"
+#' @param output Whether to return "plot"
 #'
 #' @importFrom flowCore keyword
 #' @importFrom flowWorkspace gs_pop_get_data
