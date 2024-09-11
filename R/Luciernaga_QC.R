@@ -549,14 +549,19 @@ LocalMaxima <- function(theX, theY, therepeats, w, alternatename,
 #'
 #' @param x A data.frame containing column Cluster
 #'
-#' @importFrom dplyr filter
-#' @importFrom stringr str_detect
+#' @importFrom dplyr mutate
 #' @importFrom stringr str_split
 #' @importFrom dplyr relocate
-#' @importFrom dplyr mutate
-#' @importFrom dplyr rename_with
 #' @importFrom tidyr unnest_wider
+#' @importFrom dplyr across
 #' @importFrom tidyr starts_with
+#' @importFrom dplyr rename_with
+#' @importFrom tidyselect ends_with
+#' @importFrom dplyr relocate
+#' @importFrom dplyr select
+#' @importFrom dplyr pull
+#' @importFrom purrr map
+#' @importFrom dplyr bind_rows
 #'
 #' @return A value to be determined later
 #' @noRd
@@ -567,88 +572,75 @@ RelativeBrightness <- function(x){
     Regular <- Regular %>% mutate(regular_split = str_split(
       as.character(Cluster), "-")) %>% relocate(regular_split, .after = Cluster)
     Regular <- Regular %>%  unnest_wider(regular_split, names_sep = "_")
-    Regular <- Regular %>% mutate(across(starts_with("regular_split"), ~ str_split(as.character(.), "_")))
+    Regular <- Regular %>% mutate(
+      across(starts_with("regular_split"), ~ str_split(as.character(.), "_")))
     Regular <- Regular %>%  unnest_wider(starts_with("Regular"), names_sep = "_")
 
     Regular <- Regular %>% rename_with(~paste0("Detector", seq_along(.)), ends_with("_1"))
-    Regular <- Regular %>% rename_with(~paste0("Detector", seq_along(.), "Value"), ends_with("_2"))
+    Regular <- Regular %>%
+      rename_with(~paste0("Detector", seq_along(.), "Value"), ends_with("_2"))
   } else {stop("No retained Clusters at this minimalfcsccutoff")}
 
   Combined <- Regular %>% mutate(across(ends_with("Value"), as.numeric))
 
+  Combined <- Combined %>% mutate(
+    Brightness = rowSums(select(., ends_with("Value")), na.rm = TRUE)) %>%
+    relocate(Brightness, .after = Cluster)
 
+  Values <- names(select(Combined, ends_with("Value")))
 
-  Combined <- Combined %>% mutate(Brightness = rowSums(select(., Detector1Value,
-              Detector2Value, Detector3Value), na.rm = TRUE)) %>%
-              relocate(Brightness, .after = Cluster)
+  Combined <- Combined %>% mutate(across(all_of(Values), ~ NA_real_, .names = "{.col}Raw")) %>%
+    relocate(ends_with("Raw"), .after = all_of(Values))
 
-  Combined <- Combined %>% mutate(Detector1Raw = rep(NA, nrow(Combined)),
-                                  Detector2Raw = rep(NA, nrow(Combined)),
-                                  Detector3Raw = rep(NA, nrow(Combined))) %>%
-    relocate(Detector1Raw, .after = Detector1Value) %>%
-    relocate(Detector2Raw, .after = Detector2Value) %>%
-    relocate(Detector3Raw, .after = Detector3Value)
+  colnames(Combined) <- gsub("ValueRaw", "Raw", colnames(Combined))
+  colnames(Combined) <- gsub("-A", "",  colnames(Combined))
 
-  Combined <- TheFill(Combined)
+  TheClusters <- Combined %>% select(Cluster) %>% pull()
 
-  return(Combined)
-}
+  #x <- TheClusters[1]
+  Generated <- map(.x=TheClusters, data=Combined, .f=FillIterate) %>% bind_rows()
 
-
-#' Internal function for relative brightness
-#'
-#' @param x The data.frame object passed by relative brightness
-#'
-#' @importFrom dplyr select
-#' @importFrom dplyr pull
-#' @importFrom purrr map
-#' @importFrom dplyr bind_rows
-#'
-#' @noRd
-TheFill <- function(x){
-  colnames(x) <- gsub("-A", "",  colnames(x))
-  TheClusters <- x %>% select(Cluster) %>% pull()
-  TheX <- x
-  Generated <- map(.x=TheClusters, data=TheX, .f=FillIterate) %>% bind_rows()
   return(Generated)
 }
 
-
-
-#' Internal function for relative brightness TheFill
+#' Internal function for relative brightness
 #'
 #' @param x The passed cluster
 #' @param data The passed data.frame
 #'
 #' @importFrom dplyr filter
 #' @importFrom dplyr select
+#' @importFrom tidyselect starts_with
+#' @importFrom tidyselect ends_with
+#' @importFrom tidyr pivot_longer
 #' @importFrom dplyr pull
 #' @importFrom tidyselect all_of
 #' @importFrom dplyr mutate
+#' @importFrom dplyr across
 #' @importFrom dplyr coalesce
 #'
 #' @noRd
 FillIterate <- function(x, data){
   IndividualCluster <- data %>% filter(Cluster %in% x)
-  IndividualCluster <- data.frame(IndividualCluster, check.names = FALSE)
-  Detectors <- IndividualCluster %>% select(Detector1, Detector2, Detector3) %>%
-    unlist() %>% as.vector()
+  Detectors <- IndividualCluster %>% select(starts_with("Detector")) %>%
+    select(-ends_with("Raw"), -ends_with("Value"))
 
-  D1 <- Detectors[[1]]
-  D2 <- Detectors[[2]]
-  D3 <- Detectors[[3]]
+  Detectors <- Detectors %>% pivot_longer(cols = everything(),
+               names_to = "TheNames", values_to = "TheDetectors")
 
-  D1Value <- IndividualCluster %>% pull(all_of(D1))
-  D2Value <- IndividualCluster %>% pull(all_of(D2))
+  TheNames <- Detectors %>% pull(TheNames)
 
-  if (!is.na(D3)){D3Value <- IndividualCluster %>% pull(all_of(D3))
-  FilledCluster <- IndividualCluster %>% mutate(
-    Detector1Raw = coalesce(Detector1Raw, D1Value),
-    Detector2Raw = coalesce(Detector2Raw, D2Value),
-    Detector3Raw = coalesce(Detector3Raw, D3Value))
-  } else {FilledCluster <- IndividualCluster %>%
-    mutate(Detector1Raw = coalesce(Detector1Raw, D1Value),
-           Detector2Raw = coalesce(Detector2Raw, D2Value))}
+  for (i in TheNames){
+    ThisDetector <- i
+    ThisColumn <- Detectors %>% dplyr::filter(TheNames %in% i) %>% pull(TheDetectors)
+    ThisValue <- IndividualCluster %>% select(all_of(ThisColumn)) %>% pull(.)
+
+    ThisDetector <- paste0(ThisDetector, "Raw")
+
+    IndividualCluster <- IndividualCluster %>% mutate(across(all_of(ThisDetector), ~ coalesce(.x, ThisValue)))
+  }
+
+  return(IndividualCluster)
 }
 
 
