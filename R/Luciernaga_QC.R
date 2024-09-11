@@ -621,14 +621,17 @@ RelativeBrightness <- function(x){
 #'
 #' @noRd
 FillIterate <- function(x, data){
-  IndividualCluster <- data %>% filter(Cluster %in% x)
+  IndividualCluster <- data %>% dplyr::filter(Cluster %in% x)
   Detectors <- IndividualCluster %>% select(starts_with("Detector")) %>%
     select(-ends_with("Raw"), -ends_with("Value"))
 
   Detectors <- Detectors %>% pivot_longer(cols = everything(),
                names_to = "TheNames", values_to = "TheDetectors")
 
+  Detectors <- Detectors %>% filter(!is.na(TheDetectors))
+
   TheNames <- Detectors %>% pull(TheNames)
+  #i <- TheNames[1]
 
   for (i in TheNames){
     ThisDetector <- i
@@ -756,7 +759,8 @@ InternalGenesis <- function(x, Data, AggregateName, outpath=NULL, OriginalStart,
   RawFCSSubset <- FCSSubset %>% select(all_of(OriginalStart:OriginalEnd))
 
   HowBright <- AveragedSignature(RawFCSSubset, stats=stats)
-  HowBright <- cbind(x, HowBright)
+  Count <- nrow(FCSSubset)
+  HowBright <- cbind(x, Count, HowBright)
   colnames(HowBright)[1] <- "Cluster"
   #HowBright #Exported to bind_row with data.frame.
   #RawFCSSubset

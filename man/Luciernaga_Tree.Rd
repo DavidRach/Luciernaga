@@ -4,7 +4,7 @@
 \alias{Luciernaga_Tree}
 \title{Select candidate Luciernaga output .fcs files for future use in unmixing.}
 \usage{
-Luciernaga_Tree(x, data)
+Luciernaga_Tree(x, data, BrightnessFilePath, PanelPath)
 }
 \arguments{
 \item{x}{A vector of the fluorophores found in data.}

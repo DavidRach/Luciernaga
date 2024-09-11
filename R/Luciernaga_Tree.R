@@ -17,8 +17,30 @@
 #'
 #' @examples NULL
 
-Luciernaga_Tree <- function(x, data){
-  Internal <- data %>% filter(sample %in% x)
+Luciernaga_Tree <- function(x, data, BrightnessFilePath, PanelPath){
+
+  TheCSVs <- list.files(BrightnessFilePath, pattern="RelativeBrightness", full.names = TRUE)
+  TheData <- map(.x=TheCSVs, .f=CSVRead) %>% bind_rows()
+  TheData
+
+  #PanelPath <- file.path("C:", "Users", "12692", "Desktop", "PPD_Test", "Panel.csv")
+
+  if(!is.data.frame(PanelPath)){Panel <- read.csv(PanelPath, check.names = FALSE)
+  } else {Panel <- PanelPath}
+
+  TheFluorophores <- Panel %>% pull(Fluorophore)
+  #TheFluorophores <- TheFluorophores[c(4, 16, 25)]
+  TheFluorophores <- gsub("-A", "", TheFluorophores)
+
+  x <- TheFluorophores[1]
+
+  NewData <- map(.x=TheFluorophores, .f=InternalTree, TheData=TheData) %>% bind_rows()
+
+}
+
+InternalTree <- function(x, TheData){
+
+  Internal <- TheData %>% filter(str_detect(sample, fixed(x, ignore_case = TRUE)))
 
   if(nrow(Internal)>1){
     Internal <- Internal %>% arrange(desc(Detector1Raw)) #First Arrange
@@ -65,4 +87,16 @@ Luciernaga_Tree <- function(x, data){
   SubsetData <- SubsetData %>% mutate(Decision = "First Level") %>% relocate(
     Decision, .after = Cluster)
   return(SubsetData)}
+}
+
+
+
+
+
+CSVRead <- function(x){
+  name <- basename(x)
+  internalstrings <- c("RelativeBrightness", ".csv")
+  name <- Luciernaga::NameCleanUp(name, removestrings=internalstrings)
+  Data <- read.csv(x, check.names=FALSE)
+  Data <- Data %>% mutate(sample = name) %>% relocate(sample, .before=Cluster)
 }
