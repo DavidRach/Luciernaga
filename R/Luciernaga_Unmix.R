@@ -11,6 +11,7 @@
 #' @param outpath The return folder for the .fcs files
 #' @param Verbose For troubleshooting name after removestrings
 #' @param PanelPath Location to a panel.csv containing correct order of fluorophores
+#' @param Experimental Debug for unmixing de no flowframe
 #'
 #' @importFrom flowCore keyword
 #' @importFrom dplyr pull
@@ -31,7 +32,7 @@
 #' @examples NULL
 
 Luciernaga_Unmix <- function(x, controlData, sample.name, addon, removestrings,
-                             subset, multiplier, outpath, Verbose, PanelPath){
+                             subset, multiplier, outpath, Verbose, PanelPath, Experimental=FALSE){
 
   if (length(sample.name) == 2){
     first <- sample.name[[1]]
@@ -92,6 +93,8 @@ Luciernaga_Unmix <- function(x, controlData, sample.name, addon, removestrings,
   NewNames$Fluorophore <- paste0(NewNames$Fluorophore, "-A") #Restored
   NewNames <- NewNames %>% pull(Fluorophore)
 
+  Ligands <- NewControlData %>% pull(Ligand)
+
   #OLS
   LeastSquares <- lsfit(x = t(TheControlData), y = t(TheSampleData), intercept = FALSE)
   UnmixedData <- t(LeastSquares$coefficients)
@@ -105,9 +108,19 @@ Luciernaga_Unmix <- function(x, controlData, sample.name, addon, removestrings,
 
   #Pull the Levaah, Kronk!
 
+  if (Experimental == FALSE){
   cf <- realize_view(cs[[1]])
   NewCF <- cf_append_cols(cf, UnmixedData2)
-  #keyword(NewCF)
+  }
+
+  if (Experimental == TRUE){
+  FlowFrameTest <- cs[[1, returnType = "flowFrame"]]
+  original_p <- parameters(FlowFrameTest)
+  original_d <- keyword(FlowFrameTest)
+
+  #FCSSubset <- UnmixedData2
+  #new_fcs <- new("flowFrame", exprs=FCSSubset, parameters=parameters, description=description)
+  }
 
   if (!is.null(addon)){name <- paste0(name, addon)
   }

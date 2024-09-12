@@ -14,7 +14,8 @@ Luciernaga_Unmix(
   multiplier,
   outpath,
   Verbose,
-  PanelPath
+  PanelPath,
+  Experimental = FALSE
 )
 }
 \arguments{
@@ -38,6 +39,8 @@ from these}
 \item{Verbose}{For troubleshooting name after removestrings}
 
 \item{PanelPath}{Location to a panel.csv containing correct order of fluorophores}
+
+\item{Experimental}{Debug for unmixing de no flowframe}
 }
 \value{
 A new .fcs file with the new columns appended
