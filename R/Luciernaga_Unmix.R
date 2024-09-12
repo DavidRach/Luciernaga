@@ -12,16 +12,18 @@
 #' @param Verbose For troubleshooting name after removestrings
 #' @param PanelPath Location to a panel.csv containing correct order of fluorophores
 #'
-#' @importFrom flowCore exprs
-#' @importFrom flowCore write.FCS
-#' @importFrom flowWorkspace keyword
+#' @importFrom flowCore keyword
+#' @importFrom dplyr pull
 #' @importFrom flowWorkspace gs_pop_get_data
-#' @importFrom flowWorkspace realize_view
-#' @importFrom flowWorkspace cf_append_cols
+#' @importFrom flowCore exprs
 #' @importFrom dplyr mutate
 #' @importFrom dplyr select
+#' @importFrom utils read.csv
+#' @importFrom dplyr arrange
 #' @importFrom stats lsfit
-#'
+#' @importFrom flowWorkspace realize_view
+#' @importFrom flowWorkspace cf_append_cols
+#' @importFrom flowCore write.FCS
 #'
 #' @return A new .fcs file with the new columns appended
 #' @export
@@ -30,11 +32,16 @@
 
 Luciernaga_Unmix <- function(x, controlData, sample.name, addon, removestrings,
                              subset, multiplier, outpath, Verbose, PanelPath){
+
   if (length(sample.name) == 2){
-    first <- keyword(x, sample.name[[1]]) %>% pull(.)
-    second <- keyword(x, sample.name[[2]]) %>% pull(.)
+    first <- sample.name[[1]]
+    second <- sample.name[[2]]
+    first <- keyword(x, first)
+    first <- first #%>% pull(.)
+    second <- keyword(x, second)
+    second <- second #%>% pull(.)
     name <- paste(first, second, sep="_")
-  } else {name <- keyword(x, sample.name)}
+    } else {name <- keyword(x, sample.name)}
 
   name <- NameCleanUp(name, removestrings=removestrings)
   if (Verbose == TRUE){message("After removestrings, name is ", name)}
@@ -92,7 +99,7 @@ Luciernaga_Unmix <- function(x, controlData, sample.name, addon, removestrings,
 
   colnames(UnmixedData2) <- NewNames
 
-  View(UnmixedData2)
+  #View(UnmixedData2)
   #StashedResults <- summary(UnmixedData2)
   #StashedExpresion <- summary(TheSampleData)
 

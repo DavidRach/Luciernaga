@@ -12,7 +12,9 @@ Luciernaga_Unmix(
   removestrings,
   subset,
   multiplier,
-  outpath
+  outpath,
+  Verbose,
+  PanelPath
 )
 }
 \arguments{
@@ -32,6 +34,10 @@ from these}
 \item{multiplier}{A number to scale the OLS coefficients by}
 
 \item{outpath}{The return folder for the .fcs files}
+
+\item{Verbose}{For troubleshooting name after removestrings}
+
+\item{PanelPath}{Location to a panel.csv containing correct order of fluorophores}
 }
 \value{
 A new .fcs file with the new columns appended
