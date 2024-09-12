@@ -42,7 +42,7 @@ Luciernaga_Unmix <- function(x, controlData, sample.name, addon, removestrings,
     second <- keyword(x, second)
     second <- second #%>% pull(.)
     name <- paste(first, second, sep="_")
-    } else {name <- keyword(x, sample.name)}
+  } else {name <- keyword(x, sample.name)}
 
   name <- NameCleanUp(name, removestrings=removestrings)
   if (Verbose == TRUE){message("After removestrings, name is ", name)}
@@ -84,7 +84,7 @@ Luciernaga_Unmix <- function(x, controlData, sample.name, addon, removestrings,
   if (!identical(CorrectColumnOrder, Newest)){
     print(Newest)
     stop("Column Reordering Failed, printed order output for troubleshooting:")
-    }
+  }
 
 
   # Ordering the Single Color Control Columns to Match the Samples
@@ -102,31 +102,137 @@ Luciernaga_Unmix <- function(x, controlData, sample.name, addon, removestrings,
 
   colnames(UnmixedData2) <- NewNames
 
-  #View(UnmixedData2)
-  #StashedResults <- summary(UnmixedData2)
-  #StashedExpresion <- summary(TheSampleData)
+  TheData <- cbind(StashedDF, UnmixedData2)
+  TheData <- TheData %>% select(-Backups)
+  rownames(TheData) <- NULL
+  #TheData
 
-  #Pull the Levaah, Kronk!
+  # Retrieving Raw Data Info
+  fr <- cs[[1, returnType = "flowFrame"]]
 
-  if (Experimental == FALSE){
-  cf <- realize_view(cs[[1]])
-  NewCF <- cf_append_cols(cf, UnmixedData2)
+  # Finding Values That Stay Put
+  ParamData <- fr@parameters@data
+  #ParamData$name <- as.character(ParamData$name)
+  FluorData <- ParamData %>% dplyr::filter(!str_detect(name, "Time|FSC|SSC")) %>% slice(1)
+  ParamData <- ParamData %>% dplyr::filter(str_detect(name, "Time|FSC|SSC"))
+
+  # Writing a New FlowFrame
+  NewColStart <- ncol(StashedDF) #Because Backup Still Present
+  AllCols <- ncol(TheData)
+
+  cols <- as.matrix(TheData) # Matrix Form Data
+  ncol <- ncol(cols) # Number Columns Data
+  cn <- colnames(cols) # Column Names Data
+
+  new_pid <- 1
+  new_pid <- seq(new_pid, length.out = ncol)
+  new_pid <- paste0("$P", new_pid)
+
+  #Updated $P1N to Time and Scatter
+  #rownames(ParamData) <- new_pid[1:ncol(StashedDF)-1]
+
+  SecondCN <- cn[NewColStart:AllCols]
+
+  new_pd <- do.call(rbind, lapply(SecondCN, function(i){
+    vec <- cols[,i]
+    rg <- range(vec)
+    data.frame(name = i, desc = NA, range = FluorData$range,
+               minRange = FluorData$minRange, maxRange = FluorData$maxRange)
+  }))
+
+  new_pd$desc <- Ligands
+  new_pd <- rbind(ParamData, new_pd)
+  rownames(new_pd) <- new_pid
+
+  #new_pd #Parameters (with variance to range measurements)
+
+  new_kw <- fr@description
+
+  NameParams <- new_kw[grepl("^\\$P\\d+N\\d*", names(new_kw))]
+  VoltageParams <- new_kw[grepl("^\\$P\\d+V\\d*", names(new_kw))]
+  VoltageParams <- c(NA, VoltageParams)
+  DisplayParams <- new_kw[grepl("^\\P\\d+DISPLAY\\d*", names(new_kw))]
+  TypeParams <- new_kw[grepl("^\\$P\\d+TYPE\\d*", names(new_kw))]
+
+  DescriptionData <- cbind(NameParams, VoltageParams, DisplayParams, TypeParams)
+  DescriptionData <- as.data.frame(DescriptionData)
+  DescriptionData <- DescriptionData %>%
+    dplyr::filter(str_detect(NameParams, "Time|FSC|SSC|B1-A"))
+  DescriptionData <- DescriptionData %>% unnest(cols = where(is.list))
+  #DescriptionData
+
+  Test <- new_kw[!grepl("^\\$P\\d+", names(new_kw))]
+  Test <- Test[!grepl("^\\P\\d+", names(Test))]
+  Test <- Test[!grepl("^\\$FLOWRATE", names(Test))]
+  Test <- Test[!grepl("^\\$CYTOLIB", names(Test))]
+
+  OGLength <- length(Test)
+
+  #i <- new_pid[1]
+  #new_pd[[i, 1]]
+
+  # Where the Sausage Gets Made
+  for (i in new_pid){
+    NoDollar <- gsub("$", "", fixed=TRUE, i)
+    Test[paste0(i,"B")] <- "32"              #Bits?
+    Test[paste0(i,"E")] <- "0,0"             #Zero
+    Test[paste0(i,"N")] <- new_pd[[i,1]]     #Name
+
+    TheName <- new_pd[[i, 1]]
+    if (!str_detect(TheName, "Time|FSC|SSC")) {Test[paste0(i,"V")] <- "0"
+    } else {
+      if (str_detect(TheName, "FSC|SSC")){
+        Voltage <- DescriptionData %>% dplyr::filter(NameParams %in% TheName) %>% pull(VoltageParams)
+        Test[paste0(i,"V")] <- Voltage
+      }
+    }
+
+    Test[paste0(i,"R")] <- new_pd[[i,5]]
+
+    if (!str_detect(TheName, "FSC|SSC")) {Test[paste0(NoDollar,"DISPLAY")] <- "LOG"
+    } else {Test[paste0(NoDollar,"DISPLAY")] <- "LIN"}
+
+    if (str_detect(TheName, "Time")) {Test[paste0(i,"TYPE")] <- "Time"
+    } else if (str_detect(TheName, "FSC")){Test[paste0(i,"TYPE")] <- "Forward_Scatter"
+    } else if (str_detect(TheName, "SSC")){Test[paste0(i,"TYPE")] <- "Side_Scatter"
+    } else {Test[paste0(i,"TYPE")] <- "Unmixed_Fluorescence"}
   }
 
-  if (Experimental == TRUE){
-  FlowFrameTest <- cs[[1, returnType = "flowFrame"]]
-  original_p <- parameters(FlowFrameTest)
-  original_d <- keyword(FlowFrameTest)
+  index <- which(names(Test) == "$CYTSN")
+  StartLength <- OGLength+1
+  FinalLength <- length(Test)
 
-  #FCSSubset <- UnmixedData2
-  #new_fcs <- new("flowFrame", exprs=FCSSubset, parameters=parameters, description=description)
-  }
+  Subset <- Test[StartLength:FinalLength]
+  Residual <- Test[-(StartLength:FinalLength)]
+  new_kw <- append(Residual, Subset, after = index)
+
+  TheSpilloverNames <- cn[!grepl("Time|FSC|SSC", cn)]
+  MatrixSize <- length(TheSpilloverNames)
+  NewMatrix <- matrix(0, nrow = MatrixSize, ncol = MatrixSize, byrow = TRUE)
+  diag(NewMatrix) <- 1
+  colnames(NewMatrix) <- TheSpilloverNames
+
+  new_kw$`$SPILLOVER` <- NewMatrix
+  new_kw$`CREATOR` <- "Luciernaga 0.0.1"
+
+  # Adding back to extract again?
+  fr@exprs <- cols
+  pData(parameters(fr)) <- new_pd
+
+  UpdatedParameters <- parameters(fr)
+
+  new_fcs <- new("flowFrame", exprs=cols, parameters=UpdatedParameters,
+                 description=new_kw)
 
   if (!is.null(addon)){name <- paste0(name, addon)
   }
 
   AssembledName <- paste0(name, ".fcs")
-  FileName <- file.path(outpath, AssembledName)
 
-  write.FCS(NewCF, filename=FileName)
+  if (is.null(outpath)) {outpath <- getwd()}
+
+  fileSpot <- file.path(outpath, AssembledName)
+
+  if (export == TRUE) {write.FCS(new_fcs, filename = fileSpot, delimiter="#")
+  } else {return(new_fcs)}
 }
