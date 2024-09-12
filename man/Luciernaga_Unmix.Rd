@@ -8,14 +8,15 @@ Luciernaga_Unmix(
   x,
   controlData,
   sample.name,
-  addon,
   removestrings,
-  subset,
+  Verbose,
+  addon,
+  subset = "root",
   multiplier,
   outpath,
-  Verbose,
   PanelPath,
-  Experimental = FALSE
+  Experimental = FALSE,
+  returntype = "fcs"
 )
 }
 \arguments{
@@ -25,9 +26,11 @@ Luciernaga_Unmix(
 
 \item{sample.name}{The keyword containing the fcs file name}
 
-\item{addon}{Additional addon to append to the new .fcs file name}
-
 \item{removestrings}{A list of values to remove from name}
+
+\item{Verbose}{For troubleshooting name after removestrings}
+
+\item{addon}{Additional addon to append to the new .fcs file name}
 
 \item{subset}{A gating hierarchy level to sort cells at, expression values retrieved
 from these}
@@ -36,11 +39,9 @@ from these}
 
 \item{outpath}{The return folder for the .fcs files}
 
-\item{Verbose}{For troubleshooting name after removestrings}
-
 \item{PanelPath}{Location to a panel.csv containing correct order of fluorophores}
 
-\item{Experimental}{Debug for unmixing de no flowframe}
+\item{returntype}{Whether to return "fcs" or "flowframe"}
 }
 \value{
 A new .fcs file with the new columns appended

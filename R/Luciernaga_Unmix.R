@@ -11,19 +11,17 @@
 #' @param outpath The return folder for the .fcs files
 #' @param Verbose For troubleshooting name after removestrings
 #' @param PanelPath Location to a panel.csv containing correct order of fluorophores
-#' @param Experimental Debug for unmixing de no flowframe
+#' @param returntype Whether to return "fcs" or "flowframe"
 #'
 #' @importFrom flowCore keyword
-#' @importFrom dplyr pull
 #' @importFrom flowWorkspace gs_pop_get_data
 #' @importFrom flowCore exprs
 #' @importFrom dplyr mutate
 #' @importFrom dplyr select
 #' @importFrom utils read.csv
+#' @importFrom dplyr pull
 #' @importFrom dplyr arrange
 #' @importFrom stats lsfit
-#' @importFrom flowWorkspace realize_view
-#' @importFrom flowWorkspace cf_append_cols
 #' @importFrom flowCore write.FCS
 #'
 #' @return A new .fcs file with the new columns appended
@@ -31,16 +29,15 @@
 #'
 #' @examples NULL
 
-Luciernaga_Unmix <- function(x, controlData, sample.name, addon, removestrings,
-                             subset, multiplier, outpath, Verbose, PanelPath, Experimental=FALSE){
+Luciernaga_Unmix <- function(x, controlData, sample.name, removestrings, Verbose, addon,
+                             subset="root", multiplier, outpath, PanelPath,
+                             Experimental=FALSE, returntype="fcs"){
 
   if (length(sample.name) == 2){
     first <- sample.name[[1]]
     second <- sample.name[[2]]
     first <- keyword(x, first)
-    first <- first #%>% pull(.)
     second <- keyword(x, second)
-    second <- second #%>% pull(.)
     name <- paste(first, second, sep="_")
   } else {name <- keyword(x, sample.name)}
 
@@ -51,24 +48,18 @@ Luciernaga_Unmix <- function(x, controlData, sample.name, addon, removestrings,
   Data <- exprs(cs[[1]])
   Data <- data.frame(Data, check.names = FALSE)
 
-  #For Future Column Reordering
   OriginalColumnsVector <- colnames(Data)
   OriginalColumns <- colnames(Data)
   OriginalColumns <- data.frame(OriginalColumns, check.names = FALSE)
   OriginalColumnsIndex <- OriginalColumns %>% mutate(IndexLocation = 1:nrow(.))
 
-  #For Future Row Reordering
   Backups <- Data %>% mutate(Backups = 1:nrow(Data)) %>% select(Backups)
 
-  #Stashing Away Time FSC SSC For Later Use
   StashedDF <- Data[,grep("Time|FS|SC|SS|Original|W$|H$", names(Data))]
   StashedDF <- cbind(Backups, StashedDF)
 
-  #Consolidating Columns Going Forward
   TheSampleData <- Data[,-grep("Time|FS|SC|SS|Original|W$|H$", names(Data))]
   BackupNames <- colnames(TheSampleData)
-
-  # if(ReorderCOlumns == TRUE){}
 
   if (!is.data.frame(PanelPath)){Panel <- read.csv(PanelPath, check.names=FALSE)
   } else {Panel <- PanelPath}
@@ -77,59 +68,75 @@ Luciernaga_Unmix <- function(x, controlData, sample.name, addon, removestrings,
   CorrectColumnOrder <- gsub("-A$", "", CorrectColumnOrder)
 
   NewControlData <- controlData %>% arrange(match(Fluorophore, CorrectColumnOrder))
-
-
   Newest <- NewControlData %>% pull(Fluorophore)
 
   if (!identical(CorrectColumnOrder, Newest)){
-    print(Newest)
+    message(Newest)
     stop("Column Reordering Failed, printed order output for troubleshooting:")
   }
 
-
-  # Ordering the Single Color Control Columns to Match the Samples
-  TheControlData <- NewControlData[names(TheSampleData)] #Sans Fluor and Ligand
+  TheControlData <- NewControlData[names(TheSampleData)]
   NewNames <- NewControlData %>% select(Fluorophore)
-  NewNames$Fluorophore <- paste0(NewNames$Fluorophore, "-A") #Restored
+  NewNames$Fluorophore <- paste0(NewNames$Fluorophore, "-A")
   NewNames <- NewNames %>% pull(Fluorophore)
-
   Ligands <- NewControlData %>% pull(Ligand)
 
-  #OLS
   LeastSquares <- lsfit(x = t(TheControlData), y = t(TheSampleData), intercept = FALSE)
   UnmixedData <- t(LeastSquares$coefficients)
   UnmixedData2 <- UnmixedData*multiplier
 
   colnames(UnmixedData2) <- NewNames
-
   TheData <- cbind(StashedDF, UnmixedData2)
   TheData <- TheData %>% select(-Backups)
   rownames(TheData) <- NULL
-  #TheData
 
-  # Retrieving Raw Data Info
+  new_fcs <- InternalUnmix(cs=cs, StashedDF=StashedDF, TheData=TheData,
+                           Ligands=Ligands)
+
+  if (!is.null(addon)){name <- paste0(name, addon)}
+
+  AssembledName <- paste0(name, ".fcs")
+
+  if (is.null(outpath)) {outpath <- getwd()}
+
+  fileSpot <- file.path(outpath, AssembledName)
+
+  if (returntype == "fcs") {write.FCS(new_fcs, filename = fileSpot, delimiter="#")
+  } else {return(new_fcs)}
+}
+
+
+#' Internal for Luciernaga_Unmix
+#'
+#' @param cs The passed original cytoset object to extract info from
+#' @param StashedDF The stored Time FSC etc
+#' @param TheData The Unmixed Data
+#' @param Ligands The ligand names
+#'
+#' @importFrom dplyr filter
+#' @importFrom stringr str_detect
+#' @importFrom dplyr slice
+#' @importFrom tidyr unnest
+#' @importFrom tidyselect where
+#'
+#' @noRd
+InternalUnmix <- function(cs, StashedDF, TheData, Ligands){
   fr <- cs[[1, returnType = "flowFrame"]]
-
-  # Finding Values That Stay Put
   ParamData <- fr@parameters@data
-  #ParamData$name <- as.character(ParamData$name)
-  FluorData <- ParamData %>% dplyr::filter(!str_detect(name, "Time|FSC|SSC")) %>% slice(1)
-  ParamData <- ParamData %>% dplyr::filter(str_detect(name, "Time|FSC|SSC"))
+  FluorData <- ParamData %>% filter(!str_detect(name, "Time|FSC|SSC")) %>%
+    slice(1)
+  ParamData <- ParamData %>% filter(str_detect(name, "Time|FSC|SSC"))
 
-  # Writing a New FlowFrame
-  NewColStart <- ncol(StashedDF) #Because Backup Still Present
+  NewColStart <- ncol(StashedDF)
   AllCols <- ncol(TheData)
 
-  cols <- as.matrix(TheData) # Matrix Form Data
-  ncol <- ncol(cols) # Number Columns Data
-  cn <- colnames(cols) # Column Names Data
+  cols <- as.matrix(TheData)
+  ncol <- ncol(cols)
+  cn <- colnames(cols)
 
   new_pid <- 1
   new_pid <- seq(new_pid, length.out = ncol)
   new_pid <- paste0("$P", new_pid)
-
-  #Updated $P1N to Time and Scatter
-  #rownames(ParamData) <- new_pid[1:ncol(StashedDF)-1]
 
   SecondCN <- cn[NewColStart:AllCols]
 
@@ -144,8 +151,6 @@ Luciernaga_Unmix <- function(x, controlData, sample.name, addon, removestrings,
   new_pd <- rbind(ParamData, new_pd)
   rownames(new_pd) <- new_pid
 
-  #new_pd #Parameters (with variance to range measurements)
-
   new_kw <- fr@description
 
   NameParams <- new_kw[grepl("^\\$P\\d+N\\d*", names(new_kw))]
@@ -157,7 +162,7 @@ Luciernaga_Unmix <- function(x, controlData, sample.name, addon, removestrings,
   DescriptionData <- cbind(NameParams, VoltageParams, DisplayParams, TypeParams)
   DescriptionData <- as.data.frame(DescriptionData)
   DescriptionData <- DescriptionData %>%
-    dplyr::filter(str_detect(NameParams, "Time|FSC|SSC|B1-A"))
+    filter(str_detect(NameParams, "Time|FSC|SSC|B1-A"))
   DescriptionData <- DescriptionData %>% unnest(cols = where(is.list))
   #DescriptionData
 
@@ -168,33 +173,34 @@ Luciernaga_Unmix <- function(x, controlData, sample.name, addon, removestrings,
 
   OGLength <- length(Test)
 
-  #i <- new_pid[1]
-  #new_pd[[i, 1]]
-
-  # Where the Sausage Gets Made
+  # Sausage Getting Made, forgive my For-loop
   for (i in new_pid){
     NoDollar <- gsub("$", "", fixed=TRUE, i)
-    Test[paste0(i,"B")] <- "32"              #Bits?
-    Test[paste0(i,"E")] <- "0,0"             #Zero
-    Test[paste0(i,"N")] <- new_pd[[i,1]]     #Name
+    Test[paste0(i,"B")] <- "32"
+    Test[paste0(i,"E")] <- "0,0"
+    Test[paste0(i,"N")] <- new_pd[[i,1]]
 
     TheName <- new_pd[[i, 1]]
     if (!str_detect(TheName, "Time|FSC|SSC")) {Test[paste0(i,"V")] <- "0"
     } else {
       if (str_detect(TheName, "FSC|SSC")){
-        Voltage <- DescriptionData %>% dplyr::filter(NameParams %in% TheName) %>% pull(VoltageParams)
+        Voltage <- DescriptionData %>% filter(NameParams %in% TheName) %>%
+          pull(VoltageParams)
         Test[paste0(i,"V")] <- Voltage
       }
     }
 
     Test[paste0(i,"R")] <- new_pd[[i,5]]
 
-    if (!str_detect(TheName, "FSC|SSC")) {Test[paste0(NoDollar,"DISPLAY")] <- "LOG"
+    if (!str_detect(TheName, "FSC|SSC")) {
+      Test[paste0(NoDollar,"DISPLAY")] <- "LOG"
     } else {Test[paste0(NoDollar,"DISPLAY")] <- "LIN"}
 
     if (str_detect(TheName, "Time")) {Test[paste0(i,"TYPE")] <- "Time"
-    } else if (str_detect(TheName, "FSC")){Test[paste0(i,"TYPE")] <- "Forward_Scatter"
-    } else if (str_detect(TheName, "SSC")){Test[paste0(i,"TYPE")] <- "Side_Scatter"
+    } else if (str_detect(TheName, "FSC")){
+      Test[paste0(i,"TYPE")] <- "Forward_Scatter"
+    } else if (str_detect(TheName, "SSC")){
+      Test[paste0(i,"TYPE")] <- "Side_Scatter"
     } else {Test[paste0(i,"TYPE")] <- "Unmixed_Fluorescence"}
   }
 
@@ -224,15 +230,5 @@ Luciernaga_Unmix <- function(x, controlData, sample.name, addon, removestrings,
   new_fcs <- new("flowFrame", exprs=cols, parameters=UpdatedParameters,
                  description=new_kw)
 
-  if (!is.null(addon)){name <- paste0(name, addon)
-  }
-
-  AssembledName <- paste0(name, ".fcs")
-
-  if (is.null(outpath)) {outpath <- getwd()}
-
-  fileSpot <- file.path(outpath, AssembledName)
-
-  if (export == TRUE) {write.FCS(new_fcs, filename = fileSpot, delimiter="#")
-  } else {return(new_fcs)}
+  return(new_fcs)
 }

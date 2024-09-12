@@ -449,14 +449,14 @@ TroubleChannelExclusion <- function(x, TheSCData, MainDetector, AFChannels){
 #' Summarize a data.frame to desired stat
 #'
 #' @param x A data.frame containing double or numeric data.
-#' @stats Desired Stats "mean" or "median" to pass to summarize_all
+#' @param stats Desired Stats "mean" or "median" to pass to summarize_all
 #'
 #' @importFrom dplyr summarize_all
 #'
 #' @return A data.frame row of summarized data
 #' @export
 #'
-#' @example NULL
+#' @examples NULL
 AveragedSignature <- function(x, stats){
   Signature <- x %>% summarize_all(stats)
   return(Signature)
