@@ -10,23 +10,25 @@
 #' @param stats Whether to use "mean" or "median"
 #' @param SignatureView Whether to also return a normalized signature plot.
 #' @param Verbose Provides debugging for removestrings
+#' @param returntype Allows to modify default "data" to instead return the "plots"
 #'
-#' @importFrom BiocGenerics nrow
-#' @importFrom flowCore exprs
-#' @importFrom flowWorkspace keyword
+#' @importFrom flowCore keyword
+#' @importFrom stringr str_detect
 #' @importFrom flowWorkspace gs_pop_get_data
+#' @importFrom flowCore exprs
+#' @importFrom BiocGenerics nrow
 #' @importFrom dplyr filter
-#' @importFrom dplyr select
 #' @importFrom dplyr arrange
-#' @importFrom dplyr pull
-#' @importFrom dplyr mutate
-#' @importFrom dplyr summarise_all
-#' @importFrom dplyr rename
-#' @importFrom tidyr nest
-#' @importFrom tidyr unnest
-#' @importFrom tidyr gather
-#' @importFrom ggplot2 ggplot
 #' @importFrom utils read.csv
+#' @importFrom dplyr select
+#' @importFrom dplyr pull
+#' @importFrom tidyselect all_of
+#' @importFrom stats quantile
+#' @importFrom dplyr rename
+#' @importFrom dplyr mutate
+#' @importFrom dplyr relocate
+#' @importFrom tidyr pivot_longer
+#' @importFrom ggplot2 ggplot
 #'
 #' @return A tibble row for each flow object containing the summarized data.
 #' @export
@@ -34,7 +36,7 @@
 #' @examples NULL
 
 Luciernaga_SingleColors <- function(x, sample.name, removestrings, subset, PanelCuts,
-                                    stats, SignatureView, Verbose=FALSE){
+                                    stats, SignatureView, Verbose=FALSE, returntype="data"){
   name <- keyword(x, sample.name)
   name <- NameCleanUp(name, removestrings=c("(Cells)", "(Beads)"))
   name <- gsub("\\s+$", "", name)
@@ -42,17 +44,26 @@ Luciernaga_SingleColors <- function(x, sample.name, removestrings, subset, Panel
 
   if (Verbose == TRUE){message("After removestrings cleanup the name is ", name)}
 
+  if (!str_detect(name, "nstained")){
   name <- sub(" ", "_", name)
   name <- sub("(.*)_(.*)", "\\2_\\1", name) #Swaps order
   TheFluorophore <- strsplit(name, "_")[[1]]
   TheFluorophores <- TheFluorophore[1]
   TheLigand <- TheFluorophore[2]
+  } else {
+    TheFluorophores <- "Unstained"
+    TheLigand <- name
+  }
 
-  if (Verbose == TRUE){message("The Fluorophore is ", TheFluorophores, " and the ligand is ", TheLigand)}
+  if (Verbose == TRUE){
+    message("The Fluorophore is ", TheFluorophores, " and the ligand is ", TheLigand)
+    }
 
   cs <- gs_pop_get_data(x, subset)
   Data <- exprs(cs[[1]])
   Data <- data.frame(Data, check.names = FALSE)
+  Data <- Data %>% unique() #Precaution Artificial Leftovers
+
   TheColumns <- Data[,-grep("Time|FS|SC|SS|Original|W$|H$", names(Data))]
   detector_order <- colnames(TheColumns)
   startingcells <- BiocGenerics::nrow(cs)[[1]]
@@ -87,12 +98,12 @@ Luciernaga_SingleColors <- function(x, sample.name, removestrings, subset, Panel
   LowerBound <- TheInfo %>% select(From) %>% pull()
   UpperBound <- TheInfo %>% select(To) %>% pull()
 
-  if (!(LowerBound > 0 & LowerBound < 1)) {
+  if (!(LowerBound >= 0 & LowerBound <= 1)) {
     message("From should be between 0 and 1, proceeding to divide by 100 on assumption it was a percentage")
     LowerBound <- LowerBound / 100
   }
 
-  if (!(UpperBound > 0 & UpperBound < 1)) {
+  if (!(UpperBound >= 0 & UpperBound <= 1)) {
     message("To should be between 0 and 1, proceeding to divide by 100 on assumption it was a percentage")
     UpperBound <- UpperBound / 100
   }
@@ -114,37 +125,78 @@ Luciernaga_SingleColors <- function(x, sample.name, removestrings, subset, Panel
   if (SignatureView == TRUE){
 
     NData <- Samples
+    NumberDetectors <- ncol(NData)
+    ReferenceData <- ReferenceCall(NumberDetectors)
+    ReferenceData <- ReferenceData %>% select(-Instrument) %>% rename(value=AdjustedY) %>%
+      dplyr::filter(Fluorophore %in%TheFluorophores)
+
     NData[NData < 0] <- 0
     A <- do.call(pmax, NData)
     Normalized <- NData/A
     Normalized <- round(Normalized, 1)
-    ThePlotData <- cbind(name, Normalized) %>% rename(Fluorophore = name)
 
+    thename <- paste(TheFluorophores, TheLigand, sep = " ")
+    ThePlotData <- Normalized %>% mutate(Fluorophore = thename) %>% relocate(Fluorophore, .before=1)
     LineCols <- ncol(ThePlotData)
 
-    Melted <- gather(ThePlotData, key = "Detector", value = "value", all_of(
-      2:LineCols)) #Gather is my New Best Friend
-
+    Melted <- ThePlotData %>% pivot_longer(cols=2:LineCols, names_to = "Detector", values_to = "value")
     Melted$Detector <- factor(Melted$Detector, levels = detector_order)
-    Melted$Fluorophore <- factor(Melted$Fluorophore)
-    Melted1 <- data.frame(Melted)
 
-    plot <- ggplot(Melted1, aes(x = Detector, y = value, group = Fluorophore,
-                                color = Fluorophore)) + geom_line() +
-      scale_color_hue(direction = 1) +
-      labs(title = TheDetector, x = "Detectors", y = "Normalized Values") +
-      theme_linedraw() + theme_bw() +
-      theme(axis.title.x = element_text(face = "plain"),
-            axis.title.y = element_text(face = "plain",
-                                        margin = margin(r = -120)),
+    Melted <- Melted %>% mutate(Type = "Provided")
+
+    if (!nrow(ReferenceData) == 0){
+
+    ReferenceData <- ReferenceData %>% mutate(Type = "Reference")
+    NewDetectorNames <- Melted %>% pull(Detector)
+    ReferenceData <- ReferenceData %>% mutate(Detector=NewDetectorNames)
+    ReferenceData$value <- round(ReferenceData$value, 2)
+
+    Melted <- rbind(Melted, ReferenceData)
+    }
+
+    plot <- ggplot(Melted, aes(x = Detector, y = value, group = Type,
+            color = Type)) + geom_line(size=1) + theme_bw() +
+      labs(title = thename, x = "Detectors", y = "Normalized") +
+      theme(axis.title.x = element_text(face = "plain"), axis.title.y = element_text(face = "plain"),
             axis.text.x = element_text(size = 5, angle = 45, hjust = 1),
-            panel.grid.major = element_blank(),
-            panel.grid.minor = element_blank()
-      )
-
-    print(plot)
-
+            panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+            legend.position="none") + scale_color_manual(values = c("Provided" = "blue", "Reference" = "red"))
   }
 
-  return(Data)
+  if (SignatureView == TRUE & returntype == "plots"){
+    return(plot)
+  } else if (SignatureView == TRUE & returntype == "data"){
+    print(plot)
+    return(Data)
+  } else {return(Data)}
+
 }
+
+
+
+#' Internal to quickly bring up reference data for comparison plotting
+#'
+#' @param NumberDetectors Passed Number of Columns to decipher instrument
+#' @importFrom utils read.csv
+#'
+#' @return The corresponding reference data.frame
+#'
+#' @noRd
+ReferenceCall <- function(NumberDetectors){
+  if (NumberDetectors == 64){instrument <- "FiveLaser"
+  FileLocation <- system.file("extdata", package = "Luciernaga")
+  TheFile <- file.path(FileLocation, "CytekReferenceLibrary5L.csv")
+  ReferenceData <- read.csv(TheFile, check.names = FALSE)
+  } else if (NumberDetectors == 54){instrument <- "FourLaser"
+  FileLocation <- system.file("extdata", package = "Luciernaga")
+  TheFile <- file.path(FileLocation, "CytekReferenceLibrary4LUV.csv")
+  ReferenceData <- read.csv(TheFile, check.names = FALSE)
+  } else if (NumberDetectors == 38){instrument <- "ThreeLaser"
+  FileLocation <- system.file("extdata", package = "Luciernaga")
+  TheFile <- file.path(FileLocation, "CytekReferenceLibrary3L.csv")
+  ReferenceData <- read.csv(TheFile, check.names = FALSE)
+  } else {message("No References Found")}
+
+  return(ReferenceData)
+}
+

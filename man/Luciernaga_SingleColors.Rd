@@ -13,7 +13,8 @@ Luciernaga_SingleColors(
   PanelCuts,
   stats,
   SignatureView,
-  Verbose = FALSE
+  Verbose = FALSE,
+  returntype = "data"
 )
 }
 \arguments{
@@ -33,6 +34,8 @@ Fluorophore name should match sample.name style}
 \item{SignatureView}{Whether to also return a normalized signature plot.}
 
 \item{Verbose}{Provides debugging for removestrings}
+
+\item{returntype}{Allows to modify default "data" to instead return the "plots"}
 }
 \value{
 A tibble row for each flow object containing the summarized data.
