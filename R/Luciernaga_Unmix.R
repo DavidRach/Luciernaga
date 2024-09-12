@@ -9,6 +9,8 @@
 #' from these
 #' @param multiplier A number to scale the OLS coefficients by
 #' @param outpath The return folder for the .fcs files
+#' @param Verbose For troubleshooting name after removestrings
+#' @param PanelPath Location to a panel.csv containing correct order of fluorophores
 #'
 #' @importFrom flowCore exprs
 #' @importFrom flowCore write.FCS
@@ -27,10 +29,15 @@
 #' @examples NULL
 
 Luciernaga_Unmix <- function(x, controlData, sample.name, addon, removestrings,
-                             subset, multiplier, outpath){
+                             subset, multiplier, outpath, Verbose, PanelPath){
+  if (length(sample.name) == 2){
+    first <- keyword(x, sample.name[[1]]) %>% pull(.)
+    second <- keyword(x, sample.name[[2]]) %>% pull(.)
+    name <- paste(first, second, sep="_")
+  } else {name <- keyword(x, sample.name)}
 
-  name <- keyword(x, sample.name)
   name <- NameCleanUp(name, removestrings=removestrings)
+  if (Verbose == TRUE){message("After removestrings, name is ", name)}
 
   cs <- gs_pop_get_data(x, subset)
   Data <- exprs(cs[[1]])
@@ -53,16 +60,43 @@ Luciernaga_Unmix <- function(x, controlData, sample.name, addon, removestrings,
   TheSampleData <- Data[,-grep("Time|FS|SC|SS|Original|W$|H$", names(Data))]
   BackupNames <- colnames(TheSampleData)
 
+  # if(ReorderCOlumns == TRUE){}
+
+  if (!is.data.frame(PanelPath)){Panel <- read.csv(PanelPath, check.names=FALSE)
+  } else {Panel <- PanelPath}
+
+  CorrectColumnOrder <- Panel %>% pull(Fluorophore)
+  CorrectColumnOrder <- gsub("-A$", "", CorrectColumnOrder)
+
+  NewControlData <- controlData %>% arrange(match(Fluorophore, CorrectColumnOrder))
+
+
+  Newest <- NewControlData %>% pull(Fluorophore)
+
+  if (!identical(CorrectColumnOrder, Newest)){
+    print(Newest)
+    stop("Column Reordering Failed, printed order output for troubleshooting:")
+    }
+
+
   # Ordering the Single Color Control Columns to Match the Samples
-  TheControlData <- controlData[names(TheSampleData)]
+  TheControlData <- NewControlData[names(TheSampleData)] #Sans Fluor and Ligand
+  NewNames <- NewControlData %>% select(Fluorophore)
+  NewNames$Fluorophore <- paste0(NewNames$Fluorophore, "-A") #Restored
+  NewNames <- NewNames %>% pull(Fluorophore)
 
   #OLS
   LeastSquares <- lsfit(x = t(TheControlData), y = t(TheSampleData), intercept = FALSE)
   UnmixedData <- t(LeastSquares$coefficients)
   UnmixedData2 <- UnmixedData*multiplier
 
-  #StashedResults <- summary(UnmixedData)
+  colnames(UnmixedData2) <- NewNames
+
+  View(UnmixedData2)
+  #StashedResults <- summary(UnmixedData2)
   #StashedExpresion <- summary(TheSampleData)
+
+  #Pull the Levaah, Kronk!
 
   cf <- realize_view(cs[[1]])
   NewCF <- cf_append_cols(cf, UnmixedData2)
