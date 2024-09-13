@@ -10,6 +10,8 @@
 #' @importFrom flowCore keyword
 #' @importFrom BiocGenerics nrow
 #' @importFrom lubridate hms
+#' @importFrom dplyr mutate
+#' @importFrom dplyr relocate
 #'
 #' @return A data.frame of useful information
 #' @export
@@ -43,9 +45,7 @@ Wetlab_Concentration <- function(x, subset, nameKeyword, DilutionMultiplier,
   TimeSeconds <- as.numeric(TimeDifference, units = "secs")
   TimeSeconds <- round(TimeSeconds, 1)
 
-  FlowRate <- keyword(x)$`$FLOWRATE`
-
-  Instrument <- keyword(x)$`$CYTSN`
+  #InstrumentIdentifier <-keyword(x)[[1]][["$CYT"]]
 
   fr <- CS[[1, returnType = "flowFrame"]]
   new_kw <- fr@description
@@ -64,7 +64,10 @@ Wetlab_Concentration <- function(x, subset, nameKeyword, DilutionMultiplier,
   Date <- keyword(x)$`$DATE`
 
   TheRow <- cbind(name, Cells, Volume, ConcentrationScientific, TotalScientific,
-                  TimeSeconds, FlowRate, Instrument, Date)
+                  TimeSeconds, Instrument, Date)
   TheRow <- data.frame(TheRow)
+
+  TheRow <- TheRow %>% mutate(TotalVolume=TotalVolume) %>%
+    relocate(TotalVolume, .after=ConcentrationScientific)
   return(TheRow)
 }
