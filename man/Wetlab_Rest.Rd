@@ -5,7 +5,6 @@
 \title{Takes Concentration output, returns re-suspension amounts for Wetlab users.}
 \usage{
 Wetlab_Rest(
-  x,
   data,
   DesiredConcentration_MillionperML,
   MaxMLperTube,
@@ -15,8 +14,6 @@ Wetlab_Rest(
 )
 }
 \arguments{
-\item{x}{A list of specimens to be mapped}
-
 \item{data}{The Wetlab_Concentration output (modified correct Total mL amounts)}
 
 \item{DesiredConcentration_MillionperML}{Final desired concentration (ex. 1, 3, etc.)}
@@ -28,6 +25,8 @@ Wetlab_Rest(
 \item{outpath}{File path of location to store the table}
 
 \item{filename}{File name to store the table as}
+
+\item{x}{A list of specimens to be mapped}
 }
 \value{
 A data.frame of resuspension measurements to get to the desired parameters
