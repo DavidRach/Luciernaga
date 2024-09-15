@@ -82,6 +82,10 @@ DecisionInternal <- function(x, data, FinalConcentration_MillionperML,
   FinalConcentration <- FinalConcentration_MillionperML*1000000
   CellsPerTube <- MillionCellsPerTube*1000000
 
+  if(RestConcentration < FinalConcentration){
+    warning("Currently Wetlab_Decisions is only coded going from high to low concentration")
+  }
+
   # Checking Available Cells To Work With
   NeededCells <- CellsPerTube*Conditions
   Result <- TotalCells/NeededCells
@@ -233,6 +237,7 @@ SliderConditionWrap <- function(x, y, name, Date, TotalCells, RestConcentration,
 
   TotalCells <- format(TotalCells, scientific=TRUE, digits=2)
   CellsPerTube <- format(CellsPerTube, scientific=TRUE, digits=2)
+  FinalConcentration <- format(FinalConcentration, scientific=TRUE, digits=2)
 
   PreliminaryData <- cbind(name, Date, Condition, TotalCells, RestConcentration, FinalConcentration,
                            RestVolToAddML, MediaVolToAddML, CellsPerTube, FinalVolumeML)
@@ -270,6 +275,9 @@ ConditionWrap <- function(x, name, Date, TotalCells, RestConcentration, FinalCon
 
   if (MediaVolToAddML < 0){SpinDown <- FALSE
   } else {SpinDown <- TRUE}
+
+  FinalConcentration <- format(FinalConcentration, scientific=TRUE, digits=2)
+  CellsPerTube <- format(CellsPerTube, scientific=TRUE, digits=2)
 
   PreliminaryData <- cbind(name, Date, Condition, TotalCells, RestConcentration, FinalConcentration,
                            RestVolToAddML, MediaVolToAddML, CellsPerTube, FinalVolumeML)
