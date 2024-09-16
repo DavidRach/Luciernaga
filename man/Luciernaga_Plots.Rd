@@ -14,7 +14,8 @@ Luciernaga_Plots(
   CosinePlots = TRUE,
   StackedBarPlots = TRUE,
   HeatmapPlots = TRUE,
-  returntype = "patchwork"
+  returntype = "patchwork",
+  reference
 )
 }
 \arguments{
@@ -37,6 +38,8 @@ Luciernaga_Plots(
 \item{HeatmapPlots}{Return this kind of plot, default is set to TRUE}
 
 \item{returntype}{Return "pdf", "patchwork" or "plots"}
+
+\item{reference}{path or data.frame containing Fluorophore column for ordering}
 }
 \value{
 A value to be determined later

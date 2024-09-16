@@ -10,6 +10,7 @@
 #' @param StackedBarPlots Return this kind of plot, default is set to TRUE
 #' @param HeatmapPlots Return this kind of plot, default is set to TRUE
 #' @param returntype Return "pdf", "patchwork" or "plots"
+#' @param reference path or data.frame containing Fluorophore column for ordering
 #'
 #' @importFrom dplyr group_by
 #' @importFrom dplyr summarize
@@ -35,7 +36,12 @@
 Luciernaga_Plots <- function(data, RetainedType, CellPopRatio, outfolder, filename,
                              LinePlots=TRUE, CosinePlots=TRUE,
                              StackedBarPlots=TRUE, HeatmapPlots=TRUE,
-                             returntype = "patchwork"){
+                             returntype = "patchwork", reference){
+
+  if (!is.data.frame(reference)){reference <- read.csv(reference, check.names=FALSE)}
+
+  PreferredOrder <- reference %>% pull(Fluorophore)
+  PreferredOrder <- gsub("-A", "", PreferredOrder)
 
   #################################################
   # Filtered by CellPopRatio, and creating other  #
@@ -74,6 +80,11 @@ Luciernaga_Plots <- function(data, RetainedType, CellPopRatio, outfolder, filena
   ##############
 
   Items <- data.frame(table(data$Sample)) %>% pull(Var1) %>% as.character(.)
+
+  if (all(Items %in% PreferredOrder)){
+    Items <- PreferredOrder
+  } else {message("names not matching, no reorderring according to panel order")}
+
   #x <- Items[1]
   #data <- Replaced
 

@@ -39,12 +39,12 @@ Luciernaga_FCSToReport <- function(path, reference, stats = "median",
   if (!is.data.frame(reference)){CSV <- read.csv(reference, check.names = FALSE)
   } else {CSV <- reference}
 
-  internalstrings <- c("-A", "_", "(Cells)", "(Beads)")
+  internalstrings <- c("-A")
   CSV$Fluorophore <- NameCleanUp(name=CSV$Fluorophore, removestrings=internalstrings)
   CSV$Detector <- NameCleanUp(name=CSV$Detector, removestrings=internalstrings)
   Variables <- CSV %>% dplyr::select(Fluorophore) %>% pull(.)
   fcsfiles <- list.files(path, pattern=".fcs", full.names = TRUE)
-  #x <- Variables[2]
+  #x <- Variables[19]
   #inputfiles <- fcsfiles
 
   TheseFluorophores <- map(.x=Variables, .f=FluorophoreFilePresent,
@@ -58,6 +58,9 @@ Luciernaga_FCSToReport <- function(path, reference, stats = "median",
   TheData <- map(.x = TheseFluorophores, .f = FCSImport, data = CSV,
                    inputfiles = fcsfiles, RetainedType=RetainedType, stats=stats,
                  TheSummary=TheSummary) %>% bind_rows()
+
+  TheData$Cluster <- gsub(" (Cells)", "", fixed =TRUE, TheData$Cluster)
+  TheData$Cluster <- gsub(" (Beads)", "", fixed =TRUE, TheData$Cluster)
 
   if (TheSummary == TRUE){
   TheExperiment <- as.character(experiment)
@@ -88,6 +91,12 @@ Luciernaga_FCSToReport <- function(path, reference, stats = "median",
 FluorophoreFilePresent <- function(x, inputfiles){
   fcs_files <- inputfiles[str_detect(basename(inputfiles), x) &
                             str_detect(basename(inputfiles), ".fcs$")]
+  if (x %in% c("PE", "APC")){
+      x <- paste0(x, "-")
+      fcs_files <- fcs_files[!str_detect(basename(fcs_files), x)]
+      x <- gsub("-", "", x)
+    } #ExceptionHandling
+
   if (length(fcs_files) > 0){return(x)}
 }
 
@@ -152,10 +161,13 @@ FCSImport <- function(x, data, inputfiles, RetainedType, TheSummary, stats){
   # For each Fluorophore
   TheDetector <- data %>% dplyr::filter(Fluorophore %in% x) %>% pull(Detector)
 
-  if (x %in% c("PE", "APC")){x <- paste0(x, " ")} #ExceptionHandling
   fcs_files <- inputfiles[str_detect(basename(inputfiles), x) &
                             str_detect(basename(inputfiles), ".fcs$")]
-  if (x %in% c("PE ", "APC ")){x <- gsub(" ", "", x)} #ExceptionHandling
+
+  if (x %in% c("PE", "APC")){x <- paste0(x, "-") #ExceptionHandling
+  fcs_files <- fcs_files[!str_detect(basename(fcs_files), x)]
+  x <- gsub("-", "", x)
+  } #ExceptionHandling
 
   if (!length(fcs_files) == 0){
 
