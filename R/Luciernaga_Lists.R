@@ -21,6 +21,7 @@
 Luciernaga_Lists <- function(ListOfList, SecondaryList=NULL, PlotType,
                              thecolumns=2, therows=3, width=7, height=9,
                              ReturnFolder, CurrentExperiment){
+  FullLength <- length(ListOfList)
 
   indices <- length(ListOfList[[1]])
 
@@ -40,7 +41,7 @@ Luciernaga_Lists <- function(ListOfList, SecondaryList=NULL, PlotType,
   }
 
   if (PlotType == "html"){
-    Rendered <- map(1:indices, ~Subplots(data = Transposed, .))
+    Rendered <- map(1:FullLength, ~Subplots(data = Transposed, .))
     TheFile <- paste0(CurrentExperiment, ".html")
     HtmlPath <- file.path(ReturnFolder, TheFile)
     save_html(html = Rendered, file = HtmlPath)
