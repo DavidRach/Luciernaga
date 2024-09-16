@@ -19,6 +19,8 @@ Luciernaga_Lists(
 \arguments{
 \item{ListOfList}{A list containing the returns from Luciernaga_Plots plot option.}
 
+\item{SecondaryList}{Default NULL, if given a list will incorporate the plot in.}
+
 \item{PlotType}{Whether "html" or "pdf"}
 
 \item{thecolumns}{The number of columns per page}

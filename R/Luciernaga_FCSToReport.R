@@ -10,7 +10,7 @@
 #' @param StackedBarPlots Return this kind of plot, default is set to TRUE
 #' @param HeatmapPlots Return this kind of plot, default is set to TRUE
 #' @param RetainedType Whether the data.frame contains "raw" or "normalized" values
-#' @param TheSummary Whether to return individual cells or summarized by stats.
+#' @param TheSummary Whether summarized (TRUE) or individual cells (FALSE).
 #' @param experiment Provide directly experiment name (ex. "JAN2024")
 #' @param condition Provide directly experiment name (ex. "JAN2024")
 #'
@@ -39,10 +39,10 @@ Luciernaga_FCSToReport <- function(path, reference, stats = "median",
   if (!is.data.frame(reference)){CSV <- read.csv(reference, check.names = FALSE)
   } else {CSV <- reference}
 
-  internalstrings <- c("-A", ".", "_", " ")
+  internalstrings <- c("-A", "_", "(Cells)", "(Beads)")
   CSV$Fluorophore <- NameCleanUp(name=CSV$Fluorophore, removestrings=internalstrings)
   CSV$Detector <- NameCleanUp(name=CSV$Detector, removestrings=internalstrings)
-  Variables <- CSV %>% select(Fluorophore) %>% pull(.)
+  Variables <- CSV %>% dplyr::select(Fluorophore) %>% pull(.)
   fcsfiles <- list.files(path, pattern=".fcs", full.names = TRUE)
   #x <- Variables[2]
   #inputfiles <- fcsfiles
@@ -55,19 +55,20 @@ Luciernaga_FCSToReport <- function(path, reference, stats = "median",
   #data <- CSV
   #inputfiles = fcsfiles
 
-  TheData <- map(.x = TheseFluorophores, .f = Luciernaga:::FCSImport, data = CSV,
+  TheData <- map(.x = TheseFluorophores, .f = FCSImport, data = CSV,
                    inputfiles = fcsfiles, RetainedType=RetainedType, stats=stats,
-                 TheSummary=TheSummary) %>%
-    bind_rows()
+                 TheSummary=TheSummary) %>% bind_rows()
 
   if (TheSummary == TRUE){
   TheExperiment <- as.character(experiment)
   TheCondition <- as.character(condition)
 
-  TheData <- TheData %>% separate(Cluster, into = c("Sample", "Cluster"), sep = "_")
-  TheData <- TheData %>% mutate(Experiment=TheExperiment)
-  TheData <- TheData %>% mutate(Condition=TheCondition)
-  TheData <- TheData %>% relocate(Sample, Experiment, Condition, .before=Cluster)
+  TheData1 <- TheData %>% separate(Cluster, into = c("Sample", "Cluster"), sep = "_")
+  TheData1 <- TheData1 %>% mutate(Experiment=TheExperiment)
+  TheData1 <- TheData1 %>% mutate(Condition=TheCondition)
+  TheData1 <- TheData1 %>% relocate(Sample, Experiment, Condition, .before=Cluster)
+
+  TheData <- TheData1
 
   return(TheData)
   } else {TheData <- TheData %>%
@@ -149,12 +150,12 @@ FCSImportFile <- function(x, Fluorophore, sample.name = "FILENAME"){
 FCSImport <- function(x, data, inputfiles, RetainedType, TheSummary, stats){
 
   # For each Fluorophore
-  TheDetector <- data %>% filter(Fluorophore %in% x) %>% pull(Detector)
+  TheDetector <- data %>% dplyr::filter(Fluorophore %in% x) %>% pull(Detector)
 
-  if (x %in% c("PE", "APC")){x <- paste0(x, "_")} #ExceptionHandling
+  if (x %in% c("PE", "APC")){x <- paste0(x, " ")} #ExceptionHandling
   fcs_files <- inputfiles[str_detect(basename(inputfiles), x) &
                             str_detect(basename(inputfiles), ".fcs$")]
-  if (x %in% c("PE_", "APC_")){x <- gsub("_", "", x)} #ExceptionHandling
+  if (x %in% c("PE ", "APC ")){x <- gsub(" ", "", x)} #ExceptionHandling
 
   if (!length(fcs_files) == 0){
 
@@ -172,7 +173,7 @@ FCSImport <- function(x, data, inputfiles, RetainedType, TheSummary, stats){
       mutate(Summed = rowSums(across(where(is.numeric)), na.rm = TRUE))
 
     TheData <- TheData %>% group_by(Summed) %>% dplyr::filter(n() <= 5) %>%
-      ungroup() %>% dplyr::filter(!Summed == 0) %>% select(-Summed)
+      ungroup() %>% dplyr::filter(!Summed == 0) %>% dplyr::select(-Summed)
 
     # Return Summarized Data
     if (RetainedType == "normalized"){
@@ -195,7 +196,7 @@ FCSImport <- function(x, data, inputfiles, RetainedType, TheSummary, stats){
 
       SmallHelper <- function(x, data, stats){
       Cluster <- x
-      Internal <- data %>% filter(Cluster %in% x) %>% select(where(is.numeric))
+      Internal <- data %>% dplyr::filter(Cluster %in% x) %>% dplyr::select(where(is.numeric))
       Summarized <- Luciernaga:::AveragedSignature(x=Internal, stats=stats)
       Summarized <- cbind(Cluster, Summarized)
       }

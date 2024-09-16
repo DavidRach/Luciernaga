@@ -1,6 +1,7 @@
 #' Generate Luciernaga plot outputs from List of List
 #'
 #' @param ListOfList A list containing the returns from Luciernaga_Plots plot option.
+#' @param SecondaryList Default NULL, if given a list will incorporate the plot in.
 #' @param PlotType Whether "html" or "pdf"
 #' @param thecolumns The number of columns per page
 #' @param therows The number of rows per page

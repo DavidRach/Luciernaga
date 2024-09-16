@@ -41,7 +41,7 @@ Detector column information for the panel.}
 
 \item{condition}{Provide directly experiment name (ex. "JAN2024")}
 
-\item{TheSummary}{Whether to return individual cells or summarized by stats.}
+\item{TheSummary}{Whether summarized (TRUE) or individual cells (FALSE).}
 }
 \value{
 A data.frame compatible with LuciernagaReport()
