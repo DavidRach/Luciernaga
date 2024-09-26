@@ -1,16 +1,17 @@
 ---
 title: "Dimensionality Visualization"
+date: "`r BiocStyle::doc_date()`"
 author:
 - name: David Rach
-  affiliation: University of Maryland, Baltimore
   email: drach@som.umaryland.edu
-package: Luciernaga
+  affiliation: University of Maryland, Baltimore
+package: "`r BiocStyle::pkg_ver('Luciernaga')`"
 output:
   BiocStyle::html_document
-abstract: |
-  How to set up Luciernaga
+bibliography: "`r file.path(system.file('extdata', package='Luciernaga'), 'refs.bib')`"
 vignette: |
-  %\VignetteIndexEntry{Getting Started}
+  %\VignetteIndexEntry{Dimensionality Visualization}
+  %\VignettePackage{Luciernaga}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
