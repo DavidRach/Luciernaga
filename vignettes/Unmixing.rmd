@@ -1,0 +1,30 @@
+---
+title: "Unmixing with `Luciernaga`"
+date: "`r BiocStyle::doc_date()`"
+author:
+- name: David Rach
+  email: drach@som.umaryland.edu
+  affiliation: University of Maryland, Baltimore
+package: "`r BiocStyle::pkg_ver('Luciernaga')`"
+output:
+  BiocStyle::html_document
+bibliography: "`r file.path(system.file('extdata', package='Luciernaga'), 'refs.bib')`"
+vignette: |
+  %\VignetteIndexEntry{Dimensionality Visualization}
+  %\VignettePackage{Luciernaga}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+# Introduction
+
+Unmixing is a black box for many spectral flow cytometry users, you adjust gates on your single color controls, you provide full-stained samples, you unmix and then you evaluate the outputs with NxN plots. 
+
+Building on the work of #the two packages, we provide the ability to take Luciernaga_QC output of purified signatures and carry out ordinal least squares (OLS) unmixing. The return files follow the FCS 3.0 standard. In combination with functional programming principles, we hope this enables users to push the limits of SFC and uncover new insights into how brightness, signature and relative heterogeneity of individual immune cells unmixed with combinatorial outputs. 

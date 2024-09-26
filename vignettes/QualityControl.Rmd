@@ -68,13 +68,13 @@ library(htmltools)
 Cytek Aurora instruments use fluorescent beads as part of their daily quality control checks. These result in the production of a QC report visible to the user, with the underlying data stored under the Levy-Jennings tracking tab. When downloaded, this returns a .csv file. However, it is not in a "tidy" data format, which limits it's direct usefulness for exploratory data analysis via functional programming in R. We provide several functions to convert this output into a "tidy" format, and then to visualize the data contained. 
 
 The first step is to indicate where the saved .csv file containing the Levy-Jennings tracking data from the cytometer is stored. On a local computer, the code to do this would resemble the following:
-```{r}
+```{r, eval = FALSE, echo=FALSE}
 FileLocation <- file.path("C:", "Users", "JohnDoe", "Desktop", "LevyJenningsTracking.csv")
 ```
 
 For this vignette, we will be accessing a .csv folder that can be found in Luciernaga's extdata folder containing three months of Levy-Jennings Tracking data for a 5 Laser Cytek Aurora (UV16-V16-B14-YG10-R8) for our example. 
 
-```{r}
+```{r, eval = FALSE, echo=FALSE}
 File_Location <- system.file("extdata", package = "Luciernaga")
 CSV_Pattern <- ".CSV$"
 CSV_Files <- list.files(path=File_Location, pattern=CSV_Pattern, full.names=TRUE)
@@ -83,7 +83,7 @@ CSV_Files
 
 Since this .CSV file is not is not in a tidy format, `read.csv()` will have issues when attempting to import directly. Instead, `CytekQCPlots()` will attempt to read in each row individually as text and from there pre-process it. 
 
-```{r}
+```{r, eval = FALSE, echo=FALSE}
 TidyData <- CytekQCFilePrep(CSV_Files, TrackChange = FALSE)
 gt(head(TidyData))
 ```
@@ -94,11 +94,11 @@ Once the data has been "tidyed", it can be used within R for plotting of any ind
 
 The next step is to take the resulting data.frame object and visualize the data contained. While this can be done for individual detectors, our function `CytekQCPlots()` will iterate over the different columns to return the plots simultaneously. Since the "tidy" QC data has ~140 QC measurements of interest, we instituted the argument "MeasurementType" to help filter for the results of interest. Behind the scenes, if the column name of the column of interest contains matching characters to your input, it will be selected and the data contained downstream sent for plotting. 
 
-```{r}
+```{r, eval = FALSE, echo=FALSE}
 head(colnames(TidyData), 20)
 ```
 
-```{r}
+```{r, eval = FALSE, echo=FALSE}
 StorageLocation <- file.path("C:", "Users", "JohnDoe", "Desktop")
 
 AvailableBroadMeasurementTypes <- c("Gain", "rCV", "Laser Delay", "Area Scaling Factor")
@@ -123,26 +123,26 @@ As with most functions in Luciernaga, `CytekQCPlots()` uses `Utility_Patchwork()
 
 Sometimes we don't have access to QC reports, but we do have access to .fcs files acquired on that day. 
 
-```{r}
+```{r, eval = FALSE, echo=FALSE}
 File_Location <- system.file("extdata", package = "Luciernaga")
 FCS_Pattern <- ".fcs$"
 FCS_Files <- list.files(path = File_Location, pattern = FCS_Pattern, full.names = TRUE, recursive = FALSE)
 FCS_Files
 ```
 
-```{r}
+```{r, eval = FALSE, echo=FALSE}
 SubsetFCSFiles <- FCS_Files[c(1:2, 6)]
 SubsetFCSFiles
 ```
 
-```{r}
+```{r, eval = FALSE, echo=FALSE}
 MyCytoSet <- load_cytoset_from_fcs(SubsetFCSFiles, truncate_max_range = FALSE, transform = FALSE)
 MyCytoSet
 MyGatingSet <- GatingSet(MyCytoSet)
 MyGatingSet
 ```
 
-```{r}
+```{r, eval = FALSE, echo=FALSE}
 #QCRetrieval(x=MyGatingSet[[1]], sample.name = "GROUPNAME")
 #?Luciernaga::QCRetrieval
 ```
@@ -171,12 +171,12 @@ library(dplyr)
 library(ggplot2)
 ```
 
-```{r}
+```{r, eval = FALSE, echo=FALSE}
 FolderLocation <- file.path("C:", "Users", "JohnDoe", "Desktop", "LibraryControls5L")
 StorageLocation <- file.path(FolderLocation, "Visualized")
 ```
 
-```{r}
+```{r, eval = FALSE, echo=FALSE}
 Folder_Location <- system.file("extdata", package = "Luciernaga")
 XML_Pattern <- ".XML$"
 XML_Files <- list.files(path = Folder_Location, pattern = XML_Pattern, full.names = TRUE, recursive = FALSE)
@@ -185,7 +185,7 @@ XML_Files
 
 Specifying returntype = "plots" will return ggplot objects of the library reference signatures. We can use `Utility_Patchwork()` to generate a .pdf file or a assembled patchwork plot with our desired dimensions. 
 
-```{r}
+```{r, eval = FALSE, echo=FALSE}
 ThePlots <- map(.x=XML_Files, .f=LibraryXMLParse, returntype="plots", references=FALSE)
 Utility_Patchwork(x=ThePlots, filename="LibraryControls5L", outfolder=NULL, returntype="patchwork", thecolumns=2, therows = 2, width = 7, height = 9)
 ```
@@ -193,13 +193,13 @@ As you may notice, while some library reference controls closely match the refer
 
 By specifying references = TRUE we can plot the reference signatures. We have attempted to provide coverage of most fluorophores for all Cytek Aurora and Northern Light instruments. Some fluorophores are not present in the internal reference .csv, which can result in fail to plot. Other times a mismatch in the instrument specific fluorophore name can be the cause. 
 
-```{r}
+```{r, eval = FALSE, echo=FALSE}
 ThePlots <- map(.x=XML_Files, .f=LibraryXMLParse, returntype="plots", references=TRUE)
 Utility_Patchwork(x=ThePlots, filename="LibraryControls5L", outfolder=NULL, returntype="patchwork", thecolumns=2, therows = 2, width = 7, height = 9)
 ```
 Instead of a plot, you can also return a data.frame object that can subsequently be saved as a .csv file for future reference. 
 
-```{r}
+```{r, eval = FALSE, echo=FALSE}
 TheData <- map(.x=XML_Files, .f=LibraryXMLParse, returntype="dataframe") %>% bind_rows()
 TheData
 
@@ -211,7 +211,7 @@ StorageName <- file.path(StorageLocation, FileName)
 
 Be aware, if library controls from different instruments with different laser (and detector configuration) are present, `bind_rows()` will fail. The output data.frame rows will need to first be sorted to make sure every row has the same number of columns, and then `bind_rows()` can be used to form a data.frame for each instrument laser*detector configuration. We provide code for reference below that you can adapt for your own individual purposes:
 
-```{r, eval = FALSE}
+```{r, eval = FALSE, echo=FALSE}
 FirstItem <- ncol(TheData[[1]])
 
 MisbehavingRows <- which(sapply(TheData, function(x) ncol(x) != FirstItem))
