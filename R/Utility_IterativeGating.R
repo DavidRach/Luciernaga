@@ -26,7 +26,7 @@ Utility_IterativeGating <- function(x, subset, gate, xValue, yValue, sample.name
   gs <- x
   TheSpecimens <- pData(gs)$name
 
-  ThePlots <- map(.x=TheSpecimens, .f=Iterator, gs=gs, subset=subset, gate=gate,
+  ThePlots <- map(.x=TheSpecimens, .f=InternalIterator, gs=gs, subset=subset, gate=gate,
                   xValue=xValue, yValue=yValue, sample.name=sample.name,
                   removestrings=removestrings, bins=bins)
 
