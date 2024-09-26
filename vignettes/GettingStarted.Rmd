@@ -9,7 +9,7 @@ package: "`r BiocStyle::pkg_ver('Luciernaga')`"
 output:
   BiocStyle::html_document
 abstract: |
-  Spectral Flow Cytometry (SFC) ability to resolve similar fluorophores is dependent on it's unmixing controls (both single color and unstained). Luciernaga is a series of tools for quality control to profile these controls and their subsequent effects on the unmixing of full-stained samples. 
+  Spectral Flow Cytometry (SFC) ability to resolve similar fluorophores is dependent on it's unmixing controls (both single color and unstained). Luciernaga is a collection of tools to enable individual users to profile quality of their unmixing controls and their subsequent effects on unmixing of full-stained samples.
 bibliography: "`r file.path(system.file('extdata', package='Luciernaga'), 'refs.bib')`"
 vignette: |
   %\VignetteIndexEntry{Getting Started}

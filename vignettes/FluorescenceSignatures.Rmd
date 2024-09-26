@@ -75,7 +75,7 @@ library(htmltools)
 ### Locating .fcs files
 To get started, you will first need to provide the location on your computer where the .fcs files of interest are being stored. An example of how the author does this is provided below and can be modified for your own user and desired computer folder. 
 
-```{r, eval = FALSE}
+```{r, eval = FALSE, echo=FALSE}
 File_Location <- file.path("C:", "Users", "JohnDoe", "Desktop", "TodaysExperiment")
 FCS_Pattern <- ".fcs$"
 FCS_Files <- list.files(path = File_Location, pattern = FCS_Pattern, full.names = TRUE, recursive = FALSE)
@@ -83,7 +83,7 @@ FCS_Files <- list.files(path = File_Location, pattern = FCS_Pattern, full.names 
 
 For this vignette, we will using several small .fcs files that can be found in Luciernaga's extdata folder for our example. 
 
-```{r}
+```{r, eval = FALSE, echo=FALSE}
 File_Location <- system.file("extdata", package = "Luciernaga")
 FCS_Pattern <- ".fcs$"
 FCS_Files <- list.files(path = File_Location, pattern = FCS_Pattern, full.names = TRUE, recursive = FALSE)
@@ -91,7 +91,7 @@ FCS_Files
 ```
 ### Creating a GatingSet Beads
 
-```{r}
+```{r, eval = FALSE, echo=FALSE}
 #SubsetFCSFiles <- FCS_Files[c(1:2, 6)]
 BeadsFCSFiles <- FCS_Files[c(1)]
 BeadsFCSFiles
@@ -100,7 +100,7 @@ BeadsFCSFiles
 
 Once we have the list of desired .fcs files, we can use the `r Biocpkg("flowWorkspace")` to bring these individual .fcs files first into a CytoSet object, then into a GatingSet object that we can add gates to:
 
-```{r}
+```{r, eval = FALSE, echo=FALSE}
 MyBeadsCytoSet <- load_cytoset_from_fcs(BeadsFCSFiles, truncate_max_range = FALSE, transform = FALSE)
 MyBeadsCytoSet
 MyBeadsGatingSet <- GatingSet(MyBeadsCytoSet)
@@ -108,7 +108,7 @@ MyBeadsGatingSet
 ```
 For this example, we will use the `r Biocpkg("openCyto")` package to automatically gate each of our .fcs files for the lymphocyte population. To do this, we first read in the example .csv file containing our desired gates (that can be found in Luciernaga's extdata folder) using the `r CRANpkg("data.table")` package
 
-```{r}
+```{r, eval = FALSE, echo=FALSE}
 FileLocation <- system.file("extdata", package = "Luciernaga")
 MyBeadsGates <- fread(file.path(path = FileLocation, pattern = 'GatesBeads.csv'))
 gt(MyBeadsGates)
@@ -118,7 +118,7 @@ For your own experiments, individual gates can be added, removed or modified to 
 
 Now that we have the gating information from the .csv file, we can convert them into a GatingTemplate, and append them to the .fcs files contained within the GatingSet
 
-```{r, echo=FALSE, results="FALSE"}
+```{r, eval = FALSE, echo=FALSE}
 MyBeadsGatingTemplate <- gatingTemplate(MyBeadsGates)
 gt_gating(MyBeadsGatingTemplate, MyBeadsGatingSet)
 MyBeadsGatingSet[[1]]
@@ -126,7 +126,7 @@ MyBeadsGatingSet[[1]]
 
 And finally check the gate placements using:
 
-```{r}
+```{r, eval = FALSE, echo=FALSE}
 removestrings <-  c("(Cells)", ".fcs", " ")
 StorageLocation <- file.path("C:/", "Users", "JohnDoe", "Desktop")
 
@@ -141,7 +141,7 @@ IndividualBeadPlot
 gs_pop_get_count_fast(MyBeadsGatingSet)
 ```
 
-```{r}
+```{r, eval = FALSE, echo=FALSE}
 removestrings <- ".fcs"
 
 x=MyBeadsGatingSet[1]
@@ -164,7 +164,7 @@ Unstained=FALSE
 ### Creating a GatingSet Cells
 Three of these files are raw unmixing controls (APCFire810, BUV496, Unstained), while the others are unmixed full-stained samples from a 29-color SFC panel (ND050). For now, let's subset the desired files to only select the raw .fcs unmixing controls as shown below:
 
-```{r}
+```{r, eval = FALSE, echo=FALSE}
 #SubsetFCSFiles <- FCS_Files[c(1:2, 6)]
 SubsetFCSFiles <- FCS_Files[c(2,7)]
 SubsetFCSFiles
@@ -172,7 +172,7 @@ SubsetFCSFiles
 
 Once we have the list of desired .fcs files, we can use the `r Biocpkg("flowWorkspace")` to bring these individual .fcs files first into a CytoSet object, then into a GatingSet object that we can add gates to:
 
-```{r}
+```{r, eval = FALSE, echo=FALSE}
 MyCytoSet <- load_cytoset_from_fcs(SubsetFCSFiles, truncate_max_range = FALSE, transform = FALSE)
 MyCytoSet
 MyGatingSet <- GatingSet(MyCytoSet)
@@ -180,7 +180,7 @@ MyGatingSet
 ```
 For this example, we will use the `r Biocpkg("openCyto")` package to automatically gate each of our .fcs files for the lymphocyte population. To do this, we first read in the example .csv file containing our desired gates (that can be found in Luciernaga's extdata folder) using the `r CRANpkg("data.table")` package
 
-```{r}
+```{r, eval = FALSE, echo=FALSE}
 FileLocation <- system.file("extdata", package = "Luciernaga")
 MyGates <- fread(file.path(path = FileLocation, pattern = 'Gates.csv'))
 gt(MyGates)
@@ -190,7 +190,7 @@ For your own experiments, individual gates can be added, removed or modified to 
 
 Now that we have the gating information from the .csv file, we can convert them into a GatingTemplate, and append them to the .fcs files contained within the GatingSet
 
-```{r, echo=FALSE, results="FALSE"}
+```{r, eval = FALSE, echo=FALSE}
 MyGatingTemplate <- gatingTemplate(MyGates)
 gt_gating(MyGatingTemplate, MyGatingSet)
 MyGatingSet[[1]]
@@ -198,7 +198,7 @@ MyGatingSet[[1]]
 
 And finally check the gate placements using:
 
-```{r}
+```{r, eval = FALSE, echo=FALSE}
 removestrings <-  c("(Cells)", ".fcs", " ")
 StorageLocation <- file.path("C:/", "Users", "JohnDoe", "Desktop")
 
@@ -227,7 +227,7 @@ The main workhorse of the Luciernaga is `LuciernagaQC`. Briefly, it will take in
 
 Let's work through it's compabilities individually. First off, let's profile Autofluorescence from the Unstained Cells. 
 
-```{r}
+```{r, eval = FALSE, echo=FALSE}
 FileLocation <- system.file("extdata", package = "Luciernaga")
 pattern = "AutofluorescentOverlaps.csv"
 AFOverlap <- list.files(path=FileLocation, pattern=pattern, full.names = TRUE)
@@ -247,7 +247,7 @@ The important parameters for the above outputs where Verbose, ratiopopcutoff, st
 From our lymphocyte gated cells, Verbose = TRUE prints out the output of cells enumerated by their peak detector. We can see that the main autofluorescence from this sample was UV7, followed by V7 and V3.  With the ratiopopcutoff set at 0.001, we are returning any detector that had > 0.1% starting lymphocytes with their main peak present in that detector. 
 Here is an example when we restrict it to detectors with 1% of starting lymphocytes:
 
-```{r}
+```{r, eval = FALSE, echo=FALSE}
 LuciernagaQC(x=MyGatingSet[2], subsets="lymphocytes", removestrings=removestrings, sample.name="GUID", 
                       unmixingcontroltype = "cells", Unstained = TRUE, ratiopopcutoff = 0.01, Verbose = TRUE,
                       AFOverlap = AFOverlap, stats = "median", ExportType = "data.frame", SignatureReturnNow = TRUE, 
@@ -258,7 +258,7 @@ The SignatureReturnNow short circuits the downstream analysis. It calculates the
 
 If by contrast, we wanted the signature of the second and third peak detectors (V7 and V3), we could do this by providing the parameter desiredAF = "V7" or "V3"
 
-```{r}
+```{r, eval = FALSE, echo=FALSE}
 UV7 <- LuciernagaQC(x=MyGatingSet[2], subsets="lymphocytes", removestrings=removestrings, sample.name="GUID", 
                       unmixingcontroltype = "cells", Unstained = TRUE, ratiopopcutoff = 0.01, Verbose = FALSE,
                       AFOverlap = AFOverlap, stats = "median", ExportType = "data.frame", SignatureReturnNow = TRUE, 
@@ -282,7 +282,7 @@ These data.frame consist of raw measurements from the .fcs file for the given de
 
 It's important before continuing to discuss the role of AFOverlap. Luciernaga works on the basis of filtering using the peak detectors, and then processsing out variations in signature from these filtered populations. Most fluorophores don't share overlaps with autofluorescence for peak detectors, but certain fluorophores will match either the primary or rarer autofluorescences in their primary detector (main examples are BUV496-A, BV510-A, Spark Blue 550-A). Since these vary by panel, and name of the fluorophore, we provision a .csv file that gets imported and is used for special handling of these fluorophores. 
 
-```{r}
+```{r, eval = FALSE, echo=FALSE}
 FileLocation <- system.file("extdata", package = "Luciernaga")
 pattern = "AutofluorescentOverlaps.csv"
 AFOverlap <- list.files(path=FileLocation, pattern=pattern, full.names = TRUE)
@@ -296,7 +296,7 @@ Once the AFOverlaps .csv has been updated, when `Utility_SingleColorQC()` proces
 
 In the case ofsingle color unmixing control (in this case, APC-Fire 750, the other specimen in our GatingSet):
 
-```{r}
+```{r, eval = FALSE, echo=FALSE}
 SC_InternalAF <- LuciernagaQC(x=MyGatingSet[1], subsets="lymphocytes", removestrings=removestrings, sample.name="GUID", 
                       unmixingcontroltype = "cells", Unstained = FALSE, ratiopopcutoff = 0.01, Verbose = TRUE,
                       AFOverlap = AFOverlap, stats = "median", ExportType = "data.frame", SignatureReturnNow = TRUE, 
@@ -311,7 +311,7 @@ In the case of unstained bead controls, it's recommended to use externalAF in th
 
 Continuing, we will switch SignatureReturnNow to False. Each of the peak detectors that has more events than specified by the ratiopopcutoff will be passed on to the unstained autofluorescence processing module, which will filter by these peak detectors and proceed to characterize their peaks.
 
-```{r, eval = FALSE}
+```{r, eval = FALSE, echo=FALSE}
 FileLocation <- system.file("extdata", package = "Luciernaga")
 pattern = "AutofluorescentOverlaps.csv"
 AFOverlap <- list.files(path=FileLocation, pattern=pattern, full.names = TRUE)
@@ -327,7 +327,7 @@ Luciernaga_QC(x=MyGatingSet[2], subsets="lymphocytes", sample.name="GUID", exper
 
 And for single-color controls:
 
-```{r, eval= FALSE}
+```{r, eval = FALSE, echo=FALSE}
 FileLocation <- system.file("extdata", package = "Luciernaga")
 pattern = "AutofluorescentOverlaps.csv"
 AFOverlap <- list.files(path=FileLocation, pattern=pattern, full.names = TRUE)
@@ -343,7 +343,7 @@ LuciernagaQC(x=MyGatingSet[1], subsets="lymphocytes", sample.name="GUID", experi
 ```
 
 And finally, we can RetainedType = "normalized and ExportType = "data"
-```{r}
+```{r, eval = FALSE, echo=FALSE}
 
 Data <- LuciernagaQC(x=MyGatingSet[1], subsets="lymphocytes", sample.name="GUID", experiment = "Monocytes", 
              condition = "exvivo", removestrings = removestrings, Verbose = FALSE, unmixingcontroltype="both",
@@ -364,7 +364,7 @@ CombinedData <- map(.x=MyGatingSet, .f=LuciernagaQC, subsets="lymphocytes", samp
 
 We can take the data.frame output from LuciernagaQC and run directly into a basic report. CellPopRatio determines the mininum ratio a cluster needs to have to be plotted (anything smaller is combined into the other category). The default is set for all four plots being returned, these can be modified by specifying FALSE for their individual arguments. Outputs are sent to Utility_Patchwork for processing into either grouped ggplot or a pdf file. 
 
-```{r}
+```{r, eval = FALSE, echo=FALSE}
 ThePlots <- LuciernagaReport(data=CombinedData, RetainedType = "normalized", CellPopRatio = 0.05, outfolder = NULL, filename = NULL, returntype = "patchwork")
 
 ThePlots

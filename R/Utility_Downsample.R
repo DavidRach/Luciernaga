@@ -33,8 +33,17 @@ Utility_Downsample <- function(x, sample.name, removestrings,
                                   subsets, subsample=NULL, inverse.transform = FALSE,
                                   internal = FALSE, export = FALSE, outpath = NULL){
 
-  name <- keyword(x, sample.name)
-  alternatename <- NameCleanUp(name, removestrings)
+  if(length(sample.name) == 1){
+    name <- keyword(x, sample.name)
+    alternatename <- NameCleanUp(name, removestrings)
+  } else {first <- sample.name[1]
+          second <- sample.name[2]
+          first <- keyword(x, first)
+          first <- NameCleanUp(first, removestrings)
+          second <- keyword(x, second)
+          second <- NameCleanUp(second, removestrings)
+          alternatename <- paste(first, second, sep="_")
+  }
 
   #Retrieving the exprs data for my subset population of interest
   ff <- gs_pop_get_data(x, subsets, inverse.transform = inverse.transform)
@@ -55,7 +64,7 @@ Utility_Downsample <- function(x, sample.name, removestrings,
                    description=original_d)
 
     if (export == TRUE) {
-      if (!is.null(outpath)) {TheFileName <- paste0(alternatename, "_downsampled.fcs")
+      if (!is.null(outpath)) {TheFileName <- paste0(alternatename, ".fcs")
                               fileSpot <- file.path(outpath, TheFileName)}
                               write.FCS(new_fcs, filename = fileSpot, delimiter="#")
     } else {return(new_fcs)}
