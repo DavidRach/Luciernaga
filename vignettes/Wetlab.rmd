@@ -1,0 +1,28 @@
+---
+title: "Wetlab Helper Functions for `Luciernaga`"
+date: "`r BiocStyle::doc_date()`"
+author:
+- name: David Rach
+  email: drach@som.umaryland.edu
+  affiliation: University of Maryland, Baltimore
+package: "`r BiocStyle::pkg_ver('Luciernaga')`"
+output:
+  BiocStyle::html_document
+bibliography: "`r file.path(system.file('extdata', package='Luciernaga'), 'refs.bib')`"
+vignette: |
+  %\VignetteIndexEntry{Dimensionality Visualization}
+  %\VignettePackage{Luciernaga}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+# Introduction
+
+Why are these functions here? Because they speed up our experiments, this is my R package, and I am including them. 

@@ -70,32 +70,33 @@ library(htmltools)
 
 ## Create a GatingSet
 
-```{r, eval = FALSE, echo=FALSE}
+```{r, echo=FALSE}
 File_Location <- system.file("extdata", package = "Luciernaga")
 FCS_Pattern <- ".fcs$"
-FCS_Files <- list.files(path = File_Location, pattern = FCS_Pattern, full.names = TRUE, recursive = FALSE)
-FCS_Files
+FCS_Files <- list.files(path = File_Location, pattern = FCS_Pattern,
+                        full.names = TRUE, recursive = FALSE)
+head(FCS_Files[10:30], 20)
 ```
 
-```{r, eval = FALSE, echo=FALSE}
-SubsetFCSFiles <- FCS_Files[c(1:2, 6)]
-SubsetFCSFiles
+```{r}
+UnstainedFCSFiles <- FCS_Files[grep("Unstained", FCS_Files)]
+UnstainedCells <- UnstainedFCSFiles[-grep("Beads", UnstainedFCSFiles)]
 ```
 
-```{r, eval = FALSE, echo=FALSE}
-MyCytoSet <- load_cytoset_from_fcs(SubsetFCSFiles, truncate_max_range = FALSE, transform = FALSE)
+```{r}
+MyCytoSet <- load_cytoset_from_fcs(UnstainedCells, truncate_max_range = FALSE, transform = FALSE)
 MyCytoSet
 MyGatingSet <- GatingSet(MyCytoSet)
 MyGatingSet
 ```
 
-```{r, eval = FALSE, echo=FALSE}
+```{r}
 FileLocation <- system.file("extdata", package = "Luciernaga")
 MyGates <- fread(file.path(path = FileLocation, pattern = 'Gates.csv'))
 gt(MyGates)
 ```
 
-```{r, eval = FALSE, echo=FALSE}
+```{r}
 MyGatingTemplate <- gatingTemplate(MyGates)
 gt_gating(MyGatingTemplate, MyGatingSet)
 MyGatingSet[[1]]
@@ -103,18 +104,17 @@ MyGatingSet[[1]]
 
 ## Creating a Gating Set Unmixed
 
-```{r, eval = FALSE, echo=FALSE}
-UnmixedFCSFiles <- FCS_Files[c(3:5)]
-UnmixedFCSFiles
+```{r}
+Unmixed_FullStained <- FCS_Files[grep("Unmixed", FCS_Files)]
 ```
 
-```{r, eval = FALSE, echo=FALSE}
-UnmixedCytoSet <- load_cytoset_from_fcs(UnmixedFCSFiles, truncate_max_range = FALSE, transform = FALSE)
+```{r}
+UnmixedCytoSet <- load_cytoset_from_fcs(Unmixed_FullStained, truncate_max_range = FALSE, transform = FALSE)
 UnmixedGatingSet <- GatingSet(UnmixedCytoSet)
 UnmixedGatingSet
 ```
 
-```{r, eval = FALSE, echo=FALSE}
+```{r}
 Markers <- colnames(UnmixedCytoSet)
 KeptMarkers <- Markers[-grep("Time|FS|SC|SS|Original|-W$|-H$|AF", Markers)]
 
@@ -134,7 +134,7 @@ Originally an internal function supporting our dimensionality visualization func
 
 Since it has been highly useful to us, we are mentioning it here in case you need to append additional information/alternate dimensionality visualizations to your own .fcs files. We have tried to keep the return .fcs file compliant for ease of use in other software applications, but expect bugs to arise outside internal function purpose, so if you encounter a bug with this function, please report it via GitHub.
 
-```{r, eval = FALSE, echo=FALSE}
+```{r}
 ff <- gs_pop_get_data(UnmixedGatingSet[1], subsets="live", inverse.transform = FALSE)
 BeforeParameters <- ff[[1, returnType = "flowFrame"]]
 BeforeParameters
@@ -162,7 +162,7 @@ fileSpot
 
 # Utility_Downsample
 
-```{r, eval = FALSE, echo=FALSE}
+```{r}
 # plot(UnmixedGatingSet)
 CountData <- gs_pop_get_count_fast(UnmixedGatingSet)
 CountData %>% filter(Population %in% "/singletsFSC/singletsSSC/singletsSSCB/nonDebris/lymphocytes/live") %>%
@@ -170,14 +170,14 @@ CountData %>% filter(Population %in% "/singletsFSC/singletsSSC/singletsSSCB/nonD
 
 #Single Sample Returned as a data.frame 
 removestrings <- c("DTR_2023_ILT_15_Tetramers-", "-Ctrl_Tetramer_Unmixed", ".fcs")
-SingleSample <- Utility_Downsample(UnmixedGatingSet[1], sample.name = "GROUPNAME", removestrings=removestrings, subsets = "live", subsample = 2800, 
+SingleSample <- Utility_Downsample(UnmixedGatingSet[1], sample.name = "GROUPNAME", removestrings=removestrings, subsets = "live", subsample = 2500, 
                    internal = FALSE, export = FALSE)
 SingleSample
 
 # Multiple Samples
 
 MultipleSamples <- map(.x=UnmixedGatingSet, .f=Utility_Downsample, sample.name =  "GROUPNAME", removestrings=removestrings, subsets = "live", 
-                       subsample = 2800, internal = FALSE, export = FALSE)
+                       subsample = 2500, internal = FALSE, export = FALSE)
 MultipleSamples
 ```
 
@@ -189,7 +189,7 @@ This sometimes includes first downsampling to an equivalent number of cells in a
 
 To facilitate this process, we have implemented this function. Unlike other approaches, it relies on GatingSet, bringing in only the cells for the node of interest into active memory. The final file can then be saved as it's own .fcs file. We have attempted to retain FCS 3.1, so that it can be brought into other software for additional steps. If you encounter issues, please reach out! 
 
-```{r, eval = FALSE, echo=FALSE}
+```{r}
 removestrings <- c("DTR_", ".fcs")
 StorageLocation <- file.path("C:", "Users", "12692", "Desktop")
 
@@ -205,7 +205,7 @@ ConcatinatedReturn
 
 Now that we have a GatingSet containing our raw .fcs files, let's figure out what markers/parameters are present, and save the detectors as "KeptMarkers". From there, let's identify the unstained file within the GatingSet. After this we will run a tSNE on the provided data at the lymphocyte gating level, using the `Utility_tSNE()` function. This function has the ability to return a .fcs file (which is what we typically use). For the purpose of this vignette, it returns as a FlowCore flowframe. For use with our visualization functions that work on GatingSet objects, we transform to a cytoframe, add to a new cytoset and then convert that into a gating set. Finally we visualize using `Utility_ThirdColorPlots()`
 
-```{r, eval = FALSE, echo=FALSE}
+```{r}
 Markers <- colnames(MyCytoSet)
 KeptMarkers <- Markers[-grep("Time|FS|SC|SS|Original|-W$|-H$|AF", Markers)]
 KeptMarkers
@@ -229,7 +229,7 @@ TSNEPlot
 
 We can now repeat the previous step, but using our Unmixed file GatingSet. The process is similar, identifying markers present in the .fcs file (fluorophores in this case), selecting our markers of interest, and from there passing to the `Utility_tSNE()` function.
 
-```{r, eval = FALSE, echo=FALSE}
+```{r}
 Markers <- colnames(UnmixedCytoSet)
 KeptMarkers <- Markers[-grep("Time|FS|SC|SS|Original|-W$|-H$|AF", Markers)]
 SubsetMarkers <- c("BUV496-A", "BUV805-A", "Pacific Blue-A", "BV711-A",
@@ -260,7 +260,7 @@ Sample_TSNEPlot
 
 Now that we have a GatingSet containing our raw .fcs files, let's figure out what markers/parameters are present, and save the detectors as "KeptMarkers". From there, let's identify the unstained file within the GatingSet. After this we will run a tSNE on the provided data at the lymphocyte gating level, using the `Utility_UMAP()` function. This function has the ability to return a .fcs file (which is what we typically use). For the purpose of this vignette, it returns as a FlowCore flowframe. For use with our visualization functions that work on GatingSet objects, we transform to a cytoframe, add to a new cytoset and then convert that into a gating set. Finally we visualize using `Utility_ThirdColorPlots()`
 
-```{r, eval = FALSE, echo=FALSE}
+```{r}
 Markers <- colnames(MyCytoSet)
 KeptMarkers <- Markers[-grep("Time|FS|SC|SS|Original|-W$|-H$|AF", Markers)]
 KeptMarkers
@@ -283,7 +283,7 @@ UMAPPlot
 
 We can now repeat the previous step, but using our Unmixed file GatingSet. The process is similar, identifying markers present in the .fcs file (fluorophores in this case), selecting our markers of interest, and from there passing to the `Utility_UMAP()` function.
 
-```{r, eval = FALSE, echo=FALSE}
+```{r}
 Markers <- colnames(UnmixedCytoSet)
 KeptMarkers <- Markers[-grep("Time|FS|SC|SS|Original|-W$|-H$|AF", Markers)]
 SubsetMarkers <- c("BUV496-A", "BUV805-A", "Pacific Blue-A", "BV711-A",
