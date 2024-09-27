@@ -1,5 +1,5 @@
 ---
-title: "Dimensionality Visualization"
+title: "02 Dimensionality Visualization"
 date: "`r BiocStyle::doc_date()`"
 author:
 - name: David Rach
@@ -10,7 +10,7 @@ output:
   BiocStyle::html_document
 bibliography: "`r file.path(system.file('extdata', package='Luciernaga'), 'refs.bib')`"
 vignette: |
-  %\VignetteIndexEntry{Dimensionality Visualization}
+  %\VignetteIndexEntry{02 Dimensionality Visualization}
   %\VignettePackage{Luciernaga}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}

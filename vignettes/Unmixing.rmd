@@ -1,5 +1,5 @@
 ---
-title: "Unmixing with `Luciernaga`"
+title: "05 Unmixing with `Luciernaga`"
 date: "`r BiocStyle::doc_date()`"
 author:
 - name: David Rach
@@ -10,7 +10,7 @@ output:
   BiocStyle::html_document
 bibliography: "`r file.path(system.file('extdata', package='Luciernaga'), 'refs.bib')`"
 vignette: |
-  %\VignetteIndexEntry{Dimensionality Visualization}
+  %\VignetteIndexEntry{05 Unmixing}
   %\VignettePackage{Luciernaga}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}

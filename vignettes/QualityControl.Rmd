@@ -1,5 +1,5 @@
 ---
-title: "Quality Control"
+title: "03 Quality Control"
 date: "`r BiocStyle::doc_date()`"
 author:
 - name: David Rach
@@ -10,7 +10,7 @@ output:
   BiocStyle::html_document
 bibliography: "`r file.path(system.file('extdata', package='Luciernaga'), 'refs.bib')`"
 vignette: |
-  %\VignetteIndexEntry{Quality Control}
+  %\VignetteIndexEntry{03 Quality Control}
   %\VignettePackage{Luciernaga}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
