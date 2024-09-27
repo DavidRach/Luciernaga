@@ -80,11 +80,14 @@ head(FCS_Files[10:30], 20)
 
 ```{r}
 UnstainedFCSFiles <- FCS_Files[grep("Unstained", FCS_Files)]
-UnstainedCells <- UnstainedFCSFiles[-grep("Beads", UnstainedFCSFiles)]
+UnstainedCells <- UnstainedFCSFiles[-grep(
+  "Beads", UnstainedFCSFiles)]
 ```
 
 ```{r}
-MyCytoSet <- load_cytoset_from_fcs(UnstainedCells, truncate_max_range = FALSE, transform = FALSE)
+MyCytoSet <- load_cytoset_from_fcs(UnstainedCells,
+                                   truncate_max_range = FALSE,
+                                   transform = FALSE)
 MyCytoSet
 MyGatingSet <- GatingSet(MyCytoSet)
 MyGatingSet
@@ -92,7 +95,8 @@ MyGatingSet
 
 ```{r}
 FileLocation <- system.file("extdata", package = "Luciernaga")
-MyGates <- fread(file.path(path = FileLocation, pattern = 'Gates.csv'))
+MyGates <- fread(file.path(path = FileLocation,
+                           pattern = 'Gates.csv'))
 gt(MyGates)
 ```
 
@@ -109,21 +113,28 @@ Unmixed_FullStained <- FCS_Files[grep("Unmixed", FCS_Files)]
 ```
 
 ```{r}
-UnmixedCytoSet <- load_cytoset_from_fcs(Unmixed_FullStained, truncate_max_range = FALSE, transform = FALSE)
+UnmixedCytoSet <- load_cytoset_from_fcs(Unmixed_FullStained,
+                                        truncate_max_range = FALSE,
+                                        transform = FALSE)
 UnmixedGatingSet <- GatingSet(UnmixedCytoSet)
 UnmixedGatingSet
 ```
 
 ```{r}
 Markers <- colnames(UnmixedCytoSet)
-KeptMarkers <- Markers[-grep("Time|FS|SC|SS|Original|-W$|-H$|AF", Markers)]
+KeptMarkers <- Markers[-grep(
+  "Time|FS|SC|SS|Original|-W$|-H$|AF", Markers)]
 
-MyBiexponentialTransform <- flowjo_biexp_trans(channelRange = 256, maxValue = 1000000, pos = 4.5, neg = 0, widthBasis = -1000)
+MyBiexponentialTransform <- flowjo_biexp_trans(channelRange = 256,
+                                               maxValue = 1000000,
+                                               pos = 4.5, neg = 0,
+                                               widthBasis = -1000)
 TransformList <- transformerList(KeptMarkers, MyBiexponentialTransform)
 UnmixedGatingSet <- transform(UnmixedGatingSet, TransformList)
 
 FileLocation <- system.file("extdata", package = "Luciernaga")
-UnmixedGates <- fread(file.path(path = FileLocation, pattern = 'GatesUnmixed.csv'))
+UnmixedGates <- fread(file.path(path = FileLocation,
+                                pattern = 'GatesUnmixed.csv'))
 UnmixedGating <- gatingTemplate(UnmixedGates)
 gt_gating(UnmixedGating, UnmixedGatingSet)
 ```
@@ -135,7 +146,8 @@ Originally an internal function supporting our dimensionality visualization func
 Since it has been highly useful to us, we are mentioning it here in case you need to append additional information/alternate dimensionality visualizations to your own .fcs files. We have tried to keep the return .fcs file compliant for ease of use in other software applications, but expect bugs to arise outside internal function purpose, so if you encounter a bug with this function, please report it via GitHub.
 
 ```{r}
-ff <- gs_pop_get_data(UnmixedGatingSet[1], subsets="live", inverse.transform = FALSE)
+ff <- gs_pop_get_data(UnmixedGatingSet[1], subsets="live",
+                      inverse.transform = FALSE)
 BeforeParameters <- ff[[1, returnType = "flowFrame"]]
 BeforeParameters
 
@@ -143,10 +155,13 @@ BeforeParameters
 MainDataFrame <- as.data.frame(exprs(ff[[1]]), check.names = FALSE)
 
 # Creating Artificial Data To Mimic Metadata to Append
-NewData <- MainDataFrame %>% mutate(ExposureStatus = sample(1:3, n(), replace = TRUE))
+NewData <- MainDataFrame %>% mutate(
+  ExposureStatus = sample(1:3, n(), replace = TRUE))
+
 NewData <- NewData %>% select(ExposureStatus)
 
-AfterParameters <- Utility_ColAppend(ff=ff, DF=MainDataFrame, columnframe = NewData)
+AfterParameters <- Utility_ColAppend(ff=ff, DF=MainDataFrame,
+                                     columnframe = NewData)
 AfterParameters
 ```
 
@@ -169,15 +184,21 @@ CountData %>% filter(Population %in% "/singletsFSC/singletsSSC/singletsSSCB/nonD
   select(name, Count)
 
 #Single Sample Returned as a data.frame 
-removestrings <- c("DTR_2023_ILT_15_Tetramers-", "-Ctrl_Tetramer_Unmixed", ".fcs")
-SingleSample <- Utility_Downsample(UnmixedGatingSet[1], sample.name = "GROUPNAME", removestrings=removestrings, subsets = "live", subsample = 2500, 
-                   internal = FALSE, export = FALSE)
+removestrings <- c("DTR_2023_ILT_15_Tetramers-",
+                   "-Ctrl_Tetramer_Unmixed", ".fcs")
+SingleSample <- Utility_Downsample(UnmixedGatingSet[1],
+                                   sample.name = "GROUPNAME",
+                                   removestrings=removestrings,
+                                   subsets = "live", subsample = 2500,
+                                   internal = FALSE, export = FALSE)
 SingleSample
 
 # Multiple Samples
 
-MultipleSamples <- map(.x=UnmixedGatingSet, .f=Utility_Downsample, sample.name =  "GROUPNAME", removestrings=removestrings, subsets = "live", 
-                       subsample = 2500, internal = FALSE, export = FALSE)
+MultipleSamples <- map(.x=UnmixedGatingSet, .f=Utility_Downsample,
+                       sample.name =  "GROUPNAME", removestrings=removestrings,
+                       subsets = "live", subsample = 2500, internal = FALSE,
+                       export = FALSE)
 MultipleSamples
 ```
 
@@ -194,9 +215,14 @@ removestrings <- c("DTR_", ".fcs")
 StorageLocation <- file.path("C:", "Users", "12692", "Desktop")
 
 #Return Types: "data.frame", "flow.frame", "fcs"
-ConcatinatedReturn <- Utility_Concatinate(gs=UnmixedGatingSet, sample.name = "GROUPNAME", removestrings=removestrings, subsets="live", 
-                    subsample = 2000, ReturnType = "flow.frame", newName = "MyConcatinatedFile", outpath = StorageLocation, 
-                    export = FALSE)
+ConcatinatedReturn <- Utility_Concatinate(gs=UnmixedGatingSet,
+                                          sample.name = "GROUPNAME",
+                                          removestrings=removestrings,
+                                          subsets="live", subsample = 2000,
+                                          ReturnType = "flow.frame",
+                                          newName = "MyConcatinatedFile",
+                                          outpath = StorageLocation,
+                                          export = FALSE)
 
 ConcatinatedReturn
 ```
@@ -214,14 +240,22 @@ pData(MyGatingSet[[3]]) %>% pull(name)
 nrow(MyGatingSet[[3]])
 plot(MyGatingSet)
 
-tSNE_Output <- Utility_tSNE(x=MyGatingSet[[3]], sample.name = "GUID", removestrings=c("_Cells", ".fcs"), subset = "lymphocytes", columns=KeptMarkers, export=FALSE)
+tSNE_Output <- Utility_tSNE(x=MyGatingSet[[3]], sample.name = "GUID",
+                            removestrings=c("_Cells", ".fcs"),
+                            subset = "lymphocytes", columns=KeptMarkers,
+                            export=FALSE)
 
 cf <- flowFrame_to_cytoframe(tSNE_Output)
 TheNewCS <- cytoset()
 cs_add_cytoframe(cs=TheNewCS, sn="Test", cf=cf)
 NewGatingSet <- GatingSet(TheNewCS)
 
-TSNEPlot <-  Utility_ThirdColorPlots(x=NewGatingSet[[1]], subset = "root", xaxis="tSNE_1", yaxis = "tSNE_2",  zaxis ="V7-A", splitpoint = "continuous", sample.name = "TUBENAME", removestrings = c("Dimensionality", ".fcs"), thecolor = "orange", tilesize = 0.6)
+TSNEPlot <-  Utility_ThirdColorPlots(x=NewGatingSet[[1]], subset = "root",
+                                     xaxis="tSNE_1", yaxis = "tSNE_2",
+                                     zaxis ="V7-A", splitpoint = "continuous",
+                                     sample.name = "TUBENAME",
+                                     removestrings = c("Dimensionality", ".fcs"),
+                                     thecolor = "orange", tilesize = 0.6)
 
 TSNEPlot 
 ```
@@ -250,7 +284,13 @@ TheNewCS <- cytoset()
 cs_add_cytoframe(cs=TheNewCS, sn="Test", cf=cf)
 NewGatingSet <- GatingSet(TheNewCS)
 
-Sample_TSNEPlot <-  Utility_ThirdColorPlots(x=NewGatingSet[[1]], subset = "root", xaxis="tSNE_1", yaxis = "tSNE_2",  zaxis ="Spark Blue 550-A", splitpoint = "continuous", sample.name = "GROUPNAME", removestrings = removestrings, thecolor = "orange", tilesize = 0.6)
+Sample_TSNEPlot <-  Utility_ThirdColorPlots(x=NewGatingSet[[1]], subset = "root",
+                                            xaxis="tSNE_1", yaxis = "tSNE_2",
+                                            zaxis ="Spark Blue 550-A",
+                                            splitpoint = "continuous",
+                                            sample.name = "GROUPNAME",
+                                            removestrings = removestrings, 
+                                            thecolor = "orange", tilesize = 0.6)
 
 Sample_TSNEPlot 
 ```
@@ -269,14 +309,22 @@ pData(MyGatingSet[[3]]) %>% pull(name)
 nrow(MyGatingSet[[3]])
 plot(MyGatingSet)
 
-UMAP_Output <- Utility_UMAP(x=MyGatingSet[[3]], sample.name="GUID", removestrings=c("_Cells", ".fcs"), subset="lymphocytes", columns=KeptMarkers, export=FALSE)
+UMAP_Output <- Utility_UMAP(x=MyGatingSet[[3]], sample.name="GUID",
+                            removestrings=c("_Cells", ".fcs"), 
+                            subset="lymphocytes", columns=KeptMarkers,
+                            export=FALSE)
 
 cf <- flowFrame_to_cytoframe(UMAP_Output)
 TheNewCS <- cytoset()
 cs_add_cytoframe(cs=TheNewCS, sn="Test", cf=cf)
 NewGatingSet <- GatingSet(TheNewCS)
 
-UMAPPlot <-  Utility_ThirdColorPlots(x=NewGatingSet[[1]], subset = "root", xaxis="UMAP_1", yaxis = "UMAP_2",  zaxis ="V7-A", splitpoint = "continuous", sample.name = "TUBENAME", removestrings = c("Dimensionality", ".fcs"), thecolor = "orange", tilesize = 0.3)
+UMAPPlot <-  Utility_ThirdColorPlots(x=NewGatingSet[[1]], subset = "root",
+                                     xaxis="UMAP_1", yaxis = "UMAP_2", 
+                                     zaxis ="V7-A", splitpoint = "continuous",
+                                     sample.name = "TUBENAME",
+                                     removestrings = c("Dimensionality", ".fcs"),
+                                     thecolor = "orange", tilesize = 0.3)
 
 UMAPPlot
 ```
@@ -302,7 +350,13 @@ TheNewCS <- cytoset()
 cs_add_cytoframe(cs=TheNewCS, sn="Test", cf=cf)
 NewGatingSet <- GatingSet(TheNewCS)
 
-Sample_UMAPPlot <-  Utility_ThirdColorPlots(x=NewGatingSet[[1]], subset = "root", xaxis="UMAP_1", yaxis = "UMAP_2",  zaxis ="Spark Blue 550-A", splitpoint = "continuous", sample.name = "GROUPNAME", removestrings = c("Dimensionality", ".fcs"), thecolor = "orange", tilesize = 0.3)
+Sample_UMAPPlot <-  Utility_ThirdColorPlots(x=NewGatingSet[[1]], subset = "root",
+                                            xaxis="UMAP_1", yaxis = "UMAP_2",
+                                            zaxis ="Spark Blue 550-A",
+                                            splitpoint = "continuous",
+                                            sample.name = "GROUPNAME",
+                                            removestrings = c("Dimensionality", ".fcs"),
+                                            thecolor = "orange", tilesize = 0.3)
 
 Sample_UMAPPlot
 ```

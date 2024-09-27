@@ -108,23 +108,31 @@ FCS_Files <- list.files(path = File_Location, pattern = FCS_Pattern,
 
 For this vignette, we will using down-sampled .fcs files that can be found in Luciernaga's extdata folder for our example. From the original .fcs files, we have retained 10000 events for cell unmixing controls, and 3000 for bead unmixing controls. 
 
-```{r, echo=FALSE}
+```{r}
 File_Location <- system.file("extdata", package = "Luciernaga")
 FCS_Pattern <- ".fcs$"
 FCS_Files <- list.files(path = File_Location, pattern = FCS_Pattern,
                         full.names = TRUE, recursive = FALSE)
-head(FCS_Files[10:30], 20)
 ```
+
+```{r}
+head(FCS_Files[20:30], 10)
+```
+
+
 Within the extdata folder we have a mix of different files intended for different vignettes. The majority of the contents are unmixing controls and full-stained samples acquired in the process of processing a 29-color SFC panel of Cord (CBMC) and Peripheral Blood Mononuclear Cells (PBMCs), both raw and unmixed files. Additionally, there are samples that correspond to Cytek Aurora QC beads that were collected before and after the daily QC bead for instrument monitoring. 
 
 For this initial example, lets filter the list by keywords in the file name to organize them for subsequent use elsewhere in the vignette. For now, let's subset the desired files as shown below:
+
+
 
 ```{r}
 QCBeads <- FCS_Files[grep("After|Before", FCS_Files)]
 
 Unmixed_FullStained <- FCS_Files[grep("Unmixed", FCS_Files)]
 
-Raw_FullStained <- FCS_Files[-grep("Cells|Beads|Unmixed|Unstained|After|Before", FCS_Files)]
+Raw_FullStained <- FCS_Files[-grep(
+  "Cells|Beads|Unmixed|Unstained|After|Before", FCS_Files)]
 
 UnstainedFCSFiles <- FCS_Files[grep("Unstained", FCS_Files)]
 UnstainedBeads <- UnstainedFCSFiles[grep("Beads", UnstainedFCSFiles)]
@@ -134,7 +142,9 @@ BeadFCSFiles <- FCS_Files[grep("Beads", FCS_Files)]
 BeadSingleColors <- BeadFCSFiles[-grep("Unstained", BeadFCSFiles)]
 
 CellSingleColors <- FCS_Files[grep("Cells", FCS_Files)]
+```
 
+```{r}
 head(CellSingleColors, 10)
 ```
 
@@ -142,8 +152,9 @@ head(CellSingleColors, 10)
 Once we have the list of desired .fcs files, we can use the `r Biocpkg("flowWorkspace")` to bring these individual .fcs files first into a CytoSet object, then into a GatingSet object that we can add gates to:
 
 ```{r}
-MyCytoSet <- load_cytoset_from_fcs(CellSingleColors, truncate_max_range = FALSE, transform = FALSE)
-MyCytoSet
+MyCytoSet <- load_cytoset_from_fcs(CellSingleColors, truncate_max_range = FALSE,
+                                   transform = FALSE)
+#MyCytoSet
 MyGatingSet <- GatingSet(MyCytoSet)
 MyGatingSet
 ```
@@ -179,11 +190,17 @@ To do this, we reference the `r CRANpkg("data.table")` imported gating informati
 removestrings <-  c("DR_", "Cells", ".fcs", "-", " ")
 StorageLocation <- file.path("C:", "Users", "JohnDoe", "Desktop")
 
-IndividualPlot <- Utility_GatingPlots(x=MyGatingSet[[2]], sample.name = "GUID", removestrings = removestrings, gtFile = MyGates, DesiredGates = NULL, outpath = StorageLocation, export = FALSE)
+IndividualPlot <- Utility_GatingPlots(x=MyGatingSet[[2]], sample.name = "GUID",
+                                      removestrings = removestrings,
+                                      gtFile = MyGates, DesiredGates = NULL,
+                                      outpath = StorageLocation, export = FALSE)
 
 IndividualPlot
   
-IteratedPlots <- map(.x = MyGatingSet[1:3], .f = Utility_GatingPlots, sample.name = "GUID", removestrings = removestrings, gtFile = MyGates, DesiredGates = NULL, outpath = StorageLocation, export = FALSE)
+IteratedPlots <- map(.x = MyGatingSet[1:3], .f = Utility_GatingPlots,
+                     sample.name = "GUID", removestrings = removestrings,
+                     gtFile = MyGates, DesiredGates = NULL,
+                     outpath = StorageLocation, export = FALSE)
 ```
 
 ### Utility_IterativeGating
@@ -195,11 +212,19 @@ In the absence of an existing gating template, the `Utility_IterativeGating()` f
 plot(MyGatingSet)
 gs_pop_get_gate(MyGatingSet[1], "lymphocytes")
 
-SingleSpecimen <- Utility_IterativeGating(x=MyGatingSet[1], sample.name = "GUID", removestrings = removestrings, subset = "nonDebris", gate = "lymphocytes", xValue = "FSC-A", yValue = "SSC-A", bins = 270)
+SingleSpecimen <- Utility_IterativeGating(x=MyGatingSet[1], sample.name = "GUID",
+                                          removestrings = removestrings,
+                                          subset = "nonDebris",
+                                          gate = "lymphocytes",
+                                          xValue = "FSC-A", yValue = "SSC-A",
+                                          bins = 270)
 
 SingleSpecimen
 
-AllSpecimens <- Utility_IterativeGating(x=MyGatingSet[1:3], sample.name = "GUID", removestrings = removestrings, subset = "nonDebris", gate = "lymphocytes", xValue = "FSC-A", yValue = "SSC-A", bins = 270)
+AllSpecimens <- Utility_IterativeGating(x=MyGatingSet[1:3], sample.name = "GUID",
+                                        removestrings = removestrings,
+                                        subset = "nonDebris", gate = "lymphocytes",
+                                        xValue = "FSC-A", yValue = "SSC-A", bins = 270)
 ```
 
 ### Utility_Patchwork
@@ -210,7 +235,10 @@ The previous example returned AllSpecimens, which is a list of ggplot objects. T
 
 ```{r}
 StorageLocation <- file.path("C:", "Users", "JohnDoe", "Desktop")
-Utility_Patchwork(AllSpecimens, "LymphocyteGates", outfolder=StorageLocation, thecolumns=2, therows=2, width = 7, height = 9, returntype="patchwork")
+
+Utility_Patchwork(AllSpecimens, "LymphocyteGates", outfolder=StorageLocation,
+                  thecolumns=2, therows=2, width = 7, height = 9,
+                  returntype="patchwork")
 ```
 
 
@@ -223,7 +251,10 @@ UnmixedFCSFiles
 ```
 
 ```{r}
-UnmixedCytoSet <- load_cytoset_from_fcs(UnmixedFCSFiles, truncate_max_range = FALSE, transform = FALSE)
+UnmixedCytoSet <- load_cytoset_from_fcs(UnmixedFCSFiles,
+                                        truncate_max_range = FALSE,
+                                        transform = FALSE)
+
 UnmixedGatingSet <- GatingSet(UnmixedCytoSet)
 UnmixedGatingSet
 ```
@@ -232,15 +263,20 @@ Now that they are in a GatingSet object, we will identify markers/fluorophores p
 
 ```{r, message=FALSE}
 Markers <- colnames(UnmixedCytoSet)
-KeptMarkers <- Markers[-grep("Time|FS|SC|SS|Original|-W$|-H$|AF", Markers)]
+KeptMarkers <- Markers[-grep(
+  "Time|FS|SC|SS|Original|-W$|-H$|AF", Markers)]
 
-MyBiexponentialTransform <- flowjo_biexp_trans(channelRange = 256, maxValue = 1000000,
-                                               pos = 4.5, neg = 0, widthBasis = -1000)
+MyBiexponentialTransform <- flowjo_biexp_trans(channelRange = 256,
+                                               maxValue = 1000000,
+                                               pos = 4.5, neg = 0,
+                                               widthBasis = -1000)
+
 TransformList <- transformerList(KeptMarkers, MyBiexponentialTransform)
 UnmixedGatingSet <- transform(UnmixedGatingSet, TransformList)
 
 FileLocation <- system.file("extdata", package = "Luciernaga")
-UnmixedGates <- fread(file.path(path = FileLocation, pattern = 'GatesUnmixed.csv'))
+UnmixedGates <- fread(file.path(path = FileLocation,
+                                pattern = 'GatesUnmixed.csv'))
 UnmixedGating <- gatingTemplate(UnmixedGates)
 gt_gating(UnmixedGating, UnmixedGatingSet)
 UnmixedGatingSet[[4]]
@@ -253,7 +289,13 @@ plot(UnmixedGatingSet)
 StorageLocation <- file.path("C:", "Users", "JohnDoe", "Desktop")
 removestrings <- ".fcs"
 
-UnmixedIndividualPlot <- Utility_GatingPlots(x=UnmixedGatingSet[[2]], sample.name = "GUID", removestrings = removestrings, gtFile = UnmixedGates, DesiredGates = NULL, outpath = StorageLocation, export = FALSE)
+UnmixedIndividualPlot <- Utility_GatingPlots(x=UnmixedGatingSet[[2]],
+                                             sample.name = "GUID",
+                                             removestrings = removestrings,
+                                             gtFile = UnmixedGates,
+                                             DesiredGates = NULL,
+                                             outpath = StorageLocation,
+                                             export = FALSE)
 
 UnmixedIndividualPlot
 ```
@@ -270,11 +312,25 @@ StorageLocation <- file.path("C:", "Users", "JohnDoe", "Desktop")
 
 colnames(UnmixedGatingSet)[11:39]
 
-IndividualNxN <- Utility_NbyNPlots(x=UnmixedGatingSet[[4]], sample.name = "GROUPNAME", removestrings = removethese, marginsubset = "lymphocytes", gatesubset = "live", ycolumn = "Spark Blue 550-A", bins = 70, clearance = 0.2, gatelines = FALSE, reference = NULL, outpath = StorageLocation, returntype="patchwork")
+IndividualNxN <- Utility_NbyNPlots(x=UnmixedGatingSet[[4]],
+                                   sample.name = "GROUPNAME", 
+                                   removestrings = removethese,
+                                   marginsubset = "lymphocytes",
+                                   gatesubset = "live",
+                                   ycolumn = "Spark Blue 550-A",
+                                   bins = 70, clearance = 0.2,
+                                   gatelines = FALSE, reference = NULL,
+                                   outpath = StorageLocation,
+                                   returntype="patchwork")
 
 IndividualNxN[1]
 
-MultipleNxN <- map(.x = UnmixedGatingSet[1:2], .f = Utility_NbyNPlots, sample.name = "GROUPNAME", removestrings = removethese, marginsubset = "lymphocytes", gatesubset = "live", ycolumn = "Spark Blue 550-A", bins = 70, clearance = 0.2, gatelines = FALSE, reference = NULL, outpath = StorageLocation, pdf = FALSE)
+MultipleNxN <- map(.x = UnmixedGatingSet[1:2], .f = Utility_NbyNPlots,
+                   sample.name = "GROUPNAME", removestrings = removethese,
+                   marginsubset = "lymphocytes", gatesubset = "live",
+                   ycolumn = "Spark Blue 550-A", bins = 70, clearance = 0.2,
+                   gatelines = FALSE, reference = NULL,
+                   outpath = StorageLocation, pdf = FALSE)
 ```
 
 The return is for a given specimen all markers vs. the specified marker on the y-axis. `Utility_NxNPlots()` additionally accepts a ycolumn = "ALL" option that will directly iterate over every marker as the ycolumn argument. However, be warned, for larger SFC panels with many fluorophores, it will take time for a single specimen (and each marker pdf taking up memory space!), and even more so over every specimen in a GatingSet!!!
@@ -283,10 +339,17 @@ The return is for a given specimen all markers vs. the specified marker on the y
 removethese <- c(".fcs", "DTR_")
 StorageLocation <- file.path("C:", "Users", "JohnDoe", "Desktop")
 
-All_IndividualNxN <- Utility_NbyNPlots(x=UnmixedGatingSet[[1]], sample.name = "GROUPNAME", removestrings = removethese, marginsubset = "lymphocytes", gatesubset = "live", ycolumn = "ALL", bins = 120, clearance = 0.2, gatelines = FALSE, reference = NULL, outpath = StorageLocation, returntype="pdf")
+All_IndividualNxN <- Utility_NbyNPlots(x=UnmixedGatingSet[[1]],
+                                       sample.name = "GROUPNAME",
+                                       removestrings = removethese,
+                                       marginsubset = "lymphocytes",
+                                       gatesubset = "live", ycolumn = "ALL",
+                                       bins = 120, clearance = 0.2,
+                                       gatelines = FALSE, reference = NULL,
+                                       outpath = StorageLocation,
+                                       returntype="pdf")
 
-
-# ALL_MultipleNxN <- map(.x = UnmixedGatingSet, .f = Utility_NbyNPlots, sample.name = "GROUPNAME", removestrings = removethese, marginsubset = "lymphocytes", gatesubset = "live", ycolumn = "ALL", bins = 120, clearance = 0.2, gatelines = FALSE, reference = NULL, outpath = StorageLocation, returntype="pdf")
+# ALL_MultipleNxN <- map(.x = UnmixedGatingSet, .f = Utility_NbyNPlots,sample.name = "GROUPNAME", removestrings = removethese, marginsubset = "lymphocytes", gatesubset = "live", ycolumn = "ALL", bins = 120, clearance = 0.2, gatelines = FALSE, reference = NULL, outpath = StorageLocation, returntype="pdf")
 ```
 
 ### Utility_ParallelNxNPlots
@@ -296,7 +359,21 @@ All_IndividualNxN <- Utility_NbyNPlots(x=UnmixedGatingSet[[1]], sample.name = "G
 ```{r}
 gt(pData(UnmixedGatingSet))
 
-OverlaidNxNPlots <- Utility_ParallelNbyNPlots(x=UnmixedGatingSet[1], y = UnmixedGatingSet[4], sample.name = "GROUPNAME", removestrings = ".fcs", Override = FALSE, marginsubset = "lymphocytes", gatesubset = "live", ycolumn = "Spark Blue 550-A", bins = 120, clearance = 0.2, colorX = "lightblue", colorY = "orange", gatelines = FALSE, reference = NULL, outpath = StorageLocation, pdf = FALSE)
+OverlaidNxNPlots <- Utility_ParallelNbyNPlots(x=UnmixedGatingSet[1],
+                                              y = UnmixedGatingSet[4],
+                                              sample.name = "GROUPNAME",
+                                              removestrings = ".fcs",
+                                              Override = FALSE,
+                                              marginsubset = "lymphocytes",
+                                              gatesubset = "live",
+                                              ycolumn = "Spark Blue 550-A",
+                                              bins = 120, clearance = 0.2,
+                                              colorX = "lightblue",
+                                              colorY = "orange", 
+                                              gatelines = FALSE, 
+                                              reference = NULL, 
+                                              outpath = StorageLocation,
+                                              pdf = FALSE)
 
 OverlaidNxNPlots[3]
 
@@ -308,7 +385,21 @@ Similar to `Utility_NxNPlots()`, switching the argument ycolumn = "ALL" will ite
 ```{r, eval = FALSE, echo=FALSE}
 gt(pData(UnmixedGatingSet))
 
-All_OverlaidNxNPlots <- Utility_ParallelNbyNPlots(x=UnmixedGatingSet[1], y = UnmixedGatingSet[2], sample.name = "GROUPNAME", removestrings = ".fcs", Override = FALSE, marginsubset = "lymphocytes", gatesubset = "live", ycolumn = "ALL", bins = 120, clearance = 0.2, colorX = "lightblue", colorY = "orange", gatelines = FALSE, reference = NULL, outpath = StorageLocation, pdf = FALSE)
+All_OverlaidNxNPlots <- Utility_ParallelNbyNPlots(x=UnmixedGatingSet[1],
+                                                  y = UnmixedGatingSet[2],
+                                                  sample.name = "GROUPNAME",
+                                                  removestrings = ".fcs",
+                                                  Override = FALSE,
+                                                  marginsubset = "lymphocytes",
+                                                  gatesubset = "live",
+                                                  ycolumn = "ALL", bins = 120, 
+                                                  clearance = 0.2, 
+                                                  colorX = "lightblue", 
+                                                  colorY = "orange",
+                                                  gatelines = FALSE, 
+                                                  reference = NULL,
+                                                  outpath = StorageLocation,
+                                                  pdf = FALSE)
 
 All_OverlaidNxNPlots[1]
 
@@ -319,8 +410,15 @@ All_OverlaidNxNPlots[1]
 
 While `Utility_NxNPlots()` will show all marker combinations for a single specimen, `Utility_UnityPlots()` will showcase a single combination of markers for all specimens present in the GatingSet. Given that bringing data from every specimen into active memory is a way to max out your ram, it is helpful to break the map calls into chunks. Here is an example: 
 
-```{r}
-SingleUnityPlot <- Utility_UnityPlot(x="Spark Blue 550-A", y="BUV805-A", GatingSet=UnmixedGatingSet, sample.name="GROUPNAME", bins=100, clearance=0.2,removestrings=removestrings, marginsubset="lymphocytes", gatesubset="live", gatelines=FALSE, reference=NULL, returntype="patchwork", outpath=StorageLocation)
+```{r, message = FALSE}
+SingleUnityPlot <- Utility_UnityPlot(x="Spark Blue 550-A", y="BUV805-A",
+                                     GatingSet=UnmixedGatingSet,
+                                     sample.name="GROUPNAME", bins=100,
+                                     clearance=0.2,removestrings=removestrings,
+                                     marginsubset="lymphocytes",
+                                     gatesubset="live", gatelines=FALSE,
+                                     reference=NULL, returntype="patchwork",
+                                     outpath=StorageLocation)
 
 SingleUnityPlot
 
@@ -328,8 +426,12 @@ Markers <- colnames(UnmixedCytoSet)
 KeptMarkers <- Markers[-grep("Time|FS|SC|SS|Original|-W$|-H$|AF", Markers)]
 KeptMarkers
 
-MultipleUnityPlots <- map(.x=KeptMarkers[c(1:6, 8:10)], .f=Utility_UnityPlot, y="BUV805-A", GatingSet=UnmixedGatingSet, sample.name="GROUPNAME", bins=100, clearance=0.2,removestrings=removestrings, marginsubset="lymphocytes", gatesubset="live", gatelines=FALSE, reference=NULL, returntype="patchwork", outpath=StorageLocation)
-
+MultipleUnityPlots <- map(.x=KeptMarkers[c(1:6, 8:10)], .f=Utility_UnityPlot,
+                          y="BUV805-A", GatingSet=UnmixedGatingSet,
+                          sample.name="GROUPNAME", bins=100,clearance=0.2,
+                          removestrings=removestrings, marginsubset="lymphocytes",
+                          gatesubset="live", gatelines=FALSE, reference=NULL,
+                          returntype="patchwork", outpath=StorageLocation)
 ```
 
 
@@ -340,11 +442,19 @@ Similar to the other visualization functions, `Utility_ThirdColor()` plots the d
 `Utility_ThirdColor()` has three plotting modes that are called within the splitpoint argument. When "Continuous" is specified, it takes two colors and forms a color gradient from the lowest to highest values specified for the parameter specified in the zaxis argument. 
 
 ```{r}
-SinglePlot <-  Utility_ThirdColorPlots(x=UnmixedGatingSet[1], subset = "live", xaxis="BUV496-A", yaxis = "Spark Blue 550-A",  zaxis ="BUV805-A", splitpoint = "continuous", sample.name = "GROUPNAME", removestrings = c("DTR", ".fcs"), thecolor = "blue")
+SinglePlot <-  Utility_ThirdColorPlots(x=UnmixedGatingSet[1], subset = "live",
+                                       xaxis="BUV496-A", yaxis = "Spark Blue 550-A",
+                                       zaxis ="BUV805-A", splitpoint = "continuous",
+                                       sample.name = "GROUPNAME",
+                                       removestrings = c("DTR", ".fcs"),
+                                       thecolor = "blue")
 
 SinglePlot 
 
-AllPlot <- map(.x=UnmixedGatingSet, .f=Utility_ThirdColorPlots, subset = "live", xaxis="BUV496-A", yaxis = "Spark Blue 550-A",  zaxis ="BUV805-A", splitpoint = "continuous", sample.name = "GROUPNAME", removestrings = c("DTR", ".fcs"), thecolor = "blue")
+AllPlot <- map(.x=UnmixedGatingSet, .f=Utility_ThirdColorPlots, subset = "live",
+               xaxis="BUV496-A", yaxis = "Spark Blue 550-A",  zaxis ="BUV805-A",
+               splitpoint = "continuous", sample.name = "GROUPNAME",
+               removestrings = c("DTR", ".fcs"), thecolor = "blue")
 ```
 
 When a categorical column exist in the .fcs file and is specified as zaxis, splitpoint = "Categorical" can be specified. It will internally convert the zaxis column into a factor. A list of equivalent name(s) is then given to FactorNames. These in turn will be filtered and assigned the same color.
@@ -352,21 +462,39 @@ When a categorical column exist in the .fcs file and is specified as zaxis, spli
 ```{r}
 ColorTheseFactors <- c("1", "4") #Due to how .fcs files often save factors as numeric values.
 
-SinglePlot <-  Utility_ThirdColorPlots(x=UnmixedGatingSet[1], subset = "live", xaxis="BUV496-A", yaxis = "Spark Blue 550-A",  zaxis ="BUV805-A", splitpoint = "120", sample.name = "GROUPNAME", removestrings = c("DTR", ".fcs"), FactorNames = ColorTheseFactors, thecolor = "orange")
+SinglePlot <-  Utility_ThirdColorPlots(x=UnmixedGatingSet[1], subset = "live",
+                                       xaxis="BUV496-A", yaxis = "Spark Blue 550-A",
+                                       zaxis ="BUV805-A", splitpoint = "120",
+                                       sample.name = "GROUPNAME",
+                                       removestrings = c("DTR", ".fcs"),
+                                       FactorNames = ColorTheseFactors,
+                                       thecolor = "orange")
 
 SinglePlot 
 
-AllPlot <- map(.x=UnmixedGatingSet, .f=Utility_ThirdColorPlots, subset = "live", xaxis="BUV496-A", yaxis = "Spark Blue 550-A",  zaxis ="BUV805-A", splitpoint = "130", sample.name = "GROUPNAME", removestrings = c("DTR", ".fcs"), FactorNames = ColorTheseFactors, thecolor = "orange")
+AllPlot <- map(.x=UnmixedGatingSet, .f=Utility_ThirdColorPlots, subset = "live",
+               xaxis="BUV496-A", yaxis = "Spark Blue 550-A",  zaxis ="BUV805-A",
+               splitpoint = "130", sample.name = "GROUPNAME",
+               removestrings = c("DTR", ".fcs"), FactorNames = ColorTheseFactors,
+               thecolor = "orange")
 ```
 
 The third option "splitpoint" will dichotomize a continuous marker expression at the given value (either raw MFI or biexponential transformed) into positive and negative cells. It will then shade the cells accordingly.  
 
 ```{r}
-SinglePlot <-  Utility_ThirdColorPlots(x=UnmixedGatingSet[1], subset = "live", xaxis="BUV496-A", yaxis = "Spark Blue 550-A",  zaxis ="BUV805-A", splitpoint = "120", sample.name = "GROUPNAME", removestrings = c("DTR", ".fcs"), thecolor = "orange")
+SinglePlot <-  Utility_ThirdColorPlots(x=UnmixedGatingSet[1], subset = "live",
+                                       xaxis="BUV496-A", yaxis = "Spark Blue 550-A",
+                                       zaxis ="BUV805-A", splitpoint = "120",
+                                       sample.name = "GROUPNAME",
+                                       removestrings = c("DTR", ".fcs"),
+                                       thecolor = "orange")
 
 SinglePlot 
 
-AllPlot <- map(.x=UnmixedGatingSet, .f=Utility_ThirdColorPlots, subset = "live", xaxis="BUV496-A", yaxis = "Spark Blue 550-A",  zaxis ="BUV805-A", splitpoint = "130", sample.name = "GROUPNAME", removestrings = c("DTR", ".fcs"), thecolor = "orange")
+AllPlot <- map(.x=UnmixedGatingSet, .f=Utility_ThirdColorPlots, subset = "live",
+               xaxis="BUV496-A", yaxis = "Spark Blue 550-A",  zaxis ="BUV805-A",
+               splitpoint = "130", sample.name = "GROUPNAME",
+               removestrings = c("DTR", ".fcs"), thecolor = "orange")
 ```
 
 To provide multiple filtering arguments to `Utility_ThirdColorPlots()`, a data.frame can be provided to the splitpoint argument. This is composed of two columns, "Fluorophore" and "Splitpoint", with the specified arguments present in the rows. When a data.frame is detected, `Utility_ThirdColorPlots()` will then iterate down the rows to find each gating argument, returning only the remaining cells that are greater than values listed for each marker. 
@@ -377,11 +505,19 @@ CSVLocation <- file.path(path = FileLocation, pattern = 'ThirdColorDataFrame.csv
 ThirdColorArguments <- read.csv(CSVLocation)
 gt(ThirdColorArguments)
 
-SinglePlot <-  Utility_ThirdColorPlots(x=UnmixedGatingSet[1], subset = "live", xaxis="BUV496-A", yaxis = "Spark Blue 550-A",  zaxis =NULL, splitpoint = ThirdColorArguments, sample.name = "GROUPNAME", removestrings = c("DTR", ".fcs"), thecolor = "orange")
+SinglePlot <-  Utility_ThirdColorPlots(x=UnmixedGatingSet[1], subset = "live",
+                                       xaxis="BUV496-A", yaxis = "Spark Blue 550-A",
+                                       zaxis =NULL, splitpoint = ThirdColorArguments,
+                                       sample.name = "GROUPNAME",
+                                       removestrings = c("DTR", ".fcs"),
+                                       thecolor = "orange")
 
 SinglePlot
 
-MultiplePlot <- map(.x=UnmixedGatingSet, .f=Utility_ThirdColorPlots, subset = "live", xaxis="BUV496-A", yaxis = "Spark Blue 550-A",  zaxis =NULL, splitpoint = ThirdColorArguments, sample.name = "GROUPNAME", removestrings = c("DTR", ".fcs"), thecolor = "orange")
+MultiplePlot <- map(.x=UnmixedGatingSet, .f=Utility_ThirdColorPlots, subset = "live",
+                    xaxis="BUV496-A", yaxis = "Spark Blue 550-A",  zaxis =NULL,
+                    splitpoint = ThirdColorArguments, sample.name = "GROUPNAME",
+                    removestrings = c("DTR", ".fcs"), thecolor = "orange")
 ```
 
 Utility_ThirdColorPlots can also be used in combination with the Coereba packages GatingCutoff estimates to allow for specimen specific split-points for the specified markers, using the GatingCutoff csv file. This is particularly useful for non-normalized specimens where batch effects are present. 

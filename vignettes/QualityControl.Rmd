@@ -69,7 +69,8 @@ Cytek Aurora instruments use fluorescent beads as part of their daily quality co
 
 The first step is to indicate where the saved .csv file containing the Levy-Jennings tracking data from the cytometer is stored. On a local computer, the code to do this would resemble the following:
 ```{r, eval = FALSE}
-FileLocation <- file.path("C:", "Users", "JohnDoe", "Desktop", "LevyJenningsTracking.csv")
+FileLocation <- file.path("C:", "Users", "JohnDoe", "Desktop",
+                          "LevyJenningsTracking.csv")
 ```
 
 For this vignette, we will be accessing a .csv folder that can be found in Luciernaga's extdata folder containing three months of Levy-Jennings Tracking data for a 5 Laser Cytek Aurora (UV16-V16-B14-YG10-R8) for our example. 
@@ -77,7 +78,8 @@ For this vignette, we will be accessing a .csv folder that can be found in Lucie
 ```{r}
 File_Location <- system.file("extdata", package = "Luciernaga")
 CSV_Pattern <- ".CSV$"
-CSV_Files <- list.files(path=File_Location, pattern=CSV_Pattern, full.names=TRUE)
+CSV_Files <- list.files(path=File_Location, pattern=CSV_Pattern,
+                        full.names=TRUE)
 CSV_Files
 ```
 
@@ -101,17 +103,22 @@ head(colnames(TidyData), 20)
 ```{r}
 StorageLocation <- file.path("C:", "Users", "JohnDoe", "Desktop")
 
-AvailableBroadMeasurementTypes <- c("Gain", "rCV", "Laser Delay", "Area Scaling Factor")
+AvailableBroadMeasurementTypes <- c("Gain", "rCV", "Laser Delay",
+                                    "Area Scaling Factor")
 
 SinglePlot <- "UV7-Gain"
 
-TheSinglePlot <- QC_Plots(x = TidyData, MeasurementType = SinglePlot, FailedFlag = TRUE, returntype="patchwork", path=StorageLocation, filename="CytekAurora5L_QC")
+TheSinglePlot <- QC_Plots(x = TidyData, MeasurementType = SinglePlot,
+                          FailedFlag = TRUE, returntype="patchwork",
+                          path=StorageLocation, filename="CytekAurora5L_QC")
 
 TheSinglePlot 
 
 TodaysExample <- c("Gain")
 
-Plots <- QC_Plots(x = TidyData, MeasurementType = TodaysExample, FailedFlag = TRUE, returntype="patchwork", path=StorageLocation, filename="CytekAurora5L_QC")
+Plots <- QC_Plots(x = TidyData, MeasurementType = TodaysExample,
+                  FailedFlag = TRUE, returntype="patchwork",
+                  path=StorageLocation, filename="CytekAurora5L_QC")
 Plots[1]
 ```
 
@@ -138,7 +145,8 @@ head(QCBeads, 10)
 ```
 
 ```{r}
-MyCytoSet <- load_cytoset_from_fcs(QCBeads, truncate_max_range = FALSE, transform = FALSE)
+MyCytoSet <- load_cytoset_from_fcs(QCBeads, truncate_max_range = FALSE,
+                                   transform = FALSE)
 MyCytoSet
 MyGatingSet <- GatingSet(MyCytoSet)
 MyGatingSet
@@ -149,7 +157,8 @@ SingleSpecimen <- QC_Retrieval(x=MyGatingSet[[1]], sample.name="TUBENAME")
 
 SingleSpecimen
 
-AllSpecimens <- map(.x=MyGatingSet, .f=QC_Retrieval, sample.name="TUBENAME") %>% bind_rows()
+AllSpecimens <- map(.x=MyGatingSet, .f=QC_Retrieval, sample.name="TUBENAME") %>%
+  bind_rows()
 ```
 
 ## QC_LibraryParse
@@ -177,14 +186,16 @@ library(ggplot2)
 ```
 
 ```{r}
-FolderLocation <- file.path("C:", "Users", "JohnDoe", "Desktop", "LibraryControls5L")
+FolderLocation <- file.path("C:", "Users", "JohnDoe", "Desktop",
+                            "LibraryControls5L")
 StorageLocation <- file.path(FolderLocation, "Visualized")
 ```
 
 ```{r}
 Folder_Location <- system.file("extdata", package = "Luciernaga")
 XML_Pattern <- ".XML$"
-XML_Files <- list.files(path = Folder_Location, pattern = XML_Pattern, full.names = TRUE, recursive = FALSE)
+XML_Files <- list.files(path = Folder_Location, pattern = XML_Pattern,
+                        full.names = TRUE, recursive = FALSE)
 XML_Files
 ```
 
@@ -193,25 +204,34 @@ Specifying returntype = "plots" will return ggplot objects of the library refere
 ```{r}
 QC_LibraryParse(XML_Files[2], returntype="plots", references=FALSE)
 
-ThePlots <- map(.x=XML_Files, .f=QC_LibraryParse, returntype="plots", references=FALSE)
+ThePlots <- map(.x=XML_Files, .f=QC_LibraryParse, returntype="plots",
+                references=FALSE)
 
-Utility_Patchwork(x=ThePlots, filename="LibraryControls5L", outfolder=NULL, returntype="patchwork", thecolumns=3, therows = 3, width = 7, height = 9)
+Utility_Patchwork(x=ThePlots, filename="LibraryControls5L",
+                  outfolder=NULL, returntype="patchwork", thecolumns=3,
+                  therows = 3, width = 7, height = 9)
 ```
 As you may notice, while some library reference controls closely match the reference signature, others have some quality control issues. In profiling reference controls at our own institution, we also found that the location of the detector gate placed on the brightness detector ties in to whether the y-axis and peak max-value is at 1. When this is misset, the stored reference control has a peak greater than 1. 
 
 By specifying references = TRUE we can plot the reference signatures. We have attempted to provide coverage of most fluorophores for all Cytek Aurora and Northern Light instruments. Some fluorophores are not present in the internal reference .csv, which can result in fail to plot. Other times a mismatch in the instrument specific fluorophore name can be the cause. 
 
 ```{r}
-ThePlots <- map(.x=XML_Files, .f=QC_LibraryParse, returntype="plots", references=TRUE)
-Utility_Patchwork(x=ThePlots, filename="LibraryControls5L", outfolder=NULL, returntype="patchwork", thecolumns=3, therows = 3, width = 7, height = 9)
+ThePlots <- map(.x=XML_Files, .f=QC_LibraryParse, returntype="plots",
+                references=TRUE)
+
+Utility_Patchwork(x=ThePlots, filename="LibraryControls5L",
+                  outfolder=NULL, returntype="patchwork", thecolumns=3,
+                  therows = 3, width = 7, height = 9)
 ```
 Instead of a plot, you can also return a data.frame object that can subsequently be saved as a .csv file for future reference. 
 
 ```{r}
-TheData <- map(.x=XML_Files, .f=QC_LibraryParse, returntype="dataframe") %>% bind_rows()
+TheData <- map(.x=XML_Files, .f=QC_LibraryParse, returntype="dataframe") %>%
+  bind_rows()
 TheData
 
-StorageLocation <- file.path("C:", "Users", "JohnDoe", "Desktop", "LibraryControls5L")
+StorageLocation <- file.path("C:", "Users", "JohnDoe", "Desktop",
+                             "LibraryControls5L")
 FileName <- "ReferenceData.csv"
 StorageName <- file.path(StorageLocation, FileName)
 # write.csv(TheData, file=StorageName, row.names=FALSE)

@@ -1,15 +1,15 @@
 Package: Luciernaga
 Type: Package
-Title: Quality checks, signature interrogation, and data visualization for Spectral Flow Cytometry (SFC) unmixing controls 
-Version: 0.1.0
+Title: Tools for the evaluation of Spectral Flow Cytometry (SFC) unmixing controls. 
+Version: 0.99.1
 Authors@R: 
     person("David", "Rach", , "drach@som.umaryland.edu", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0003-2235-5585"))
-Description: Having good quality unmixing controls is critical to accurate unmixing of full-stained samples in Spectral Flow Cytometry, but few tools exist to check whether this is the case. In this package we provide tools for quality control checks, signature interrogation and data visualization to allow individuals responsible for the pre-processing to make informed decisions. Tools are implemented for individual .fcs files at a single timepoint or across an experimental run 
+Description: High quality unmixing controls are critical in Spectral Flow Cytometry (SFC) for the accurate unmixing of full-stained samples. Despite this importance, few tools are available for their quality control. Luciernaga provides series of functions to allow individual researchers to implement quality control and interrogate effects that different fluorescent signatures have on their unmixing to make informed decisions while reducing the guess-work. Tools are implemented for individual .fcs files at a single timepoint or across an experimental run 
 License: AGPL (>= 3)
 Encoding: UTF-8
 LazyData: FALSE
-URL: https://github.com/DavidRach/Luciernaga, https://davidrach.github.io/Luciernaga/
+URL: https://davidrach.github.io/Luciernaga/
 BugReports: https://github.com/DavidRach/Luciernaga/issues
 RoxygenNote: 7.3.2
 Imports: 
