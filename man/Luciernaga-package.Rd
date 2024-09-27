@@ -13,6 +13,7 @@ vignettes:
 Useful links:
 \itemize{
   \item \url{https://github.com/DavidRach/Luciernaga}
+  \item \url{https://davidrach.github.io/Luciernaga/}
   \item Report bugs at \url{https://github.com/DavidRach/Luciernaga/issues}
 }
 

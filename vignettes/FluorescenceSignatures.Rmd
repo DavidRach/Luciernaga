@@ -93,7 +93,7 @@ head(FCS_Files[10:30], 20)
 
 ### Creating a GatingSet Beads
 
-```{r, eval = FALSE, echo=FALSE}
+```{r}
 UnstainedFCSFiles <- FCS_Files[grep("Unstained", FCS_Files)]
 UnstainedBeads <- UnstainedFCSFiles[grep("Beads", UnstainedFCSFiles)]
 
@@ -104,7 +104,7 @@ BeadSingleColors <- BeadFCSFiles[-grep("Unstained", BeadFCSFiles)]
 
 Once we have the list of desired .fcs files, we can use the `r Biocpkg("flowWorkspace")` to bring these individual .fcs files first into a CytoSet object, then into a GatingSet object that we can add gates to:
 
-```{r, eval = FALSE, echo=FALSE}
+```{r}
 MyBeadsCytoSet <- load_cytoset_from_fcs(BeadSingleColors, truncate_max_range = FALSE,
                                         transform = FALSE)
 MyBeadsCytoSet
@@ -330,7 +330,7 @@ Luciernaga_QC(x=MyGatingSet[1], subsets="lymphocytes", sample.name="GUID",
 ```
 
 And finally, we can RetainedType = "normalized and ExportType = "data"
-```{r}
+```{r, eval=FALSE}
 
 Data <- Luciernaga_QC(x=MyGatingSet[1], subsets="lymphocytes", sample.name="GUID", 
                       experiment = "Monocytes", condition = "exvivo",
