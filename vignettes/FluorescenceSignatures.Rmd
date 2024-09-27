@@ -75,7 +75,7 @@ library(htmltools)
 ### Locating .fcs files
 To get started, you will first need to provide the location on your computer where the .fcs files of interest are being stored. An example of how the author does this is provided below and can be modified for your own user and desired computer folder. 
 
-```{r, eval = FALSE, echo=FALSE}
+```{r, eval = FALSE}
 File_Location <- file.path("C:", "Users", "JohnDoe", "Desktop", "TodaysExperiment")
 FCS_Pattern <- ".fcs$"
 FCS_Files <- list.files(path = File_Location, pattern = FCS_Pattern, full.names = TRUE, recursive = FALSE)
@@ -83,32 +83,37 @@ FCS_Files <- list.files(path = File_Location, pattern = FCS_Pattern, full.names 
 
 For this vignette, we will using several small .fcs files that can be found in Luciernaga's extdata folder for our example. 
 
-```{r, eval = FALSE, echo=FALSE}
+```{r}
 File_Location <- system.file("extdata", package = "Luciernaga")
 FCS_Pattern <- ".fcs$"
-FCS_Files <- list.files(path = File_Location, pattern = FCS_Pattern, full.names = TRUE, recursive = FALSE)
-FCS_Files
+FCS_Files <- list.files(path = File_Location, pattern = FCS_Pattern,
+                        full.names = TRUE, recursive = FALSE)
+head(FCS_Files[10:30], 20)
 ```
+
 ### Creating a GatingSet Beads
 
 ```{r, eval = FALSE, echo=FALSE}
-#SubsetFCSFiles <- FCS_Files[c(1:2, 6)]
-BeadsFCSFiles <- FCS_Files[c(1)]
-BeadsFCSFiles
+UnstainedFCSFiles <- FCS_Files[grep("Unstained", FCS_Files)]
+UnstainedBeads <- UnstainedFCSFiles[grep("Beads", UnstainedFCSFiles)]
+
+BeadFCSFiles <- FCS_Files[grep("Beads", FCS_Files)]
+BeadSingleColors <- BeadFCSFiles[-grep("Unstained", BeadFCSFiles)]
 ```
 
 
 Once we have the list of desired .fcs files, we can use the `r Biocpkg("flowWorkspace")` to bring these individual .fcs files first into a CytoSet object, then into a GatingSet object that we can add gates to:
 
 ```{r, eval = FALSE, echo=FALSE}
-MyBeadsCytoSet <- load_cytoset_from_fcs(BeadsFCSFiles, truncate_max_range = FALSE, transform = FALSE)
+MyBeadsCytoSet <- load_cytoset_from_fcs(BeadSingleColors, truncate_max_range = FALSE,
+                                        transform = FALSE)
 MyBeadsCytoSet
 MyBeadsGatingSet <- GatingSet(MyBeadsCytoSet)
 MyBeadsGatingSet
 ```
 For this example, we will use the `r Biocpkg("openCyto")` package to automatically gate each of our .fcs files for the lymphocyte population. To do this, we first read in the example .csv file containing our desired gates (that can be found in Luciernaga's extdata folder) using the `r CRANpkg("data.table")` package
 
-```{r, eval = FALSE, echo=FALSE}
+```{r}
 FileLocation <- system.file("extdata", package = "Luciernaga")
 MyBeadsGates <- fread(file.path(path = FileLocation, pattern = 'GatesBeads.csv'))
 gt(MyBeadsGates)
@@ -118,7 +123,7 @@ For your own experiments, individual gates can be added, removed or modified to 
 
 Now that we have the gating information from the .csv file, we can convert them into a GatingTemplate, and append them to the .fcs files contained within the GatingSet
 
-```{r, eval = FALSE, echo=FALSE}
+```{r, message=FALSE}
 MyBeadsGatingTemplate <- gatingTemplate(MyBeadsGates)
 gt_gating(MyBeadsGatingTemplate, MyBeadsGatingSet)
 MyBeadsGatingSet[[1]]
@@ -126,9 +131,9 @@ MyBeadsGatingSet[[1]]
 
 And finally check the gate placements using:
 
-```{r, eval = FALSE, echo=FALSE}
+```{r}
 removestrings <-  c("(Cells)", ".fcs", " ")
-StorageLocation <- file.path("C:/", "Users", "JohnDoe", "Desktop")
+StorageLocation <- file.path("C:", "Users", "JohnDoe", "Desktop")
 
 IndividualBeadPlot <- Utility_GatingPlots(x=MyBeadsGatingSet[[1]], sample.name = "GUID", removestrings = removestrings, gtFile = MyBeadsGates, DesiredGates = NULL, outpath = StorageLocation, export = FALSE)
 
@@ -138,49 +143,28 @@ IndividualBeadPlot
 
 #IteratedBeadPlots
 
-gs_pop_get_count_fast(MyBeadsGatingSet)
+#gs_pop_get_count_fast(MyBeadsGatingSet)
 ```
-
-```{r, eval = FALSE, echo=FALSE}
-removestrings <- ".fcs"
-
-x=MyBeadsGatingSet[1]
-subsets = "singlets"
-sample.name="GUID"
-experiment.name <- "$FLOWRATE"
-condition.name <- "$DATE"
-removestrings=removestrings
-unmixingcontroltype = "cells"
-Unstained=FALSE
-
-```
-
-
-
-
-
 
 
 ### Creating a GatingSet Cells
 Three of these files are raw unmixing controls (APCFire810, BUV496, Unstained), while the others are unmixed full-stained samples from a 29-color SFC panel (ND050). For now, let's subset the desired files to only select the raw .fcs unmixing controls as shown below:
 
-```{r, eval = FALSE, echo=FALSE}
-#SubsetFCSFiles <- FCS_Files[c(1:2, 6)]
-SubsetFCSFiles <- FCS_Files[c(2,7)]
-SubsetFCSFiles
+```{r}
+CellSingleColors <- FCS_Files[grep("Cells", FCS_Files)]
 ```
 
 Once we have the list of desired .fcs files, we can use the `r Biocpkg("flowWorkspace")` to bring these individual .fcs files first into a CytoSet object, then into a GatingSet object that we can add gates to:
 
-```{r, eval = FALSE, echo=FALSE}
-MyCytoSet <- load_cytoset_from_fcs(SubsetFCSFiles, truncate_max_range = FALSE, transform = FALSE)
+```{r}
+MyCytoSet <- load_cytoset_from_fcs(CellSingleColors, truncate_max_range = FALSE, transform = FALSE)
 MyCytoSet
 MyGatingSet <- GatingSet(MyCytoSet)
 MyGatingSet
 ```
 For this example, we will use the `r Biocpkg("openCyto")` package to automatically gate each of our .fcs files for the lymphocyte population. To do this, we first read in the example .csv file containing our desired gates (that can be found in Luciernaga's extdata folder) using the `r CRANpkg("data.table")` package
 
-```{r, eval = FALSE, echo=FALSE}
+```{r}
 FileLocation <- system.file("extdata", package = "Luciernaga")
 MyGates <- fread(file.path(path = FileLocation, pattern = 'Gates.csv'))
 gt(MyGates)
@@ -190,7 +174,7 @@ For your own experiments, individual gates can be added, removed or modified to 
 
 Now that we have the gating information from the .csv file, we can convert them into a GatingTemplate, and append them to the .fcs files contained within the GatingSet
 
-```{r, eval = FALSE, echo=FALSE}
+```{r}
 MyGatingTemplate <- gatingTemplate(MyGates)
 gt_gating(MyGatingTemplate, MyGatingSet)
 MyGatingSet[[1]]
@@ -198,9 +182,9 @@ MyGatingSet[[1]]
 
 And finally check the gate placements using:
 
-```{r, eval = FALSE, echo=FALSE}
+```{r}
 removestrings <-  c("(Cells)", ".fcs", " ")
-StorageLocation <- file.path("C:/", "Users", "JohnDoe", "Desktop")
+StorageLocation <- file.path("C:", "Users", "JohnDoe", "Desktop")
 
 IndividualPlot <- Utility_GatingPlots(x=MyGatingSet[[2]], sample.name = "GUID", removestrings = removestrings, gtFile = MyGates, DesiredGates = NULL, outpath = StorageLocation, export = FALSE)
 
@@ -208,10 +192,10 @@ IndividualPlot <- Utility_GatingPlots(x=MyGatingSet[[2]], sample.name = "GUID", 
   
 IteratedPlots <- map(.x = MyGatingSet, .f = Utility_GatingPlots, sample.name = "GUID", removestrings = removestrings, gtFile = MyGates, DesiredGates = NULL, outpath = StorageLocation, export = FALSE)
 
-IteratedPlots
+IteratedPlots[[2]]
 ```
 
-## LuciernagaQC
+## Luciernaga_QC
 
 The working unit for most of Luciernaga's functions is a GatingSet object. Let's now workthrough the main Luciernaga function to characterize single color reference controls. First, let's provide a .csv file to provide information about where to expect to have overlapping autofluorescent signatures with fluorophore signatures. We are now setup to run the main Luciernaga function. What this function does is it brings in the individual raw .fcs files, and on a per cell basis identifies which detector has the peak fluorescent emission. For example, single color stained cells have their fluorescent emission peak on R1-A, unstained PBMCs have their fluorescent emission peak on V7-A. 
 
@@ -227,18 +211,16 @@ The main workhorse of the Luciernaga is `LuciernagaQC`. Briefly, it will take in
 
 Let's work through it's compabilities individually. First off, let's profile Autofluorescence from the Unstained Cells. 
 
-```{r, eval = FALSE, echo=FALSE}
+```{r}
 FileLocation <- system.file("extdata", package = "Luciernaga")
 pattern = "AutofluorescentOverlaps.csv"
 AFOverlap <- list.files(path=FileLocation, pattern=pattern, full.names = TRUE)
 
 removestrings <- ".fcs"
 
-?Luciernaga_QC
+# ?Luciernaga_QC
 
-Luciernaga_QC(x=MyGatingSet[2], subsets="lymphocytes", removestrings=removestrings, sample.name="GUID", 
-                      unmixingcontroltype = "cells", Unstained = TRUE, ratiopopcutoff = 0.001, Verbose = TRUE,
-                      AFOverlap = AFOverlap, stats = "median", ExportType = "data.frame", SignatureReturnNow = TRUE, 
+Luciernaga_QC(x=MyGatingSet[2], subsets="lymphocytes", removestrings=removestrings, sample.name="GUID", unmixingcontroltype = "cells", Unstained = TRUE, ratiopopcutoff = 0.001, Verbose = TRUE, AFOverlap = AFOverlap, stats = "median", ExportType = "data.frame", SignatureReturnNow = TRUE, 
                       outpath = NULL, Brightness = FALSE)
 ``` 
 
@@ -247,8 +229,8 @@ The important parameters for the above outputs where Verbose, ratiopopcutoff, st
 From our lymphocyte gated cells, Verbose = TRUE prints out the output of cells enumerated by their peak detector. We can see that the main autofluorescence from this sample was UV7, followed by V7 and V3.  With the ratiopopcutoff set at 0.001, we are returning any detector that had > 0.1% starting lymphocytes with their main peak present in that detector. 
 Here is an example when we restrict it to detectors with 1% of starting lymphocytes:
 
-```{r, eval = FALSE, echo=FALSE}
-LuciernagaQC(x=MyGatingSet[2], subsets="lymphocytes", removestrings=removestrings, sample.name="GUID", 
+```{r}
+Luciernaga_QC(x=MyGatingSet[2], subsets="lymphocytes", removestrings=removestrings, sample.name="GUID", 
                       unmixingcontroltype = "cells", Unstained = TRUE, ratiopopcutoff = 0.01, Verbose = TRUE,
                       AFOverlap = AFOverlap, stats = "median", ExportType = "data.frame", SignatureReturnNow = TRUE, 
                       outpath = NULL, Brightness = FALSE)
@@ -259,17 +241,17 @@ The SignatureReturnNow short circuits the downstream analysis. It calculates the
 If by contrast, we wanted the signature of the second and third peak detectors (V7 and V3), we could do this by providing the parameter desiredAF = "V7" or "V3"
 
 ```{r, eval = FALSE, echo=FALSE}
-UV7 <- LuciernagaQC(x=MyGatingSet[2], subsets="lymphocytes", removestrings=removestrings, sample.name="GUID", 
+UV7 <- Luciernaga_QC(x=MyGatingSet[2], subsets="lymphocytes", removestrings=removestrings, sample.name="GUID", 
                       unmixingcontroltype = "cells", Unstained = TRUE, ratiopopcutoff = 0.01, Verbose = FALSE,
                       AFOverlap = AFOverlap, stats = "median", ExportType = "data.frame", SignatureReturnNow = TRUE, 
                       outpath = NULL, Brightness = FALSE)
 
-V7 <- LuciernagaQC(x=MyGatingSet[2], desiredAF = "V7-A", subsets="lymphocytes", removestrings=removestrings, sample.name="GUID", 
+V7 <- Luciernaga_QC(x=MyGatingSet[2], desiredAF = "V7-A", subsets="lymphocytes", removestrings=removestrings, sample.name="GUID", 
                       unmixingcontroltype = "cells", Unstained = TRUE, ratiopopcutoff = 0.01, Verbose = FALSE,
                       AFOverlap = AFOverlap, stats = "median", ExportType = "data.frame", SignatureReturnNow = TRUE, 
                       outpath = NULL, Brightness = FALSE)
 
-V3 <- LuciernagaQC(x=MyGatingSet[2], desiredAF = "V3-A", subsets="lymphocytes", removestrings=removestrings, sample.name="GUID", 
+V3 <- Luciernaga_QC(x=MyGatingSet[2], desiredAF = "V3-A", subsets="lymphocytes", removestrings=removestrings, sample.name="GUID", 
                       unmixingcontroltype = "cells", Unstained = TRUE, ratiopopcutoff = 0.01, Verbose = FALSE,
                       AFOverlap = AFOverlap, stats = "median", ExportType = "data.frame", SignatureReturnNow = TRUE, 
                       outpath = NULL, Brightness = FALSE)
@@ -282,7 +264,7 @@ These data.frame consist of raw measurements from the .fcs file for the given de
 
 It's important before continuing to discuss the role of AFOverlap. Luciernaga works on the basis of filtering using the peak detectors, and then processsing out variations in signature from these filtered populations. Most fluorophores don't share overlaps with autofluorescence for peak detectors, but certain fluorophores will match either the primary or rarer autofluorescences in their primary detector (main examples are BUV496-A, BV510-A, Spark Blue 550-A). Since these vary by panel, and name of the fluorophore, we provision a .csv file that gets imported and is used for special handling of these fluorophores. 
 
-```{r, eval = FALSE, echo=FALSE}
+```{r}
 FileLocation <- system.file("extdata", package = "Luciernaga")
 pattern = "AutofluorescentOverlaps.csv"
 AFOverlap <- list.files(path=FileLocation, pattern=pattern, full.names = TRUE)
@@ -296,8 +278,8 @@ Once the AFOverlaps .csv has been updated, when `Utility_SingleColorQC()` proces
 
 In the case ofsingle color unmixing control (in this case, APC-Fire 750, the other specimen in our GatingSet):
 
-```{r, eval = FALSE, echo=FALSE}
-SC_InternalAF <- LuciernagaQC(x=MyGatingSet[1], subsets="lymphocytes", removestrings=removestrings, sample.name="GUID", 
+```{r}
+SC_InternalAF <- Luciernaga_QC(x=MyGatingSet[1], subsets="lymphocytes", removestrings=removestrings, sample.name="GUID", 
                       unmixingcontroltype = "cells", Unstained = FALSE, ratiopopcutoff = 0.01, Verbose = TRUE,
                       AFOverlap = AFOverlap, stats = "median", ExportType = "data.frame", SignatureReturnNow = TRUE, 
                       outpath = NULL, Brightness = FALSE)
@@ -311,7 +293,7 @@ In the case of unstained bead controls, it's recommended to use externalAF in th
 
 Continuing, we will switch SignatureReturnNow to False. Each of the peak detectors that has more events than specified by the ratiopopcutoff will be passed on to the unstained autofluorescence processing module, which will filter by these peak detectors and proceed to characterize their peaks.
 
-```{r, eval = FALSE, echo=FALSE}
+```{r}
 FileLocation <- system.file("extdata", package = "Luciernaga")
 pattern = "AutofluorescentOverlaps.csv"
 AFOverlap <- list.files(path=FileLocation, pattern=pattern, full.names = TRUE)
@@ -334,30 +316,45 @@ AFOverlap <- list.files(path=FileLocation, pattern=pattern, full.names = TRUE)
 removestrings <- c(".fcs", "(Cells)")
 StorageLocation <- file.path("C:", "Users", "JohnDoe", "Desktop")
 
-LuciernagaQC(x=MyGatingSet[1], subsets="lymphocytes", sample.name="GUID", experiment = "Monocytes", 
-             condition = "exvivo", removestrings = removestrings, Verbose = FALSE, unmixingcontroltype="both",
-             Unstained=FALSE, ratiopopcutoff = 0.01, AFOverlap=AFOverlap, desiredAF="V3-A", externalAF = NULL, 
-             stats = "median", NegativeType = "artificial", ExportType = "fcs", outpath=StorageLocation,
-             Brightness = TRUE, SignatureReturnNow = FALSE, minimalfcscutoff = 0.05, Subtraction = "Internal",
-             SCData = "subtracted")
+Luciernaga_QC(x=MyGatingSet[1], subsets="lymphocytes", sample.name="GUID",
+              experiment = "Monocytes", condition = "exvivo",
+              removestrings = removestrings, Verbose = FALSE,
+              unmixingcontroltype="both", Unstained=FALSE,
+              ratiopopcutoff = 0.01, AFOverlap=AFOverlap, desiredAF="V3-A",
+              externalAF = NULL, stats = "median",
+              NegativeType = "artificial", ExportType = "fcs",
+              outpath=StorageLocation, Brightness = TRUE,
+              SignatureReturnNow = FALSE, minimalfcscutoff = 0.05,
+              Subtraction = "Internal", SCData = "subtracted",
+              Increments=0.1)
 ```
 
 And finally, we can RetainedType = "normalized and ExportType = "data"
-```{r, eval = FALSE, echo=FALSE}
+```{r}
 
-Data <- LuciernagaQC(x=MyGatingSet[1], subsets="lymphocytes", sample.name="GUID", experiment = "Monocytes", 
-             condition = "exvivo", removestrings = removestrings, Verbose = FALSE, unmixingcontroltype="both",
-             Unstained=FALSE, ratiopopcutoff = 0.01, AFOverlap=AFOverlap, desiredAF=NULL, externalAF = NULL, 
-             stats = "median", NegativeType = "artificial", ExportType = "data", outpath=StorageLocation,
-             Brightness = TRUE, SignatureReturnNow = FALSE, minimalfcscutoff = 0.05, Subtraction = "Internal",
-             SCData = "subtracted", RetainedType="normalized", Increments=0.2)
+Data <- Luciernaga_QC(x=MyGatingSet[1], subsets="lymphocytes", sample.name="GUID", 
+                      experiment = "Monocytes", condition = "exvivo",
+                      removestrings = removestrings, Verbose = FALSE, 
+                      unmixingcontroltype="both", Unstained=FALSE,
+                      ratiopopcutoff = 0.01, AFOverlap=AFOverlap,
+                      desiredAF=NULL, externalAF = NULL, stats = "median",
+                      NegativeType = "artificial", ExportType = "data",
+                      outpath=StorageLocation, Brightness = TRUE, 
+                      SignatureReturnNow = FALSE, minimalfcscutoff = 0.05,
+                      Subtraction = "Internal", SCData = "subtracted",
+                      RetainedType="normalized", Increments=0.2)
 
-CombinedData <- map(.x=MyGatingSet, .f=LuciernagaQC, subsets="lymphocytes", sample.name="GUID", experiment = "Monocytes", 
-             condition = "exvivo", removestrings = removestrings, Verbose = FALSE, unmixingcontroltype="both",
-             Unstained=FALSE, ratiopopcutoff = 0.01, AFOverlap=AFOverlap, desiredAF=NULL, externalAF = NULL, 
-             stats = "median", NegativeType = "artificial", ExportType = "data", outpath=StorageLocation,
-             Brightness = TRUE, SignatureReturnNow = FALSE, minimalfcscutoff = 0.05, Subtraction = "Internal",
-             SCData = "subtracted", RetainedType="normalized", Increments=0.2) %>% bind_rows()
+CombinedData <- map(.x=MyGatingSet, .f=Luciernaga_QC, subsets="lymphocytes",
+                    sample.name="GUID", experiment = "Monocytes", 
+                    condition = "exvivo", removestrings = removestrings,
+                    Verbose = FALSE, unmixingcontroltype="both", 
+                    Unstained=FALSE, ratiopopcutoff = 0.01, AFOverlap=AFOverlap,
+                    desiredAF=NULL, externalAF = NULL, stats = "median",
+                    NegativeType = "artificial", ExportType = "data",
+                    outpath=StorageLocation, Brightness = TRUE,
+                    SignatureReturnNow = FALSE, minimalfcscutoff = 0.05,
+                    Subtraction = "Internal", SCData = "subtracted",
+                    RetainedType="normalized", Increments=0.2) %>% bind_rows()
 ```
 
 ### LuciernagaReport
