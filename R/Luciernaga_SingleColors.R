@@ -37,8 +37,16 @@
 
 Luciernaga_SingleColors <- function(x, sample.name, removestrings, subset, PanelCuts,
                                     stats, SignatureView, Verbose=FALSE, returntype="data"){
-  name <- keyword(x, sample.name)
-  name <- NameCleanUp(name, removestrings=c("(Cells)", "(Beads)"))
+
+  if (length(sample.name) == 2){
+    first <- sample.name[[1]]
+    second <- sample.name[[2]]
+    first <- keyword(x, first)
+    second <- keyword(x, second)
+    name <- paste(first, second, sep="_")
+  } else {name <- keyword(x, sample.name)}
+
+  name <- NameCleanUp(name, removestrings=c("(Cells)", "(Beads)", "Reference Group_"))
   name <- gsub("\\s+$", "", name)
   name <- NameCleanUp(name, removestrings=removestrings)
 
