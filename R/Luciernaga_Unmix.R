@@ -67,6 +67,8 @@ Luciernaga_Unmix <- function(x, controlData, sample.name, removestrings, Verbose
   CorrectColumnOrder <- Panel %>% pull(Fluorophore)
   CorrectColumnOrder <- gsub("-A$", "", CorrectColumnOrder)
 
+  controlData$Fluorophore <- gsub("-A", "", controlData$Fluorophore)
+
   NewControlData <- controlData %>% arrange(match(Fluorophore, CorrectColumnOrder))
   Newest <- NewControlData %>% pull(Fluorophore)
 

@@ -254,12 +254,15 @@ Luciernaga_QC <- function(x, subsets, sample.name, removestrings=NULL, Verbose =
 
     if (nrow(Intermediate) >0){
       TheMainAF <- Intermediate %>% slice(1) %>% pull(Fluors)
-    }
+    } else {message("Everything was a single detector. Unusual, overstaining?")
+            if(Type == "Cells" && is.null(externalAF)){stop("Please provide ExternalAF")}
+              }
 
   # Adding way to switch to alternate AFs.
-  if (is.null(desiredAF)){
+  if (is.null(desiredAF) && is.null(externalAF)){
     This <- WorkAround %>% filter(.data[[TheMainAF]] == 1) %>% select(all_of(1:ColsN))
-  } else {desiredAF <- Luciernaga:::NameCleanUp(desiredAF, c("-A"))
+  } else if (!is.null(desiredAF) && is.null(externalAF)){
+          desiredAF <- Luciernaga:::NameCleanUp(desiredAF, c("-A"))
           TheMainAF <- desiredAF
           This <- WorkAround %>% filter(.data[[desiredAF]] == 1) %>%
             select(all_of(1:ColsN))}
