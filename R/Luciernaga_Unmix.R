@@ -94,10 +94,14 @@ Luciernaga_Unmix <- function(x, controlData, sample.name, removestrings, Verbose
 
   new_fcs <- InternalUnmix(cs=cs, StashedDF=StashedDF, TheData=TheData,
                            Ligands=Ligands)
+  #View(new_fcs@description)
 
   if (!is.null(addon)){name <- paste0(name, addon)}
 
   AssembledName <- paste0(name, ".fcs")
+
+  new_fcs@description$GUID <- AssembledName
+  new_fcs@description$`$FIL` <- AssembledName
 
   if (is.null(outpath)) {outpath <- getwd()}
 
