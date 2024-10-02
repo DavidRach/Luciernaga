@@ -26,3 +26,9 @@ knitr::opts_chunk$set(
 # Introduction
 
 Why are these functions here? Because they speed up our experiments, this is my R package, and I am including them. 
+
+## Wetlab_Concentration
+
+## Wetlab_Rest
+
+## Wetlab_Decision

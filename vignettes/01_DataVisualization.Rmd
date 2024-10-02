@@ -9,7 +9,7 @@ package: "`r BiocStyle::pkg_ver('Luciernaga')`"
 output:
   BiocStyle::html_document
 abstract: |
-  Spectral Flow Cytometry (SFC) capacity to rapidly acquire large number of cellular events is similar to that of conventional flow cytometry (CFC), but it's ability to resolve very similar fluorophores increasingly allows for marker profiling comparable to mass cytometry (MC). Unmixing controls (both single color and unstained) are critical to this process. Luciernaga is a collection of tools to enable individual users to profile quality of their unmixing controls, how they vary across experiments, and their subsequent effects on unmixing of full-stained samples.
+  Spectral Flow Cytometry (SFC) capacity to rapidly acquire large number of cellular events is similar to that of conventional flow cytometry (CFC), but it's ability to resolve very similar fluorophores allows for marker profiling comparable to mass cytometry (MC). Unmixing controls (both single color and unstained) are critical to this process. Luciernaga is a collection of tools to enable individual users to profile quality of their unmixing controls, how they vary across experiments, and their subsequent effects on unmixing of full-stained samples.
 bibliography: "`r file.path(system.file('extdata', package='Luciernaga'), 'refs.bib')`"
 vignette: |
   %\VignetteIndexEntry{01 Data Visualization}
@@ -28,9 +28,9 @@ knitr::opts_chunk$set(
 # Introduction
 Spectral flow cytometry (SFC) ability to resolve the presence and relative abundance of highly similar fluorophores on individual cells is heavily dependent on the quality of the reference unmixing controls (both single-color (SC) and unstained (UC)).
 
-Despite their critical role, there are few resources and tools (either open-source or commercial) available to evaluate the quality of the unmixing controls. This leads to individual users only becoming aware of issues after unmixing the full-stained sample when the unmixed sample looks "off". They are subsequently left to read tea leaves within the unmixed data in an attempt to parse what may have led to the outcome. 
+Despite their critical role, there are few resources and tools (either open-source or commercial) available to evaluate the quality of the unmixing controls. This leads to individual users only becoming aware of issues after unmixing the full-stained sample when the unmixed sample looks "off". They are subsequently left to interpret the tea leaves of their unmixed data, attempting to parse what may have led to the outcome. 
 
-Given that unmixing issues can arrise from a variety of sources (multiple autofluorescences, tandem degradation, or instrumental error) that can result in similar losses to resolution, having a way to screen for problematic unmixing controls quickly and evaluate their potential effect on re-unmixing would be useful. Additionally, tools made for these purposes can be utilized to further querry how individual fluorescent signatures and brightness impact the unmixing process. 
+Given that unmixing issues can arise from a variety of sources (multiple autofluorescences, tandem degradation, or instrumental error) that similarly can result in loss of resolution, having a way to screen for problematic unmixing controls quickly and evaluate their potential effect on re-unmixing would be useful. Additionally, tools made for these purposes can be utilized to further query how individual fluorescent signatures and brightness impact the unmixing process. 
 
 Luciernaga is an R package that attempts to address these gaps. It provides functionality to implement and tailor quality control checks of unmixing controls, characterize normalized signatures present, and evaluate their effect on unmixing. Using functional programming, it can enable data exploration and visualization for an entire data set. 
 
@@ -38,11 +38,9 @@ These work at the individual experiment basis, but can also be combined to visua
 
 Luciernaga is a free and open source software project started at the University of Maryland, Baltimore and is under active development. It was originally designed to address issues around our cytometry core's Cytek Aurora instruments. We would love your feedback. If you identify any bugs, please open an issue on the github repository. If you have suggestions or would like to participate in extending the functionality to other spectral cytometry instruments, please reach out to the email listed in the description. 
 
-# How to Begin
+# Setup
 
-## Setup
-
-### Installing Luciernaga
+## Installing Luciernaga
 
 We are in the process of preparing Luciernaga for submission to Bioconductor later this year. Until then, it is available for download via our GitHub. 
 
@@ -57,7 +55,7 @@ if(!require("Luciernaga")){
 # BiocManager::install("Luciernaga")
 ```
 
-### Loading Libraries
+## Loading Libraries
 
 Luciernaga works using infrastructure provided by other Bioconductor cytometry packages. It also makes use of tidyverse packages available via CRAN to facilitate use by target audience of novice-intermediate R users. It is important to make sure that these are installed on your computer and then that the libraries are loaded. 
 
@@ -95,7 +93,7 @@ library(plotly)
 library(htmltools)
 ```
 
-### Locating .fcs files
+## Locating .fcs files
 To get started, you will first need to provide the location on your computer where the .fcs files of interest are being stored. An example of how the author does this on their computer is provided below and can be modified for your own user and desired computer folder. 
 
 ```{r, eval = FALSE}
@@ -148,11 +146,11 @@ CellSingleColors <- FCS_Files[grep("Cells", FCS_Files)]
 head(CellSingleColors, 10)
 ```
 
-### Creating a GatingSet
+## Creating a GatingSet
 Once we have the list of desired .fcs files, we can use the `r Biocpkg("flowWorkspace")` to bring these individual .fcs files first into a CytoSet object, then into a GatingSet object that we can add gates to:
 
 ```{r}
-MyCytoSet <- load_cytoset_from_fcs(CellSingleColors, truncate_max_range = FALSE,
+MyCytoSet <- load_cytoset_from_fcs(UnstainedCells, truncate_max_range = FALSE,
                                    transform = FALSE)
 #MyCytoSet
 MyGatingSet <- GatingSet(MyCytoSet)
@@ -178,9 +176,9 @@ gt_gating(MyGatingTemplate, MyGatingSet)
 MyGatingSet[[1]]
 ```
 
-## Data Visualization
+# Visualizing Gates
 
-### Utility_GatingPlots
+## Utility_GatingPlots
 
 We can visualize our applied gates on their individual .fcs files using Luciernaga's `Utility_GatingPlots()` function. We can do this individually, or iterate over the entire GatingSet using the `r CRANpkg("purrr")` `purrr::map()` function. 
 
@@ -194,16 +192,16 @@ IndividualPlot <- Utility_GatingPlots(x=MyGatingSet[[2]], sample.name = "GUID",
                                       removestrings = removestrings,
                                       gtFile = MyGates, DesiredGates = NULL,
                                       outpath = StorageLocation, export = FALSE)
-
-IndividualPlot
   
 IteratedPlots <- map(.x = MyGatingSet[1:3], .f = Utility_GatingPlots,
                      sample.name = "GUID", removestrings = removestrings,
                      gtFile = MyGates, DesiredGates = NULL,
                      outpath = StorageLocation, export = FALSE)
+
+IndividualPlot
 ```
 
-### Utility_IterativeGating
+## Utility_IterativeGating
 
 In the absence of an existing gating template, the `Utility_IterativeGating()` function can be used to visualize individual gate placements for specimens found in a GatingSet object. To figure out the necessary information, we can use `r Biocpkg("flowWorkspace")`
 `flowWorkspace::plot()` and `flowWorkspace::gs_pop_get_gate()` to find out the gate, and the respective X and Y parameters. 
@@ -219,15 +217,16 @@ SingleSpecimen <- Utility_IterativeGating(x=MyGatingSet[1], sample.name = "GUID"
                                           xValue = "FSC-A", yValue = "SSC-A",
                                           bins = 270)
 
-SingleSpecimen
 
 AllSpecimens <- Utility_IterativeGating(x=MyGatingSet[1:3], sample.name = "GUID",
                                         removestrings = removestrings,
                                         subset = "nonDebris", gate = "lymphocytes",
                                         xValue = "FSC-A", yValue = "SSC-A", bins = 270)
+
+SingleSpecimen
 ```
 
-### Utility_Patchwork
+## Utility_Patchwork
 
 The previous example returned AllSpecimens, which is a list of ggplot objects. This allows us to showcase `Utility_Patchwork()`. It is a wrapper for `r CRANpkg("patchwork")` that is used in the background by Luciernaga's data visualization functions when generating .pdf files from existing ggplot objects.
 
@@ -242,7 +241,7 @@ Utility_Patchwork(AllSpecimens, "LymphocyteGates", outfolder=StorageLocation,
 ```
 
 
-### Creating a GatingSet for Unmixed .fcs files
+# Creating a GatingSet for Unmixed .fcs files
 The next couple functions are designed primarily for use with unmixed full-stained samples. We will return to the earlier example and select the corresponding example .fcs files found within Luciernaga's extdata folder and bring them into a GatingSet object.
 
 ```{r}
@@ -299,13 +298,13 @@ UnmixedIndividualPlot <- Utility_GatingPlots(x=UnmixedGatingSet[[2]],
 
 UnmixedIndividualPlot
 ```
+# Visualizing Data 
 
-
-### Utility_NxNPlots
+## Utility_NxNPlots
 
 `Utility_NxNPlots()` is a convenient function to visualize unmixed .fcs files for every marker compared to a reference marker. It is particularly useful in identifying cell populations, as well as unmixing errors. It takes a GatingSet object that has been transformed and gated. The desired population of cells can then be specified by the gatesubset argument. ycolumn specifies the desired marker to compare all the other markers to. Similar to other functions that use Utility_Patchwork behind the scenes, it can send the outputs for each specimen to their own pdf file. 
 
-```{r, eval = FALSE, echo=FALSE}
+```{r}
 plot(UnmixedGatingSet)
 removethese <- c(".fcs", "DTR_")
 StorageLocation <- file.path("C:", "Users", "JohnDoe", "Desktop")
@@ -323,14 +322,14 @@ IndividualNxN <- Utility_NbyNPlots(x=UnmixedGatingSet[[4]],
                                    outpath = StorageLocation,
                                    returntype="patchwork")
 
-IndividualNxN[1]
-
 MultipleNxN <- map(.x = UnmixedGatingSet[1:2], .f = Utility_NbyNPlots,
                    sample.name = "GROUPNAME", removestrings = removethese,
                    marginsubset = "lymphocytes", gatesubset = "live",
                    ycolumn = "Spark Blue 550-A", bins = 70, clearance = 0.2,
                    gatelines = FALSE, reference = NULL,
-                   outpath = StorageLocation, pdf = FALSE)
+                   outpath = StorageLocation, returntype="patchwork")
+
+IndividualNxN[1]
 ```
 
 The return is for a given specimen all markers vs. the specified marker on the y-axis. `Utility_NxNPlots()` additionally accepts a ycolumn = "ALL" option that will directly iterate over every marker as the ycolumn argument. However, be warned, for larger SFC panels with many fluorophores, it will take time for a single specimen (and each marker pdf taking up memory space!), and even more so over every specimen in a GatingSet!!!
@@ -349,12 +348,17 @@ All_IndividualNxN <- Utility_NbyNPlots(x=UnmixedGatingSet[[1]],
                                        outpath = StorageLocation,
                                        returntype="pdf")
 
-# ALL_MultipleNxN <- map(.x = UnmixedGatingSet, .f = Utility_NbyNPlots,sample.name = "GROUPNAME", removestrings = removethese, marginsubset = "lymphocytes", gatesubset = "live", ycolumn = "ALL", bins = 120, clearance = 0.2, gatelines = FALSE, reference = NULL, outpath = StorageLocation, returntype="pdf")
+ALL_MultipleNxN <- map(.x = UnmixedGatingSet, .f = Utility_NbyNPlots,
+                       sample.name = "GROUPNAME", removestrings = removethese,
+                       marginsubset = "lymphocytes", gatesubset = "live",
+                       ycolumn = "ALL", bins = 120, clearance = 0.2,
+                       gatelines = FALSE, reference = NULL,
+                       outpath = StorageLocation, returntype="pdf")
 ```
 
-### Utility_ParallelNxNPlots
+## Utility_ParallelNxNPlots
 
-`Utitlity_ParallelNxNPlots` is an extension of `Utility_NxNPlots`, but is used to compare two separate samples that are overlaid on the same plot. This can be useful when comparing different specimens, different treatment conditions, and differences in unmixing. It is usable but remains under development (notice the colors from the different specimens don't blend well). It utilizes the `r CRANpkg("purrr")` `purrr::map2()` argument behind the scenes to determine the order of what specimens are compared.  to each other. 
+`Utitlity_ParallelNxNPlots` is an extension of `Utility_NxNPlots`, but is used to compare two separate samples that are overlaid on the same plot. This can be useful when comparing different specimens, different treatment conditions, and differences in unmixing. It is usable but remains under development (notice the colors from the different specimens don't blend well). It utilizes the `r CRANpkg("purrr")` `purrr::map2()` argument behind the scenes to determine the order of what specimens are compared to each other. 
 
 ```{r}
 gt(pData(UnmixedGatingSet))
@@ -375,14 +379,14 @@ OverlaidNxNPlots <- Utility_ParallelNbyNPlots(x=UnmixedGatingSet[1],
                                               outpath = StorageLocation,
                                               pdf = FALSE)
 
-OverlaidNxNPlots[3]
-
-# IteratedOverlaidNxNPlots <- map2(.x=UnmixedGatingSet[[1]], .y = UnmixedGatingSet[[3]], .f=Utility_ParallelNbyNPlots, sample.name = "GROUPNAME", removestrings = ".fcs", Override = FALSE, marginsubset = "lymphocytes", gatesubset = "live", ycolumn = "Spark Blue 550-A", bins = 120, clearance = 0.2, colorX = "lightblue", colorY = "orange", gatelines = FALSE, reference = NULL, outpath = StorageLocation, pdf = FALSE)
+OverlaidNxNPlots[1]
 ```
 
 Similar to `Utility_NxNPlots()`, switching the argument ycolumn = "ALL" will iterate over all marker combinations for y-column vs all x-marker combinations. The same warning about run time and memory space applies, but double it as we are overlaying plots. 
 
-```{r, eval = FALSE, echo=FALSE}
+```{r, eval = FALSE}
+#Currently bugged out for All Option
+
 gt(pData(UnmixedGatingSet))
 
 All_OverlaidNxNPlots <- Utility_ParallelNbyNPlots(x=UnmixedGatingSet[1],
@@ -402,11 +406,9 @@ All_OverlaidNxNPlots <- Utility_ParallelNbyNPlots(x=UnmixedGatingSet[1],
                                                   pdf = FALSE)
 
 All_OverlaidNxNPlots[1]
-
-# All_IteratedOverlaidNxNPlots <- map2(.x=UnmixedGatingSet[[1]], .y = UnmixedGatingSet[[3]], .f=Utility_ParallelNbyNPlots, sample.name = "GROUPNAME", removestrings = ".fcs", Override = FALSE, marginsubset = "lymphocytes", gatesubset = "live", ycolumn = "ALL", bins = 120, clearance = 0.2, colorX = "lightblue", colorY = "orange", gatelines = FALSE, reference = NULL, outpath = StorageLocation, pdf = FALSE)
 ```
 
-### Utility_UnityPlots
+## Utility_UnityPlots
 
 While `Utility_NxNPlots()` will show all marker combinations for a single specimen, `Utility_UnityPlots()` will showcase a single combination of markers for all specimens present in the GatingSet. Given that bringing data from every specimen into active memory is a way to max out your ram, it is helpful to break the map calls into chunks. Here is an example: 
 
@@ -421,21 +423,27 @@ SingleUnityPlot <- Utility_UnityPlot(x="Spark Blue 550-A", y="BUV805-A",
                                      outpath=StorageLocation)
 
 SingleUnityPlot
+```
 
+```{r}
 Markers <- colnames(UnmixedCytoSet)
 KeptMarkers <- Markers[-grep("Time|FS|SC|SS|Original|-W$|-H$|AF", Markers)]
 KeptMarkers
+```
 
+```{r}
 MultipleUnityPlots <- map(.x=KeptMarkers[c(1:6, 8:10)], .f=Utility_UnityPlot,
                           y="BUV805-A", GatingSet=UnmixedGatingSet,
                           sample.name="GROUPNAME", bins=100,clearance=0.2,
                           removestrings=removestrings, marginsubset="lymphocytes",
                           gatesubset="live", gatelines=FALSE, reference=NULL,
                           returntype="patchwork", outpath=StorageLocation)
+
+MultipleUnityPlots[1:2]
 ```
 
 
-### Utility_ThirdColor
+## Utility_ThirdColor
 
 Similar to the other visualization functions, `Utility_ThirdColor()` plots the data from the specified GatingSet and subset for the given X and Y axis-markers. From here it will overlay a color for an additional marker, allowing for identification of those cells. 
 
@@ -449,12 +457,12 @@ SinglePlot <-  Utility_ThirdColorPlots(x=UnmixedGatingSet[1], subset = "live",
                                        removestrings = c("DTR", ".fcs"),
                                        thecolor = "blue")
 
-SinglePlot 
-
 AllPlot <- map(.x=UnmixedGatingSet, .f=Utility_ThirdColorPlots, subset = "live",
                xaxis="BUV496-A", yaxis = "Spark Blue 550-A",  zaxis ="BUV805-A",
                splitpoint = "continuous", sample.name = "GROUPNAME",
                removestrings = c("DTR", ".fcs"), thecolor = "blue")
+
+SinglePlot 
 ```
 
 When a categorical column exist in the .fcs file and is specified as zaxis, splitpoint = "Categorical" can be specified. It will internally convert the zaxis column into a factor. A list of equivalent name(s) is then given to FactorNames. These in turn will be filtered and assigned the same color.
@@ -470,13 +478,13 @@ SinglePlot <-  Utility_ThirdColorPlots(x=UnmixedGatingSet[1], subset = "live",
                                        FactorNames = ColorTheseFactors,
                                        thecolor = "orange")
 
-SinglePlot 
-
 AllPlot <- map(.x=UnmixedGatingSet, .f=Utility_ThirdColorPlots, subset = "live",
                xaxis="BUV496-A", yaxis = "Spark Blue 550-A",  zaxis ="BUV805-A",
                splitpoint = "130", sample.name = "GROUPNAME",
                removestrings = c("DTR", ".fcs"), FactorNames = ColorTheseFactors,
                thecolor = "orange")
+
+SinglePlot 
 ```
 
 The third option "splitpoint" will dichotomize a continuous marker expression at the given value (either raw MFI or biexponential transformed) into positive and negative cells. It will then shade the cells accordingly.  
@@ -512,19 +520,27 @@ SinglePlot <-  Utility_ThirdColorPlots(x=UnmixedGatingSet[1], subset = "live",
                                        removestrings = c("DTR", ".fcs"),
                                        thecolor = "orange")
 
-SinglePlot
-
 MultiplePlot <- map(.x=UnmixedGatingSet, .f=Utility_ThirdColorPlots, subset = "live",
                     xaxis="BUV496-A", yaxis = "Spark Blue 550-A",  zaxis =NULL,
                     splitpoint = ThirdColorArguments, sample.name = "GROUPNAME",
                     removestrings = c("DTR", ".fcs"), thecolor = "orange")
+
+SinglePlot
 ```
 
 Utility_ThirdColorPlots can also be used in combination with the Coereba packages GatingCutoff estimates to allow for specimen specific split-points for the specified markers, using the GatingCutoff csv file. This is particularly useful for non-normalized specimens where batch effects are present. 
 
 To provide flexibility for your own analysis, `Utility_ThirdColorPlots()` returns ggplot objects. These in turn can be edited, or a list of them passed to and arranged using `Utility_Patchwork()` into a .pdf of desired layout. 
 
-### Future Development
+## Utility_DensityOverlay
+
+The function `Utility_DensityOverlay()`
+
+## Utility_RidgePlots
+
+The function `Utility_RidgePlots()`
+
+# Future Development
 
 In combination with purrr package functions, it's possible to extend the visualization capacity for many scenarios similar to Utility_UnityPlots and Utility_NxNPlots. As community usefulness is demonstrated, these will become integrated in later versions of the package. Reach out via the GitHub for suggested improvements. 
 

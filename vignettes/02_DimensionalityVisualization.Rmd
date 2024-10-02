@@ -25,11 +25,11 @@ knitr::opts_chunk$set(
 
 # Introduction
 
-Spectral Flow Cytometry data consist of many acquired cellular events, with increasing number of markers. Many unsupervised analysis approaches rely on clustering the markers on the basis of median fluorescent intensity. A common workflow step is to then project these cells onto a dimensionality visualized space using one of the various available algorithms. While this can provide useful information, we agree with Pachter lab that it can be easy to overinterpret what is essentially artefact noise. 
+Spectral Flow Cytometry data consist of many acquired cellular events, with increasing number of markers. Many unsupervised analysis approaches rely on clustering the markers on the basis of median fluorescent intensity. A common workflow step is to then project these cells onto a dimensionality visualized space using one of the various available algorithms. While this can provide useful information, we agree with Pachter labs points in their Specious Art Spatial Genomics paper highlighting ease of overinterpreting what may be sheer artefact noise.
 
 Similarly, dimensionality visualization works on both unmixed files, as well as novel applications addressing unstained samples still in the raw form. To enable characterization of what actually ends up in these islands (whether brightness, unique signature, random noise) we have implemented dimensionality visualization for the most frequently used algorithms to facilitate their exploration in context of our paper. 
 
-While these are useful, we would like to reiterate, these wrappers are for exploratory purposes only, please refer to the original packages for any specialized argument implementation. We can and we will change them at any point, don't rely on our approach to build your own package on. Take advantage of the copyleft license, modify it and include it in your own package. 
+While these are useful, we would like to reiterate, these wrappers are for exploratory/convenience purposes only, please refer to the original packages for any specialized argument implementation. We may modify them, so don't build your own R package around our implementation. Instead, take advantage of the copyleft license nature of free and open-source software, fork it, modify it and include it in your own package. 
 
 # Getting Started
 
@@ -89,6 +89,9 @@ MyCytoSet <- load_cytoset_from_fcs(UnstainedCells,
                                    truncate_max_range = FALSE,
                                    transform = FALSE)
 MyCytoSet
+```
+
+```{r}
 MyGatingSet <- GatingSet(MyCytoSet)
 MyGatingSet
 ```
@@ -139,6 +142,8 @@ UnmixedGating <- gatingTemplate(UnmixedGates)
 gt_gating(UnmixedGating, UnmixedGatingSet)
 ```
 
+# Helper Functions
+
 ## Utility_ColAppend
 
 Originally an internal function supporting our dimensionality visualization functions, `Utility_ColAppend()` appends new data.frame columns to an .fcs file that contains the same number of rows as a new marker/parameter. To do this, you feed the function a cytoset object, a data.frame of the flowframe exprs data, and a data.frame of the new data columns. `Utility_ColAppend()` then adds the appropriate parameters and returns a flowframe object with these new parameters added.
@@ -165,8 +170,8 @@ AfterParameters <- Utility_ColAppend(ff=ff, DF=MainDataFrame,
 AfterParameters
 ```
 
-For anyone wanting to continue on from just a flow.frame to an .fcs file, the code is below:
-```{r, eval = FALSE, echo=FALSE}
+For anyone wanting to continue on and create an .fcs file from the flowframe, example code is provided below:
+```{r}
 outpath <- file.path("C:", "Users", "JohnDoe", "Desktop")
 Name <- flowWorkspace::keyword(AfterParameters, "GROUPNAME")
 TheFileName <- paste0(Name, "_Appended.fcs")
@@ -175,14 +180,18 @@ fileSpot
 # flowCore::write.FCS(AfterParameters, filename = fileSpot, delimiter="#")
 ```
 
-# Utility_Downsample
+## Utility_Downsample
+
+For many dimensionality visualization protocols, it's recommended that you downsample so that each specimen has roughly similar representation  in the final plot. While this can be helpful when you have some specimens with 10,000 cells, and others with a million cells, it encounters issues when some specimens have millions but other samples have just 200 cells. Consequently, deciding whether to down-sample is a decision that you need to make and justify. We have implemented `Utility_Downsample()` to facilitate the process. 
 
 ```{r}
 # plot(UnmixedGatingSet)
 CountData <- gs_pop_get_count_fast(UnmixedGatingSet)
 CountData %>% filter(Population %in% "/singletsFSC/singletsSSC/singletsSSCB/nonDebris/lymphocytes/live") %>%
   select(name, Count)
+```
 
+```{r}
 #Single Sample Returned as a data.frame 
 removestrings <- c("DTR_2023_ILT_15_Tetramers-",
                    "-Ctrl_Tetramer_Unmixed", ".fcs")
@@ -192,7 +201,9 @@ SingleSample <- Utility_Downsample(UnmixedGatingSet[1],
                                    subsets = "live", subsample = 2500,
                                    internal = FALSE, export = FALSE)
 SingleSample
+```
 
+```{r}
 # Multiple Samples
 
 MultipleSamples <- map(.x=UnmixedGatingSet, .f=Utility_Downsample,
@@ -205,10 +216,9 @@ MultipleSamples
 
 ## Utility_Concatinate
 
-A common feature of dimensionality visualization approaches for cytometry data is concatenating different samples into a single file. 
-This sometimes includes first downsampling to an equivalent number of cells in a particular cell subset, so as to not overly influence the result on the basis of a single cell subset. Similarly, this can be done before or after cells are normalized using one of the various algorithms. 
+A common feature of dimensionality visualization approaches for cytometry data is concatenating different samples into a single file. This sometimes includes first downsampling to an equivalent number of cells in a particular cell subset, so as to not overly influence the result on the basis of a single cell subset. Similarly, this can be done before or after cells are normalized using one of the various algorithms. 
 
-To facilitate this process, we have implemented this function. Unlike other approaches, it relies on GatingSet, bringing in only the cells for the node of interest into active memory. The final file can then be saved as it's own .fcs file. We have attempted to retain FCS 3.1, so that it can be brought into other software for additional steps. If you encounter issues, please reach out! 
+To facilitate this process, we have implemented the `Utility_Concatinate()` function. Unlike other approaches, we implemented it at the GatingSet level, allowing to merge only cells at the gating node of interest into active memory. The final file can then be saved as it's own .fcs file. We have attempted to retain FCS format, so that it can be used across software without issues. If you encounter issues, please reach out! 
 
 ```{r}
 removestrings <- c("DTR_", ".fcs")
@@ -242,7 +252,7 @@ plot(MyGatingSet)
 
 tSNE_Output <- Utility_tSNE(x=MyGatingSet[[3]], sample.name = "GUID",
                             removestrings=c("_Cells", ".fcs"),
-                            subset = "lymphocytes", columns=KeptMarkers,
+                            subset = "nonDebris", columns=KeptMarkers,
                             export=FALSE)
 
 cf <- flowFrame_to_cytoframe(tSNE_Output)
@@ -252,7 +262,7 @@ NewGatingSet <- GatingSet(TheNewCS)
 
 TSNEPlot <-  Utility_ThirdColorPlots(x=NewGatingSet[[1]], subset = "root",
                                      xaxis="tSNE_1", yaxis = "tSNE_2",
-                                     zaxis ="V7-A", splitpoint = "continuous",
+                                     zaxis ="B3-A", splitpoint = "continuous",
                                      sample.name = "TUBENAME",
                                      removestrings = c("Dimensionality", ".fcs"),
                                      thecolor = "orange", tilesize = 0.6)
@@ -311,7 +321,7 @@ plot(MyGatingSet)
 
 UMAP_Output <- Utility_UMAP(x=MyGatingSet[[3]], sample.name="GUID",
                             removestrings=c("_Cells", ".fcs"), 
-                            subset="lymphocytes", columns=KeptMarkers,
+                            subset="nonDebris", columns=KeptMarkers,
                             export=FALSE)
 
 cf <- flowFrame_to_cytoframe(UMAP_Output)
@@ -321,7 +331,7 @@ NewGatingSet <- GatingSet(TheNewCS)
 
 UMAPPlot <-  Utility_ThirdColorPlots(x=NewGatingSet[[1]], subset = "root",
                                      xaxis="UMAP_1", yaxis = "UMAP_2", 
-                                     zaxis ="V7-A", splitpoint = "continuous",
+                                     zaxis ="B3-A", splitpoint = "continuous",
                                      sample.name = "TUBENAME",
                                      removestrings = c("Dimensionality", ".fcs"),
                                      thecolor = "orange", tilesize = 0.3)
@@ -360,6 +370,13 @@ Sample_UMAPPlot <-  Utility_ThirdColorPlots(x=NewGatingSet[[1]], subset = "root"
 
 Sample_UMAPPlot
 ```
+## Utility_PaCMAP
+
+Unlike the other dimensionality visualization algorithms that are implemted in R, both PaCMAP and PHATE are primarily implemented in Pyton. Utilizing `basilisk` package, we implement method to facilitate the plot generation isolated within the Luciernaga environment. 
+
+## Utility_PHATE
+
+# Conclusion
 
 ```{r sessionInfo, echo = FALSE}
 sessionInfo()

@@ -108,7 +108,7 @@ CSV_Files
 
 Since this .CSV file is not in a tidy format, `read.csv()` or similar functions will struggle to import correctly. Our function, `QC_FilePrep()` reads in each row individually as text, and then follows up on the pre-processing into a "tidy" format. 
 
-```{r, warning=FALSE}
+```{r, message=FALSE, warning=FALSE}
 TidyData <- QC_FilePrep(CSV_Files, TrackChange = FALSE)
 gt(head(TidyData, 5))
 ```
@@ -117,7 +117,7 @@ Individual rows are the individual QC reports, with the columns being the differ
 
 Additionally, setting `QC_FilePrep()` TrackChange to TRUE will generate a similar output to that of the QC report showing Change from the previous QC report which can provide additional information for instrument monitoring. 
 
-```{r, warning=FALSE}
+```{r, message=FALSE, warning=FALSE}
 TidyData_Track <- QC_FilePrep(CSV_Files, TrackChange = TRUE)
 gt(head(TidyData_Track, 3))
 ```
@@ -231,6 +231,7 @@ Plots <- QC_Plots(x = BeforeAfter, MeasurementType = MFIExample,
                   Metadata = "Timepoint", plotType = "comparison",
                   FailedFlag = FALSE, returntype="patchwork",
                   path=StorageLocation, filename="CytekAurora5L_QC")
+Plots[[1]]
 ```
 As we can see from the example, looking at the MFI we can see that after daily QC, the recorded MFI across bead samples is being recorded is similar across time, thanks in part to the changes in the individual gain depicted above. 
  
@@ -368,7 +369,7 @@ When working with XML files for multiple users, the assembled dataframe output o
 function, that will filter the individual library controls by user, and send them off to `Utility_Patchwork()` to create a .pdf output to the desired specifications. This can be useful tool for core staff to quickly generate outputs for each instrument user, that can then be sent to them to decide if they need to change any of their existing library reference controls. The saveCSV = TRUE argument would additionally return a .csv of the corresponding dataframe. 
 
 
-```{r}
+```{r, eval=FALSE}
 Outpath <- file.path("C:", "Users", "JohnDoe", "Desktop",
                              "LibraryControls5L")
 
@@ -378,13 +379,11 @@ TheIndividuals
 IndividualUser <- QC_UserLibraries(x=TheIndividuals[[1]], Data=TheData,
                                    NameAppend="_LibraryQC", outpath=Outpath,
                                    references = TRUE, thecolumns = 3, therows=4,
-                                   width=7, height=9,
-                                   saveCSV=FALSE)
+                                   width=7, height=9, saveCSV=FALSE)
 
 AllUsers <- map(.x=TheIndividuals, .f=QC_UserLibraries, Data=TheData,
                  NameAppend="_LibraryQC", outpath=Outpath,references = TRUE,
-                 thecolumns = 3, therows=4, width=7, height=9, returntype="patchwork",
-                                   saveCSV=FALSE)
+                 thecolumns = 3, therows=4, width=7, height=9, saveCSV=FALSE)
 ```
 
 # Comparing Normalized Signatures
