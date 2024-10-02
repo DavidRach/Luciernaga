@@ -534,11 +534,99 @@ To provide flexibility for your own analysis, `Utility_ThirdColorPlots()` return
 
 ## Utility_DensityOverlay
 
-The function `Utility_DensityOverlay()`
+The function `Utility_DensityOverlay()` is a wrapper function incorporating elements from the underlying ggplot2 `geom_density()` function. It's use is particularly useful when working with a GatingSet of multiple specimens and comparing across individuals. 
+
+```{r}
+StorageLocation <- file.path("C:", "Users", "JohnDoe", "Desktop")
+
+pData(UnmixedGatingSet)
+#colnames(UnmixedGatingSet)
+Plot <- Utility_DensityOverlay(gs=UnmixedGatingSet, subset="lymphocytes", TheX="APC-Fire 810-A",
+                               TheFill="specimen", returntype="plots",
+                               outpath="C:/Users/12692/Desktop/", filename="CD4_Expression")
+
+plotly::ggplotly(Plot[[1]])
+```
 
 ## Utility_RidgePlots
 
-The function `Utility_RidgePlots()`
+The function `Utility_RidgePlots()` leverages the `ggplot2` and `ggridges` packages to evaluate marker expression across specimens, and provides some additional functionality compared to `Utility_DensityOverlay()`
+
+To use this functions to it's fullest extent, we will need to create additional factor variables for each specimen and append them to the GatingSet's pData. These can then be called to use as axis, color and fill arguments for the function. Below you can find examples of local functions that you can edit for your particular data to extract variables of interest to append to the pData. 
+
+```{r}
+Metadata <- pData(UnmixedGatingSet)
+Metadata
+
+NameYoink <- function(x){
+pattern <- "(INF|ND)\\d{3}"
+result <- stringr::str_extract(x, pattern)
+result <- data.frame(result)
+colnames(result)[1] <- "specimen"
+result$specimen <- factor(result$specimen)
+return(result)
+}
+
+ConditionYoink <- function(x){
+pattern <- "Ctrl|PMA"
+result <- stringr::str_extract(x, pattern)
+result <- data.frame(result)
+colnames(result)[1] <- "condition"
+result$condition <- factor(result$condition)
+return(result)
+}
+
+NormalizedYoink <- function(x){
+result <- stringr::str_detect(x, "Norm")
+result <- data.frame(result)
+colnames(result)[1] <- "normalized"
+result$normalized <- factor(result$normalized)
+return(result)
+}
+```
+
+```{r}
+pd <- pData(UnmixedGatingSet)
+pa <- pd %>% select(`name`) %>% pull()
+Specimen <- map(pa, .f=NameYoink) %>% bind_rows()
+Specimen
+```
+
+```{r}
+Condition <- map(pa, .f=ConditionYoink) %>% bind_rows
+Condition
+```
+
+And once we have the factor variables that we need, we can bind the columns together, and then assign them back to the GatingSet. 
+
+```{r}
+pd <- cbind(pd, Specimen, Condition)
+pData(UnmixedGatingSet) <- pd
+pData(UnmixedGatingSet)
+```
+
+Now we can use `Utility_RidgePlot()`. We can generate a specific RidgePlot of interest by providing the name of a particular fluorophore in TheX argument. Alternatively, we can leave it out to generate RidgePlots for all markers. As with the other functions, it uses `Utility_Patchwork()` and will take the same arguments for layout. 
+
+```{r}
+StorageLocation <- file.path("C:", "Users", "JohnDoe", "Desktop")
+
+pData(UnmixedGatingSet)
+#colnames(UnmixedGatingSet)
+
+SinglePlot <- Utility_RidgePlots(gs=UnmixedGatingSet, subset="live", TheFill="condition",
+                           TheX = "APC-Fire 810-A", TheY="specimen", returntype="plots",
+                           outpath=StorageLocation, filename="RidgePlot_Condition")
+
+SinglePlot[[1]]
+```
+
+```{r}
+Plot <- Utility_RidgePlots(gs=UnmixedGatingSet, subset="live", TheFill="condition",
+                           TheY="specimen", returntype="patchwork",
+                           outpath=StorageLocation, filename="RidgePlot_Condition")
+Plot[1:2]
+```
+
 
 # Future Development
 
