@@ -25,7 +25,12 @@ knitr::opts_chunk$set(
 
 # Introduction
 
-This vignette addresses some of the instrumental quality control functions implemented by Luciernaga. Due to the only Spectral Cytometers at the authors institution being are Cytek (TM) Aurora and Northern Light cytometers that utilize the SpectroFlo software for acquisition and unmixing, there is a heavy bias towards them in terms of the functions presented in this vignette. If you would like to address this by contributing your own function that expands the repertoire of manufacturers and instruments covered by this vignette, please reach out via GitHub with a pull request. 
+This vignette covers the `Luciernaga` functions that are involved in assessing instrumental quality control. Currently, this section is tailored
+for Cytek Aurora and Northern Light (TM) spectral cytometers that utilize SpectroFlo as their acquisition and unmixing software. The reason for this
+platform bias is that these were the only spectral cytometers at the authors home institution when designing the package. If you would like to help us remedy this historical bias and expand the functions to other instruments, feel free to reach out via GitHub! :) 
+
+The following functions can work from either the Levy-Jennings Tracking Reports that are generated following automated instrument QC (exported as .csv
+files) or by retrieving the equivalent data stored as keywords within an .fcs files description for a collection of .fcs files across the timespan of interest. 
 
 ## Load Libraries
 ```{r, echo=FALSE, results = "hide", warning=FALSE}
@@ -50,6 +55,7 @@ library(htmltools)
 library(Luciernaga)
 library(flowCore)
 library(flowWorkspace)
+
 library(openCyto)
 library(ggcyto)  
 library(data.table)
@@ -65,15 +71,34 @@ library(htmltools)
 
 ## QC_FilePrep
 
-Cytek Aurora instruments use fluorescent beads as part of their daily quality control checks. These result in the production of a QC report visible to the user, with the underlying data stored under the Levy-Jennings tracking tab. When downloaded, this returns a .csv file. However, it is not in a "tidy" data format, which limits it's direct usefulness for exploratory data analysis via functional programming in R. We provide several functions to convert this output into a "tidy" format, and then to visualize the data contained. 
+Cytek Aurora instruments use fluorescent beads as part of their daily quality control checks. These beads have complex signatures, with most beads having peak detectors in either the Ultraviolet or Yellow-Green Laser as can be seen below. 
 
-The first step is to indicate where the saved .csv file containing the Levy-Jennings tracking data from the cytometer is stored. On a local computer, the code to do this would resemble the following:
-```{r, eval = FALSE}
+```{r}
+File_Location <- system.file("extdata", package = "Luciernaga")
+fcs_files <- list.files(File_Location, pattern=".fcs", full.names = TRUE)
+QCBeadFile <- fcs_files[grep("After", fcs_files)][[1]]
+
+QCBead_CS <- load_cytoset_from_fcs(QCBeadFile, transformation = FALSE, truncate_max_range = FALSE)
+QCBead_GS <- GatingSet(QCBead_CS)
+
+Data <- Luciernaga_QC(x=QCBead_GS[1], subsets="root", sample.name="GUID", SignatureReturnNow = TRUE, Verbose=TRUE,
+              unmixingcontroltype="beads", Unstained=TRUE, removestrings=".fcs", stats="median")
+
+Data <- Data %>% mutate(Sample="QCBeads") %>% relocate(Sample, .before=1)
+
+QCBeads <- QC_WhatsThis(x="QCBeads", data=Data, NumberHits=0, returnPlots=TRUE)
+
+QCBeads[[2]]
+```
+Using the QC beads, the gains for instrument detectors and power to individual lasers are adjusted to maintain a stable MFI across time. These adjustments are available to individual users as part of a QC report, with the underlying data available under the Levy-Jennings tracking tab, with the option to download as a .csv file. Unfortunately, it is not in  a "tidy" data format, limiting our ability for easy exploratory data analysis. We provide a couple functions to convert the .csv output into a "tidy" format and visualize the data contained within. 
+
+The first step is to indicate where the saved .csv file containing the Levy-Jennings tracking data from the cytometer is stored. On a local computer, the code to do this would look similar to the following:
+```{r}
 FileLocation <- file.path("C:", "Users", "JohnDoe", "Desktop",
                           "LevyJenningsTracking.csv")
 ```
 
-For this vignette, we will be accessing a .csv folder that can be found in Luciernaga's extdata folder containing three months of Levy-Jennings Tracking data for a 5 Laser Cytek Aurora (UV16-V16-B14-YG10-R8) for our example. 
+For this vignette, we will use one of these Levy-Jennings Tracking .csvs from a 5 Laser Cytek Aurora (UV16-V16-B14-YG10-R8), that can be found within Luciernaga's extdata folder. 
 
 ```{r}
 File_Location <- system.file("extdata", package = "Luciernaga")
@@ -83,14 +108,21 @@ CSV_Files <- list.files(path=File_Location, pattern=CSV_Pattern,
 CSV_Files
 ```
 
-Since this .CSV file is not is not in a tidy format, `read.csv()` will have issues when attempting to import directly. Instead, `CytekQCPlots()` will attempt to read in each row individually as text and from there pre-process it. 
+Since this .CSV file is not in a tidy format, `read.csv()` or similar functions will struggle to import correctly. Our function, `QC_FilePrep()` reads in each row individually as text, and then follows up on the pre-processing into a "tidy" format. 
 
 ```{r}
 TidyData <- QC_FilePrep(CSV_Files, TrackChange = FALSE)
-gt(head(TidyData))
+gt(head(TidyData, 5))
 ```
 
-Once the data has been "tidyed", it can be used within R for plotting of any individual detector(s) that might be of interest. The Track Change option to `CytekQCFilePrep()` will calculate the difference between days which can additionally be of interest for monitoring the instrument. 
+Individual rows are the individual QC reports, with the columns being the different parameters. Additionally, if the individual parameter exceeded the variance allowed resulting in a QC failure, it is recorded under the corresponding Flag- column. With the data now "tidy", it can be more readily used in R to plot individual detector(s) that might be of interest. 
+
+Additionally, setting `QC_FilePrep()` TrackChange to TRUE will generate a similar output to that of the QC report showing Change from the previous QC report which can provide additional information for instrument monitoring. 
+
+```{r}
+TidyData <- QC_FilePrep(CSV_Files, TrackChange = TRUE)
+gt(head(TidyData, 5))
+```
 
 ## QC_Plots
 

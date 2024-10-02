@@ -1,5 +1,5 @@
 ---
-title: "01 Getting Started with `Luciernaga`"
+title: "01 Data Visualization"
 date: "`r BiocStyle::doc_date()`"
 author:
 - name: David Rach
@@ -12,7 +12,7 @@ abstract: |
   Spectral Flow Cytometry (SFC) capacity to rapidly acquire large number of cellular events is similar to that of conventional flow cytometry (CFC), but it's ability to resolve very similar fluorophores increasingly allows for marker profiling comparable to mass cytometry (MC). Unmixing controls (both single color and unstained) are critical to this process. Luciernaga is a collection of tools to enable individual users to profile quality of their unmixing controls, how they vary across experiments, and their subsequent effects on unmixing of full-stained samples.
 bibliography: "`r file.path(system.file('extdata', package='Luciernaga'), 'refs.bib')`"
 vignette: |
-  %\VignetteIndexEntry{01 Getting Started}
+  %\VignetteIndexEntry{01 Data Visualization}
   %\VignettePackage{Luciernaga}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}

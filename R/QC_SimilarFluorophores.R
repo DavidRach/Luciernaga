@@ -1,6 +1,6 @@
 #' Queries fluorophore and returns similar fluorophores.
 #'
-#' @param x Name from Sample Column
+#' @param x Name of Fluorophore You Want to Examine
 #' @param data The dataframe object from QC_LibraryParse
 #' @param NumberHits Number of most similar fluorophores by cosine.
 #'
@@ -27,19 +27,7 @@
 
 QC_SimilarFluorophores <- function(TheFluorophore, NumberDetectors, NumberHits, returnPlots=FALSE) {
 
-  if (NumberDetectors == 64){instrument <- "FiveLaser"
-  FileLocation <- system.file("extdata", package = "Luciernaga")
-  TheFile <- file.path(FileLocation, "CytekReferenceLibrary5L.csv")
-  ReferenceData <- read.csv(TheFile, check.names = FALSE)
-  } else if (NumberDetectors == 54){instrument <- "FourLaser"
-  FileLocation <- system.file("extdata", package = "Luciernaga")
-  TheFile <- file.path(FileLocation, "CytekReferenceLibrary4LUV.csv")
-  ReferenceData <- read.csv(TheFile, check.names = FALSE)
-  } else if (NumberDetectors == 38){instrument <- "ThreeLaser"
-  FileLocation <- system.file("extdata", package = "Luciernaga")
-  TheFile <- file.path(FileLocation, "CytekReferenceLibrary3L.csv")
-  ReferenceData <- read.csv(TheFile, check.names = FALSE)
-  } else {message("No References Found")}
+  ReferenceData <- InstrumentReferences(NumberDetectors=NumberDetectors)
 
   if (returnPlots == TRUE){ReferenceData1 <- ReferenceData}
 

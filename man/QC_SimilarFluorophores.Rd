@@ -14,7 +14,7 @@ QC_SimilarFluorophores(
 \arguments{
 \item{NumberHits}{Number of most similar fluorophores by cosine.}
 
-\item{x}{Name from Sample Column}
+\item{x}{Name of Fluorophore You Want to Examine}
 
 \item{data}{The dataframe object from QC_LibraryParse}
 }
