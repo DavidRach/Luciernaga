@@ -372,9 +372,139 @@ Sample_UMAPPlot
 ```
 ## Utility_PaCMAP
 
-Unlike the other dimensionality visualization algorithms that are implemted in R, both PaCMAP and PHATE are primarily implemented in Pyton. Utilizing `basilisk` package, we implement method to facilitate the plot generation isolated within the Luciernaga environment. 
+Unlike the other dimensionality visualization algorithms that are implemented in R, both PaCMAP and PHATE are primarily implemented in Python. Utilizing `basilisk` package, we implement method to facilitate the plot generation isolated within the Luciernaga environment. 
+
+Repeating similar steps as with the tSNE and UMAP examples above for both raw and unmixed data:
+
+```{r}
+Markers <- colnames(MyCytoSet)
+KeptMarkers <- Markers[-grep("Time|FS|SC|SS|Original|-W$|-H$|AF", Markers)]
+KeptMarkers
+
+pData(MyGatingSet[[3]]) %>% pull(name)
+nrow(MyGatingSet[[3]])
+plot(MyGatingSet)
+
+PaCMAP_Output <- Utility_PaCMAP(x=MyGatingSet[[3]], sample.name="GUID",
+                            removestrings=c("_Cells", ".fcs"), 
+                            subset="nonDebris", columns=KeptMarkers,
+                            export=FALSE)
+
+cf <- flowFrame_to_cytoframe(PaCMAP_Output)
+TheNewCS <- cytoset()
+cs_add_cytoframe(cs=TheNewCS, sn="Test", cf=cf)
+NewGatingSet <- GatingSet(TheNewCS)
+
+PaCMAPPlot <-  Utility_ThirdColorPlots(x=NewGatingSet[[1]], subset = "root",
+                                     xaxis="PaCMAP_1", yaxis = "PaCMAP_2", 
+                                     zaxis ="B3-A", splitpoint = "continuous",
+                                     sample.name = "TUBENAME",
+                                     removestrings = c("Dimensionality", ".fcs"),
+                                     thecolor = "orange", tilesize = 0.3)
+
+PaCMAPPlot
+```
+
+
+```{r}
+Markers <- colnames(UnmixedCytoSet)
+KeptMarkers <- Markers[-grep("Time|FS|SC|SS|Original|-W$|-H$|AF", Markers)]
+SubsetMarkers <- c("BUV496-A", "BUV805-A", "Pacific Blue-A", "BV711-A",
+                       "BV786-A", "Spark Blue 550-A", "PE-A", "APC-Fire 750-A")
+
+pData(UnmixedGatingSet[[3]]) %>% pull(name)
+nrow(UnmixedGatingSet[[3]])
+plot(UnmixedGatingSet)
+
+removestrings <- c(".fcs")
+
+PaCMAP_Output <- Utility_PaCMAP(x=UnmixedGatingSet[[3]], sample.name="GUID", 
+                              removestrings=removestrings, subset="live",
+                              columns=SubsetMarkers, export=FALSE)
+
+cf <- flowFrame_to_cytoframe(PaCMAP_Output)
+TheNewCS <- cytoset()
+cs_add_cytoframe(cs=TheNewCS, sn="Test", cf=cf)
+NewGatingSet <- GatingSet(TheNewCS)
+
+Sample_PaCMAPPlot <-  Utility_ThirdColorPlots(x=NewGatingSet[[1]], subset = "root",
+                                            xaxis="PaCMAP_1", yaxis = "PaCMAP_2",
+                                            zaxis ="Spark Blue 550-A",
+                                            splitpoint = "continuous",
+                                            sample.name = "GROUPNAME",
+                                            removestrings = c("Dimensionality", ".fcs"),
+                                            thecolor = "orange", tilesize = 0.3)
+
+Sample_PaCMAPPlot
+```
 
 ## Utility_PHATE
+
+And similarly for PHATE, with downsampling for brevity:
+
+```{r}
+Markers <- colnames(MyCytoSet)
+KeptMarkers <- Markers[-grep("Time|FS|SC|SS|Original|-W$|-H$|AF", Markers)]
+KeptMarkers
+
+pData(MyGatingSet[[3]]) %>% pull(name)
+nrow(MyGatingSet[[3]])
+plot(MyGatingSet)
+
+Phate_Output <- Utility_Phate(x=MyGatingSet[[3]], sample.name="GUID",
+                            removestrings=c("_Cells", ".fcs"), 
+                            subset="nonDebris", subsample=15000,
+                            columns=KeptMarkers,
+                            export=FALSE)
+
+cf <- flowFrame_to_cytoframe(Phate_Output)
+TheNewCS <- cytoset()
+cs_add_cytoframe(cs=TheNewCS, sn="Test", cf=cf)
+NewGatingSet <- GatingSet(TheNewCS)
+
+PhatePlot <-  Utility_ThirdColorPlots(x=NewGatingSet[[1]], subset = "root",
+                                     xaxis="Phate_1", yaxis = "Phate_2", 
+                                     zaxis ="B3-A", splitpoint = "continuous",
+                                     sample.name = "TUBENAME",
+                                     removestrings = c("Dimensionality", ".fcs"),
+                                     thecolor = "orange", tilesize = 0.0001)
+
+PhatePlot
+```
+
+
+```{r}
+Markers <- colnames(UnmixedCytoSet)
+KeptMarkers <- Markers[-grep("Time|FS|SC|SS|Original|-W$|-H$|AF", Markers)]
+SubsetMarkers <- c("BUV496-A", "BUV805-A", "Pacific Blue-A", "BV711-A",
+                       "BV786-A", "Spark Blue 550-A", "PE-A", "APC-Fire 750-A")
+
+pData(UnmixedGatingSet[[3]]) %>% pull(name)
+nrow(UnmixedGatingSet[[3]])
+plot(UnmixedGatingSet)
+
+removestrings <- c(".fcs")
+
+Phate_Output <- Utility_Phate(x=UnmixedGatingSet[[3]], sample.name="GUID", 
+                              removestrings=removestrings, subset="live",
+                              subsample=5000, 
+                              columns=SubsetMarkers, export=FALSE)
+
+cf <- flowFrame_to_cytoframe(Phate_Output)
+TheNewCS <- cytoset()
+cs_add_cytoframe(cs=TheNewCS, sn="Test", cf=cf)
+NewGatingSet <- GatingSet(TheNewCS)
+
+Sample_PhatePlot <-  Utility_ThirdColorPlots(x=NewGatingSet[[1]], subset = "root",
+                                            xaxis="Phate_1", yaxis = "Phate_2",
+                                            zaxis ="Spark Blue 550-A",
+                                            splitpoint = "continuous",
+                                            sample.name = "GROUPNAME",
+                                            removestrings = c("Dimensionality", ".fcs"),
+                                            thecolor = "orange", tilesize = 0.0001)
+
+Sample_PhatePlot
+```
 
 # Conclusion
 

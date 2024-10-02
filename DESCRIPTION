@@ -13,44 +13,45 @@ URL: https://davidrach.github.io/Luciernaga/
 BugReports: https://github.com/DavidRach/Luciernaga/issues
 RoxygenNote: 7.3.2
 Imports: 
+    Biobase,
+    BiocGenerics,
+    basilisk,
     dplyr,
+    figpatch,
     flowCore,
     flowWorkspace,
+    ggcyto,
     ggplot2,
     grDevices,
     ggridges,
+    htmltools,
+    lsa,
+    methods,
     patchwork,
+    plotly,
     purrr,
     reshape2,
+    Rtsne,
     stats,
     stringr,
+    tibble,
     tidyr,
     tidyselect,
     viridis,
     lubridate,
     utils,
-    zoo,
-    BiocGenerics,
-    xml2,
-    Rtsne,
     uwot,
-    figpatch,
-    ggcyto,
-    lsa,
-    Biobase,
-    tibble,
-    htmltools,
-    plotly,
-    methods
+    xml2,
+    zoo
 Depends: R (>= 4.3.0)
 Suggests: 
-    shiny,
     BiocStyle,
     data.table,
     DT,
     knitr,
     openCyto,
     rmarkdown,
+    shiny,
     shinyBS,
     shinydashboard,
     shinyjs,
@@ -59,3 +60,4 @@ Suggests:
 biocViews: FlowCytometry, Preprocessing, Software, QualityControl
 Config/testthat/edition: 3
 VignetteBuilder: knitr
+StagedInstall: no
