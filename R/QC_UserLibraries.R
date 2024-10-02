@@ -94,7 +94,7 @@ QC_UserLibraries <- function(x, Data, NameAppend, outpath, references=TRUE,
 
 
 
-#' Internal Test
+#' Internal for QC_UserLibraries
 #'
 #' @param x x
 #' @param Data x
@@ -108,8 +108,7 @@ QC_UserLibraries <- function(x, Data, NameAppend, outpath, references=TRUE,
 #' @importFrom dplyr rename
 #' @importFrom dplyr mutate
 #'
-#' @keywords internal
-
+#' @noRd
 QC_RefPlots <- function(x, Data, references=FALSE, refData=NULL){
 
   if (!references == TRUE){

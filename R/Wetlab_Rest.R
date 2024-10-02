@@ -127,6 +127,8 @@ RestInternal <- function(x, Updated, DesiredConcentration_MillionperML, TubeMaxM
 #' @importFrom gt gt
 #' @importFrom gt tab_style
 #' @importFrom gt gtsave
+#'
+#' @noRd
 RestTable <- function(data, outpath=NULL, filename="CellResuspensions"){
 
   message("Make sure to library(gt)")

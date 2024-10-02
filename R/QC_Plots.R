@@ -40,7 +40,8 @@ QC_Plots <- function(x, FailedFlag, MeasurementType=NULL, Metadata = NULL, plotT
     TheDateTime <- x %>% relocate(DateTime, .before=1)
     TheDateTime[["DateTime"]] <- lubridate::ymd_hms(x[["DateTime"]])
   } else {TheDateTime <- x %>% mutate(DateTime = ymd(DATE) + hms(TIME)) %>% relocate(DateTime, .before=1)
-  TheDateTime[["DateTime"]] <- lubridate::ymd_hms(x[["DateTime"]])}
+  #TheDateTime[["DateTime"]] <- lubridate::ymd_hms(x[["DateTime"]])
+  }
 
   # Select Date Time and Optional Metadata
   if(!is.null(Metadata)){TheDateTime <- TheDateTime %>% select(DateTime, contains(Metadata))

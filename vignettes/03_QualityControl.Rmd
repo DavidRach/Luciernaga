@@ -23,7 +23,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-# Introduction
+# Instrument QC
 
 This vignette covers the `Luciernaga` functions that are involved in assessing instrumental quality control. Currently, this section is tailored
 for Cytek Aurora and Northern Light (TM) spectral cytometers that utilize SpectroFlo as their acquisition and unmixing software. The reason for this
@@ -32,7 +32,6 @@ platform bias is that these were the only spectral cytometers at the authors hom
 The following functions can work from either the Levy-Jennings Tracking Reports that are generated following automated instrument QC (exported as .csv
 files) or by retrieving the equivalent data stored as keywords within an .fcs files description for a collection of .fcs files across the timespan of interest. 
 
-## Load Libraries
 ```{r, echo=FALSE, results = "hide", warning=FALSE}
 suppressPackageStartupMessages({
 library(Luciernaga)
@@ -67,9 +66,6 @@ library(gt)
 library(plotly)
 library(htmltools)
 ```
-
-
-## QC_FilePrep
 
 Cytek Aurora instruments use fluorescent beads as part of their daily quality control checks. These beads have complex signatures, with most beads having peak detectors in either the Ultraviolet or Yellow-Green Laser as can be seen below. 
 
@@ -108,9 +104,11 @@ CSV_Files <- list.files(path=File_Location, pattern=CSV_Pattern,
 CSV_Files
 ```
 
+## QC_FilePrep
+
 Since this .CSV file is not in a tidy format, `read.csv()` or similar functions will struggle to import correctly. Our function, `QC_FilePrep()` reads in each row individually as text, and then follows up on the pre-processing into a "tidy" format. 
 
-```{r}
+```{r, warning=FALSE}
 TidyData <- QC_FilePrep(CSV_Files, TrackChange = FALSE)
 gt(head(TidyData, 5))
 ```
@@ -119,33 +117,33 @@ Individual rows are the individual QC reports, with the columns being the differ
 
 Additionally, setting `QC_FilePrep()` TrackChange to TRUE will generate a similar output to that of the QC report showing Change from the previous QC report which can provide additional information for instrument monitoring. 
 
-```{r}
-TidyData <- QC_FilePrep(CSV_Files, TrackChange = TRUE)
-gt(head(TidyData, 5))
+```{r, warning=FALSE}
+TidyData_Track <- QC_FilePrep(CSV_Files, TrackChange = TRUE)
+gt(head(TidyData_Track, 3))
 ```
 
 ## QC_Plots
 
-The next step is to take the resulting data.frame object and visualize the data contained. While this can be done for individual detectors, our function `CytekQCPlots()` will iterate over the different columns to return the plots simultaneously. Since the "tidy" QC data has ~140 QC measurements of interest, we instituted the argument "MeasurementType" to help filter for the results of interest. Behind the scenes, if the column name of the column of interest contains matching characters to your input, it will be selected and the data contained downstream sent for plotting. 
+Once we have our data, we can visualize it. This can be done with `QC_Plots()` for individual parameters of interest, or iterarting over the different columns to generate all the plots. Since there are a large number of parameters contained as individual columns, the argument "MeasurementType" will filter the columns for matching character values in the column names. These will be selected from the rest and their data used for the downstream plotting. 
 
 ```{r}
 head(colnames(TidyData), 20)
 ```
-
 ```{r}
 StorageLocation <- file.path("C:", "Users", "JohnDoe", "Desktop")
 
 AvailableBroadMeasurementTypes <- c("Gain", "rCV", "Laser Delay",
                                     "Area Scaling Factor")
-
 SinglePlot <- "UV7-Gain"
 
 TheSinglePlot <- QC_Plots(x = TidyData, MeasurementType = SinglePlot,
                           FailedFlag = TRUE, returntype="patchwork",
                           path=StorageLocation, filename="CytekAurora5L_QC")
 
-TheSinglePlot 
+TheSinglePlot
+```
 
+```{r}
 TodaysExample <- c("Gain")
 
 Plots <- QC_Plots(x = TidyData, MeasurementType = TodaysExample,
@@ -154,44 +152,91 @@ Plots <- QC_Plots(x = TidyData, MeasurementType = TodaysExample,
 Plots[1]
 ```
 
-Setting FailedFlag = TRUE will add a red box on the graph to indicate the date when that particular detector failed the automated QC check. 
+Setting FailedFlag = TRUE will add a red box on the graph to showcase the date when a particular detector failed the automated QC check by exceeding the allowed variance set for the instrument. 
 
-As with most functions in Luciernaga, `CytekQCPlots()` uses `Utility_Patchwork()` for the .pdf generation, so changes in layout arrangement when there are multiple plots can be provided as arguments.
+As with most functions in Luciernaga, `CytekQCPlots()` uses `Utility_Patchwork()` for the .pdf generation. The layout arrangement can be edited by providing additional arguments to generate a desired layout for desired page size. 
 
 
 ## QC Retrieval
 
-Sometimes we don't have access to QC reports, but we do have access to .fcs files acquired on that day. 
+In the absence of QC reports from an instrument, we can use .fcs files acquired on the instrument over a desired period of time to retrieve the same information. This is thanks to a lot of this data being stored as description parameters within an .fcs file.
+
+To do this, we will use .fcs files consisting of 3000 events acquired before the DailyQC as part of monitoring. We will first identify the files of interest, and load them into a GatingSet.
 
 ```{r}
 File_Location <- system.file("extdata", package = "Luciernaga")
 FCS_Pattern <- ".fcs$"
 FCS_Files <- list.files(path = File_Location, pattern = FCS_Pattern,
                         full.names = TRUE, recursive = FALSE)
-head(FCS_Files[10:30], 20)
+QCBeads <- FCS_Files[grep("Before", FCS_Files)]
+head(QCBeads)
 ```
-
-```{r}
-QCBeads <- FCS_Files[grep("After|Before", FCS_Files)]
-head(QCBeads, 10)
-```
-
 ```{r}
 MyCytoSet <- load_cytoset_from_fcs(QCBeads, truncate_max_range = FALSE,
                                    transform = FALSE)
-MyCytoSet
 MyGatingSet <- GatingSet(MyCytoSet)
 MyGatingSet
 ```
 
+Having the files now loaded into a GatingSet, we can retrieve the information using `QC_Retrieval` function. 
+
 ```{r}
 SingleSpecimen <- QC_Retrieval(x=MyGatingSet[[1]], sample.name="TUBENAME")
 
-SingleSpecimen
+gt(SingleSpecimen)
+```
 
+```{r}
 AllSpecimens <- map(.x=MyGatingSet, .f=QC_Retrieval, sample.name="TUBENAME") %>%
   bind_rows()
+
+gt(AllSpecimens)
 ```
+
+Once we have generated these data outputs, we can now send them to `QC_Plots` for visualization of the instrument gain, laser delay and area scaling factors similar to as if we had retrieved the data from the Levy-Jennings Tracking .csv.
+
+```{r}
+YellowExample <- c("YG")
+
+Plots <- QC_Plots(x = AllSpecimens, MeasurementType = YellowExample,
+                  FailedFlag = FALSE, returntype="patchwork",
+                  path=StorageLocation, filename="CytekAurora5L_QC",
+                  therows=3, thecolumns=1, width=7, height=9)
+
+Plots[[1]]
+```
+
+
+## QC_GainMonitoring
+
+While `QC_FilePrep()` and `QC_Retrieval()` provide two ways of retrieving information about the individual detectors gains, they only tell part of the instrument story. Gains and Lasers are dynamically changed to maintain a stable MFI over time. One way that our cytometry core has set out to monitor this is acquiring 3000 QC beads immediately before and after running the daily QC, then extracting and visualizing the MFI values in combination with the gain parameters. These before/after .fcs files are processed by the `QC_GainMonitoring()` function. 
+
+```{r}
+QCBeads <- FCS_Files[grep("Before|After", FCS_Files)]
+head(QCBeads)
+
+BeforeAfter_CS <- load_cytoset_from_fcs(files=QCBeads, transform=FALSE, truncate_max_range = FALSE)
+
+BeforeAfter <- map(.x=BeforeAfter_CS, .f=QC_GainMonitoring, sample.name = "TUBENAME", stats="median") %>% bind_rows()
+
+gt(head(BeforeAfter, 4))
+```
+
+The setup for these plots requires a couple additional arguments. The first Metadata designates the column name under which the comparison categories are stored (in this case, Timepoint column, with Before and After designations). The second is we change plotType from the default "individual" to the "comparison" category. 
+
+```{r}
+MFIExample <- c("R1")
+
+Plots <- QC_Plots(x = BeforeAfter, MeasurementType = MFIExample,
+                  Metadata = "Timepoint", plotType = "comparison",
+                  FailedFlag = FALSE, returntype="patchwork",
+                  path=StorageLocation, filename="CytekAurora5L_QC")
+```
+As we can see from the example, looking at the MFI we can see that after daily QC, the recorded MFI across bead samples is being recorded is similar across time, thanks in part to the changes in the individual gain depicted above. 
+ 
+ 
+# Library Reference Controls
+
 
 ## QC_LibraryParse
 
