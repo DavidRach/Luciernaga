@@ -5,6 +5,7 @@
 #' @param NumberDetectors Number of detectors for the instrument to pull references
 #' @param TheCutoff Default is 0.9, cosine matrix value
 #' @param returnAll Whether to return all variants, default is FALSE
+#' @param returnCSV Whether to return as a csv to designated outpath and filename, a TRUE/FALSE
 #' @param filename Desired name for the output .csv
 #' @param outpath Path Location to store the the output .csv
 #'
@@ -27,7 +28,8 @@
 #'
 #' @examples NULL
 QC_ProspectiveAdditions <- function(path, NumberDetectors, TheCutoff=0.9,
-                                    returnAll=FALSE, filename, outpath){
+                                    returnAll=FALSE, filename, outpath,
+                                    returnCSV){
 
   TheList <- read.csv(path, check.names=FALSE)
   ReferenceData <- InstrumentReferences(NumberDetectors=NumberDetectors)
@@ -69,10 +71,13 @@ QC_ProspectiveAdditions <- function(path, NumberDetectors, TheCutoff=0.9,
 
   TheOutput <- PossibleLocations %>% arrange(RankValue)
 
-  TheFileName <- paste0(filename, ".csv")
+  if (returnCSV == TRUE) {
+    TheFileName <- paste0(filename, ".csv")
+    StoreHere <- file.path(outpath, TheFileName)
+    write.csv(TheOutput, StoreHere, row.names=FALSE)
+  }
 
-  StoreHere <- file.path(outpath, TheFileName)
-  write.csv(TheOutput, StoreHere, row.names=FALSE)
+  return(TheOutput)
 }
 
 
@@ -174,3 +179,4 @@ InstrumentReferences <- function(NumberDetectors){
   ReferenceData <- read.csv(TheFile, check.names = FALSE)
   } else {message("No References Found")}
 }
+

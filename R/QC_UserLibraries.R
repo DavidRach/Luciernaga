@@ -29,7 +29,8 @@
 #'
 #' @examples NULL
 QC_UserLibraries <- function(x, Data, NameAppend, outpath, references=TRUE,
-                             thecolumns=3, therows=4, width=7, height=9, saveCSV = TRUE){
+                             thecolumns=3, therows=4, width=7, height=9,
+                             saveCSV = TRUE){
   TheUserData <- Data %>% filter(Creator %in% x)
   TheUser <- TheUserData %>% select(Creator) %>% pull() %>% unique()
   TheUserData <- TheUserData %>% arrange(Fluorochrome)
@@ -51,19 +52,7 @@ QC_UserLibraries <- function(x, Data, NameAppend, outpath, references=TRUE,
   if(references==TRUE){
     TotalDetectors <- Iterations
 
-    if (TotalDetectors == 64){instrument <- "FiveLaser"
-    FileLocation <- system.file("extdata", package = "Luciernaga")
-    TheFile <- file.path(FileLocation, "CytekReferenceLibrary5L.csv")
-    ReferenceData <- read.csv(TheFile, check.names = FALSE)
-    } else if (TotalDetectors == 54){instrument <- "FourLaser"
-    FileLocation <- system.file("extdata", package = "Luciernaga")
-    TheFile <- file.path(FileLocation, "CytekReferenceLibrary4LUV.csv")
-    ReferenceData <- read.csv(TheFile, check.names = FALSE)
-    } else if (TotalDetectors == 38){instrument <- "ThreeLaser"
-    FileLocation <- system.file("extdata", package = "Luciernaga")
-    TheFile <- file.path(FileLocation, "CytekReferenceLibrary3L.csv")
-    ReferenceData <- read.csv(TheFile, check.names = FALSE)
-    } else {message("No References Found")}
+    ReferenceData <- InstrumentReferences(NumberDetectors=TotalDetectors)
 
     ReferenceData <- ReferenceData %>% rename(TheValue = "AdjustedY")
     ReferenceData$Fluorophore <- gsub(" ", "", gsub("-", "", gsub(
@@ -83,7 +72,7 @@ QC_UserLibraries <- function(x, Data, NameAppend, outpath, references=TRUE,
   StorageLocation <- file.path(outpath, fileName)
 
   Utility_Patchwork(x=ThePlots, filename=fileName, outfolder=outpath,
-                    thecolumns=thecolumns, therows=therows)
+                      thecolumns=thecolumns, therows=therows)
 
   if (saveCSV == TRUE){
     CSVName <- paste0(StorageLocation, ".csv")
@@ -145,19 +134,24 @@ QC_RefPlots <- function(x, Data, references=FALSE, refData=NULL){
       ThePlot <- ggplot(TheValue, aes(x=Detector, y=value, group=TheSamples)) +
         geom_line() + theme_bw() + labs(title=paste0(x), x=NULL, y="Normalized Value") +
         geom_hline(yintercept = 1, linetype = "dashed", color = "red") +
-        theme(plot.title = element_text(size = 8), axis.text.x = element_text(size = 6, angle = 45),
-        panel.grid = element_blank(), axis.ticks.x = element_blank(), axis.title.y =  element_text(size=8)) +
+        theme(plot.title = element_text(size = 8),
+              axis.text.x = element_text(size = 6, angle = 45),
+              panel.grid = element_blank(),
+              axis.ticks.x = element_blank(),
+              axis.title.y =  element_text(size=8)) +
         scale_x_discrete(breaks = unique(TheValue$Detector)[c(TRUE, rep(FALSE, 4))])
 
-      ThePlot <- ThePlot + geom_line(data = ReferenceData1, aes(x=Detector,
-                                                                y=value, group=TheSamples), color="red")
+      ThePlot <- ThePlot + geom_line(data = ReferenceData1, aes(
+        x=Detector, y=value, group=TheSamples), color="red")
     } else {TheValue <- Data %>% filter(TheSamples %in% x)
     TheFluorochrome <- TheValue %>% select(Fluorochrome) %>% unique %>% pull()
-    ThePlot <- ggplot(TheValue, aes(x=Detector, y=value, group=Sample)) +
-      geom_line() + theme_bw() + labs(title=paste0(TheFluorochrome, " ", x),
-                                      x=NULL, y="Normalized Value") + geom_hline(yintercept = 1, linetype = "dashed", color = "red") +
-      theme(plot.title = element_text(size = 8), axis.text.x = element_text(size = 6, angle = 45), panel.grid = element_blank(),
-      axis.ticks.x = element_blank(), axis.title.y =  element_text(size=8)) +
+    ThePlot <- ggplot(TheValue, aes(x=Detector, y=value, group=Sample)) + geom_line() +
+      theme_bw() + labs(title=paste0(TheFluorochrome, " ", x), x=NULL, y="Normalized Value") +
+      geom_hline(yintercept = 1, linetype = "dashed", color = "red") +
+      theme(plot.title = element_text(size = 8),
+            axis.text.x = element_text(size = 6, angle = 45),
+            panel.grid = element_blank(), axis.ticks.x = element_blank(),
+            axis.title.y =  element_text(size=8)) +
       scale_x_discrete(breaks = unique(TheValue$Detector)[c(TRUE, rep(FALSE, 4))])
     }
   }

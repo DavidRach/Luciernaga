@@ -11,7 +11,8 @@ QC_ProspectiveAdditions(
   TheCutoff = 0.9,
   returnAll = FALSE,
   filename,
-  outpath
+  outpath,
+  returnCSV
 )
 }
 \arguments{
@@ -26,6 +27,8 @@ QC_ProspectiveAdditions(
 \item{filename}{Desired name for the output .csv}
 
 \item{outpath}{Path Location to store the the output .csv}
+
+\item{returnCSV}{Whether to return as a csv to designated outpath and filename, a TRUE/FALSE}
 }
 \value{
 A csv containing selected fluorophores

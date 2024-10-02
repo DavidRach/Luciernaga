@@ -237,10 +237,9 @@ As we can see from the example, looking at the MFI we can see that after daily Q
  
 # Library Reference Controls
 
+For Cytek instruments that use SpectroFlo, you are able to store unmixing controls in the library for re-use across future experiments. These can be exported out as .XML files, and re-imported to other instruments. Unfortunately, after original acquisition, there is no good way to visualize what the signature of the stored library control is. Whether the library reference control is accurate, contaminated with autofluorescence, or somewhere in between, we are left to parse out from effect on full-stained samples after unmixing. The following functions are designed to extract the signature information from the .XML files to allow for visualization of the underlying normalized signatures. These additionally can be plotted vs. reference signatures to compare how closely they match. 
 
-## QC_LibraryParse
-
-Cytek allows acquisition of unmixing controls that are stored in the library and can be re-used across experiments. These can be exported as .XML files and reimported to other instruments. Unfortunately, after acquisition there is no way to visualize the library unmixing controls normalized signature. So whether the library reference control is accurate, contaminated with autofluorescence, there is no way of knowing. These following functions will convert the .XML single color unmixing control files present in a reference folder into a data.frame, that can then be plotted as normalized line plots. We additionally provide the option to plot reference signatures when the fluorophore names match. 
+For an individual user, we would first load the required libraries, and then provide the location where the exported .XML files are stored. An example is provided below. 
 
 ```{r, echo=FALSE, results = "hide", warning=FALSE}
 suppressPackageStartupMessages({
@@ -268,6 +267,7 @@ FolderLocation <- file.path("C:", "Users", "JohnDoe", "Desktop",
 StorageLocation <- file.path(FolderLocation, "Visualized")
 ```
 
+In our example today, we will be accessing the .XML files stored within the `Luciernaga` packages extdata folder. 
 ```{r}
 Folder_Location <- system.file("extdata", package = "Luciernaga")
 XML_Pattern <- ".XML$"
@@ -275,38 +275,60 @@ XML_Files <- list.files(path = Folder_Location, pattern = XML_Pattern,
                         full.names = TRUE, recursive = FALSE)
 XML_Files
 ```
+## QC_LibraryParse
 
-Specifying returntype = "plots" will return ggplot objects of the library reference signatures. We can use `Utility_Patchwork()` to generate a .pdf file or a assembled patchwork plot with our desired dimensions. 
+`QC_LibraryParse()` is the function that will convert the .XML files into "tidy" data, as either plots or a dataframe. This can either be done individually, or in combination with `map()` for all the files. 
+
+By setting the returntype to "plots", we can return each file as a ggplot object. In combination with 
+`Utility_Patchwork()` we can generate a .pdf file or an assembled patchwork plot to our desired dimensions. 
+
 
 ```{r}
-QC_LibraryParse(XML_Files[2], returntype="plots", references=FALSE)
+SinglePlot <- QC_LibraryParse(XML_Files[2], returntype="plots", references=FALSE)
 
 ThePlots <- map(.x=XML_Files, .f=QC_LibraryParse, returntype="plots",
                 references=FALSE)
 
-Utility_Patchwork(x=ThePlots, filename="LibraryControls5L",
+AssembledPlot <- Utility_Patchwork(x=ThePlots, filename="LibraryControls5L",
                   outfolder=NULL, returntype="patchwork", thecolumns=3,
                   therows = 3, width = 7, height = 9)
-```
-As you may notice, while some library reference controls closely match the reference signature, others have some quality control issues. In profiling reference controls at our own institution, we also found that the location of the detector gate placed on the brightness detector ties in to whether the y-axis and peak max-value is at 1. When this is misset, the stored reference control has a peak greater than 1. 
 
-By specifying references = TRUE we can plot the reference signatures. We have attempted to provide coverage of most fluorophores for all Cytek Aurora and Northern Light instruments. Some fluorophores are not present in the internal reference .csv, which can result in fail to plot. Other times a mismatch in the instrument specific fluorophore name can be the cause. 
+AssembledPlot[1]
+```
+
+The Library Reference Controls featured above where acquired during a training workshop. As you may notice, some library reference controls appear normal, while others have some quality control issues. Profiling the reference controls acquired on our institutions instruments, we noticed that the location the detector gate is placed on the brightness detector plot ties in to whether the y-axis and peak max-value is at 1. When this is misplaced, the stored reference control has a peak greater than 1. 
+
+By setting the argument "references=TRUE", we can append the reference signatures in red to our existing library controls.
 
 ```{r}
 ThePlots <- map(.x=XML_Files, .f=QC_LibraryParse, returntype="plots",
                 references=TRUE)
 
-Utility_Patchwork(x=ThePlots, filename="LibraryControls5L",
+AssembledPlot <- Utility_Patchwork(x=ThePlots, filename="LibraryControls5L",
                   outfolder=NULL, returntype="patchwork", thecolumns=3,
                   therows = 3, width = 7, height = 9)
+
+AssembledPlot[1]
 ```
-Instead of a plot, you can also return a data.frame object that can subsequently be saved as a .csv file for future reference. 
+
+We have attempted to provide coverage for most fluorophores on all Cytek Aurora and Northern Light Instruments. Some fluorophores not present in the internal .csv, a mismatch in the instrument specific fluorophore name can lead to the absence of a reference signature being appended to the individual plot. You can investigate which of these is the case using the `QC_ReferenceLibrary()` function. 
 
 ```{r}
-TheData <- map(.x=XML_Files, .f=QC_LibraryParse, returntype="dataframe") %>%
-  bind_rows()
-TheData
+QC_ReferenceLibrary(FluorNameContains = "FITC", NumberDetectors=64)
+```
 
+Alternatively for `QC_LibraryParse`, we can set the returntype to "dataframe" and return in a "tidy" format. 
+
+```{r}
+LibraryData_Single <- QC_LibraryParse(XML_Files[2], returntype="dataframe", references=FALSE)
+
+LibraryData <- map(.x=XML_Files, .f=QC_LibraryParse, returntype="dataframe", references=FALSE) %>% bind_rows()
+gt(head(LibraryData, 4))
+```
+
+The data from the extracted signatures can then be saved as a .csv file for future reference. 
+
+```{r}
 StorageLocation <- file.path("C:", "Users", "JohnDoe", "Desktop",
                              "LibraryControls5L")
 FileName <- "ReferenceData.csv"
@@ -314,20 +336,150 @@ StorageName <- file.path(StorageLocation, FileName)
 # write.csv(TheData, file=StorageName, row.names=FALSE)
 ```
 
-Be aware, if library controls from different instruments with different laser (and detector configuration) are present, `bind_rows()` will fail. The output data.frame rows will need to first be sorted to make sure every row has the same number of columns, and then `bind_rows()` can be used to form a data.frame for each instrument laser*detector configuration. We provide code for reference below that you can adapt for your own individual purposes:
+Please be aware, if the .XML library controls imported originated from different instruments (consequently different laser and detector configurations), 
+the `map()` followed with `bind_rows()` can occasionally fail to produce the desired output. A workaround is to take the `map()` outputted rows, sort them based on number of columns, and then bind them into their own data.frames on the basis of shared instruments laser and detector configurations. An example of how we did this is provided below and can be adapted for your individual situation. 
 
-```{r, eval = FALSE, echo=FALSE}
-FirstItem <- ncol(TheData)
+```{r}
+#Setting up example
+LibraryData <- map(.x=XML_Files, .f=QC_LibraryParse, returntype="dataframe", references=FALSE)
 
-MisbehavingRows <- which(sapply(TheData, function(x) ncol(x) != FirstItem))
+LibraryData[[3]] <- LibraryData[[3]][, -ncol(LibraryData[[3]])]
+
+ncol(LibraryData[[3]]) == ncol(LibraryData[[1]])
+```
+
+```{R}
+FirstItem <- ncol(LibraryData[[1]])
+
+MisbehavingRows <- which(sapply(LibraryData, function(x) ncol(x) != FirstItem))
 
 if(length(MisbehavingRows) != 0) {
-  TheData_filtered <- TheData[-MisbehavingRows]
-  } else {TheData_filtered <- TheData}
+  TheData_filtered <- LibraryData[-MisbehavingRows]
+} else {TheData_filtered <- LibraryData}
+
 TheData <- bind_rows(TheData_filtered)
 
 #write.csv(TheData, file=StorageName, row.names=FALSE)
 ```
+
+## QC_UserLibraries
+
+When working with XML files for multiple users, the assembled dataframe output of `QC_LibraryParse()` can be passed to the `QC_UserLibraries` 
+function, that will filter the individual library controls by user, and send them off to `Utility_Patchwork()` to create a .pdf output to the desired specifications. This can be useful tool for core staff to quickly generate outputs for each instrument user, that can then be sent to them to decide if they need to change any of their existing library reference controls. The saveCSV = TRUE argument would additionally return a .csv of the corresponding dataframe. 
+
+
+```{r}
+Outpath <- file.path("C:", "Users", "JohnDoe", "Desktop",
+                             "LibraryControls5L")
+
+TheIndividuals <- TheData %>% pull(Creator) %>% unique()
+TheIndividuals
+
+IndividualUser <- QC_UserLibraries(x=TheIndividuals[[1]], Data=TheData,
+                                   NameAppend="_LibraryQC", outpath=Outpath,
+                                   references = TRUE, thecolumns = 3, therows=4,
+                                   width=7, height=9,
+                                   saveCSV=FALSE)
+
+AllUsers <- map(.x=TheIndividuals, .f=QC_UserLibraries, Data=TheData,
+                 NameAppend="_LibraryQC", outpath=Outpath,references = TRUE,
+                 thecolumns = 3, therows=4, width=7, height=9, returntype="patchwork",
+                                   saveCSV=FALSE)
+```
+
+# Comparing Normalized Signatures
+
+We previously highlighted the ability within `QC_LibraryParse` to set reference=TRUE and compare our acquired library signatures to that of a reference signature. The following functions provide additionally functionality, extending this to signatures derrived from additional sources (including those derrived from .fcs files, covered extensively in Vignette 04_Fluorescent Signatures).
+
+Let's for now continue by using a signature derrived from the Library controls highlighted above:
+
+```{r}
+LibraryData_Single <- QC_LibraryParse(XML_Files[2], returntype="dataframe", references=FALSE)
+gt(LibraryData_Single)
+```
+
+As it currently exist, there are a few additional columns that are not required for the following functions, which we will remove. 
+```{r}
+Data <- LibraryData_Single %>% select(-Sample, -Creator, -Date) %>% rename(Sample=Fluorochrome)
+gt(Data)
+```
+
+## QC_WhatsThis
+
+The `QC_WhatsThis()` functions takes the above output, and will search the reference data for fluorophores with the closest resembling signature
+
+```{r}
+TheFluorophore <- Data %>% pull(Sample)
+
+Results <- QC_WhatsThis(x=TheFluorophore, data=Data, NumberHits = 10, returnPlots=TRUE)
+
+Results[[1]]
+```
+
+Setting returnPlots = TRUE, will additionally provide the plotted signatures. In combination with `ggplotly()`, this can be quite useful.
+
+```{r}
+plotly::ggplotly(Results[[2]])
+```
+
+As we can see, the acquired library signature differs from the reference signature. 
+
+## QC_SimilarFluorophores
+
+Additionally, we don't even need to provide a signature to compare to, if the fluorophore is present within the reference dataset, we can compare it to the other fluorophores present and similarly visualize it using the `QC_SimilarFluorophores()` option.
+
+```{r}
+Results <- QC_SimilarFluorophores(TheFluorophore="Spark Blue 550", NumberDetectors=64, NumberHits = 10, returnPlots=TRUE)
+
+Results[[1]]
+```
+
+```{r}
+plotly::ggplotly(Results[[2]])
+```
+
+## QC_ReferenceLibrary
+
+If there is a mismatch in how the fluorophore is named within the reference data (or is absent), using the `QC_ReferenceLibrary()` function would be useful in correcting the inputed name for `QC_SimilarFluorophores()` for the output listed above. 
+
+
+```{r}
+QC_ReferenceLibrary(FluorNameContains = "Spark", NumberDetectors=64)
+```
+
+## QC_ProspectiveFluorophores
+
+And finally, we have an experimental function `QC_ProspectiveFluorophores()` that will leverage information about an existing panel (and the peak detectors its fluorophore currently occupy) and contrast that to the reference library fluorophores to find candidate fluorophores that might potentially fit in the gaps. 
+
+```{r}
+OutPath <- "C:/Users/12692/Desktop"
+
+Folder_Location <- system.file("extdata", package = "Luciernaga")
+ThePanelLocation <- list.files(Folder_Location, pattern="Panel.csv", full.names=TRUE)
+ThePanel <- read.csv(ThePanelLocation, check.names=FALSE) %>% select(Fluorophore)
+```
+
+The arguments to provide to the function are a filepath to the panel.csv, NumberDetectors that your instrument has (64 for a 5L Aurora). TheCutoff corresponds to the cosine value when two fluorophores are compared to each other, I set the cutoff at 0.9 similarity. Rank Value comes from base R's `kappa()` how error introduced will spill over factoring across all fluorophore references in the matrix. Rough estimate for relative complexity in our case. 
+
+```{r}
+ProspectiveAdditions <- QC_ProspectiveAdditions(path=ThePanelLocation, NumberDetectors=64,
+                                                TheCutoff=0.9, returnAll=FALSE, returnCSV=FALSE,
+                                                filename="ProspectiveAdditions", outpath=OutPath)
+gt(ProspectiveAdditions)
+```
+
+The results indicate potential fluorophores for Detectors not currently occupied by our panel, with cosine overlaps of less than TheCutoff (0.9). The RankValue is for the existing panel plus the given fluorophore. For panel design/exploratory purposes in our own lab, we would search for the Fluorophore name using `QC_SimilarFluorophores()` and identify other similar fluorophores by other commercial vendors to further investigate. 
+
+For example from the above list:
+
+```{r}
+Results <- QC_SimilarFluorophores(TheFluorophore="PE-Fire 744", NumberDetectors=64, NumberHits = 10, returnPlots=TRUE)
+plotly::ggplotly(Results[[2]])
+```
+
+# Concluding Thoughts
+
+We hope that this vignette walkthrough was of interest, and that you can think of ways to implement it within your own workflow. If you have thought on how to improve things, please reach out! This was a particular fun section of the package to work on and I would love to continue to improve on the existing functions in the future. 
 
 
 ```{r sessionInfo, echo = FALSE}

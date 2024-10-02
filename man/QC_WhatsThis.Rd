@@ -7,7 +7,7 @@
 QC_WhatsThis(x, data, NumberHits, returnPlots)
 }
 \arguments{
-\item{x}{Name of Fluorophore/Sample you want to filter for}
+\item{x}{Name in the Sample column you want to filter for}
 
 \item{data}{A data.frame object from QC_LibraryParse containing Fluorophore name column and numeric detector columns.}
 
