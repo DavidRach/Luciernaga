@@ -25,10 +25,133 @@ knitr::opts_chunk$set(
 
 # Introduction
 
-Why are these functions here? Because they speed up our experiments, this is my R package, and I am including them. 
+The following functions are geared mainly toward pre-acquisition application within a wetlab context. Since I am going to the effort to write an R package and document it with a vignette, I am including them within Luciernaga. 
+
+Our typical workflow involves thawing human cord and peripheral blood mononuclear cells (CBMC and PBMC respectively), spinning down to remove the supernatant, and then resuspending. From these, we take 5 uL, stain with anti-CD45, anti-CD14, and anti-CD19 to evaluate cell concentration for the sample. These then go into 6 hours of rest at 3x10^6 cells per ml, before being aliquoted to individual stimulation conditions overnight. 
+
+The following three functions and associated workflow detailed below are examples of what I do to speed the process along. I hope it provides you with your own ideas that you can modify them to fit within your own workflows and reduce the time spent at the bench trying to remember a long-forgotten course. 
+
+# Getting Started
+
+5 uL of sample are stained with the antibody mix (1uL CD45, 1uL CD14, 1.5uL CD19, 20 uL DPBS) for 6 minutes, before 480 uL of PBS is added (roughly 1:100 dilution). Each sample is then counted on a Cytek Aurora set to acquire 30 uL of each tube on high before stopping. We then export these .fcs files and bring them into a FlowJo (TM) work space that is set up to sort the .fcs files to groups set up for the three instruments with different laser configurations present at our core. We copy-paste the template, check the gates, and save the .wsp. 
+
+We then bring in the .wsp file to R using CytoML. It is possible to skip the FlowJo portion of the workflow entirely using the openCyto package in combination with `Utility_GatingPlots()` to validate the gate placement for each specimen, but we will not document this here for the time being. 
+
+We have saved a .wsp file "CellCounts" and two count .fcs files in the Luciernaga extdata for this example.
+
+First lets load the required libraries. 
+
+```{r, echo=FALSE, results = "hide", warning=FALSE}
+suppressPackageStartupMessages({
+library(flowCore)
+library(flowWorkspace)
+library(CytoML)
+library(dplyr)
+library(purrr)
+library(lubridate)
+library(Luciernaga)
+library(shiny)
+library(DataEditR)
+library(gt)
+library(ghibli)
+library(stringr)  
+})
+```
+
+```{r}
+library(flowCore)
+library(flowWorkspace)
+library(CytoML)
+library(dplyr)
+library(purrr)
+library(lubridate)
+library(Luciernaga)
+library(shiny)
+library(DataEditR)
+library(gt)
+library(ghibli)
+library(stringr)
+```
+
+```{r}
+File_Location <- system.file("extdata", package = "Luciernaga")
+WSP_File <- list.files(File_Location, pattern=".wsp", full.names = TRUE)
+ws <- open_flowjo_xml(WSP_File[1])
+gs <- flowjo_to_gatingset(ws, name=1, path = File_Location)
+plot(gs)
+gs
+```
 
 ## Wetlab_Concentration
 
+Now that the .wsp file is loaded into a GatingSet, we can use the `Wetlab_Concentration()` function to derrive the cell concentration for each sample. Luciernaga does this through use of the count of events present at the designated subset level, in combination with the description keywords recorded by the acquisition software. In this case, both samples were present in a TotalVolume of 1. The code to write the data to a .csv is included after the # symbols. 
+
+```{r}
+nameKeyword <- c("GROUPNAME", "TUBENAME")
+
+TheData <- map(.x=gs, Wetlab_Concentration, subset = "CD45+",
+               nameKeyword=nameKeyword, DilutionMultiplier=100,
+               TotalVolume=1) %>% bind_rows()
+
+TheData
+
+#ComputerSpecific <- "C:/Users/JohnDoe/"
+#path <- file.path(ComputerSpecific, "Desktop", "CellCounts")
+#CSVName <- file.path(path, "CellCounts.csv")
+#write.csv(TheData, CSVName, row.names=FALSE)
+```
+
 ## Wetlab_Rest
 
+Now that we know the concentration for each of our specimens, I take this information and figure out what I need to do to re-suspend the stock concentration to one of 3.0x10^6 cells per mL. 
+
+In actual practice, I will save the above data output as a .csv and bring it back into R with the code as seen below:
+
+Next up we bring in the CellCounts, and use Dillon's Hammill's DataEditR to swap in the correct total volumes. 
+```{r}
+#ComputerSpecific <- "C:/Users/JohnDoe/"
+#path <- file.path(ComputerSpecific, "Desktop", "CellCounts")
+#CSVFiles <- list.files(path, pattern=".csv")
+#FileInterest <- file.path(path, CSVFiles[1])
+#TheData <- read.csv(FileInterest, check.names=FALSE)
+TheData
+```
+In the case of our workflow, sometimes when acquiring multiple specimens, the TotalVolume the initial resuspension was in will differ will differ between specimens. One could edit it within the outputted .csv file before bringing into R, but another way is to use `DataEditR` and edit it within R using it's ShinyApp. The Example code is provided below with a # symbol to avoid causing issues with building the vignette. Don't forget to synchronize to ensure the edits to TotalVolume are retained. 
+
+```{r}
+EditableData <- TheData %>% select(-TotalScientific, -TimeSeconds)
+#NewData <- DataEditR::data_edit(EditableData) #Remove the first # to run
+NewData <- EditableData #Add a # here if running DataEditR.
+Updated <- NewData
+Updated
+```
+
+With the TotalVolume column now correct, we can proceed to calculate the re-suspension:
+
+```{r}
+#ComputerSpecific <- "C:/Users/JohnDoe/"
+#path <- file.path(ComputerSpecific, "Desktop", "CellCounts")
+
+Test <- Wetlab_Rest(data=Updated, DesiredConcentration_MillionperML=3, MaxMLperTube=1, returntype="data", outpath=path)
+gt(Test)
+```
+When the concentration is too low, SpinDown will be set to TRUE, and an additional row consisting of the volume needed to resuspend in after removing the supernatant will be placed immediately below. 
+
 ## Wetlab_Decision
+
+We also need to set a desired color-palette. 
+
+```{r}
+#Palette <- ghibli_palette(name="PonyoLight", n=7, direction=1, type="discrete")
+#ColorSelection <- Palette[5]
+#scales::show_col(ColorSelection)
+
+Palette <- RColorBrewer::brewer.pal(n = 7, name = "Pastel1")
+ColorSelection <- Palette[1]
+scales::show_col(ColorSelection)
+```
+
+
+
+
+

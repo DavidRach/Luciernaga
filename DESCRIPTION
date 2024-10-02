@@ -47,8 +47,11 @@ Depends: R (>= 4.3.0)
 Suggests: 
     BiocStyle,
     data.table,
+    CytoML,
+    DataEditR,
     DT,
     knitr,
+    lubridate,
     openCyto,
     rmarkdown,
     shiny,

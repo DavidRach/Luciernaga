@@ -26,6 +26,10 @@ Wetlab_Rest <- function(data, DesiredConcentration_MillionperML, MaxMLperTube, r
   RemoveThese <- c("TimeSeconds", "TotalScientific")
   if (any(RemoveThese %in% TheColNames)) {data <- data %>% select(-any_of(RemoveThese))}
 
+  data$Cells <- as.numeric(data$Cells)
+  data$Volume <- as.numeric(data$Volume)
+  data$ConcentrationScientific <- as.numeric(data$ConcentrationScientific)
+
   Updated <- data %>% mutate(TotalCells=ConcentrationScientific*TotalVolume) %>%
     relocate(TotalCells, .before=Instrument)
   Updated$TotalCells <- format(Updated$TotalCells, scientific = TRUE, digits = 2)
