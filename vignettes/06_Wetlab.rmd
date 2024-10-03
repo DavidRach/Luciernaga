@@ -151,6 +151,10 @@ ColorSelection <- Palette[1]
 scales::show_col(ColorSelection)
 ```
 
+# Conclusion
+
+Hope this vignette was useful as a proof-of-principle. 
+
 
 
 
