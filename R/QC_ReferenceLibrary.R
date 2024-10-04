@@ -2,6 +2,7 @@
 #'
 #' @param FluorNameContains A character string pattern to match, example "APC"
 #' @param NumberDetectors The Number of Detectors for your instrument
+#' @param ReturnPlots Whether to return signature plot as well. Default FALSE.
 #'
 #' @importFrom dplyr select
 #' @importFrom dplyr filter
@@ -11,11 +12,21 @@
 #' @export
 #'
 #' @examples NULL
-QC_ReferenceLibrary <- function(FluorNameContains, NumberDetectors){
+QC_ReferenceLibrary <- function(FluorNameContains, NumberDetectors, returnPlots=FALSE){
   ReferenceData <- InstrumentReferences(NumberDetectors=NumberDetectors)
+  if (returnPlots == TRUE){ReferenceData1 <- ReferenceData}
+
   TheList <- ReferenceData %>% select(Fluorophore) %>% unique()
   rownames(TheList) <- NULL
 
   Subset <- TheList %>% filter(str_detect(Fluorophore, FluorNameContains))
-  return(Subset)
+
+  if (returnPlots==TRUE){
+    TheseFluorophores <- Subset %>% pull(Fluorophore)
+
+    ThePlot <- SimilarFluorPlots(TheseFluorophores=TheseFluorophores,
+                                 TheFluorophore=NULL, data=ReferenceData1)
+    ReturnThese <- list(Subset, ThePlot)
+    return(ReturnThese)
+  } else {return(Subset)}
 }

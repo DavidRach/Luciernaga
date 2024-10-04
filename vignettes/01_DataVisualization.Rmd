@@ -304,7 +304,7 @@ UnmixedIndividualPlot
 
 `Utility_NxNPlots()` is a convenient function to visualize unmixed .fcs files for every marker compared to a reference marker. It is particularly useful in identifying cell populations, as well as unmixing errors. It takes a GatingSet object that has been transformed and gated. The desired population of cells can then be specified by the gatesubset argument. ycolumn specifies the desired marker to compare all the other markers to. Similar to other functions that use Utility_Patchwork behind the scenes, it can send the outputs for each specimen to their own pdf file. 
 
-```{r}
+```{r, message=FALSE}
 plot(UnmixedGatingSet)
 removethese <- c(".fcs", "DTR_")
 StorageLocation <- file.path("C:", "Users", "JohnDoe", "Desktop")
@@ -431,7 +431,7 @@ KeptMarkers <- Markers[-grep("Time|FS|SC|SS|Original|-W$|-H$|AF", Markers)]
 KeptMarkers
 ```
 
-```{r}
+```{r, message=FALSE}
 MultipleUnityPlots <- map(.x=KeptMarkers[c(1:6, 8:10)], .f=Utility_UnityPlot,
                           y="BUV805-A", GatingSet=UnmixedGatingSet,
                           sample.name="GROUPNAME", bins=100,clearance=0.2,
@@ -536,23 +536,7 @@ To provide flexibility for your own analysis, `Utility_ThirdColorPlots()` return
 
 The function `Utility_DensityOverlay()` is a wrapper function incorporating elements from the underlying ggplot2 `geom_density()` function. It's use is particularly useful when working with a GatingSet of multiple specimens and comparing across individuals. 
 
-```{r}
-StorageLocation <- file.path("C:", "Users", "JohnDoe", "Desktop")
-
-pData(UnmixedGatingSet)
-#colnames(UnmixedGatingSet)
-Plot <- Utility_DensityOverlay(gs=UnmixedGatingSet, subset="lymphocytes", TheX="APC-Fire 810-A",
-                               TheFill="specimen", returntype="plots",
-                               outpath="C:/Users/12692/Desktop/", filename="CD4_Expression")
-
-plotly::ggplotly(Plot[[1]])
-```
-
-## Utility_RidgePlots
-
-The function `Utility_RidgePlots()` leverages the `ggplot2` and `ggridges` packages to evaluate marker expression across specimens, and provides some additional functionality compared to `Utility_DensityOverlay()`
-
-To use this functions to it's fullest extent, we will need to create additional factor variables for each specimen and append them to the GatingSet's pData. These can then be called to use as axis, color and fill arguments for the function. Below you can find examples of local functions that you can edit for your particular data to extract variables of interest to append to the pData. 
+To use both `Utility_DensityOverlay()` and `Utility_RidgePlots()` to their fullest extent, we will need to create additional factor variables for each specimen and append them to the GatingSet's pData. These can then be called to use as axis, color and fill arguments for the function. Below you can find examples of local functions that you can edit for your particular data to extract variables of interest to append to the pData. 
 
 ```{r}
 Metadata <- pData(UnmixedGatingSet)
@@ -605,9 +589,26 @@ pData(UnmixedGatingSet) <- pd
 pData(UnmixedGatingSet)
 ```
 
-Now we can use `Utility_RidgePlot()`. We can generate a specific RidgePlot of interest by providing the name of a particular fluorophore in TheX argument. Alternatively, we can leave it out to generate RidgePlots for all markers. As with the other functions, it uses `Utility_Patchwork()` and will take the same arguments for layout. 
 
 ```{r}
+StorageLocation <- file.path("C:", "Users", "JohnDoe", "Desktop")
+
+pData(UnmixedGatingSet)
+#colnames(UnmixedGatingSet)
+Plot <- Utility_DensityOverlay(gs=UnmixedGatingSet, subset="lymphocytes", TheX="APC-Fire 810-A",
+                               TheFill="specimen", returntype="plots",
+                               outpath="C:/Users/12692/Desktop/", filename="CD4_Expression")
+
+plotly::ggplotly(Plot[[1]])
+```
+
+## Utility_RidgePlots
+
+The function `Utility_RidgePlots()` leverages the `ggplot2` and `ggridges` packages to evaluate marker expression across specimens, and provides some additional functionality compared to `Utility_DensityOverlay()`
+
+We can generate a specific RidgePlot of interest by providing the name of a particular fluorophore in TheX argument. Alternatively, we can leave it out to generate RidgePlots for all markers. As with the other functions, it uses `Utility_Patchwork()` and will take the same arguments for layout. 
+
+```{r, message=FALSE}
 StorageLocation <- file.path("C:", "Users", "JohnDoe", "Desktop")
 
 pData(UnmixedGatingSet)
@@ -620,7 +621,7 @@ SinglePlot <- Utility_RidgePlots(gs=UnmixedGatingSet, subset="live", TheFill="co
 SinglePlot[[1]]
 ```
 
-```{r}
+```{r, message=FALSE}
 Plot <- Utility_RidgePlots(gs=UnmixedGatingSet, subset="live", TheFill="condition",
                            TheY="specimen", returntype="patchwork",
                            outpath=StorageLocation, filename="RidgePlot_Condition")

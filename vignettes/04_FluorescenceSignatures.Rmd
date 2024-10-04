@@ -121,7 +121,10 @@ CellSingleColors <- CellSingleColorFiles[!str_detect("Unstained", CellSingleColo
 ```
 
 
+
 ## Creating a GatingSet Bead Single Colors
+The bead single color controls are part of a 29-color SFC panel. They additionally have cell single color equivalents that we will compare to in a separate GatingSet in the next section. 
+
 Now that we have filtered the .fcs files into smaller list, we can use the `r Biocpkg("flowWorkspace")` to bring these individual .fcs files first into a CytoSet object, then into a GatingSet object that we can add gates to:
 
 ```{r}
@@ -182,21 +185,9 @@ IteratedBeadPlots
 
 #gs_pop_get_count_fast(MyBeadsGatingSet)
 ```
-
-
+ 
 ## Creating a GatingSet Cell Single Colors
-
-
-
-
-
-Three of these files are raw unmixing controls (APCFire810, BUV496, Unstained), while the others are unmixed full-stained samples from a 29-color SFC panel (ND050). For now, let's subset the desired files to only select the raw .fcs unmixing controls as shown below:
-
-```{r}
-CellSingleColors <- FCS_Files[grep("Cells", FCS_Files)]
-```
-
-Once we have the list of desired .fcs files, we can use the `r Biocpkg("flowWorkspace")` to bring these individual .fcs files first into a CytoSet object, then into a GatingSet object that we can add gates to:
+These cell single color controls are part of 29-color SFC panel, they are the cell counterparts to the bead reference controls we worked with in the prior section. Having isolated the list of desired .fcs files at the start of the vignette, we can use the `r Biocpkg("flowWorkspace")` to bring these individual .fcs files first into a CytoSet object, then into a GatingSet object that we can add gates to:
 
 ```{r}
 MyCytoSet <- load_cytoset_from_fcs(CellSingleColors, 
@@ -240,7 +231,7 @@ IndividualPlot <- Utility_GatingPlots(x=MyGatingSet[[2]],
 
 #IndividualPlot
   
-IteratedPlots <- map(.x = MyGatingSet, .f = Utility_GatingPlots, 
+IteratedPlots <- map(.x = MyGatingSet[1:2], .f = Utility_GatingPlots, 
                      sample.name = "GUID", removestrings = removestrings,
                      gtFile = MyGates, DesiredGates = NULL,
                      outpath = StorageLocation, export = FALSE)
@@ -248,21 +239,139 @@ IteratedPlots <- map(.x = MyGatingSet, .f = Utility_GatingPlots,
 IteratedPlots[[2]]
 ```
 
+## Creating a GatingSet Bead Unstained
+This unstained Bead cell control is by itself and could have been included in the Bead Single Color Gating Set, but we are including it in its own GatingSet for ease-of-locating reasons only. Now that we have filtered the .fcs file of interest, we can use the `r Biocpkg("flowWorkspace")` to bring these individual .fcs files first into a CytoSet object, then into a GatingSet object that we can add gates to:
+
+```{r}
+MyUnstainedBeadsCytoSet <- load_cytoset_from_fcs(UnstainedBeads,
+                                        truncate_max_range = FALSE,
+                                        transform = FALSE)
+MyUnstainedBeadsCytoSet
+```
+
+```{r}
+MyUnstainedBeadsGatingSet <- GatingSet(MyUnstainedBeadsCytoSet)
+MyUnstainedBeadsGatingSet
+```
+For this example, we will use the `r Biocpkg("openCyto")` package to automatically gate each of our .fcs files for the bead singlets. To do this, we first read in the example .csv file containing our desired gates (that can be found in Luciernaga's extdata folder) using the `r CRANpkg("data.table")` package
+
+```{r, message=FALSE}
+FileLocation <- system.file("extdata", package = "Luciernaga")
+MyBeadsGates <- fread(file.path(path = FileLocation, 
+                                pattern = 'GatesBeads.csv'))
+gt(MyBeadsGates)
+```
+
+For your own experiments, individual gates can be added, removed or modified to match the requirements of your own .fcs files, for additional details, please refer to the `r Biocpkg("openCyto")` packages vignettes. Alternatively, GatingSet objects can be brought directly from several commercial software formats using the `r Biocpkg("CytoML")` package. 
+
+Now that we have the gating information from the .csv file, we can convert them into a GatingTemplate, and append them to the .fcs files contained within the GatingSet
+
+```{r, message=FALSE}
+MyBeadsGatingTemplate <- gatingTemplate(MyBeadsGates)
+gt_gating(MyBeadsGatingTemplate, MyUnstainedBeadsGatingSet)
+MyUnstainedBeadsGatingSet[[1]]
+plot(MyBeadsGatingSet)
+```
+
+And finally check the gate placements using the `Utility_GatingPlots` function:
+
+```{r}
+removestrings <-  c("(Cells)", ".fcs", " ")
+StorageLocation <- file.path("C:", "Users", "JohnDoe", "Desktop")
+
+IndividualBeadPlot <- Utility_GatingPlots(x=MyUnstainedBeadsGatingSet[[1]], 
+                                          sample.name = "GUID",
+                                          removestrings = removestrings,
+                                          gtFile = MyBeadsGates, 
+                                          DesiredGates = NULL,
+                                          outpath = StorageLocation,
+                                          export = FALSE)
+
+IndividualBeadPlot
+```
+
+## Creating a GatingSet Cell Unstained Controls
+These unstained cell controls were collected for CBMC and PBMC specimens, and stimulated with either PMA-ionomycin or control. They are useful to evaluate heterogeneity present in autofluorescence across donors and treatment conditions. Having isolated the list of desired .fcs files at the start of the vignette, we can use the `r Biocpkg("flowWorkspace")` to bring these individual .fcs files first into a CytoSet object, then into a GatingSet object that we can add gates to:
+
+```{r}
+MyUnstainedCytoSet <- load_cytoset_from_fcs(UnstainedCells, 
+                                   truncate_max_range = FALSE, 
+                                   transform = FALSE)
+MyUnstainedCytoSet
+MyUnstainedGatingSet <- GatingSet(MyUnstainedCytoSet)
+MyUnstainedGatingSet
+```
+For this example, we will use the `r Biocpkg("openCyto")` package to automatically gate each of our .fcs files for the lymphocyte population. To do this, we first read in the example .csv file containing our desired gates (that can be found in Luciernaga's extdata folder) using the `r CRANpkg("data.table")` package
+
+```{r}
+FileLocation <- system.file("extdata", package = "Luciernaga")
+MyGates <- fread(file.path(path = FileLocation, pattern = 'Gates.csv'))
+gt(MyGates)
+```
+
+For your own experiments, individual gates can be added, removed or modified to match the requirements of your own .fcs files, for additional details, please refer to the `r Biocpkg("openCyto")` packages vignettes. Alternatively, GatingSet objects can be brought directly from several commercial software formats using the `r Biocpkg("CytoML")` package. 
+
+Now that we have the gating information from the .csv file, we can convert them into a GatingTemplate, and append them to the .fcs files contained within the GatingSet
+
+```{r, message = FALSE}
+MyGatingTemplate <- gatingTemplate(MyGates)
+gt_gating(MyGatingTemplate, MyUnstainedGatingSet)
+MyUnstainedGatingSet[[1]]
+```
+
+And finally check the gate placements using:
+
+```{r}
+removestrings <-  c("(Cells)", ".fcs", " ")
+StorageLocation <- file.path("C:", "Users", "JohnDoe", "Desktop")
+
+IndividualPlot <- Utility_GatingPlots(x=MyUnstainedGatingSet[[2]], 
+                                      sample.name = "GUID", 
+                                      removestrings = removestrings, 
+                                      gtFile = MyGates, 
+                                      DesiredGates = NULL, 
+                                      outpath = StorageLocation, 
+                                      export = FALSE)
+
+#IndividualPlot
+  
+IteratedPlots <- map(.x = MyUnstainedGatingSet[1:2], .f = Utility_GatingPlots, 
+                     sample.name = "GUID", removestrings = removestrings,
+                     gtFile = MyGates, DesiredGates = NULL,
+                     outpath = StorageLocation, export = FALSE)
+
+IteratedPlots[[1]]
+```
+
+
+
 # Luciernaga_QC
 
-The working unit for most of Luciernaga's functions is a GatingSet object. Let's now workthrough the main Luciernaga function to characterize single color reference controls. First, let's provide a .csv file to provide information about where to expect to have overlapping autofluorescent signatures with fluorophore signatures. We are now setup to run the main Luciernaga function. What this function does is it brings in the individual raw .fcs files, and on a per cell basis identifies which detector has the peak fluorescent emission. For example, single color stained cells have their fluorescent emission peak on R1-A, unstained PBMCs have their fluorescent emission peak on V7-A. 
+`Luciernaga_QC()` is the `Luciernaga` package workhorse function. It's primary purpose is to take individual .fcs files, identify normalized signatures at the level of individual cells, group cells with similar signatures together and then export the data as purified signature .fcs file or as a dataframe object for use in reports. Given the various types of unmixing controls it can encounter (beads or cells, single color or unstained), it coordinates various functions behind the scenes, while retaining similar processing and arguments to allow for user-directed inputs.  
 
-Luciernaga will then identify which detectors had the most emission peaks, remove autofluorescent detectors with exceptions listed in the overlap list provided above. As a result, cells that are stained with your single-color stain are retained, while unstained autofluorescent cells are excluded.
+As with other `Luciernaga` functions, `Luciernaga_QC()` starts from GatingSet objects. For this workflow, our overarching goal is to characterize signatures present within our single color cell reference controls. To do this, we will need to lay down some groundwork that will vary depending on your individual panel and experiment context. 
 
-Retained single color-stain cells then have an average autofluorescence signature subtracted (either using the internal calculation or one externally provided), and are normalized for peak fluorescent signature. The cells are then clustered into shared signature bins. Cells that share the same signature are then exported as .raw fcs files with the subcluster name appended to the file for subsequent use. 
+## Autofluorescent Overlaps
 
-In addition to the exported .fcs files, the function also returns line plots used in the fluorescent peak identifications for visual
-inspection, as well as the following data.table: 
+For our SFC panels, a few fluorophores (BUV496, BV510) peak signature detector overlaps directly with that of the main autofluorescent detector peaks (UV7-A, V7-A). For `Luciernaga_QC()` to appropriately extract the background autofluorescence from these particular single colors, we need to provide information about where to expect to overlapping autofluorescent with fluorophore signatures in a .csv file.
 
+```{r}
+FileLocation <- system.file("extdata", package = "Luciernaga")
+pattern = "AutofluorescentOverlaps.csv"
+AFOverlap <- list.files(path=FileLocation, pattern=pattern,
+                        full.names = TRUE)
+AFOverlap_CSV <- read.csv(AFOverlap, check.names = FALSE)
+AFOverlap_CSV
+```
+As you can see from the above example, we provide for Fluorophore "Unstained" the location of the peak detectors that autofluorescence (both the main autofluorescence (UV7-A, V7-A) and rarer variants (V5-A, V7-A, V8-A)) can be found on. If the rarer variants are unknown, list the main Autofluorescent detector in your system and add the exceptions to the .csv file as you encounter them in actual practice. 
 
-The main workhorse of the Luciernaga is `LuciernagaQC`. Briefly, it will take individual raw .fcs files, process them and return distinct fluorescence signatures as their own .fcs files.
+The second component are individual fluorophores that overlap with the mentioned Unstained detectors. You can add/remove to this list, the crucial part is to retain the Unstained row.
 
-Let's work through it's compabilities individually. First off, let's profile Autofluorescence from the Unstained Cells. 
+## Determing Autofluorescence
+
+Now that an initial overlap .csv has been provided, the initial steps in our workflow focus on refining what autofluorescence backgrounds we are working with. This is important not only for isolating signatures of the single-color controls, but also for handling overlap exceptions (mentioned above) as well as determining any autofluorescence(s) that might be present within individual samples that will need to be treated as individual fluorophores.
+
+To do this without running all `Luciernaga_QC()` extraction protocols, we first set the arguments SignatureReturnNow and Verbose to TRUE. 
 
 ```{r}
 FileLocation <- system.file("extdata", package = "Luciernaga")
@@ -272,16 +381,20 @@ AFOverlap <- list.files(path=FileLocation, pattern=pattern,
 
 removestrings <- ".fcs"
 
-# ?Luciernaga_QC
-
-Luciernaga_QC(x=MyGatingSet[2], subsets="lymphocytes",
-              removestrings=removestrings, sample.name="GUID", 
+A <- Luciernaga_QC(x=MyUnstainedGatingSet[2], subsets="lymphocytes",
+              removestrings=removestrings, sample.name="GUID",
+              experiment="TodaysDate", condition="UnstainedProfile",
               unmixingcontroltype = "cells", Unstained = TRUE, 
               ratiopopcutoff = 0.001, Verbose = TRUE, 
               AFOverlap = AFOverlap, stats = "median",
               ExportType = "data.frame", SignatureReturnNow = TRUE, 
               outpath = NULL, Brightness = FALSE)
 ``` 
+
+From these outputs we can see the main peak detector of autofluorescence in unstained lymphocytes cells in our sample is "V7" detector, with a few cells having their respective peaks for V8, V5, V6. For the samples provided in this package, we down-sampled to 10,000 events, so depending on total number of cells would inform whether these minor autofluorescent peaks are negligible or important enough to add to the above AutofluorescentOverlap.csv.
+
+
+
 
 The important parameters for the above outputs where Verbose, ratiopopcutoff, stats, and SignatureReturnNow.
 
@@ -347,6 +460,24 @@ gt(TheAFOverlaps)
 For your own systems, you can update the Unstained Main Detectors Autofluorescence list, and provide unique fluorophores that overlap to a .csv styled like the example above, and provide the file.path to that csv to `Utility_SingleColorQC()` to similarly handle the exceptions (more details to follow below). 
 
 Once the AFOverlaps .csv has been updated, when `Utility_SingleColorQC()` processes a single color unmixing control and finds peak detectors, it will remove the peak detectors that match the Unstained row in AFOverlap, leaving only the single-color driven peaks to be used for further processing. 
+
+
+
+
+
+
+
+
+
+
+We are now setup to run `Luciernaga_QC()`. It first brings in the individual .fcs file and attempts to identify for individual cells which detector their peak fluorescent emission is on. For example, single color stained cells with APC would have fluorescent emission peak on R1-A detector, while unstained PBMCs in the sample would have their fluorescent emission peak on the V7-A detector. `Luciernaga_QC()` will then enumerate for all cells in the sample which detectors account for most emission peaks. 
+
+Now that the peaks are enumerated, it uses the information provided by the autofluorescent overlap .CSV to ignore the AF detectors, and focus on remaining detectors that likely correspond to the staining single color (with special exception handling for when fluorophore and autofluorescence detector are identical). This allows the retention of cells stained with the single-color stain from all other unstained autofluorescent cells.
+
+The subsequent step is to remove autofluorescence contribution to reveal single-color signature alone. Autofluorescence can be defined either internally or with an external provided reference. Once autofluorescence is subtracted, cells with similar signatures are clustered together, and exported as .raw fcs files with the subcluster designation appended to the .fcs file name. 
+
+
+
 
 In the case ofsingle color unmixing control (in this case, APC-Fire 750, the other specimen in our GatingSet):
 
