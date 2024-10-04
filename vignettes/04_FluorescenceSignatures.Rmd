@@ -353,7 +353,9 @@ As with other `Luciernaga` functions, `Luciernaga_QC()` starts from GatingSet ob
 
 ## Autofluorescent Overlaps
 
-For our SFC panels, a few fluorophores (BUV496, BV510) peak signature detector overlaps directly with that of the main autofluorescent detector peaks (UV7-A, V7-A). For `Luciernaga_QC()` to appropriately extract the background autofluorescence from these particular single colors, we need to provide information about where to expect to overlapping autofluorescent with fluorophore signatures in a .csv file.
+For our SFC panels, a few fluorophores (BUV496, BV510) peak signature detector overlaps directly with that of the main autofluorescent detector peaks (UV7-A, V7-A). `Luciernaga_QC` works on the basis of filtering single stained cells from unstained cells by their peak fluorescence detectors. To handle situations when these are identical, `Luciernaga_QC()` refers to an autofluorescent overlap list to appropriately handle fluorophores where this is the case. 
+
+Since these will vary by panel and cell type in user-specific ways, to appropriately extract the background autofluorescence from these particular single colors, we need to provide information about where to expect to overlapping autofluorescent with fluorophore signatures in a .csv file.
 
 ```{r}
 FileLocation <- system.file("extdata", package = "Luciernaga")
@@ -367,11 +369,9 @@ As you can see from the above example, we provide for Fluorophore "Unstained" th
 
 The second component are individual fluorophores that overlap with the mentioned Unstained detectors. You can add/remove to this list, the crucial part is to retain the Unstained row.
 
-## Determing Autofluorescence
-
 Now that an initial overlap .csv has been provided, the initial steps in our workflow focus on refining what autofluorescence backgrounds we are working with. This is important not only for isolating signatures of the single-color controls, but also for handling overlap exceptions (mentioned above) as well as determining any autofluorescence(s) that might be present within individual samples that will need to be treated as individual fluorophores.
 
-To do this without running all `Luciernaga_QC()` extraction protocols, we first set the arguments SignatureReturnNow and Verbose to TRUE. 
+To do this without running all `Luciernaga_QC()` extraction protocols, we first set the arguments SignatureReturnNow to TRUE. We can additionally set Verbose = TRUE to get processing information that can be useful in troubleshooting. 
 
 ```{r}
 FileLocation <- system.file("extdata", package = "Luciernaga")
@@ -381,92 +381,112 @@ AFOverlap <- list.files(path=FileLocation, pattern=pattern,
 
 removestrings <- ".fcs"
 
-A <- Luciernaga_QC(x=MyUnstainedGatingSet[2], subsets="lymphocytes",
-              removestrings=removestrings, sample.name="GUID",
-              experiment="TodaysDate", condition="UnstainedProfile",
-              unmixingcontroltype = "cells", Unstained = TRUE, 
-              ratiopopcutoff = 0.001, Verbose = TRUE, 
-              AFOverlap = AFOverlap, stats = "median",
-              ExportType = "data.frame", SignatureReturnNow = TRUE, 
-              outpath = NULL, Brightness = FALSE)
+UnstainedSignature <- Luciernaga_QC(x=MyUnstainedGatingSet[2],
+                                    subsets="lymphocytes", 
+                                    removestrings=removestrings,
+                                    sample.name="GUID",
+                                    unmixingcontroltype = "cells",
+                                    Unstained = TRUE, 
+                                    ratiopopcutoff = 0.001,
+                                    Verbose = TRUE,
+                                    AFOverlap = AFOverlap,
+                                    stats = "median",
+                                    ExportType = "data.frame",
+                                    SignatureReturnNow = TRUE,
+                                    outpath = NULL,
+                                    Brightness = FALSE)
 ``` 
 
-From these outputs we can see the main peak detector of autofluorescence in unstained lymphocytes cells in our sample is "V7" detector, with a few cells having their respective peaks for V8, V5, V6. For the samples provided in this package, we down-sampled to 10,000 events, so depending on total number of cells would inform whether these minor autofluorescent peaks are negligible or important enough to add to the above AutofluorescentOverlap.csv.
+From the Verbose = TRUE readouts, we can see that the main peak detector of autofluorescence in unstained lymphocytes cells in our sample is "V7" detector, with a few cells having their respective peaks for V8, V5, V6. 
 
+For the samples provided in this R package, we down-sampled unstained files to 10,000 event, so depending on total number of cells would inform whether these minor autofluorescent peaks are negligible or important enough to add to the above AutofluorescentOverlap.csv. 
 
-
-
-The important parameters for the above outputs where Verbose, ratiopopcutoff, stats, and SignatureReturnNow.
-
-From our lymphocyte gated cells, Verbose = TRUE prints out the output of cells enumerated by their peak detector. We can see that the main autofluorescence from this sample was UV7, followed by V7 and V3.  With the ratiopopcutoff set at 0.001, we are returning any detector that had > 0.1% starting lymphocytes with their main peak present in that detector. 
-Here is an example when we restrict it to detectors with 1% of starting lymphocytes:
+What we see is also influcence by the ratiopopcutoff argument (set to 0.001 above). It is used to determine minimal number of cells a peak detector would need to have in order to be returned as a significant autofluorescence detector. We can be see this in action by making the argument more stringent with this argument (increase it to 0.1 ~ 10% total unstained cells share that peak detector):
 
 ```{r}
-Luciernaga_QC(x=MyGatingSet[2], subsets="lymphocytes",
-              removestrings=removestrings, sample.name="GUID", 
-              unmixingcontroltype = "cells", Unstained = TRUE, 
-              ratiopopcutoff = 0.01, Verbose = TRUE, 
-              AFOverlap = AFOverlap, stats = "median", 
-              ExportType = "data.frame", SignatureReturnNow = TRUE,
-              outpath = NULL, Brightness = FALSE)
+UnstainedSignature <- Luciernaga_QC(x=MyUnstainedGatingSet[2],
+                                    subsets="lymphocytes", 
+                                    removestrings=removestrings,
+                                    sample.name="GUID",
+                                    unmixingcontroltype = "cells",
+                                    Unstained = TRUE, 
+                                    ratiopopcutoff = 0.1,
+                                    Verbose = TRUE,
+                                    AFOverlap = AFOverlap,
+                                    stats = "median",
+                                    ExportType = "data.frame",
+                                    SignatureReturnNow = TRUE,
+                                    outpath = NULL,
+                                    Brightness = FALSE)
 ``` 
 
-The SignatureReturnNow short circuits the downstream analysis. It calculates the main autofluorescence by taking the most abundant detector, filtering those cells, and then taking the selected stat for each detector from those cells. It then returns these values as a data.frame. 
+With SignatureReturnNow = TRUE, for the main peak detector present within the sample, we get an averaged signature that is returned. The average is determined by the stats argument, which is typically either "median" or "mean". 
 
-If by contrast, we wanted the signature of the second and third peak detectors (V7 and V3), we could do this by providing the parameter desiredAF = "V7" or "V3"
+```{r}
+UnstainedSignature
+```
 
-```{r, eval = FALSE, echo=FALSE}
-UV7 <- Luciernaga_QC(x=MyGatingSet[2], subsets="lymphocytes",
-                     removestrings=removestrings, sample.name="GUID",
-                      unmixingcontroltype = "cells", Unstained = TRUE,
-                     ratiopopcutoff = 0.01, Verbose = FALSE, 
-                     AFOverlap = AFOverlap, stats = "median",
-                     ExportType = "data.frame", SignatureReturnNow = TRUE, 
-                     outpath = NULL, Brightness = FALSE)
+This returned signature is what we provide as an external autofluorescence argument for either the bead or single-color controls. 
 
-V7 <- Luciernaga_QC(x=MyGatingSet[2], desiredAF = "V7-A",
+In cases where we want to return the averaged signature for a specific autofluorescene or one of the minor autofluorescent peak detectors (like V8, V5 or V6) we can add the additional argument desiredAF and set it to the corresponding detector ("V8-A"):
+
+```{r}
+V7 <- Luciernaga_QC(x=MyUnstainedGatingSet[2], desiredAF = "V7-A",
                     subsets="lymphocytes", removestrings=removestrings,
                     sample.name="GUID", unmixingcontroltype = "cells",
-                    Unstained = TRUE, ratiopopcutoff = 0.01, Verbose = FALSE,
+                    Unstained = TRUE, ratiopopcutoff = 0.001, Verbose = FALSE,
                     AFOverlap = AFOverlap, stats = "median",
                     ExportType = "data.frame", SignatureReturnNow = TRUE,
                     outpath = NULL, Brightness = FALSE)
 
-V3 <- Luciernaga_QC(x=MyGatingSet[2], desiredAF = "V3-A", subsets="lymphocytes",
-                    removestrings=removestrings, sample.name="GUID",
-                    unmixingcontroltype = "cells", Unstained = TRUE,
-                    ratiopopcutoff = 0.01, Verbose = FALSE,
-                    AFOverlap = AFOverlap, stats = "median", 
-                    ExportType = "data.frame", SignatureReturnNow = TRUE, 
+V8 <- Luciernaga_QC(x=MyUnstainedGatingSet[2], desiredAF = "V8-A",
+                    subsets="lymphocytes", removestrings=removestrings,
+                    sample.name="GUID", unmixingcontroltype = "cells",
+                    Unstained = TRUE, ratiopopcutoff = 0.001, Verbose = FALSE,
+                    AFOverlap = AFOverlap, stats = "median",
+                    ExportType = "data.frame", SignatureReturnNow = TRUE,
                     outpath = NULL, Brightness = FALSE)
 
-DifferentPeakDetectors <- bind_rows(UV7, V7, V3)
-DifferentPeakDetectors
-``` 
+V5 <- Luciernaga_QC(x=MyUnstainedGatingSet[2], desiredAF = "V5-A",
+                    subsets="lymphocytes", removestrings=removestrings,
+                    sample.name="GUID", unmixingcontroltype = "cells",
+                    Unstained = TRUE, ratiopopcutoff = 0.001, Verbose = FALSE,
+                    AFOverlap = AFOverlap, stats = "median",
+                    ExportType = "data.frame", SignatureReturnNow = TRUE,
+                    outpath = NULL, Brightness = FALSE)
 
-These data.frame consist of raw measurements from the .fcs file for the given detectors. These can be used by the xyz function to plot averaged normalized signature. Similarly, providing one of these data.frames containing a single row of our autofluorescence of interest can be used by the externalAF measurement to allow for subtraction of that reference from single color controls (to be discussed below). 
-
-It's important before continuing to discuss the role of AFOverlap. Luciernaga works on the basis of filtering using the peak detectors, and then processsing out variations in signature from these filtered populations. Most fluorophores don't share overlaps with autofluorescence for peak detectors, but certain fluorophores will match either the primary or rarer autofluorescences in their primary detector (main examples are BUV496-A, BV510-A, Spark Blue 550-A). Since these vary by panel, and name of the fluorophore, we provision a .csv file that gets imported and is used for special handling of these fluorophores. 
-
-```{r}
-FileLocation <- system.file("extdata", package = "Luciernaga")
-pattern = "AutofluorescentOverlaps.csv"
-AFOverlap <- list.files(path=FileLocation, pattern=pattern,
-                        full.names = TRUE)
-TheAFOverlaps <- read.csv(AFOverlap, check.names = FALSE)
-gt(TheAFOverlaps)
+Comparison <- rbind(V7, V8, V5)
+gt(Comparison)
 ```
 
-For your own systems, you can update the Unstained Main Detectors Autofluorescence list, and provide unique fluorophores that overlap to a .csv styled like the example above, and provide the file.path to that csv to `Utility_SingleColorQC()` to similarly handle the exceptions (more details to follow below). 
+These averaged signature readouts can also be combined with the functions covered in the QC vignette to visualize the normalized signature:
 
-Once the AFOverlaps .csv has been updated, when `Utility_SingleColorQC()` processes a single color unmixing control and finds peak detectors, it will remove the peak detectors that match the Unstained row in AFOverlap, leaving only the single-color driven peaks to be used for further processing. 
+```{r}
+Fluorophore <- data.frame(Sample=c("V7", "V8", "V5"))
+Data <- cbind(Fluorophore, Comparison)
 
+SignatureOnly <- QC_WhatsThis(x="V7", data=Data, NumberHits = 0, returnPlots = TRUE)
+SignatureOnly[[2]]
+```
 
+We can also compare it to reference fluorophore spectras to see what single colors it might overlap with and significantly impact:
 
+```{r}
+Comparison <- QC_WhatsThis(x="V7", data=Data, NumberHits = 5, returnPlots = TRUE)
+Comparison[[1]]
+```
 
+```{r}
+plotly::ggplotly(Comparison[[2]])
+```
 
+We will typically repeat the above workflow on various unstained specimens within our GatingSet, identify if any additional rare AF may be present, and then update our AFOverlap.csv to account for these Unstained peak detectors, and add any fluorophores that share their peak detector. Once this is done, we are ready to proceed. 
 
+## Signatures
 
+Having established autofluorescence background for the cells we are working with (and updated the AFOverlaps csv), we can now switch SignatureReturnNow = FALSE, and allow `Luciernaga_QC()` to continue down the processing pipeline. 
+
+### Continue Here
 
 
 

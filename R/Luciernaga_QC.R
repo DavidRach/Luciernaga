@@ -86,16 +86,18 @@ Luciernaga_QC <- function(x, subsets, sample.name, removestrings=NULL, Verbose =
                                  removestrings=removestrings)
 
   if (is.null(experiment) && is.null(experiment.name)){
-    message("Both experiment and experiment.name are set to NULL,
-            consider adding one or the other.")}
+    #message("Both experiment and experiment.name are set to NULL,
+            #consider adding one or the other.")
+            }
 
   Experiment <- Luciernaga:::NameForSample(x=x, sample.name=sample.name,
     removestrings=removestrings, experiment = experiment,
     experiment.name = experiment.name, returnType = "experiment")
 
   if (is.null(condition) && is.null(condition.name)){
-    message("Both condition and condition.name are set to NULL,
-            consider adding one or the other.")}
+    #message("Both condition and condition.name are set to NULL,
+    #        consider adding one or the other.")
+    }
 
   Condition <- Luciernaga:::NameForSample(x=x, sample.name=sample.name,
     removestrings=removestrings, condition=condition,
