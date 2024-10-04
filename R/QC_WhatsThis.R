@@ -27,8 +27,10 @@
 #' @examples NULL
 
 QC_WhatsThis <- function(x, data, NumberHits, returnPlots) {
+
   StartingData <- data %>% filter(Sample %in% x)
-  if(nrow(StartingData) > 1){message("Selecting the first row")
+
+  if(nrow(StartingData) > 1){message("Selecting the first row for comparisons")
                              StartingData <- StartingData %>% slice(1)}
 
   CharacterLength <- StartingData %>% select(!where(is.numeric)) %>% length()

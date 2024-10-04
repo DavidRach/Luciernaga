@@ -4,12 +4,14 @@
 \alias{QC_ReferenceLibrary}
 \title{Queries the available reference library for available fluorophores (and their naming conventions)}
 \usage{
-QC_ReferenceLibrary(FluorNameContains, NumberDetectors)
+QC_ReferenceLibrary(FluorNameContains, NumberDetectors, returnPlots = FALSE)
 }
 \arguments{
 \item{FluorNameContains}{A character string pattern to match, example "APC"}
 
 \item{NumberDetectors}{The Number of Detectors for your instrument}
+
+\item{ReturnPlots}{Whether to return signature plot as well. Default FALSE.}
 }
 \value{
 A dataframe column containing matching Fluorophores from your querry

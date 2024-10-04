@@ -7,7 +7,10 @@
 #' @param stats Whether to use "mean" or "median"
 #' @param returntype Whether to return a "raw" or "normalized" value lineplot.
 #' @param probsratio Ratio increments to break quantiles into, default is set to 0.1.
-#' @param output Whether to return "plot"
+#' @param output Whether to return "plot" or "data"
+#' @param desiredAF Peak detector(ex. "V7-A") want to filter cells by before slicing, argument
+#' only used to override the main peak detector when a .fcs file has more than a single peak
+#' detector, default is set to NULL
 #'
 #' @importFrom flowCore keyword
 #' @importFrom flowWorkspace gs_pop_get_data
@@ -34,7 +37,7 @@
 #'
 #' @examples NULL
 Luciernaga_LinearSlices <- function(x, subset, sample.name, removestrings, stats,
-                                    returntype, probsratio=0.1, output){
+                                    returntype, probsratio=0.1, output, desiredAF=NULL){
 
   name <- keyword(x, sample.name)
   name <- NameCleanUp(name, removestrings)
@@ -58,14 +61,28 @@ Luciernaga_LinearSlices <- function(x, subset, sample.name, removestrings, stats
   rownames(PeakDetectorCounts) <- NULL
   Detectors <- PeakDetectorCounts %>% filter(Counts > 0)
 
-  if(nrow(Detectors) > 1){message("Luciernaga_LinearSlices is only meant to work
-                          on LuciernagaQC output .fcs files, your file ", name,
-                          " contained two peak detectors, only the first was selected")
-                          Detectors <- Detectors %>% slice(1)
+  if (nrow(Detectors) > 1){
+    MultiDetector <- TRUE
+    colnames(Normalized) <- gsub("-A", "", colnames(Normalized))
+    data <- cbind(n, Normalized)
+  } else {data <- n}
+
+  if(nrow(Detectors) > 1 && is.null(desiredAF)){
+    message("Luciernaga_LinearSlices is only meant to work on LuciernagaQC output .fcs files,
+            your file ", name," contained two peak detectors, only the first was selected")
+            Detectors <- Detectors %>% slice(1)
+  } else if (nrow(Detectors) > 1 && !is.null(desiredAF)){
+    Detectors <- Detectors %>% filter(Fluors %in% desiredAF)
   }
 
   TheDetector <- Detectors %>% pull(Fluors)
-  data <- n
+
+  if (MultiDetector == TRUE){
+    NormDetector <- gsub("-A", "", TheDetector)
+    data <- data %>% filter(.data[[NormDetector]] == 1)
+    Normalized <- data %>% select(!matches("-A"))
+    colnames(Normalized) <- paste0(colnames(Normalized), "-A")
+  }
 
   #Assigning by Percentiles
   #probsratio <- 0.1

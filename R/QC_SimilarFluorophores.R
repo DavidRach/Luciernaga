@@ -88,16 +88,30 @@ QC_SimilarFluorophores <- function(TheFluorophore, NumberDetectors, NumberHits, 
 #'
 #' @noRd
 SimilarFluorPlots <- function(TheseFluorophores, TheFluorophore, data){
+
       These <- c(TheFluorophore, TheseFluorophores)
+
       TheData <- data %>% filter(Fluorophore %in% These) %>%
         rename(value=AdjustedY)
-      Iterations <- nrow(TheData)
-      MyVector <- 1:Iterations
+
+      Iterations <- TheData %>% filter(Fluorophore %in% These[[1]]) %>% nrow()
+
+      if (is.character(TheData$Detector)) {
+        MyVector <- TheData %>% filter(Fluorophore %in% These[[1]]) %>% pull(Detector)
+      }
+
+      if (is.numeric(TheData$Detector)) {
+        MyVector <- 1:Iterations
+      }
+
+      if (any(TheData$value > 2)){YAxisLabel <- "Raw MFI"
+      } else {YAxisLabel <- "Normalized Value"}
+
       TheData$Detector <- factor(TheData$Detector, levels=MyVector)
       TheData$Fluorophore <- factor(TheData$Fluorophore, levels=These)
 
       ThePlot <- ggplot(TheData, aes(x=Detector, y=value, group=Fluorophore, color = Fluorophore)) +
-        geom_line() + theme_bw() + labs(title=paste0(TheFluorophore), x=NULL, y="Normalized Value") +
+        geom_line() + theme_bw() + labs(title=paste0(TheFluorophore), x=NULL, y=YAxisLabel) +
         geom_hline(yintercept = 1, linetype = "dashed", color = "red") +
         theme(plot.title = element_text(size = 8), axis.text.x = element_text(size = 6, angle = 45),
               panel.grid = element_blank(), axis.ticks.x = element_blank(), axis.title.y =  element_text(size=8)) +

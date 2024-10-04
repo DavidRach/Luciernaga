@@ -12,7 +12,8 @@ Luciernaga_LinearSlices(
   stats,
   returntype,
   probsratio = 0.1,
-  output
+  output,
+  desiredAF = NULL
 )
 }
 \arguments{
@@ -30,7 +31,11 @@ Luciernaga_LinearSlices(
 
 \item{probsratio}{Ratio increments to break quantiles into, default is set to 0.1.}
 
-\item{output}{Whether to return "plot"}
+\item{output}{Whether to return "plot" or "data"}
+
+\item{desiredAF}{Peak detector(ex. "V7-A") want to filter cells by before slicing, argument
+only used to override the main peak detector when a .fcs file has more than a single peak
+detector, default is set to NULL}
 }
 \value{
 Either ggplots or the summarized data.frame object preceeding
