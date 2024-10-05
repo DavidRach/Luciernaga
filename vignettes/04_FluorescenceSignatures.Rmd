@@ -706,7 +706,7 @@ Unstained_Signatures <- Luciernaga_QC(x=MyUnstainedGatingSet[2],
 
 Similarly, in combination with `r CRANpkg("purrr")` map function, we can iterate over our GatingSet to generate subcluster .fcs files for all our Unstained samples in one go.
 
-```{r}
+```{r, eval = FALSE}
 StorageLocation <- file.path("C:", "Users", "JohnDoe", "Desktop")
 
 TheUnstaineds <- map(.x=MyUnstainedGatingSet[1:3], .f=Luciernaga_QC, 
@@ -723,7 +723,7 @@ TheUnstaineds <- map(.x=MyUnstainedGatingSet[1:3], .f=Luciernaga_QC,
 
 Additionally, providing argument Brightness = TRUE will return a .csv file with the report data. This output is used by `Luciernaga_Tree()` and a couple other of the report functions we will cover later.
 
-```{r}
+```{r, eval = FALSE}
 StorageLocation <- file.path("C:", "Users", "JohnDoe", "Desktop")
 
 TheUnstaineds <- map(.x=MyUnstainedGatingSet[1:3], .f=Luciernaga_QC, 
@@ -1024,8 +1024,8 @@ In the cases above, we have been returning the `Luciernaga_QC()` ExportType to "
 
 As you can tell, there are some bugs in this description (including Subtraction) that remain to be worked out when I have time and the paper I need to graduate is submitted and I can justify optimizing code with multiple moving parts yet again. 
 
-```{r}
-StorageLocation <- file.path("C:", "Users", "12692", "Desktop")
+```{r, eval = FALSE}
+StorageLocation <- file.path("C:", "Users", "JohnDoe", "Desktop")
 
 
 SingleStain_Signatures <- Luciernaga_QC(x=MyGatingSet[2], subsets="lymphocytes",
