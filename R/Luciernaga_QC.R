@@ -21,14 +21,12 @@
 #' overlap of individual fluorophores for exclusion
 #' @param stats Whether to take "mean" or "median"
 #' @param desiredAF Main Autofluorescence Detector (ex. "V7-A")
-#' @param externalAF A data.frame row containing external autofluorescence
-#' to subtract from single colors.
 #' @param ExportType Whether to return "fcs", "data"
 #' @param SignatureReturnNow Short circuits the function and returns signature
 #' for specified autofluorescence.
 #' @param outpath  Location where created .fcs and .csv files are sent
 #' @param minimalfcscutoff A ratio determining number cells needed for .fcs export
-#' @param Subtraction Whether for single color controls to use "Internal" or
+#' @param Subtraction Whether for single color controls to use "Internal", "Internal_General" or
 #' "External" autofluorescence
 #' @param SCData Whether to return "subtracted" or "raw" data for single colors
 #' @param NegativeType Whether to append a negative pop to .fcs file, "default",
@@ -64,6 +62,7 @@
 #' @importFrom dplyr left_join
 #' @importFrom dplyr arrange
 #' @importFrom purrr set_names
+#' @importFrom purrr compact
 #'
 #' @return Additional information to be added
 #' @export
@@ -268,6 +267,7 @@ Luciernaga_QC <- function(x, subsets, sample.name, removestrings=NULL, Verbose =
   if (Type == "Cells_Unstained"){Intermediate <- Detectors}
 
   if (Type == "Cells"|Type == "Cells_Unstained"){
+    InternalOverride <- FALSE
 
     if (nrow(Intermediate) >0){
       TheMainAF <- Intermediate %>% slice(1) %>% pull(Fluors)
@@ -281,6 +281,7 @@ Luciernaga_QC <- function(x, subsets, sample.name, removestrings=NULL, Verbose =
 
       if (Type == "Cells" && Subtraction == "Internal" && !is.null(CellAF)){
         InternalOverride <- TRUE
+        OverlapFlag <- "Yep"
         }
 
       if (Type == "Cells" && Subtraction == "Internal" && is.null(CellAF)){
@@ -289,7 +290,7 @@ Luciernaga_QC <- function(x, subsets, sample.name, removestrings=NULL, Verbose =
         }
     }
 
-  if (Subtraction == "Internal"){
+  if (Subtraction == "Internal"|Subtraction == "Internal_General"){
     if (InternalOverride != TRUE){
 
     if (!is.null(desiredAF)){TheMainAF <- Luciernaga:::NameCleanUp(desiredAF, c("-A"))}
@@ -352,7 +353,7 @@ Luciernaga_QC <- function(x, subsets, sample.name, removestrings=NULL, Verbose =
       print(Plot)
     }
 
-   return(Samples)}
+   return(Samples)
   }
 
 
@@ -376,16 +377,13 @@ Luciernaga_QC <- function(x, subsets, sample.name, removestrings=NULL, Verbose =
   }
 
   if (Type == "Cells"){
-    if(!is.null(OverlapFlag)){
-      if (!is.null(CellAF)){Samples <- CellAF
-                            Subtraction <- "Average"
-                            if (Verbose == TRUE){message(name, " used average subtraction
-                               of provided CellAF")}
-      if (!is.null(CellMainAF)){TheMainAF <- gsub("-A", "", CellMainAF)}
-      } else {stop("Please provide a CellAF and CellMainAF argument")}
+    if (Subtraction == "Internal_General"|Subtraction == "External"){Subtraction <- "Average"}
+
+    if(!is.null(OverlapFlag)){Subtraction <- "Average"
+      if (Verbose == TRUE){message(name, " used Average Subtraction.")}
     }
 
-    # x <- Retained[1]
+    # x <- Retained[4]
     RetainedDF <- map(.x= Retained, .f=Luciernaga:::SingleStainSignatures,
                       WorkAround1=WorkAround1, AggregateName=AggregateName,
                       ColsN=ColsN, StartNormalizedMergedCol=StartNormalizedMergedCol,
@@ -393,14 +391,31 @@ Luciernaga_QC <- function(x, subsets, sample.name, removestrings=NULL, Verbose =
                       Increments=Increments, Subtraction=Subtraction, stats=stats,
                       TheMainAF=TheMainAF, Verbose = Verbose, SCData = SCData,
                       LocalMaximaRatio=LocalMaximaRatio,
-                      SecondaryPeaks=SecondaryPeaks) %>% bind_rows()
+                      SecondaryPeaks=SecondaryPeaks)
+
+    cleaned_results <- purrr::compact(RetainedDF)
+    RetainedDF <- bind_rows(cleaned_results)
+
   }
 
   if (Type == "Beads"){
-    if (!is.null(BeadAF)){Samples <- BeadAF
-    } else if (!is.data.frame(BeadAF)){stop("Please provide data.frame of a single
-              bead unstained reference signature to the BeadAF argument")}
-    if (!is.null(BeadMainAF)){TheMainAF <- gsub("-A", "", BeadMainAF)}
+
+    if (!is.null(BeadAF)){
+      if (is.data.frame(BeadAF)) {Samples <- BeadAF
+        if (nrow(Samples) > 1){
+          Samples <- AveragedSignature(x=CellAF, stats=stats)
+        }
+      } else {
+      stop("Please provide a bead unstained reference signature in  a dataframe
+      format to the BeadAF argument.")
+      }
+    } else {
+      stop("Please provide a bead unstained reference signature in  a dataframe
+      format to the BeadAF argument.")
+    }
+
+    if (!is.null(BeadMainAF)){TheMainAF <- gsub("-A", "", BeadMainAF)
+    } else {stop("Please provide a placeholder detector to the BeadMainAF argument")}
 
     RetainedDF <- map(.x= Retained, .f=Luciernaga:::SingleStainSignatures,
                       WorkAround1=WorkAround1, AggregateName=AggregateName,

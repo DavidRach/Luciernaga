@@ -927,7 +927,8 @@ PerCPCy55_Signatures <- Luciernaga_QC(x=MyGatingSet[9], subsets="lymphocytes", r
                         sample.name="GUID", unmixingcontroltype = "cells", Unstained = FALSE,
                         ratiopopcutoff = 0.001, Verbose = FALSE, AFOverlap = AFOverlap, stats = "median",
                         ExportType = "data", SignatureReturnNow = FALSE, outpath = NULL,
-                        experiment = "PerCP", condition = "Test", Increments=0.1, externalAF=V7_Signature)
+                        experiment = "PerCP", condition = "Test", Increments=0.1, Subtraction = "External", 
+                        CellAF=V7_Signature)
 
 Data <- PerCPCy55_Signatures %>% filter(Count > 60) %>% select(-Sample, -Experiment, -Condition, -Count) %>%
   rename(Sample = Cluster)
@@ -967,7 +968,7 @@ InternalPerCPCy55_Signatures <- Luciernaga_QC(x=MyGatingSet[9], subsets="lymphoc
                         sample.name="GUID", unmixingcontroltype = "cells", Unstained = FALSE,
                         ratiopopcutoff = 0.001, Verbose = FALSE, AFOverlap = AFOverlap, stats = "median",
                         ExportType = "data", SignatureReturnNow = FALSE, outpath = NULL,
-                        experiment = "PerCP", condition = "Test", Increments=0.1, externalAF=NULL, desiredAF = "V7-A")
+                        experiment = "PerCP", condition = "Test", Increments=0.1, Subtraction = "Internal")
 
 Data <- InternalPerCPCy55_Signatures %>% filter(Count > 60) %>% select(-Sample, -Experiment, -Condition, -Count) %>%
   rename(Sample = Cluster)
@@ -978,9 +979,20 @@ AfterSubtraction <- QC_ViewSignature(x=Fluorophores, data=Data)
 
 plotly::ggplotly(AfterSubtraction)
 ```
+```{r}
+InternalPerCPCy5.5_Sample <- Data[1,]
 
-As you can see, there isn't much difference when it comes to the main signatures that get returned by either method (which is good considering they are the same .fcs file).
-In our testing, either approach provides good results, with internal AF providing some additional usefulness in cases where the experiment required troubleshooting. Being aware of possible scenarios in which picking the least contaminated bin could cause issues will be discussed in the unmixing vignette along with the broader discussion on brightness role in the process. 
+x <- InternalPerCPCy5.5_Sample %>% pull(Sample)
+
+TheInternalPerCPCy5.5 <- QC_WhatsThis(x=x, data=InternalPerCPCy5.5_Sample, NumberHits = 5, returnPlots = TRUE)
+TheInternalPerCPCy5.5[1]
+```
+
+```{r}
+plotly::ggplotly(TheInternalPerCPCy5.5[[2]])
+```
+
+As you can see, that the main peaks are similar for both methods (which is good considering they are the same .fcs file), but better matching signature of the secondary peaks. In our testing, either approach provides good results, with internal AF providing some additional usefulness in cases where the experiment required troubleshooting. Being aware of possible scenarios in which picking the least contaminated bin could cause issues will be discussed in the unmixing vignette along with the broader discussion on brightness role in the process. 
 
 And finally for good measure, let's generate the signature for BV510 using the externalAF to demonstrate the AFOverlap cases as well. For these, in addition to provisioning the externalAF, we also provision it to the Cell_AF argument, and the name of the detector the the CellMainAF
 
@@ -999,8 +1011,8 @@ BV510 <- Luciernaga_QC(x=MyGatingSet[16], subsets="lymphocytes", removestrings=r
                         sample.name="GUID", unmixingcontroltype = "cells", Unstained = FALSE,
                         ratiopopcutoff = 0.001, Verbose = FALSE, AFOverlap = AFOverlap, stats = "median",
                         ExportType = "data", SignatureReturnNow = FALSE, outpath = NULL,
-                        experiment = "PerCP", condition = "Test", Increments=0.1, externalAF = V7_Signature,
-                        CellAF=V7_Signature, CellMainAF="V7-A")
+                        experiment = "PerCP", condition = "Test", Increments=0.1, Subtraction="Internal",
+                        CellAF=V7_Signature)
 
 Data <- BV510 %>% filter(Count > 60) %>% select(-Sample, -Experiment, -Condition, -Count) %>%
   rename(Sample = Cluster)

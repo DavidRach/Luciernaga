@@ -4,7 +4,7 @@
 \alias{QC_ViewSignature}
 \title{Visualizes the Signature for given row in an averaged signature data.frame.}
 \usage{
-QC_ViewSignature(x, data, NumberHits, Normalize = TRUE)
+QC_ViewSignature(x, data, Normalize = TRUE)
 }
 \arguments{
 \item{x}{Name in the Sample column you want to filter for}

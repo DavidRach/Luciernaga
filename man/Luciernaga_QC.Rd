@@ -10,34 +10,33 @@ Luciernaga_QC(
   sample.name,
   removestrings = NULL,
   Verbose = FALSE,
-  unmixingcontroltype = "both",
-  Unstained = FALSE,
-  ratiopopcutoff = 0.01,
   experiment = NULL,
   experiment.name = NULL,
   condition = NULL,
   condition.name = NULL,
   AFOverlap,
+  unmixingcontroltype = "both",
+  Unstained = FALSE,
+  ratiopopcutoff = 0.01,
   stats = "median",
-  desiredAF = NULL,
-  externalAF = NULL,
-  ExportType,
-  SignatureReturnNow = FALSE,
-  outpath,
-  minimalfcscutoff = 0.05,
   Subtraction = "Internal",
-  SCData = "subtracted",
-  NegativeType = "default",
-  TotalNegatives = 500,
-  Brightness = FALSE,
-  LocalMaximaRatio = 0.15,
-  SecondaryPeaks = 2,
-  Increments,
-  RetainedType = "normalized",
+  desiredAF = NULL,
   BeadAF = NULL,
   BeadMainAF = NULL,
   CellAF = NULL,
-  CellMainAF = NULL
+  CellMainAF = NULL,
+  SignatureReturnNow = FALSE,
+  Increments,
+  LocalMaximaRatio = 0.15,
+  SecondaryPeaks = 2,
+  RetainedType = "normalized",
+  Brightness = FALSE,
+  ExportType,
+  minimalfcscutoff = 0.05,
+  SCData = "subtracted",
+  NegativeType = "default",
+  TotalNegatives = 500,
+  outpath
 )
 }
 \arguments{
@@ -50,14 +49,6 @@ Luciernaga_QC(
 \item{removestrings}{A string of character values to remove from sample.name}
 
 \item{Verbose}{Whether to print outputs as you go.}
-
-\item{unmixingcontroltype}{Whether your inputs are "cells", "beads" or "both"}
-
-\item{Unstained}{Set to True when running unstained samples that don't have
-Unstained in the Name}
-
-\item{ratiopopcutoff}{A numeric ratio for peak detector inclusion, default is
-set to 0.01 all startingcells}
 
 \item{experiment}{Provide directly experiment name (ex. "JAN2024")}
 
@@ -73,39 +64,20 @@ is stored (ex. "TUBENAME")}
 Autofluorescence
 overlap of individual fluorophores for exclusion}
 
+\item{unmixingcontroltype}{Whether your inputs are "cells", "beads" or "both"}
+
+\item{Unstained}{Set to True when running unstained samples that don't have
+Unstained in the Name}
+
+\item{ratiopopcutoff}{A numeric ratio for peak detector inclusion, default is
+set to 0.01 all startingcells}
+
 \item{stats}{Whether to take "mean" or "median"}
 
-\item{desiredAF}{Main Autofluorescence Detector (ex. "V7-A")}
-
-\item{externalAF}{A data.frame row containing external autofluorescence
-to subtract from single colors.}
-
-\item{ExportType}{Whether to return "fcs", "data"}
-
-\item{SignatureReturnNow}{Short circuits the function and returns signature
-for specified autofluorescence.}
-
-\item{outpath}{Location where created .fcs and .csv files are sent}
-
-\item{minimalfcscutoff}{A ratio determining number cells needed for .fcs export}
-
-\item{Subtraction}{Whether for single color controls to use "Internal" or
+\item{Subtraction}{Whether for single color controls to use "Internal", "Internal_General" or
 "External" autofluorescence}
 
-\item{SCData}{Whether to return "subtracted" or "raw" data for single colors}
-
-\item{NegativeType}{Whether to append a negative pop to .fcs file, "default",
-"artifical" or "samples"}
-
-\item{Brightness}{Whether sum of detectors should be returned.}
-
-\item{LocalMaximaRatio}{Height of peaks to proceed}
-
-\item{SecondaryPeaks}{Number of Secondary Peaks, default is set to 2.}
-
-\item{Increments}{Rounding parameter, default is set to 0.1}
-
-\item{RetainedType}{Whether to return "raw" or "normalized" values for lineplots.}
+\item{desiredAF}{Main Autofluorescence Detector (ex. "V7-A")}
 
 \item{BeadAF}{A passed data.frame row containing the reference for bead unstained.}
 
@@ -114,6 +86,30 @@ for specified autofluorescence.}
 \item{CellAF}{A passed data.frame row containing the reference for cell unstained.}
 
 \item{CellMainAF}{The detector that corresponds to the "main" cell AF.}
+
+\item{SignatureReturnNow}{Short circuits the function and returns signature
+for specified autofluorescence.}
+
+\item{Increments}{Rounding parameter, default is set to 0.1}
+
+\item{LocalMaximaRatio}{Height of peaks to proceed}
+
+\item{SecondaryPeaks}{Number of Secondary Peaks, default is set to 2.}
+
+\item{RetainedType}{Whether to return "raw" or "normalized" values for lineplots.}
+
+\item{Brightness}{Whether sum of detectors should be returned.}
+
+\item{ExportType}{Whether to return "fcs", "data"}
+
+\item{minimalfcscutoff}{A ratio determining number cells needed for .fcs export}
+
+\item{SCData}{Whether to return "subtracted" or "raw" data for single colors}
+
+\item{NegativeType}{Whether to append a negative pop to .fcs file, "default",
+"artifical" or "samples"}
+
+\item{outpath}{Location where created .fcs and .csv files are sent}
 }
 \value{
 Additional information to be added

@@ -165,6 +165,10 @@ SingleStainSignatures <- function(x, WorkAround1, ColsN, StartNormalizedMergedCo
     print(RevisedPeakDetectorCounts)
   }
 
+  TheRevisedList <- RevisedPeakDetectorCounts %>% dplyr::filter(Counts > 0) %>% pull(Fluors)
+
+  if(!x %in% TheRevisedList){return(NULL)}
+
   ### Its here that we rebind the subtracted data.
   ### Replacing Test with Data would retain original values for Raw.
 
