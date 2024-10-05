@@ -1,5 +1,5 @@
 ---
-title: "06 Wetlab Helper Functions"
+title: "07 Wetlab Helper Functions"
 date: "`r BiocStyle::doc_date()`"
 author:
 - name: David Rach
@@ -10,7 +10,7 @@ output:
   BiocStyle::html_document
 bibliography: "`r file.path(system.file('extdata', package='Luciernaga'), 'refs.bib')`"
 vignette: |
-  %\VignetteIndexEntry{06 Wetlab Helpers}
+  %\VignetteIndexEntry{07 Wetlab Helpers}
   %\VignettePackage{Luciernaga}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
@@ -155,7 +155,9 @@ scales::show_col(ColorSelection)
 
 Hope this vignette was useful as a proof-of-principle. 
 
-
+```{r sessionInfo, echo = FALSE}
+sessionInfo()
+```
 
 
 

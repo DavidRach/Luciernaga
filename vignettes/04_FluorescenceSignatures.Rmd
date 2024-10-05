@@ -522,7 +522,7 @@ plotly::ggplotly(NormalizedSlices)
 This is particularly more pronounced in single-color unmixing controls, for example, here is what CD16 APC looks like when filtered solely on the basis of peak-detector:
 
 ```{r}
-pData(MyGatingSet)
+#pData(MyGatingSet)
 
 RawSlices <- Luciernaga_LinearSlices(x=MyGatingSet[6], subset="lymphocytes",
                                   sample.name="GUID", removestrings=removestrings,
@@ -619,22 +619,297 @@ plotly::ggplotly(Luciernaga_Subpeaks)
 
 As can be seen, this approach improves on the ability to capture the variation present within the UV8 detector. 
 
+Two important arguments to mention are Increments and SecondaryPeaks. Increments are by default set to 0.1, so 10% increments. So if a secondary peak is 0.18 of the primary peak value, it would get rounded to the nearest 0.1 increment interval (0.2). In `Luciernaga`'s current implementation, 0.1 is the lowest value verified to work, but it can be increased more broadly to 0.2. 
+
+```{r}
+Unstained_Signatures <- Luciernaga_QC(x=MyUnstainedGatingSet[2],
+                                      subsets="lymphocytes",
+                                      removestrings=removestrings,
+                                      sample.name="GUID",
+                                      unmixingcontroltype = "cells",
+                                      Unstained = TRUE,
+                                      ratiopopcutoff = 0.001,
+                                      Verbose = FALSE,
+                                      AFOverlap = AFOverlap, 
+                                      stats = "median",
+                                      ExportType = "data",
+                                      SignatureReturnNow = FALSE,
+                                      outpath = NULL,
+                                      Increments=0.2,
+                                      experiment = "UnstainedSignature",
+                                      condition = "Test")
+gt(head(Unstained_Signatures, 5))
+```
+
+```{r}
+TheData <- Unstained_Signatures %>% select(-any_of(c("Sample", "Experiment", "Condition", "Count"))) %>% rename(Sample=Cluster)
+
+TheFluors <- TheData %>% pull(Sample)
+TheFluors <- TheFluors[1:10]
+
+Luciernaga_Subpeaks <- QC_ViewSignature(x=TheFluors, data=TheData, Normalize = TRUE)
+plotly::ggplotly(Luciernaga_Subpeaks)
+```
+
+
+Similarly, SecondaryPeaks default is set to 2, so allowing for a fluorescent with 3 separate peaks to be characterized. This works for most single-color unmixing controls, but can also be currently increased up to 8 peaks (which is used to characterize the QC bead and raw full-stained signatures elsewhere).  Let's decrease it to 1 for this example:
+
+```{r}
+Unstained_Signatures <- Luciernaga_QC(x=MyUnstainedGatingSet[2],
+                                      subsets="lymphocytes",
+                                      removestrings=removestrings,
+                                      sample.name="GUID",
+                                      unmixingcontroltype = "cells",
+                                      Unstained = TRUE,
+                                      ratiopopcutoff = 0.001,
+                                      Verbose = FALSE,
+                                      AFOverlap = AFOverlap, 
+                                      stats = "median",
+                                      ExportType = "data",
+                                      SignatureReturnNow = FALSE,
+                                      outpath = NULL,
+                                      Increments=0.2,
+                                      SecondaryPeaks=1,
+                                      experiment = "UnstainedSignature",
+                                      condition = "Test")
+gt(head(Unstained_Signatures, 5))
+```
+
+One challenge is that for every additional peak, at 0.1 increments, the number of potential combinations a subcluster name can take increases, the end number of subclusters increase, and the fewer cells per subcluster result. At the same time, we get into the "Poisson" noise discussion territory where only people named David typically thread. At a certain point of increasing points we are evaluating at, every single autofluorescent cell eventually clusters only with itself at the typical number of cells collected for our experiments. So my advice for now is to set the Increments and SecondaryPeak arguments for what you need to achieve stable resolution/characterization/unmixing in your particular context.
+
+## Data Export Arguments
+
+With all the above, we have covered all the important arguments related to Unstained cell unmixing controls. For the examples above, we specified returntype == "data", which returned the summaries that could be used for the reporting functions in `Luciernaga`. Alternatively, we could export the purified signatures as .fcs files, by setting returntype = "fcs", and providing a file path to our desired storage location via the outpath argument. These files are compatible with other flow cytometry software, and can be used to assist in unmixing. This can be useful when a single-color is experiencing quality issues, or you want to create a tag specific to a certain subtype of autofluorescence. In the context of unstained unmixing controls, this would resemble the following code:
+
+```{r, eval=FALSE}
+StorageLocation <- file.path("C:", "Users", "JohnDoe", "Desktop")
+
+
+Unstained_Signatures <- Luciernaga_QC(x=MyUnstainedGatingSet[2],
+                                      subsets="lymphocytes",
+                                      removestrings=removestrings,
+                                      sample.name="GUID",
+                                      unmixingcontroltype = "cells",
+                                      Unstained = TRUE,
+                                      ratiopopcutoff = 0.001,
+                                      Verbose = FALSE,
+                                      AFOverlap = AFOverlap, 
+                                      stats = "median",
+                                      ExportType = "fcs",
+                                      SignatureReturnNow = FALSE,
+                                      outpath = StorageLocation,
+                                      Increments=0.1,
+                                      SecondaryPeaks=2,
+                                      experiment = "UnstainedSignature",
+                                      condition = "Test")
+```
+
+Similarly, in combination with `r CRANpkg("purrr")` map function, we can iterate over our GatingSet to generate subcluster .fcs files for all our Unstained samples in one go.
+
+```{r}
+StorageLocation <- file.path("C:", "Users", "JohnDoe", "Desktop")
+
+TheUnstaineds <- map(.x=MyUnstainedGatingSet[1:3], .f=Luciernaga_QC, 
+                     subsets="lymphocytes", removestrings=removestrings,
+                     sample.name="GUID", unmixingcontroltype = "cells",
+                     Unstained = TRUE, ratiopopcutoff = 0.001,
+                     Verbose = FALSE, AFOverlap = AFOverlap, 
+                     stats = "median", ExportType = "fcs",
+                     SignatureReturnNow = FALSE, outpath = StorageLocation,
+                     Increments=0.1, SecondaryPeaks=2,
+                     experiment = "UnstainedSignature",
+                     condition = "Test")
+```
+
+Additionally, providing argument Brightness = TRUE will return a .csv file with the report data. This output is used by `Luciernaga_Tree()` and a couple other of the report functions we will cover later.
+
+```{r}
+StorageLocation <- file.path("C:", "Users", "JohnDoe", "Desktop")
+
+TheUnstaineds <- map(.x=MyUnstainedGatingSet[1:3], .f=Luciernaga_QC, 
+                     subsets="lymphocytes", removestrings=removestrings,
+                     sample.name="GUID", unmixingcontroltype = "cells",
+                     Unstained = TRUE, ratiopopcutoff = 0.001,
+                     Verbose = FALSE, AFOverlap = AFOverlap, 
+                     stats = "median", ExportType = "fcs",
+                     SignatureReturnNow = FALSE, outpath = StorageLocation,
+                     Increments=0.1, SecondaryPeaks=2,
+                     experiment = "UnstainedSignature",
+                     condition = "Test", Brightness = TRUE)
+```
+
+### Single Color Unmixing Controls
+
+Now that we have covered unstained unmixing controls, let's look at how `Luciernaga_QC()` works with single-color unmixing controls.  Let's set the returnsignaturenow = TRUE as we had done previously when starting with the unstained samples.
+
+```{r}
+StorageLocation <- file.path("C:", "Users", "JohnDoe", "Desktop")
+
+pData(MyGatingSet[2])
+
+SingleStain_Signatures <- Luciernaga_QC(x=MyGatingSet[2],
+                                      subsets="lymphocytes",
+                                      removestrings=removestrings,
+                                      sample.name="GUID",
+                                      unmixingcontroltype = "cells",
+                                      Unstained = FALSE,
+                                      ratiopopcutoff = 0.01,
+                                      Verbose = TRUE,
+                                      AFOverlap = AFOverlap, 
+                                      stats = "median",
+                                      ExportType = "data",
+                                      SignatureReturnNow = TRUE,
+                                      outpath = NULL)
+```
+```{r}
+V7 <- Luciernaga_QC(x=MyGatingSet[2], subsets="lymphocytes", removestrings=removestrings,
+                    sample.name="GUID", unmixingcontroltype = "cells", Unstained = FALSE,
+                    ratiopopcutoff = 0.001, Verbose = FALSE, AFOverlap = AFOverlap, stats = "median",
+                    ExportType = "data", SignatureReturnNow = TRUE, outpath = NULL,
+                    desiredAF="V7-A")
+
+V15 <- Luciernaga_QC(x=MyGatingSet[2], subsets="lymphocytes", removestrings=removestrings,
+                    sample.name="GUID", unmixingcontroltype = "cells", Unstained = FALSE,
+                    ratiopopcutoff = 0.001, Verbose = FALSE, AFOverlap = AFOverlap, stats = "median",
+                    ExportType = "data", SignatureReturnNow = TRUE, outpath = NULL,
+                    desiredAF="V15-A")
+
+UV7 <- Luciernaga_QC(x=MyGatingSet[2], subsets="lymphocytes", removestrings=removestrings,
+                    sample.name="GUID", unmixingcontroltype = "cells", Unstained = FALSE,
+                    ratiopopcutoff = 0.001, Verbose = FALSE, AFOverlap = AFOverlap, stats = "median",
+                    ExportType = "data", SignatureReturnNow = TRUE, outpath = NULL,
+                    desiredAF="UV7-A")
+
+V5 <- Luciernaga_QC(x=MyGatingSet[2], subsets="lymphocytes", removestrings=removestrings,
+                    sample.name="GUID", unmixingcontroltype = "cells", Unstained = FALSE,
+                    ratiopopcutoff = 0.001, Verbose = FALSE, AFOverlap = AFOverlap, stats = "median",
+                    ExportType = "data", SignatureReturnNow = TRUE, outpath = NULL,
+                    desiredAF="V5-A")
+
+data <- rbind(V7, V15, UV7, V5)
+Sample <- data.frame(Sample=c("V7", "V15", "UV7", "V5"))
+Data <- cbind(Sample, data)
+
+Fluors <- Data %>% pull(Sample)
+```
+
+```{r}
+Raw_Results <- QC_ViewSignature(x=Fluors, data=Data, Normalize = FALSE)
+plotly::ggplotly(Raw_Results)
+```
+
+
+```{r}
+Normalized_Results <- QC_ViewSignature(x=Fluors, data=Data) 
+plotly::ggplotly(Normalized_Results)
+```
+
+As we can see from the returned peak detectors, for this BV786 single-stained unmixing control, there were 4 detectors which cells from the sample had primary peaks on. Looking at the signatures (and referencing to the results from our Unstained samples looked at previously) three are unstained peak detectors (V7, UV7, V5). Consequently, the remaining detector (V15) is likely to be of antibody-staining origin. This is particularly obvious when we look at the normalized signature. In the case of Raw MFI plot, the antibody-stained cells are way brighter than the underlying autofluorescence of cells that didn't get stained by the antibody (due to not having the antigen). 
+
+Please note that at this stage, autofluorescence background has not yet been subtracted from the single-color unmixing control, which is why we can see for ID_V15 residual autofluorescence present in both the raw and normalized signature. In the normalized signature, it materializes as minor peaks below 0.2 at both the UV7-A and V7-A. It's this bit of background that we need to properly extract in order to provide a good signature for unmixing. 
+
+`Luciernaga_QC()` repeats this process in a similar manner for all single-color unmixing controls, enumerating peak detectors, removing those listed by the AFOverlap .csv for unstained from consideration, and focusing on the likely antibody-stain origin detectors for further processing. It's because of this that we can also see why the AFOverlap is needed when a fluorophore shares it's peak detector with the main autofluorescence peaks. Let's take a look at what happens with BV510 for this specific case:
+
+```{r, error = TRUE}
+StorageLocation <- file.path("C:", "Users", "JohnDoe", "Desktop")
+
+#pData(MyGatingSet)
+
+SingleStain_Signatures <- Luciernaga_QC(x=MyGatingSet[16],
+                                      subsets="lymphocytes",
+                                      removestrings=removestrings,
+                                      sample.name="GUID",
+                                      unmixingcontroltype = "cells",
+                                      Unstained = FALSE,
+                                      ratiopopcutoff = 0.01,
+                                      Verbose = TRUE,
+                                      AFOverlap = AFOverlap, 
+                                      stats = "median",
+                                      ExportType = "data",
+                                      SignatureReturnNow = TRUE,
+                                      outpath = NULL)
+```
+
+In this case, the function errors out and calls for an external autofluorescence signature to be provided to the ExternalAF argument. When we look at the Verbose = TRUE message, we can see that for this particular sample, only V7 is present. 
+
+The advantage of isolating peak detectors in this manner is that it allows `Luciernaga` to profile unusual flourescence signals that may be present within a single-color unmixing control. These could be rarer autofluorescences, but they could also be indicators for the overall quality of the antibody-fluorophore conjugation. 
+
+A good example of a more-complicated single-color unmixing control to processs is the PerCP-Cy5.5 antibody, which for this panel was added intracellularly after fixation and had both degradation and non-specific/background staining issues:
+
+```{r, error = TRUE}
+StorageLocation <- file.path("C:", "Users", "JohnDoe", "Desktop")
+
+#pData(MyGatingSet)
+
+SingleStain_Signatures <- Luciernaga_QC(x=MyGatingSet[9],
+                                      subsets="lymphocytes",
+                                      removestrings=removestrings,
+                                      sample.name="GUID",
+                                      unmixingcontroltype = "cells",
+                                      Unstained = FALSE,
+                                      ratiopopcutoff = 0.01,
+                                      Verbose = TRUE,
+                                      AFOverlap = AFOverlap, 
+                                      stats = "median",
+                                      ExportType = "data",
+                                      SignatureReturnNow = TRUE,
+                                      outpath = NULL)
+```
+
+```{r}
+V7 <- Luciernaga_QC(x=MyGatingSet[9], subsets="lymphocytes", removestrings=removestrings,
+                    sample.name="GUID", unmixingcontroltype = "cells", Unstained = FALSE,
+                    ratiopopcutoff = 0.001, Verbose = FALSE, AFOverlap = AFOverlap, stats = "median",
+                    ExportType = "data", SignatureReturnNow = TRUE, outpath = NULL,
+                    desiredAF="V7-A")
+
+B9 <- Luciernaga_QC(x=MyGatingSet[9], subsets="lymphocytes", removestrings=removestrings,
+                    sample.name="GUID", unmixingcontroltype = "cells", Unstained = FALSE,
+                    ratiopopcutoff = 0.001, Verbose = FALSE, AFOverlap = AFOverlap, stats = "median",
+                    ExportType = "data", SignatureReturnNow = TRUE, outpath = NULL,
+                    desiredAF="B9-A")
+
+UV7 <- Luciernaga_QC(x=MyGatingSet[9], subsets="lymphocytes", removestrings=removestrings,
+                    sample.name="GUID", unmixingcontroltype = "cells", Unstained = FALSE,
+                    ratiopopcutoff = 0.001, Verbose = FALSE, AFOverlap = AFOverlap, stats = "median",
+                    ExportType = "data", SignatureReturnNow = TRUE, outpath = NULL,
+                    desiredAF="UV7-A")
+
+B14 <- Luciernaga_QC(x=MyGatingSet[9], subsets="lymphocytes", removestrings=removestrings,
+                    sample.name="GUID", unmixingcontroltype = "cells", Unstained = FALSE,
+                    ratiopopcutoff = 0.001, Verbose = FALSE, AFOverlap = AFOverlap, stats = "median",
+                    ExportType = "data", SignatureReturnNow = TRUE, outpath = NULL,
+                    desiredAF="B14-A")
+
+R3 <- Luciernaga_QC(x=MyGatingSet[9], subsets="lymphocytes", removestrings=removestrings,
+                    sample.name="GUID", unmixingcontroltype = "cells", Unstained = FALSE,
+                    ratiopopcutoff = 0.001, Verbose = FALSE, AFOverlap = AFOverlap, stats = "median",
+                    ExportType = "data", SignatureReturnNow = TRUE, outpath = NULL,
+                    desiredAF="R3-A")
+
+data <- rbind(V7, B9, UV7, B14, R3)
+Sample <- data.frame(Sample=c("V7", "B9", "UV7", "B14", "R3"))
+Data <- cbind(Sample, data)
+
+Fluors <- Data %>% pull(Sample)
+  
+Results <- QC_ViewSignature(x=Fluors, data=Data) 
+plotly::ggplotly(Results)
+```
+
+As we can see from the signatures, there are only a few detectors that reach peak detector status, but this aggregated averaged view of the fluorophore ends up introducing autofluorescence artefacts to what should be fluorophore specific peaks, and fluorophore contributions to what shoudl be purely autofluorescence detectors. Consequently, a better approach is needed. 
+
+One aspect is t
 
 
 
-The next set of arguments we will set returntype = "data" for our examples to generate a report style. If we wanted the purified signatures returned as .fcs files, we would set this argument to "fcs" and provide an file.path to our desired storage location with the outpath argument (currently set to NULL).
+
+This process is similar for all the single-color unmixing controls, with 
+
+With the exception of the fluorophores whose detectors overlap with the autofluorescence peak detectors (which are addressed via the AFOverlap .csv) within a single-color unmixing control, the peak detectors that would be returned are likely to be: 1. Peak detectors originating from AF, 2. Peak Detectors originating from Fluorophore.
 
 
 
-
-
-Increments is a value I ask user to specify, because it determines how strict the clustering of cells on the basis of their peaks is. 
-
-
-
-
-
-### Continue Here
 
 
 
@@ -644,12 +919,9 @@ Now that the peaks are enumerated, it uses the information provided by the autof
 
 The subsequent step is to remove autofluorescence contribution to reveal single-color signature alone. Autofluorescence can be defined either internally or with an external provided reference. Once autofluorescence is subtracted, cells with similar signatures are clustered together, and exported as .raw fcs files with the subcluster designation appended to the .fcs file name. 
 
+In the case of single color unmixing control (in this case, APC-Fire 750, the other specimen in our GatingSet):
 
-
-
-In the case ofsingle color unmixing control (in this case, APC-Fire 750, the other specimen in our GatingSet):
-
-```{r}
+```{r, eval=FALSE}
 SC_InternalAF <- Luciernaga_QC(x=MyGatingSet[1], subsets="lymphocytes",
                                removestrings=removestrings, sample.name="GUID", 
                                unmixingcontroltype = "cells", Unstained = FALSE,
@@ -724,33 +996,6 @@ CombinedData <- map(.x=MyGatingSet, .f=Luciernaga_QC, subsets="lymphocytes",
                     RetainedType="normalized", Increments=0.2) %>% bind_rows()
 ```
 
-### Luciernaga_Plots
-
-We can take the data.frame output from LuciernagaQC and run directly into a basic report. CellPopRatio determines the mininum ratio a cluster needs to have to be plotted (anything smaller is combined into the other category). The default is set for all four plots being returned, these can be modified by specifying FALSE for their individual arguments. Outputs are sent to Utility_Patchwork for processing into either grouped ggplot or a pdf file. 
-
-```{r, eval = FALSE, echo=FALSE}
-ThePlots <- LuciernagaReport(data=CombinedData, RetainedType = "normalized",
-                             CellPopRatio = 0.05, outfolder = NULL,
-                             filename = NULL, returntype = "patchwork")
-
-ThePlots
-#ggplotly(ThePlots[[1]])
-```
-
-
-### Reports from .fcs files
-
-The LuciernagaQC() will also produce .fcs files containing only the isolated signatures, and store these in the designated folder. Rather than re-running LuciernagaQC() just to return a report, and to allow for visualization of specific .fcs subfiles of interest, we have implemented functions that carry out similar functionality, but using these isolated fluorescent files as their start basis.
-
-## Luciernaga_QC
-
-## Luciernaga_FCSToReport
-
-## Luciernaga_Brightness
-
-## Luciernaga_Lists
-
-## Luciernaga_Plots
 
 # Conclusion
 

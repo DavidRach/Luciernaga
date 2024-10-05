@@ -1,0 +1,56 @@
+---
+title: "05 Fluorescent Reports`"
+date: "`r BiocStyle::doc_date()`"
+author:
+- name: David Rach
+  email: drach@som.umaryland.edu
+  affiliation: University of Maryland, Baltimore
+package: "`r BiocStyle::pkg_ver('Luciernaga')`"
+output:
+  BiocStyle::html_document
+bibliography: "`r file.path(system.file('extdata', package='Luciernaga'), 'refs.bib')`"
+vignette: |
+  %\VignetteIndexEntry{05 Fluorescent Reports}
+  %\VignettePackage{Luciernaga}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+### Luciernaga_Plots
+
+We can take the data.frame output from LuciernagaQC and run directly into a basic report. CellPopRatio determines the mininum ratio a cluster needs to have to be plotted (anything smaller is combined into the other category). The default is set for all four plots being returned, these can be modified by specifying FALSE for their individual arguments. Outputs are sent to Utility_Patchwork for processing into either grouped ggplot or a pdf file. 
+
+```{r, eval = FALSE, echo=FALSE}
+ThePlots <- LuciernagaReport(data=CombinedData, RetainedType = "normalized",
+                             CellPopRatio = 0.05, outfolder = NULL,
+                             filename = NULL, returntype = "patchwork")
+
+ThePlots
+#ggplotly(ThePlots[[1]])
+```
+
+
+### Reports from .fcs files
+
+The LuciernagaQC() will also produce .fcs files containing only the isolated signatures, and store these in the designated folder. Rather than re-running LuciernagaQC() just to return a report, and to allow for visualization of specific .fcs subfiles of interest, we have implemented functions that carry out similar functionality, but using these isolated fluorescent files as their start basis.
+
+## Luciernaga_QC
+
+## Luciernaga_FCSToReport
+
+## Luciernaga_Brightness
+
+## Luciernaga_Lists
+
+## Luciernaga_Plots
+
+```{r sessionInfo, echo = FALSE}
+sessionInfo()
+```
