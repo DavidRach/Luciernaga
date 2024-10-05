@@ -70,14 +70,15 @@
 #'
 #' @examples NULL
 Luciernaga_QC <- function(x, subsets, sample.name, removestrings=NULL, Verbose = FALSE,
- unmixingcontroltype="both", Unstained=FALSE, ratiopopcutoff=0.01, experiment = NULL,
- experiment.name = NULL, condition = NULL, condition.name = NULL, AFOverlap,
- stats="median", desiredAF=NULL, externalAF = NULL, ExportType,
- SignatureReturnNow=FALSE, outpath, minimalfcscutoff = 0.05, Subtraction = "Internal",
- SCData = "subtracted", NegativeType= "default", TotalNegatives = 500,
- Brightness=FALSE, LocalMaximaRatio=0.15, SecondaryPeaks=2, Increments,
- RetainedType="normalized", BeadAF=NULL, BeadMainAF=NULL, CellAF=NULL,
- CellMainAF=NULL){
+                          experiment = NULL, experiment.name = NULL, condition = NULL,
+                          condition.name = NULL, AFOverlap, unmixingcontroltype="both",
+                          Unstained=FALSE, ratiopopcutoff=0.01, stats="median",
+                          Subtraction = "Internal", desiredAF=NULL, BeadAF=NULL,
+                          BeadMainAF=NULL, CellAF=NULL, CellMainAF=NULL,
+                          SignatureReturnNow=FALSE, Increments, LocalMaximaRatio=0.15,
+                          SecondaryPeaks=2, RetainedType="normalized", Brightness=FALSE,
+                          ExportType, minimalfcscutoff = 0.05, SCData = "subtracted",
+                          NegativeType= "default", TotalNegatives = 500, outpath){
 
   ###################
   # Metadata Module #
@@ -276,37 +277,82 @@ Luciernaga_QC <- function(x, subsets, sample.name, removestrings=NULL, Verbose =
       message("Only a single detector present. If this was not an autofluorescence overlap
               fluourophore, it would suggest there was no antibody staining, or everything
               was overstained. Please investigate further.")
+      }
+
+      if (Type == "Cells" && Subtraction == "Internal" && !is.null(CellAF)){
+        InternalOverride <- TRUE
         }
 
-      if (Type == "Cells" && Subtraction == "Internal" && is.null(externalAF)){
-      stop("Only one detector present and no external autofluorescence signature was provided
-           for subtraction. Please provision the ExternalAF argument.")}
+      if (Type == "Cells" && Subtraction == "Internal" && is.null(CellAF)){
+      stop("Only one detector present and no external cell autofluorescence signature was provided
+           for subtraction. Please provision the CellAF argument.")
+        }
     }
 
-  # Adding way to switch to alternate AFs.
-  if (is.null(desiredAF) && is.null(externalAF)){
+  if (Subtraction == "Internal"){
+    if (InternalOverride != TRUE){
+
+    if (!is.null(desiredAF)){TheMainAF <- Luciernaga:::NameCleanUp(desiredAF, c("-A"))}
+
     This <- WorkAround %>% filter(.data[[TheMainAF]] == 1) %>% select(all_of(1:ColsN))
-  } else if (!is.null(desiredAF) && is.null(externalAF)){
-          desiredAF <- Luciernaga:::NameCleanUp(desiredAF, c("-A"))
-          TheMainAF <- desiredAF
-          This <- WorkAround %>% filter(.data[[desiredAF]] == 1) %>%
-            select(all_of(1:ColsN))}
 
-  if (is.null(externalAF)){Samples <- AveragedSignature(x=This, stats=stats)
-  } else {if(is.data.frame(externalAF)){
-    Samples <- externalAF
-    MaxVal <- do.call(pmax, Samples)
-    TheNormed <- Samples/MaxVal
-    TheCounts <- colSums(TheNormed == 1)
-    ThePeakDetectorCounts <- data.frame(Fluors = names(TheCounts), Counts = TheCounts)
-    rownames(ThePeakDetectorCounts) <- NULL
-    TheMainAF <- ThePeakDetectorCounts %>% arrange(desc(Counts)) %>%
-      slice(1) %>% pull(Fluors)
-    TheMainAF <- gsub("-A", "", TheMainAF)
-    } else {stop("externalAF needs to be a single row of a data.frame")}}
+    Samples <- AveragedSignature(x=This, stats=stats)
 
-  if (SignatureReturnNow == TRUE){Detectors
-                                  return(Samples)}
+    } else {Subtraction <- "External"}
+  }
+
+
+  if (Subtraction == "External"){
+
+    if (is.data.frame(CellAF)){
+      Samples <- CellAF
+      MaxVal <- do.call(pmax, Samples)
+      TheNormed <- Samples/MaxVal
+      TheCounts <- colSums(TheNormed == 1)
+      ThePeakDetectorCounts <- data.frame(Fluors = names(TheCounts), Counts = TheCounts)
+      rownames(ThePeakDetectorCounts) <- NULL
+      TheMainAF <- ThePeakDetectorCounts %>% arrange(desc(Counts)) %>%
+        slice(1) %>% pull(Fluors)
+      TheMainAF <- gsub("-A", "", TheMainAF)
+
+      if (nrow(Samples) > 1){
+        Samples <- AveragedSignature(x=CellAF, stats=stats)
+      }
+    } else {stop("CellAF needs to be a data.frame object with a single row. Use SignatureReturnNow = TRUE
+                 on a Luciernaga_QC() Unstained Sample, or AveragedSignature() on exprs data to generate
+                 the correct format.")}
+  }
+
+  }
+
+  if (Type == "Beads"){
+
+    if (SignatureReturnNow == TRUE){
+
+      if (nrow(Detectors) > 1){TheMainAF <- Intermediate %>% slice(1) %>% pull(Fluors)
+      } else {TheMainAF <- Detectors %>% pull(Fluors)}
+
+
+      if(!is.null(desiredAF)){TheMainAF <- Luciernaga:::NameCleanUp(desiredAF, c("-A"))}
+
+      This <- WorkAround %>% filter(.data[[TheMainAF]] == 1) %>% select(all_of(1:ColsN))
+
+      Samples <- AveragedSignature(x=This, stats=stats)
+
+      }
+  }
+
+  if (SignatureReturnNow == TRUE){
+    ThePlot <- Samples %>% mutate(Sample=name) %>%
+      relocate(Sample, .before=1)
+    Plot <- QC_ViewSignature(x=name, data=ThePlot, Normalize=TRUE)
+
+    if (Verbose == TRUE){
+      print(Detectors)
+      print(Plot)
+    }
+
+   return(Samples)}
   }
 
 
