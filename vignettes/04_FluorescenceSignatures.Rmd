@@ -1024,8 +1024,11 @@ In the cases above, we have been returning the `Luciernaga_QC()` ExportType to "
 
 As you can tell, there are some bugs in this description (including Subtraction) that remain to be worked out when I have time and the paper I need to graduate is submitted and I can justify optimizing code with multiple moving parts yet again. 
 
+
+## Validation
+
 ```{r, eval = FALSE}
-StorageLocation <- file.path("C:", "Users", "JohnDoe", "Desktop")
+StorageLocation <- file.path("C:", "Users", "12692", "Desktop")
 
 
 SingleStain_Signatures <- Luciernaga_QC(x=MyGatingSet[2], subsets="lymphocytes",
@@ -1036,7 +1039,57 @@ SingleStain_Signatures <- Luciernaga_QC(x=MyGatingSet[2], subsets="lymphocytes",
                                         ExportType = "fcs", SignatureReturnNow = FALSE,
                                         outpath = StorageLocation, Increments=0.1,
                                         SecondaryPeaks=2, experiment = "UnstainedSignature",
-                                        condition = "Test", SCData="subtracted",NegativeType="default")
+                                        condition = "Test", SCData="subtracted", NegativeType="default")
+
+SingleStain_Signatures <- Luciernaga_QC(x=MyGatingSet[2], subsets="lymphocytes",
+                                        removestrings=removestrings, sample.name="GUID",
+                                        unmixingcontroltype = "cells", Unstained = FALSE,
+                                        ratiopopcutoff = 0.001, Verbose = FALSE,
+                                        AFOverlap = AFOverlap, stats = "median",
+                                        ExportType = "fcs", SignatureReturnNow = FALSE,
+                                        outpath = StorageLocation, Increments=0.1,
+                                        SecondaryPeaks=2, experiment = "UnstainedSignature",
+                                        condition = "Test", SCData="subtracted",NegativeType="artificial")
+
+SingleStain_Signatures <- Luciernaga_QC(x=MyGatingSet[2], subsets="lymphocytes",
+                                        removestrings=removestrings, sample.name="GUID",
+                                        unmixingcontroltype = "cells", Unstained = FALSE,
+                                        ratiopopcutoff = 0.001, Verbose = FALSE,
+                                        AFOverlap = AFOverlap, stats = "median",
+                                        ExportType = "fcs", SignatureReturnNow = FALSE,
+                                        outpath = StorageLocation, Increments=0.1,
+                                        SecondaryPeaks=2, experiment = "UnstainedSignature",
+                                        condition = "Test", SCData="subtracted",NegativeType="samples")
+
+SingleStain_Signatures <- Luciernaga_QC(x=MyGatingSet[2], subsets="lymphocytes",
+                                        removestrings=removestrings, sample.name="GUID",
+                                        unmixingcontroltype = "cells", Unstained = FALSE,
+                                        ratiopopcutoff = 0.001, Verbose = FALSE,
+                                        AFOverlap = AFOverlap, stats = "median",
+                                        ExportType = "fcs", SignatureReturnNow = FALSE,
+                                        outpath = StorageLocation, Increments=0.1,
+                                        SecondaryPeaks=2, experiment = "UnstainedSignature",
+                                        condition = "Test", SCData="raw",NegativeType="default")
+
+SingleStain_Signatures <- Luciernaga_QC(x=MyGatingSet[2], subsets="lymphocytes",
+                                        removestrings=removestrings, sample.name="GUID",
+                                        unmixingcontroltype = "cells", Unstained = FALSE,
+                                        ratiopopcutoff = 0.001, Verbose = FALSE,
+                                        AFOverlap = AFOverlap, stats = "median",
+                                        ExportType = "fcs", SignatureReturnNow = FALSE,
+                                        outpath = StorageLocation, Increments=0.1,
+                                        SecondaryPeaks=2, experiment = "UnstainedSignature",
+                                        condition = "Test", SCData="raw",NegativeType="artificial")
+
+SingleStain_Signatures <- Luciernaga_QC(x=MyGatingSet[2], subsets="lymphocytes",
+                                        removestrings=removestrings, sample.name="GUID",
+                                        unmixingcontroltype = "cells", Unstained = FALSE,
+                                        ratiopopcutoff = 0.001, Verbose = FALSE,
+                                        AFOverlap = AFOverlap, stats = "median",
+                                        ExportType = "fcs", SignatureReturnNow = FALSE,
+                                        outpath = StorageLocation, Increments=0.1,
+                                        SecondaryPeaks=2, experiment = "UnstainedSignature",
+                                        condition = "Test", SCData="raw",NegativeType="samples")
 
 ```
 

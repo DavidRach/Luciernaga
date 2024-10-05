@@ -79,35 +79,44 @@ Luciernaga_QC <- function(x, subsets, sample.name, removestrings=NULL, Verbose =
  RetainedType="normalized", BeadAF=NULL, BeadMainAF=NULL, CellAF=NULL,
  CellMainAF=NULL){
 
-  name <- keyword(x, sample.name)
+  ###################
+  # Metadata Module #
+  ###################
+
+  if (length(sample.name) == 2){
+    first <- sample.name[[1]]
+    second <- sample.name[[2]]
+    first <- keyword(x, first)
+    second <- keyword(x, second)
+    name <- paste(first, second, sep="_")
+  } else {name <- keyword(x, sample.name)}
+
   Type <- Luciernaga:::Typing(name=name, unmixingcontroltype=unmixingcontroltype,
                  Unstained=Unstained)
   AggregateName <- Luciernaga:::NameForSample(x=x, sample.name=sample.name,
                                  removestrings=removestrings)
 
-  if (is.null(experiment) && is.null(experiment.name)){
-    #message("Both experiment and experiment.name are set to NULL,
-            #consider adding one or the other.")
+  if (is.null(experiment) && is.null(experiment.name) && SignatureReturnNow==FALSE){
+    message("Both experiment and experiment.name are set to NULL,
+            consider adding one or the other.")
             }
 
   Experiment <- Luciernaga:::NameForSample(x=x, sample.name=sample.name,
     removestrings=removestrings, experiment = experiment,
     experiment.name = experiment.name, returnType = "experiment")
 
-  if (is.null(condition) && is.null(condition.name)){
-    #message("Both condition and condition.name are set to NULL,
-    #        consider adding one or the other.")
+  if (is.null(condition) && is.null(condition.name) && SignatureReturnNow==FALSE){
+    message("Both condition and condition.name are set to NULL,
+            consider adding one or the other.")
     }
 
   Condition <- Luciernaga:::NameForSample(x=x, sample.name=sample.name,
     removestrings=removestrings, condition=condition,
     condition.name = condition.name, returnType = "condition")
 
-  # Internal Name Cleanup, to make sure fluorophores match
   InternalCleanupList <- c(".fcs", "Cells", "Beads", " ", "_", "-", ".", "(", ")")
   name <- Luciernaga:::NameCleanUp(name, InternalCleanupList)
 
-  # Brought back until overlap is converted from name reliant to type reliant.
   if (Unstained == TRUE) {
     if(!str_detect(name, "stained")){name <- paste0(name, "_Unstained")}
     if(!str_detect(Type, "stained")){Type <- paste0(Type, "_Unstained")}
@@ -117,30 +126,23 @@ Luciernaga_QC <- function(x, subsets, sample.name, removestrings=NULL, Verbose =
   # Exprs Setup #
   ###############
 
-  #Retrieving the exprs data for the target population
   ff <- gs_pop_get_data(x, subsets)
   startingcells <- nrow(ff)[[1]]
   DF <- as.data.frame(exprs(ff[[1]]), check.names=FALSE)
 
-  #For Future Row Reordering
   Backups <- DF %>% mutate(Backups = 1:nrow(DF)) %>% select(Backups)
 
-  #For Future Column Reordering
   OriginalColumns <- colnames(DF)
   OriginalColumns <- data.frame(OriginalColumns)
   OriginalColumnsIndex <- OriginalColumns %>% mutate(IndexLocation = 1:nrow(.))
 
   OriginalColumnsVector <- colnames(DF)
 
-  # Storing Other Parameter (Time, FSC, SSC) for Later Return
   StashedDF <- DF[,grep("Time|FS|SC|SS|Original|W$|H$", names(DF))]
   StashedDF <- cbind(Backups, StashedDF)
 
-  # Consolidating Desired Parameters
   n <- DF[,-grep("Time|FS|SC|SS|Original|W$|H$", names(DF))]
 
-  # Next Step Will Remove Negative Values, to what extent is
-  # an ordinary .fcs file affected?
   if (Verbose == TRUE){
     TheTotal <- nrow(n) * ncol(n)
     BelowZero <- sum(apply(n, 2, function(x) x < 0))
@@ -148,20 +150,20 @@ Luciernaga_QC <- function(x, subsets, sample.name, removestrings=NULL, Verbose =
             " of all events were negative and will be rounded to 0")
   }
 
-  # Normalizing Individual Cells By Peak Detector
+  #################################################
+  # Normalizing Individual Cells By Peak Detector #
+  #################################################
+
   n[n < 0] <- 0
   A <- do.call(pmax, n)
   Normalized <- n/A
-  #Normalized <- round(Normalized, 4) # Previously at 1
   colnames(Normalized) <- gsub("-A", "", colnames(Normalized))
 
-  # Figuring out where Raw and Normalized Columns Start and End
   ColsN <- ncol(n)
   ColsNormalized <- ncol(Normalized)
   StartNormalizedMergedCol <- ColsN + 1
   EndNormalizedMergedCol <- ColsN + ColsNormalized
 
-  # Bringing Together Raw And Normalized Data.Frames
   WorkAround <- cbind(n, Normalized)
 
   na_counts <- colSums(is.na(Normalized))
@@ -170,6 +172,10 @@ Luciernaga_QC <- function(x, subsets, sample.name, removestrings=NULL, Verbose =
   PeakDetectorCounts <- data.frame(Fluors = names(Counts), Counts = Counts)
   rownames(PeakDetectorCounts) <- NULL
   PeakDetectorCounts <- PeakDetectorCounts %>% arrange(desc(Counts))
+
+  ##############################
+  # Determining Peak Detectors #
+  ##############################
 
   if (Type == "Cells"|Type == "Cells_Unstained") {
     CellCutoff <- startingcells*ratiopopcutoff
@@ -182,28 +188,37 @@ Luciernaga_QC <- function(x, subsets, sample.name, removestrings=NULL, Verbose =
       pull(Fluors)
     TheMedians <- map(.x=TheCandidates, .f=BeadDetectors, data=WorkAround) %>%
       bind_rows()
-    if (Verbose == TRUE){print(TheMedians)}
+    if (Verbose == TRUE){message("Returning Peak Bead Detector Medians")
+                         print(TheMedians)
+                         }
     PeakCutoffVal <- mean(TheMedians$TheMedian)
     TheRemnant <- TheMedians %>% dplyr::filter(TheMedian > PeakCutoffVal) %>%
       pull(TheDetector)
     Detectors <- PeakDetectorCounts %>% dplyr::filter(Fluors %in% TheRemnant)
   }
 
+  if (Verbose == TRUE){
+    print(Detectors)
+  }
+
   if (Type == "Beads_Unstained") {
+    ReferenceUnstained <- AveragedSignature(n, stats)
+    BeadPlot <- ReferenceUnstained %>% mutate(Sample="UnstainedBeads") %>%
+      relocate(Sample, .before=1)
+    Plot <- QC_ViewSignature(x="UnstainedBeads", data=BeadPlot, Normalize=TRUE)
+
+    if (Verbose == TRUE){
     message("Returning designated stats values for Beads_Unstained, please return
     to LuciernagaQC as BeadsAF for subtraction for single color unmixing controls")
-    TheMedians
-    ReferenceUnstained <- AveragedSignature(n, stats)
+
+    print(Plot)
+    }
     return(ReferenceUnstained)
   }
 
-  if (Verbose == TRUE){
-  print(Detectors)
-  }
-
-  ######################################
-  # Handling Fluor AF overlap in cells #
-  ######################################
+  ###########################################################
+  # Handling Fluorophore/AF overlap for cell controls cells #
+  ###########################################################
 
   if (str_detect(Type, "ells")) {
 
@@ -239,13 +254,12 @@ Luciernaga_QC <- function(x, subsets, sample.name, removestrings=NULL, Verbose =
 
   if (length(Retained) == 0) {stop("There were no Retained detectors in ", name)}
 
-
   if (Verbose == TRUE){print(Retained)}
 
 
-  ##################################
-  # Main Autofluorescence Detector #
-  ##################################
+  ##############################################
+  # Determining Main Autofluorescence Detector #
+  ##############################################
 
   # Inverse of retained, then top for peak
 
@@ -256,9 +270,18 @@ Luciernaga_QC <- function(x, subsets, sample.name, removestrings=NULL, Verbose =
 
     if (nrow(Intermediate) >0){
       TheMainAF <- Intermediate %>% slice(1) %>% pull(Fluors)
-    } else {message("Everything was a single detector. Unusual, overstaining?")
-            if(Type == "Cells" && is.null(externalAF)){stop("Please provide ExternalAF")}
-              }
+    } else {
+
+      if (Type == "Cells"){
+      message("Only a single detector present. If this was not an autofluorescence overlap
+              fluourophore, it would suggest there was no antibody staining, or everything
+              was overstained. Please investigate further.")
+        }
+
+      if (Type == "Cells" && Subtraction == "Internal" && is.null(externalAF)){
+      stop("Only one detector present and no external autofluorescence signature was provided
+           for subtraction. Please provision the ExternalAF argument.")}
+    }
 
   # Adding way to switch to alternate AFs.
   if (is.null(desiredAF) && is.null(externalAF)){
@@ -286,9 +309,11 @@ Luciernaga_QC <- function(x, subsets, sample.name, removestrings=NULL, Verbose =
                                   return(Samples)}
   }
 
-  ###############################
-  # Back to Regular Programming #
-  ###############################
+
+
+  ##################################################
+  # Sending off for unmixing control type handling #
+  ##################################################
 
   WorkAround1 <- WorkAround %>% mutate(Backups = Backups$Backups) %>%
     relocate(Backups, .before = 1) #This will change the start/end count
@@ -341,7 +366,9 @@ Luciernaga_QC <- function(x, subsets, sample.name, removestrings=NULL, Verbose =
                       SecondaryPeaks=SecondaryPeaks) %>% bind_rows()
   }
 
-
+  ###################################################
+  # Sending the returns to their finals destination #
+  ###################################################
 
   Reintegrated <- left_join(RetainedDF, StashedDF, by = "Backups")
 

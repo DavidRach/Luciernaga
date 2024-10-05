@@ -50,7 +50,14 @@ NameForSample <- function(x, sample.name, removestrings, experiment.name = NULL,
                           experiment = NULL, condition.name = NULL, condition = NULL,
                           returnType = "name"){
 
-  name <- keyword(x, sample.name)
+  if (length(sample.name) == 2){
+    first <- sample.name[[1]]
+    second <- sample.name[[2]]
+    first <- keyword(x, first)
+    second <- keyword(x, second)
+    name <- paste(first, second, sep="_")
+  } else {name <- keyword(x, sample.name)}
+
   name <- NameCleanUp(name = name, removestrings)
 
   if (exists("experiment")){

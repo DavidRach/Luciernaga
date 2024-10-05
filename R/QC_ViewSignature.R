@@ -26,7 +26,7 @@
 #'
 #' @examples NULL
 
-QC_ViewSignature <- function(x, data, NumberHits, Normalize = TRUE) {
+QC_ViewSignature <- function(x, data, Normalize = TRUE) {
 
   StartingData <- data %>% filter(Sample %in% x)
 
