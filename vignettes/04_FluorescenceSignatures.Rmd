@@ -343,7 +343,48 @@ IteratedPlots <- map(.x = MyUnstainedGatingSet[1:2], .f = Utility_GatingPlots,
 IteratedPlots[[1]]
 ```
 
+# AveragedSignature and QC_ViewSignature
 
+Before moving on to the more-automated functions, let's demonstrate the underlying building blocks that we use to evaluate fluorescent signatures within .fcs files. Within each .fcs file, the information related to individual cells measurements is stored within exprs. Let's demonstrate an example of how this is retrieved. 
+
+```{r}
+PopulationInterest <- gs_pop_get_data(MyUnstainedGatingSet[1], subset="lymphocytes")
+TheDataValues <- exprs(PopulationInterest[[1]])
+TheDataValues <- data.frame(TheDataValues, check.names=FALSE)
+head(TheDataValues, 5)
+```
+
+```{r}
+TotalLymphocytes <- nrow(TheDataValues)
+TotalLymphocytes
+```
+`AveragedSignature()` is the `Luciernaga` function that takes these data outputs and for each detector summarizes them for a given statistic given in the stats argument. The main ones used are "median" and "mean".
+
+```{r}
+TheSummary <- AveragedSignature(x=TheDataValues, stats="median")
+gt(TheSummary)
+```
+
+As you can see, there is still some non-signature information present in the form of the Time, FSC and SSC columns. After we remove these, we can pass the values corresponding to the signature to `QC_ViewSignature()`
+
+```{r}
+TheData <- TheSummary[,-grep("Time|FS|SC|SS|Original|W$|H$", names(TheSummary))]
+gt(TheData)
+```
+
+For Raw MFI:
+```{r}
+TheData <- TheData %>% mutate(Sample="TestSignature") %>% relocate(Sample, .before=1)
+Plot <- Luciernaga::QC_ViewSignature(x="TestSignature", data=TheData, Normalize=FALSE)
+Plot
+```
+And after-normalizing by the peak detector.
+
+```{r}
+Plot <- Luciernaga::QC_ViewSignature(x="TestSignature", data=TheData, Normalize=TRUE)
+Plot
+```
+A lot of the more complicated `Luciernaga` functions build on these elements in combination with filtering decisions to characterize all the signatures present within an .fcs file. However, if you have questions that are not addressed directly by one of the more complicated functions, build on the above until you answer your own question. It's how we all initially get started. 
 
 # Luciernaga_QC
 
@@ -400,7 +441,7 @@ From the Verbose = TRUE readouts, we can see that the main peak detector of auto
 
 For the samples provided in this R package, we down-sampled unstained files to 10,000 event, so depending on total number of cells would inform whether these minor autofluorescent peaks are negligible or important enough to add to the above AutofluorescentOverlap.csv. 
 
-What we see is also influcence by the ratiopopcutoff argument (set to 0.001 above). It is used to determine minimal number of cells a peak detector would need to have in order to be returned as a significant autofluorescence detector. We can be see this in action by making the argument more stringent with this argument (increase it to 0.1 ~ 10% total unstained cells share that peak detector):
+What we see is also influence by the ratiopopcutoff argument (set to 0.001 above). It is used to determine minimal number of cells a peak detector would need to have in order to be returned as a significant autofluorescence detector. We can be see this in action by making the argument more stringent with this argument (increase it to 0.1 ~ 10% total unstained cells share that peak detector):
 
 ```{r}
 UnstainedSignature <- Luciernaga_QC(x=MyUnstainedGatingSet[2],
@@ -480,6 +521,34 @@ plotly::ggplotly(Comparison[[2]])
 
 We will typically repeat the above workflow on various unstained specimens within our GatingSet, identify if any additional rare AF may be present, and then update our AFOverlap.csv to account for these Unstained peak detectors, and add any fluorophores that share their peak detector. Once this is done, we are ready to proceed. 
 
+The SignatureReturnNow = TRUE argument will also work for single-color unmixing controls for both bead and cell reference controls, set Verbose = TRUE to see what peak detectors are returned, set desiredAF to the detector of interest to further explore different signatures. In the case below, we use the BV786 single-color bead unstained control. 
+
+```{r}
+pData(MyBeadsGatingSet)
+
+BV786 <- Luciernaga_QC(x=MyBeadsGatingSet[2], desiredAF = NULL,
+                    subsets="singlets", removestrings=removestrings,
+                    sample.name="GUID", unmixingcontroltype = "beads",
+                    Unstained = FALSE, ratiopopcutoff = 0.001, Verbose = TRUE,
+                    AFOverlap = AFOverlap, stats = "median",
+                    ExportType = "data.frame", SignatureReturnNow = TRUE,
+                    outpath = NULL)
+```
+
+For the staining beads we use, the only bright signal is the fluorophore stained beads as seen above. Beyond that, the next occupied peak detector is dictated often by noise and the normalize signature reflects this uncertainty, as we see when we set the desiredAF to retrieve the "YG1-A" instead. 
+
+```{r}
+pData(MyBeadsGatingSet)
+
+NotBV786 <- Luciernaga_QC(x=MyBeadsGatingSet[2], desiredAF = "YG1-A",
+                    subsets="singlets", removestrings=removestrings,
+                    sample.name="GUID", unmixingcontroltype = "beads",
+                    Unstained = FALSE, ratiopopcutoff = 0.001, Verbose = TRUE,
+                    AFOverlap = AFOverlap, stats = "median",
+                    ExportType = "data.frame", SignatureReturnNow = TRUE,
+                    outpath = NULL)
+```
+
 ## Unstained Signatures
 
 Having established autofluorescence background for the cells we are working with (and updated the AFOverlaps csv), we can now switch SignatureReturnNow = FALSE, and allow `Luciernaga_QC()` to continue down the processing pipeline. Let's continue with Unstained cell gating set, as their signatures do not require subtraction of background like single color controls, and are easier to demonstrate `Luciernaga_QC()` building blocks.
@@ -490,8 +559,6 @@ From the above example, we used `Luciernaga_QC()` to retrieve for individual det
 SignatureOnly <- QC_ViewSignature(x=c("V7", "V8", "V5"), data=Data, Normalize = FALSE)
 plotly::ggplotly(SignatureOnly)
 ```
-
-
 
 ```{r}
 SignatureOnly <- QC_ViewSignature(x=c("V7", "V8", "V5"), data=Data, Normalize = TRUE)
@@ -519,7 +586,7 @@ NormalizedSlices <- Luciernaga_LinearSlices(x=MyUnstainedGatingSet[2], subset="l
 plotly::ggplotly(NormalizedSlices)
 ```
 
-This is particularly more pronounced in single-color unmixing controls, for example, here is what CD16 APC looks like when filtered solely on the basis of peak-detector:
+This is more particularly pronounced in context of the single-color unmixing controls, for example, here is what CD16 APC looks like when filtered solely on the basis of peak-detector:
 
 ```{r}
 #pData(MyGatingSet)
@@ -652,7 +719,7 @@ plotly::ggplotly(Luciernaga_Subpeaks)
 ```
 
 
-Similarly, SecondaryPeaks default is set to 2, so allowing for a fluorescent with 3 separate peaks to be characterized. This works for most single-color unmixing controls, but can also be currently increased up to 8 peaks (which is used to characterize the QC bead and raw full-stained signatures elsewhere).  Let's decrease it to 1 for this example:
+Similarly, SecondaryPeaks default is set to 2, so allowing for a fluorescent with 3 separate peaks to be characterized. This works for most single-color unmixing controls, but can also be currently increased up to 8 peaks (which is used to characterize the QC bead and raw full-stained signatures, as described in vignettes elsewhere).  Let's decrease it to 1 for this example:
 
 ```{r}
 Unstained_Signatures <- Luciernaga_QC(x=MyUnstainedGatingSet[2],
@@ -677,12 +744,15 @@ gt(head(Unstained_Signatures, 5))
 
 One challenge is that for every additional peak, at 0.1 increments, the number of potential combinations a subcluster name can take increases, the end number of subclusters increase, and the fewer cells per subcluster result. At the same time, we get into the "Poisson" noise discussion territory where only people named David typically thread. At a certain point of increasing points we are evaluating at, every single autofluorescent cell eventually clusters only with itself at the typical number of cells collected for our experiments. So my advice for now is to set the Increments and SecondaryPeak arguments for what you need to achieve stable resolution/characterization/unmixing in your particular context.
 
-## Data Export Arguments
+### Data Export Arguments
 
-With all the above, we have covered all the important arguments related to Unstained cell unmixing controls. For the examples above, we specified returntype == "data", which returned the summaries that could be used for the reporting functions in `Luciernaga`. Alternatively, we could export the purified signatures as .fcs files, by setting returntype = "fcs", and providing a file path to our desired storage location via the outpath argument. These files are compatible with other flow cytometry software, and can be used to assist in unmixing. This can be useful when a single-color is experiencing quality issues, or you want to create a tag specific to a certain subtype of autofluorescence. In the context of unstained unmixing controls, this would resemble the following code:
+With all the above, we have covered all the important arguments related to Unstained cell unmixing controls. For the examples above, we specified returntype == "data", which returned the summaries that could be used for the reporting functions in `Luciernaga`. Alternatively, we could export the purified signatures as .fcs files, by setting returntype = "fcs", and providing a file path to our desired storage location via the outpath argument. 
 
-```{r, eval=FALSE}
-StorageLocation <- file.path("C:", "Users", "JohnDoe", "Desktop")
+These files are compatible with other flow cytometry software, and can be used to assist in unmixing. This can be useful when a single-color is experiencing quality issues, or you want to create a tag specific to a certain subtype of autofluorescence. In the context of unstained unmixing controls, this would resemble the following code (sending to a temporary folder for this example):
+
+```{r}
+#StorageLocation <- file.path("C:", "Users", "JohnDoe", "Desktop")
+TemporaryStorage <- tempdir()
 
 
 Unstained_Signatures <- Luciernaga_QC(x=MyUnstainedGatingSet[2],
@@ -697,34 +767,59 @@ Unstained_Signatures <- Luciernaga_QC(x=MyUnstainedGatingSet[2],
                                       stats = "median",
                                       ExportType = "fcs",
                                       SignatureReturnNow = FALSE,
-                                      outpath = StorageLocation,
+                                      outpath = TemporaryStorage,
                                       Increments=0.1,
                                       SecondaryPeaks=2,
                                       experiment = "UnstainedSignature",
                                       condition = "Test")
+
+TheFCSFileOutputs <- list.files(TemporaryStorage, pattern="fcs")
+TheFCSFileOutputs
+```
+To visualize what these may look like on their return:
+
+```{r}
+TheFCSFileOutputs <- list.files(TemporaryStorage, pattern="fcs", full.names=TRUE)
+TheIsolatedFCS <- load_cytoset_from_fcs(TheFCSFileOutputs[1], truncate_max_range = FALSE, transformation = FALSE)
+TheIsolatedGS <- GatingSet(TheIsolatedFCS)
+
+FCSView <- Utility_IterativeGating(x=TheIsolatedGS[1], subset="root", gate = NULL, xValue="UV8-A", yValue="B3-A",
+                                   sample.name="GUID", removestrings=".fcs", bins=100)
+FCSView
 ```
 
-Similarly, in combination with `r CRANpkg("purrr")` map function, we can iterate over our GatingSet to generate subcluster .fcs files for all our Unstained samples in one go.
+Additionally, providing argument Brightness = TRUE will return a .csv file with the report data. This output is used by `Luciernaga_Tree()` and a couple other of the report functions we will cover later.
 
-```{r, eval = FALSE}
-StorageLocation <- file.path("C:", "Users", "JohnDoe", "Desktop")
+```{r}
+#StorageLocation <- file.path("C:", "Users", "JohnDoe", "Desktop")
+TemporaryStorage <- tempdir()
 
-TheUnstaineds <- map(.x=MyUnstainedGatingSet[1:3], .f=Luciernaga_QC, 
+TheUnstaineds <- map(.x=MyUnstainedGatingSet[2], .f=Luciernaga_QC, 
                      subsets="lymphocytes", removestrings=removestrings,
                      sample.name="GUID", unmixingcontroltype = "cells",
                      Unstained = TRUE, ratiopopcutoff = 0.001,
                      Verbose = FALSE, AFOverlap = AFOverlap, 
                      stats = "median", ExportType = "fcs",
-                     SignatureReturnNow = FALSE, outpath = StorageLocation,
+                     SignatureReturnNow = FALSE, outpath = TemporaryStorage,
                      Increments=0.1, SecondaryPeaks=2,
                      experiment = "UnstainedSignature",
-                     condition = "Test")
+                     condition = "Test", Brightness = TRUE)
+
+BrightnessCSV <- list.files(TemporaryStorage, pattern="csv")
+BrightnessCSV
 ```
 
-Additionally, providing argument Brightness = TRUE will return a .csv file with the report data. This output is used by `Luciernaga_Tree()` and a couple other of the report functions we will cover later.
+```{r}
+BrightnessCSV <- list.files(TemporaryStorage, pattern="csv", full.names=TRUE)
+TheBrightnessInformation <- read.csv(BrightnessCSV[1], check.names = FALSE)
+head(TheBrightnessInformation, 5)
+```
+
+Similarly, in combination with `r CRANpkg("purrr")` map function, we can iterate over our GatingSet to generate subcluster .fcs files for all our Unstained samples in one go.
 
 ```{r, eval = FALSE}
-StorageLocation <- file.path("C:", "Users", "JohnDoe", "Desktop")
+#StorageLocation <- file.path("C:", "Users", "JohnDoe", "Desktop")
+TemporaryStorage <- tempdir()
 
 TheUnstaineds <- map(.x=MyUnstainedGatingSet[1:3], .f=Luciernaga_QC, 
                      subsets="lymphocytes", removestrings=removestrings,
@@ -738,7 +833,9 @@ TheUnstaineds <- map(.x=MyUnstainedGatingSet[1:3], .f=Luciernaga_QC,
                      condition = "Test", Brightness = TRUE)
 ```
 
-### Single Color Unmixing Controls
+
+
+## Single Color Unmixing Controls
 
 Now that we have covered unstained unmixing controls, let's look at how `Luciernaga_QC()` works with single-color unmixing controls.  Let's set the returnsignaturenow = TRUE as we had done previously when starting with the unstained samples.
 
@@ -761,6 +858,7 @@ SingleStain_Signatures <- Luciernaga_QC(x=MyGatingSet[2],
                                       SignatureReturnNow = TRUE,
                                       outpath = NULL)
 ```
+
 ```{r}
 V7 <- Luciernaga_QC(x=MyGatingSet[2], subsets="lymphocytes", removestrings=removestrings,
                     sample.name="GUID", unmixingcontroltype = "cells", Unstained = FALSE,
@@ -908,7 +1006,7 @@ Results <- QC_ViewSignature(x=Fluors, data=Data)
 plotly::ggplotly(Results)
 ```
 
-As we can see from the signatures, there are only a few detectors that reach peak detector status. However, unlike was the case with BV786, the peak-detectors corresponding to antibody-staining are not that much brighter than the underlying autofluorescence in terms on raw MFI. Consequently, without subtracting out the background signal, the normalized signatures end up introducing autofluorescence artefacts to what should be fluorophore specific peaks, and fluorophore contributions to what shoud be purely autofluorescence detectors. Consequently, an additional step to process single-stained cells is needed. 
+As we can see from the signatures, there are only a few detectors that reach peak detector status. However, unlike was the case with BV786, the peak-detectors corresponding to antibody-staining are not that much brighter than the underlying autofluorescence in terms on raw MFI. Consequently, without subtracting out the background signal, the normalized signatures end up introducing autofluorescence artefacts to what should be fluorophore specific peaks, and fluorophore contributions to what should be purely autofluorescence detectors. Consequently, an additional step to process single-stained cells is needed. 
 
 One way that we can do this is through the provisioning of an external autofluorescence signature. While this is required for the autofluorescence overlap fluorophores, it is an option that can be implemented for all fluorophores if desired. 
 
@@ -955,9 +1053,9 @@ ThePerCPCy5.5[1]
 plotly::ggplotly(ThePerCPCy5.5[[2]])
 ```
 
-As we can see, this worked quite nicely. An alternative way, is to rely on an internal autofluorescence. As was the case in BV786, for many single-color unmixing controls, there are quite a few cells that remain unstained within the sample that could potentially serve as an internal autofluorescence negative. This is particularly helpful in cases where a mismatch ends up occurring vs an external unstained sample during the processing and we end up with mismatching autofluorescence. However, if the antibody has a lot of non-specific background, it can contaminate the unstained peak detectors as we saw in the case above with PerCP-Cy5.5. 
+As we can see, this did work well and improved the returned signature. An alternative way, is to rely on an internal autofluorescence. As was the case in BV786, for many single-color unmixing controls, there are quite a few cells that remain unstained within the sample that could potentially serve as an internal autofluorescence negative. This is particularly helpful in cases where a mismatch ends up occurring vs an external unstained sample during the processing and we end up with mismatching autofluorescence. However, if the antibody has a lot of non-specific background, it can contaminate the unstained peak detectors as we saw in the case above with PerCP-Cy5.5. 
 
-Our way of handling this when using `Luciernaga_QC()` internal negatives for subtraction is as follows. Rather than provide an externalAF, we re-use the desiredAF argument and provide the name of the main autofluorescence detector ("V7-A" in our case). After the initial peaks are characterized, the cells in a sample are initially grouped on basis of shared peak detectors. Once this is done, for each "likely" antibody detector, they are subclustered on the basis of the normalized values of both that detector and the desiredAF detector. 
+Our way of handling this issue when using `Luciernaga_QC()` internal negatives for subtraction is as follows. We set Subtraction = "Internal", and leave desiredAF = NULL (the R equivalent to empty). The main autofluorescent overlap peak is worked out internally via the AFOverlap csv and the count of peak detectors. After the initial peaks are characterized, the cells in a sample are initially grouped on basis of shared peak detectors. Once this is done, for each "likely" antibody detector, they are subclustered on the basis of the normalized values of both that detector and the Main Autofluorescent detector. 
 
 What we end up with, for the case above, would be a continuum of clusters ranging from those where the antibody stain is way brighter than underlying autofluorescence (B9_10-V7_00) to cells with equal brightness for both antibody and autofluorescence (B9_10-V7_10), all the way through cells that only have autofluorescence (V7_10-B9_00). From this continuum, the bin with the least amount of "antibody" detector is selected as the "uncontaminated" autofluorescence, and these cells are filtered out, and the average autofluorescence signature is extracted from them. This in turn is subtracted from all initial subclustering cells removing the background. At this point, cells with the subtracted values are re-enumerated on basis of their peak detector, and passed onward in the function to the rolling local maxima step that was described in the unstained section of the vignette to figure out the secondary peak detectors needed to continue with the pipeline. 
 
@@ -994,7 +1092,7 @@ plotly::ggplotly(TheInternalPerCPCy5.5[[2]])
 
 As you can see, that the main peaks are similar for both methods (which is good considering they are the same .fcs file), but better matching signature of the secondary peaks. In our testing, either approach provides good results, with internal AF providing some additional usefulness in cases where the experiment required troubleshooting. Being aware of possible scenarios in which picking the least contaminated bin could cause issues will be discussed in the unmixing vignette along with the broader discussion on brightness role in the process. 
 
-And finally for good measure, let's generate the signature for BV510 using the externalAF to demonstrate the AFOverlap cases as well. For these, in addition to provisioning the externalAF, we also provision it to the Cell_AF argument, and the name of the detector the the CellMainAF
+And finally for good measure, let's generate the signature for BV510 using the externalAF to demonstrate the AFOverlap cases as well. For these, we provision the CellAF argument:
 
 ```{r}
 pData(MyGatingSet[16])
@@ -1030,29 +1128,19 @@ plotly::ggplotly(AfterSubtraction[[2]])
 
 Small rounding errors contribute to the the plateau appearance at 0.1 compared to the reference control and remain on my fix-list. 
 
-## Data Export
+### Data Export
 
-In the cases above, we have been returning the `Luciernaga_QC()` ExportType to "data". Similar as was the case with the unstained, we can switch this to "fcs" to return as .fcs files that can be used in other flow cytometry software. There are a couple additional arguments that are worth explaining. SCData can be either "subtracted" or "raw", meaning whether to send to the .fcs files the subtracted (modified) values or retain the original ones "raw". The issue with raw is it is incompatible with the internal subtraction method, as there is no retained reference at the moment. Likewise, if we are planning to use the "subtracted" option for SCData and planning to use subsequent .fcs files in SpectroFlo for example, we would not want to subtract out additional autofluorescence from these files as it has already been carried out. As a workaround for the software side, provisioning NegativeType argument provides some options. "default" corresponds to nothing being added (good for reports and Luciernaga_Unmix), "artificial" which adds 500 events with detector values of 0, which can be gated on as an internal autofluorescence in SpectroFlo. And finally "samples" which is the correct designation for "raw" to return to the signature view that we were seeing. 
+For the above examples, we had ExportType set to "data". As was the case with the Unstained unmixing controls, we can also export these as ".fcs" files for storage and use in other flow cytometry software. Unlike Unstained controls where nothing was subtracted, single color unmixing controls had values subtracted to derive the signatures that were used for the clustering, so they require a few additional arguments. 
 
-As you can tell, there are some bugs in this description (including Subtraction) that remain to be worked out when I have time and the paper I need to graduate is submitted and I can justify optimizing code with multiple moving parts yet again. 
+SCData can be set to either "subtracted" or "raw". It dictates whether the values within the new ".fcs" file are the ones after background subtraction, or the original raw MFI values that would need to be subtracted from again. Please note, at this time, "raw" only works when Subtracted = "Internal_General" or "External". We are still in process of designing a way for "Internal" to return raw values rather than the after subtraction ones.
 
+What choice we select for SCData partly depends on what you plan to do with the .fcs files afterwards. If we are bringing in to other software (let's use Cytek's SpectroFlo for our current example) we would want to avoid having the software subtract out background autofluorescence from a Luciernaga .fcs output that has already had the background subtracted and was returned with SCData = "subtracted". We would need to either export with SCData set to "raw", or provision the file with a workaround to get around the subtraction step. 
 
-## Validation
+One way we have done this during development was to provide the NegativeType argument, which comes with the arguments "default", "artificial" and "samples". Default doesn't add anything to the .fcs file. Artificial adds a certain number of events with MFI values for all detectors set to 0. Samples returns a certain number of events with the same MFI values corresponding to the autofluorescence signature used to subtract out background (currently restricted to Subtraction = "Internal_Generalized" and "External"). 
+
+If we are using a single-color unmixed .fcs file from Luciernaga within SpectroFlo, we would set the single color controls we are adding to use internal background subtraction within the software, and if 1) SCData was set to "subtracted" use NegativeType "artifical" to provision it with an internal negative consisting entirely of 0 MFI values which we can set the internal negative gate on. Consequently, no MFI values are further altered, and the single color unmixing control retains it's signature for unmixing. 
 
 ```{r, eval = FALSE}
-StorageLocation <- file.path("C:", "Users", "12692", "Desktop")
-
-
-SingleStain_Signatures <- Luciernaga_QC(x=MyGatingSet[2], subsets="lymphocytes",
-                                        removestrings=removestrings, sample.name="GUID",
-                                        unmixingcontroltype = "cells", Unstained = FALSE,
-                                        ratiopopcutoff = 0.001, Verbose = FALSE,
-                                        AFOverlap = AFOverlap, stats = "median",
-                                        ExportType = "fcs", SignatureReturnNow = FALSE,
-                                        outpath = StorageLocation, Increments=0.1,
-                                        SecondaryPeaks=2, experiment = "UnstainedSignature",
-                                        condition = "Test", SCData="subtracted", NegativeType="default")
-
 SingleStain_Signatures <- Luciernaga_QC(x=MyGatingSet[2], subsets="lymphocytes",
                                         removestrings=removestrings, sample.name="GUID",
                                         unmixingcontroltype = "cells", Unstained = FALSE,
@@ -1062,7 +1150,11 @@ SingleStain_Signatures <- Luciernaga_QC(x=MyGatingSet[2], subsets="lymphocytes",
                                         outpath = StorageLocation, Increments=0.1,
                                         SecondaryPeaks=2, experiment = "UnstainedSignature",
                                         condition = "Test", SCData="subtracted",NegativeType="artificial")
+```
 
+Alternatively, 2) if SCData was set to return "raw" MFI values (original values), we could provision NegativeType with "samples" to provide the background AF signature as events we could set the internal negative gate on to extract the same final signature within the software. 
+
+```{r, eval = FALSE}
 SingleStain_Signatures <- Luciernaga_QC(x=MyGatingSet[2], subsets="lymphocytes",
                                         removestrings=removestrings, sample.name="GUID",
                                         unmixingcontroltype = "cells", Unstained = FALSE,
@@ -1072,38 +1164,28 @@ SingleStain_Signatures <- Luciernaga_QC(x=MyGatingSet[2], subsets="lymphocytes",
                                         outpath = StorageLocation, Increments=0.1,
                                         SecondaryPeaks=2, experiment = "UnstainedSignature",
                                         condition = "Test", SCData="subtracted",NegativeType="samples")
-
-SingleStain_Signatures <- Luciernaga_QC(x=MyGatingSet[2], subsets="lymphocytes",
-                                        removestrings=removestrings, sample.name="GUID",
-                                        unmixingcontroltype = "cells", Unstained = FALSE,
-                                        ratiopopcutoff = 0.001, Verbose = FALSE,
-                                        AFOverlap = AFOverlap, stats = "median",
-                                        ExportType = "fcs", SignatureReturnNow = FALSE,
-                                        outpath = StorageLocation, Increments=0.1,
-                                        SecondaryPeaks=2, experiment = "UnstainedSignature",
-                                        condition = "Test", SCData="raw",NegativeType="default")
-
-SingleStain_Signatures <- Luciernaga_QC(x=MyGatingSet[2], subsets="lymphocytes",
-                                        removestrings=removestrings, sample.name="GUID",
-                                        unmixingcontroltype = "cells", Unstained = FALSE,
-                                        ratiopopcutoff = 0.001, Verbose = FALSE,
-                                        AFOverlap = AFOverlap, stats = "median",
-                                        ExportType = "fcs", SignatureReturnNow = FALSE,
-                                        outpath = StorageLocation, Increments=0.1,
-                                        SecondaryPeaks=2, experiment = "UnstainedSignature",
-                                        condition = "Test", SCData="raw",NegativeType="artificial")
-
-SingleStain_Signatures <- Luciernaga_QC(x=MyGatingSet[2], subsets="lymphocytes",
-                                        removestrings=removestrings, sample.name="GUID",
-                                        unmixingcontroltype = "cells", Unstained = FALSE,
-                                        ratiopopcutoff = 0.001, Verbose = FALSE,
-                                        AFOverlap = AFOverlap, stats = "median",
-                                        ExportType = "fcs", SignatureReturnNow = FALSE,
-                                        outpath = StorageLocation, Increments=0.1,
-                                        SecondaryPeaks=2, experiment = "UnstainedSignature",
-                                        condition = "Test", SCData="raw",NegativeType="samples")
-
 ```
+
+And finally, if we are not bringing the files into a software that will try to extract additional background, we can leave SCData = "subtractd" and NegativeType = "default" to retain the data in the format it is returned by `Luciernaga_QC()`
+
+```{r, eval=FALSE}
+TemporaryFolder <- tempdir()
+
+SingleStain_Signatures <- Luciernaga_QC(x=MyGatingSet[2], subsets="lymphocytes",
+                                        removestrings=removestrings, sample.name="GUID",
+                                        unmixingcontroltype = "cells", Unstained = FALSE,
+                                        ratiopopcutoff = 0.001, Verbose = FALSE,
+                                        AFOverlap = AFOverlap, stats = "median",
+                                        ExportType = "fcs", SignatureReturnNow = FALSE,
+                                        outpath = TemporaryFolder, Increments=0.1,
+                                        SecondaryPeaks=2, experiment = "UnstainedSignature",
+                                        condition = "Test", SCData="subtracted", NegativeType="default")
+
+ExportedFCSFiles <- list.files(TemporaryFolder, pattern="fcs")
+ExportedFCSFiles
+```
+
+As you can tell, there are some coding decisions/bugs/consideration for this portion of the workflow that remain to be automated when I have time and the paper I need to graduate is submitted and I can justify yet again optimizing code with multiple moving parts. So until then, hang on, and reach out if with any questions. 
 
 ## Beads
 In the case of unstained bead controls, it's recommended to use externalAF in this manner. In our experience with UltraComp beads, there is rarely a single peak detector for unstained beads given their low background, which causes oversplitting due to instrumental noise into hundreds of signatures. This and the rest will be detailed as we continue into the example workthrough. 
