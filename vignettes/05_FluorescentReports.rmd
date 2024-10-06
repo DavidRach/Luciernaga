@@ -105,6 +105,12 @@ MyGatingSet <- GatingSet(MyCytoSet)
 MyGatingSet
 ```
 
+```{r}
+FileLocation <- system.file("extdata", package = "Luciernaga")
+MyGates <- fread(file.path(path = FileLocation, pattern = 'Gates.csv'))
+gt(MyGates)
+```
+
 ```{r, message = FALSE}
 MyGatingTemplate <- gatingTemplate(MyGates)
 gt_gating(MyGatingTemplate, MyGatingSet)
@@ -153,6 +159,7 @@ And next generate a CellAF unstained signature that can be used when these fluor
 
 ```{r}
 # pData(MyUnstainedGatingSet[1])
+removestrings <- c(".fcs")
 
 TheCellAF <- map(.x=MyUnstainedGatingSet[1], .f=Luciernaga_QC, subsets="lymphocytes",
                               removestrings=removestrings, sample.name="GUID",
@@ -186,9 +193,11 @@ SingleColor_Data <- map(.x=MyGatingSet, .f=Luciernaga_QC, subsets="lymphocytes",
                               CellAF=TheCellAF, SCData="subtracted",
                               NegativeType="default") %>% bind_rows()
 ```
+
 ```{r}
 nrow(SingleColor_Data)
 ```
+
 ```{r}
 gt(head(SingleColor_Data, 5))
 ```
@@ -214,6 +223,7 @@ Unstained_Data <- map(.x=MyUnstainedGatingSet, .f=Luciernaga_QC, subsets="lympho
 ```{r}
 nrow(Unstained_Data)
 ```
+
 ```{r}
 gt(head(Unstained_Data, 5))
 ```
@@ -361,9 +371,9 @@ ThePlotReport[1:4]
 ```
 The examples above relied on `LuciernagaQC()` ExportType = "data" output to generate the desired reports and plots. This can be saved by individual users as a .csv that can be retrieved for later use.
 
-```{r}
+```{r, eval = FALSE}
 # Saving Elsewhere
-StorageLocation <- file.path("C:", "Users", "12692", "Desktop")
+StorageLocation <- file.path("C:", "Users", "JohnDoe", "Desktop")
 TheName <- "SingleColorData.csv"
 TheFinalLocation <- file.path(StorageLocation, TheName)
 write.csv(SingleColor_Data, TheFinalLocation, row.names=FALSE)
