@@ -1141,6 +1141,7 @@ One way we have done this during development was to provide the NegativeType arg
 If we are using a single-color unmixed .fcs file from Luciernaga within SpectroFlo, we would set the single color controls we are adding to use internal background subtraction within the software, and if 1) SCData was set to "subtracted" use NegativeType "artifical" to provision it with an internal negative consisting entirely of 0 MFI values which we can set the internal negative gate on. Consequently, no MFI values are further altered, and the single color unmixing control retains it's signature for unmixing. 
 
 ```{r, eval = FALSE}
+StorageLocation <- file.path("C:", "Users", "JohnDoe", "Desktop")
 SingleStain_Signatures <- Luciernaga_QC(x=MyGatingSet[2], subsets="lymphocytes",
                                         removestrings=removestrings, sample.name="GUID",
                                         unmixingcontroltype = "cells", Unstained = FALSE,
@@ -1155,6 +1156,7 @@ SingleStain_Signatures <- Luciernaga_QC(x=MyGatingSet[2], subsets="lymphocytes",
 Alternatively, 2) if SCData was set to return "raw" MFI values (original values), we could provision NegativeType with "samples" to provide the background AF signature as events we could set the internal negative gate on to extract the same final signature within the software. 
 
 ```{r, eval = FALSE}
+StorageLocation <- file.path("C:", "Users", "JohnDoe", "Desktop")
 SingleStain_Signatures <- Luciernaga_QC(x=MyGatingSet[2], subsets="lymphocytes",
                                         removestrings=removestrings, sample.name="GUID",
                                         unmixingcontroltype = "cells", Unstained = FALSE,
@@ -1187,12 +1189,121 @@ ExportedFCSFiles
 
 As you can tell, there are some coding decisions/bugs/consideration for this portion of the workflow that remain to be automated when I have time and the paper I need to graduate is submitted and I can justify yet again optimizing code with multiple moving parts. So until then, hang on, and reach out if with any questions. 
 
-## Beads
-In the case of unstained bead controls, it's recommended to use externalAF in this manner. In our experience with UltraComp beads, there is rarely a single peak detector for unstained beads given their low background, which causes oversplitting due to instrumental noise into hundreds of signatures. This and the rest will be detailed as we continue into the example workthrough. 
+And as always, in combination with the `r CRANpkg("purrr")` map function, we can iterate over the entire GatingSet, returning isolated signatures for all single-color unmixing controls. 
+
+```{r, eval = FALSE}
+StorageLocation <- file.path("C:", "Users", "JohnDoe", "Desktop")
+SingleStain_Signatures <- map(.x=MyGatingSet, .f=Luciernaga_QC, subsets="lymphocytes",
+                              removestrings=removestrings, sample.name="GUID",
+                              unmixingcontroltype = "cells", Unstained = FALSE,
+                              ratiopopcutoff = 0.001, Verbose = FALSE,
+                              AFOverlap = AFOverlap, stats = "median",
+                              ExportType = "fcs", SignatureReturnNow = FALSE,
+                              outpath = TemporaryFolder, Increments=0.1,
+                              SecondaryPeaks=2, experiment = "UnstainedSignature",
+                              condition = "Test", SCData="subtracted",
+                              NegativeType="default"))
+```
+
+## Bead Single-Color Signatures
+
+We have covered most of the basic functionality to `Luciernaga_QC()` in the above examples, but we will briefly cover the adjustments when running unmixing controls derived with beads. While recovering the main fluorescence peak from stained beads is rather simple due to it's substantially brighter MFI, in our experience with Invitrogen's UltraComp eBeads Plus(TM) it was difficult to differentiate the unstained bead peaks from degrading antibody peaks. This is because unlike unstained cells, there is no one single bead autofluorescence peak, but rather due to the low levels of MFI background, what detector ends up being characterized as a peak detector resembles noisy distribution across all detectors. 
+
+```{r}
+pData(MyBeadsGatingSet)
+
+BV786 <- Luciernaga_QC(x=MyBeadsGatingSet[2], desiredAF = NULL,
+                    subsets="singlets", removestrings=removestrings,
+                    sample.name="GUID", unmixingcontroltype = "beads",
+                    Unstained = FALSE, ratiopopcutoff = 0.001, Verbose = TRUE,
+                    AFOverlap = AFOverlap, stats = "median",
+                    ExportType = "data.frame", SignatureReturnNow = TRUE,
+                    outpath = NULL)
+```
+
+For the staining beads we use, the only bright signal is the fluorophore stained beads as seen above. Beyond that, the next occupied peak detector is dictated often by noise and the normalize signature reflects this uncertainty, as we see when we set the desiredAF to retrieve the "YG1-A" instead. 
+
+```{r}
+pData(MyBeadsGatingSet)
+
+NotBV786 <- Luciernaga_QC(x=MyBeadsGatingSet[2], desiredAF = "YG1-A",
+                    subsets="singlets", removestrings=removestrings,
+                    sample.name="GUID", unmixingcontroltype = "beads",
+                    Unstained = FALSE, ratiopopcutoff = 0.001, Verbose = TRUE,
+                    AFOverlap = AFOverlap, stats = "median",
+                    ExportType = "data.frame", SignatureReturnNow = TRUE,
+                    outpath = NULL)
+```
+
+```{r}
+pData(MyBeadsGatingSet)
+
+NotBV786 <- Luciernaga_QC(x=MyBeadsGatingSet[2], desiredAF = "V7-A",
+                    subsets="singlets", removestrings=removestrings,
+                    sample.name="GUID", unmixingcontroltype = "beads",
+                    Unstained = FALSE, ratiopopcutoff = 0.001, Verbose = TRUE,
+                    AFOverlap = AFOverlap, stats = "median",
+                    ExportType = "data.frame", SignatureReturnNow = TRUE,
+                    outpath = NULL)
+```
+Because each of these noisy background signatures is so completely different from each other (unlike is the case with cells) we need to provision `Luciernaga_QC()` with a general unstained bead autofluorescence signature to the BeadAF signature to `Luciernaga_QC()` to enable external autofluorescence subtraction for the bead controls. Examples of how to do this are shown below:
+
+```{r}
+MyUnstainedBeadsGatingSet
+UnstainedBeads <- Luciernaga_QC(x=MyUnstainedBeadsGatingSet[1], desiredAF = NULL,
+                    subsets="singlets", removestrings=removestrings,
+                    sample.name="GUID", unmixingcontroltype = "beads",
+                    Unstained = TRUE, ratiopopcutoff = 0.001, Verbose = TRUE,
+                    AFOverlap = AFOverlap, stats = "median",
+                    ExportType = "data.frame", SignatureReturnNow = TRUE,
+                    outpath = NULL)
+
+```
+
+```{r}
+UnstainedBeads
+```
+With this now provisioned, we can run single-color bead unmixing controls through `Luciernaga_QC()` in similar manner as the cell single-color unmixing controls. We also need to provide a stand-in argument for main autofluorescence detector (BeadMainAF="UV1-A") even though the detector is not used (something I will update out going forward)
+
+```{r}
+StorageLocation <- file.path("C:", "Users", "12692", "Desktop")
+
+SingleStain_Signatures <- map(.x=MyBeadsGatingSet[2], .f=Luciernaga_QC, subsets="singlets",
+                              removestrings=removestrings, sample.name="GUID",
+                              unmixingcontroltype = "cells", Unstained = FALSE,
+                              ratiopopcutoff = 0.001, Verbose = FALSE,
+                              AFOverlap = AFOverlap, stats = "median",
+                              ExportType = "data", SignatureReturnNow = FALSE,
+                              outpath = StorageLocation, Increments=0.1,
+                              SecondaryPeaks=2, experiment = "UnstainedSignature",
+                              condition = "Test", SCData="subtracted",
+                              NegativeType="default", BeadAF=UnstainedBeads,
+                              BeadMainAF="UV1-A")
+
+gt(SingleStain_Signatures[[1]])
+```
+
+Beads are not subject to the AFOverlap.csv, are set to use Subtraction="External" by default. Consequently, they will accept SCData of "raw" or "subtracted", and NegativeType = "default", "artificial", "sample" in a similar manner as was described in detail for the single-color cell unmixing controls for their export arguments. 
+
+```{r, eval = FALSE}
+StorageLocation <- file.path("C:", "Users", "JohnDoe", "Desktop")
+
+SingleStain_Signatures <- map(.x=MyBeadsGatingSet[2], .f=Luciernaga_QC, subsets="singlets",
+                              removestrings=removestrings, sample.name="GUID",
+                              unmixingcontroltype = "cells", Unstained = FALSE,
+                              ratiopopcutoff = 0.001, Verbose = FALSE,
+                              AFOverlap = AFOverlap, stats = "median",
+                              ExportType = "fcs", SignatureReturnNow = FALSE,
+                              outpath = StorageLocation, Increments=0.1,
+                              SecondaryPeaks=2, experiment = "UnstainedSignature",
+                              condition = "Test", SCData="subtracted",
+                              NegativeType="default", BeadAF=UnstainedBeads,
+                              BeadMainAF="UV1-A")
+```
 
 # Conclusion
 
-You have survived writing the vignette for the most complicated of this packages functions. Congrats!
+You have made it through the most complicated of the `Luciernaga` package functions. I hope this helps explain the function that makes the next two vignettes possible when scaled to process all the specimens within the GatingSet. Congratulations!
 
 ```{r sessionInfo, echo = FALSE}
 sessionInfo()
