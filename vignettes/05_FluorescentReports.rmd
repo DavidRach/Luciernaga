@@ -387,9 +387,108 @@ TheRetrievedData <- read.csv(TheFinalLocation, check.names=FALSE)
 
 `Luciernaga_FCSToReport()` is a function that handles cases when there is no `LuciernagaQC()` ExportType = "data" to allow for the generation of plots and reports, and instead, we need to take the `LuciernagaQC()` ExportType = "fcs" outputs from their storage folder and re-derrive the equivalent data to be used with `Luciernaga_Plots()`. 
 
+To demonstrate this, let's first switch the `Luciernaga_QC()` ExportType argument to "fcs" and store the same single-color output .fcs files within the temporary folder in a specific folder where we can retrieve them again when needed:
+
+```{r}
+StorageLocation <- file.path(tempdir(), "LuciernagaTemporaryExamples")
+
+if (!dir.exists(StorageLocation)) {
+  dir.create(StorageLocation)
+}
+
+SingleColor_Data <- map(.x=MyGatingSet[c(1:22, 25:30)], .f=Luciernaga_QC, subsets="lymphocytes",
+                              removestrings=removestrings, sample.name="GUID",
+                              unmixingcontroltype = "cells", Unstained = FALSE,
+                              ratiopopcutoff = 0.001, Verbose = FALSE,
+                              AFOverlap = AFOverlap, stats = "median",
+                              ExportType = "fcs", Brightness=TRUE, SignatureReturnNow = FALSE,
+                              outpath = StorageLocation, Increments=0.1,
+                              SecondaryPeaks=2, experiment = "FirstExperiment",
+                              condition = "ILTPanel", Subtraction = "Internal", 
+                              CellAF=TheCellAF, SCData="subtracted",
+                              NegativeType="default")
+
+TheLuciernagaOutputs_FCS <- list.files(StorageLocation, pattern="fcs", full.names = TRUE)
+head(TheLuciernagaOutputs_FCS, 4)
+```
+
+```{r}
+TheLuciernagaOutputs_CSV <- list.files(StorageLocation, pattern="csv", full.names = TRUE)
+head(TheLuciernagaOutputs_CSV, 4)
+```
+We can now proceed to evaluate `Luciernaga_FCSToReport()`:
+
+```{r}
+ReferencePath <- system.file("extdata", package = "Luciernaga")
+PanelPath <- file.path(ReferencePath, "Panel.csv")
+#PanelNames <- read.csv(PanelPath, check.names = FALSE)
+#PanelNames <- PanelNames %>% pull(Fluorophore) %>% gsub("-A", "", .)
+
+ReportOutput <- Luciernaga_FCSToReport(path=StorageLocation, reference=PanelPath, stats="median",
+                      RetainedType = "normalized", experiment="FirstExperiment",
+                      condition="ILTExperiment", TheSummary = TRUE)
+```
+
+```{r}
+gt(head(ReportOutput, 10))
+```
+
+As you can see, we have returned a `Luciernaga_QC()` style output that we can now evaluate using `Luciernaga_Plots()` as described above:
+
+```{r}
+ThePlotReport <- Luciernaga_Plots(data=ReportOutput, RetainedType="normalized", CellPopRatio=0.05,
+                                  outfolder=NULL, filename="LuciernagaReport", returntype="plots",
+                                  LinePlots=FALSE, CosinePlots=FALSE, StackedBarPlots = FALSE,
+                                  HeatmapPlots = TRUE, reference = PanelPath)
+ThePlotReport[1]
+```
+
 # Luciernaga_Brightness
 
-One advantage of retrieving the data from `LuciernagaQC()` ExportType = "fcs" outputs is that we can generate an additional type of plot to look at the individual brightness for the isolates signatures. This is accomplished through the `Luciernaga_Brightness()` function
+One advantage of retrieving the data from `LuciernagaQC()` ExportType = "fcs" outputs is that we can generate an additional type of plot to look at the individual brightness for the cells that clustered within the isolated signatures. This is accomplished by switching up a couple arguments in `Luciernaga_FCSToReport()` and passing the intermediate to the `Luciernaga_Brightness()` function
+
+```{r}
+ReferencePath <- system.file("extdata", package = "Luciernaga")
+PanelPath <- file.path(ReferencePath, "Panel.csv")
+PanelNames <- read.csv(PanelPath, check.names = FALSE)
+
+PanelNames <- PanelNames %>% filter(!str_detect(Fluorophore, "Pacific"))
+PanelNames <- PanelNames %>% mutate(Fluorophore = case_when(
+    Fluorophore == "FITC" ~ "AlexaFluor488",
+    TRUE ~ Fluorophore  # Keep all other values unchanged
+  ))
+
+PanelItems <- PanelNames %>% pull(Fluorophore) %>% gsub("-A", "", .)
+
+
+BrightnessOutput <- Luciernaga_FCSToReport(path=StorageLocation, reference=PanelNames, stats="median",
+                      RetainedType = "raw", experiment="FirstExperiment", condition="ILTExperiement", 
+                      TheSummary = FALSE)
+
+PanelItems <- gsub(".", "", fixed=TRUE, PanelItems)
+PanelItems <- gsub(" ", "", fixed=TRUE, PanelItems)
+#PanelItems <- gsub("-", "", fixed=TRUE, PanelItems)
+
+BrightnessOutput$Sample <- gsub(".", "", fixed=TRUE, BrightnessOutput$Sample)
+BrightnessOutput$Sample <- gsub(" ", "", fixed=TRUE, BrightnessOutput$Sample)
+#BrightnessOutput$Sample <- gsub("-", "", fixed=TRUE, BrightnessOutput$Sample)
+
+BrightnessPlots <- map(.x=PanelItems[c(28:29)], .f=Luciernaga_Brightness, data=BrightnessOutput,
+                       reference=PanelNames, Scaled=TRUE)
+```
+
+```{r}
+ThePlot <- BrightnessPlots[[8]]
+ThePlot
+```
+
+```{r}
+plotly::ggplotly(ThePlot)
+```
+
+In the above example, we needed to modify the list to exclude PacificBlue Fluorophore that failed to generate in `Luciernaga_QC()`. The Panel.CSV also had a mismatch (FITC instead AlexaFluor488) that we had to rename. And in my version the APC-Fire810 bugged. So resolve these to fix this vignette :( and make it easier to work with.
+
+The resulting brightness plot is a geom_density plot showing the  MFI for the respective clustered signatures. As you can tell from the ggplot2 object, a bunch of the signatures are relatively dim, which reflects the case seen in signatures. 
 
 # Luciernaga_Lists
 
