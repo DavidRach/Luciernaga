@@ -11,6 +11,10 @@
 #' @param HeatmapPlots Return this kind of plot, default is set to TRUE
 #' @param returntype Return "pdf", "patchwork" or "plots"
 #' @param reference path or data.frame containing Fluorophore column for ordering
+#' @param thecolumns The number of columns per page
+#' @param therows The number of rows per page
+#' @param width Desired page width
+#' @param height Desired page height
 #'
 #' @importFrom dplyr group_by
 #' @importFrom dplyr summarize
@@ -36,7 +40,8 @@
 Luciernaga_Plots <- function(data, RetainedType, CellPopRatio, outfolder, filename,
                              LinePlots=TRUE, CosinePlots=TRUE,
                              StackedBarPlots=TRUE, HeatmapPlots=TRUE,
-                             returntype = "patchwork", reference){
+                             returntype = "patchwork", reference,
+                             thecolumns=2, therows=2, width=9, height=7){
 
   if (!is.data.frame(reference)){reference <- read.csv(reference, check.names=FALSE)}
 
@@ -97,14 +102,15 @@ Luciernaga_Plots <- function(data, RetainedType, CellPopRatio, outfolder, filena
 
   if (returntype == "pdf"){
   Utility_Patchwork(x=ThePlots, filename = filename, outfolder = outfolder,
-                    thecolumns = 2, therows = 2, width = 9, height = 7,
-                    returntype = "pdf", NotListofList = FALSE)
+                    thecolumns = thecolumns, therows = therows, width = width,
+                    height = height, returntype = "pdf", NotListofList = FALSE)
   }
 
   if (returntype == "patchwork"){
   Hey <-Utility_Patchwork(x=ThePlots, filename = filename, outfolder = outfolder,
-                      thecolumns = 2, therows = 2, width = 9, height = 7,
-                      returntype = "patchwork", NotListofList = FALSE)
+                      thecolumns = thecolumns, therows = therows, width = width,
+                      height = height, returntype = "patchwork",
+                      NotListofList = FALSE)
   return(Hey)
   }
 

@@ -23,33 +23,377 @@ knitr::opts_chunk$set(
 )
 ```
 
-### Luciernaga_Plots
+# Introduction
 
-We can take the data.frame output from LuciernagaQC and run directly into a basic report. CellPopRatio determines the mininum ratio a cluster needs to have to be plotted (anything smaller is combined into the other category). The default is set for all four plots being returned, these can be modified by specifying FALSE for their individual arguments. Outputs are sent to Utility_Patchwork for processing into either grouped ggplot or a pdf file. 
+This vignette builds on what can be done with the outputs from the `Luciernaga_QC()` function that was the main focus of vignette 04_FluorescenceSignatures. Please read that vignette for all the details regarding how the function processes the .fcs files into individual signatures. 
 
-```{r, eval = FALSE, echo=FALSE}
-ThePlots <- LuciernagaReport(data=CombinedData, RetainedType = "normalized",
-                             CellPopRatio = 0.05, outfolder = NULL,
-                             filename = NULL, returntype = "patchwork")
+The following vignette covers the different functions that take these `Luciernaga_QC()` outputs, either in the "data" or "fcs" format, and process them into useful reports to gain insight into the fluorescence signatures that are present within your unmixing controls (both single-color and unstained). At the end of this vignette, we will discuss how we can extend these reports to visualize changes in signature across time to monitor for changes in antibody-vial quality or instrument health. 
 
-ThePlots
-#ggplotly(ThePlots[[1]])
+Some of these functions we will cover in this vignette will also resurface when we look at the Luciernaga unmixing functions that will be covered in Vignette_06. 
+
+# Set Up
+
+For this vignette, we will focus on characterizing the cell unmixing controls. The following setup code is a repeat from previous vignettes, and is used to provide the `Luciernaga_QC()` outputs needed by the functions that we will be covering.
+
+Let's first load the required packages by calling them with library. 
+
+```{r, echo=FALSE, results = "hide", warning=FALSE}
+suppressPackageStartupMessages({
+library(Luciernaga)
+library(flowCore)
+library(flowWorkspace)
+library(openCyto)
+library(ggcyto)  
+library(data.table)
+library(dplyr)
+library(purrr) 
+library(stringr)
+library(ggplot2)
+library(gt)
+library(plotly)
+library(htmltools)
+})
+```
+
+```{r}
+library(Luciernaga)
+library(flowCore)
+library(flowWorkspace)
+library(openCyto)
+library(ggcyto)  
+library(data.table)
+library(dplyr)
+library(purrr) 
+library(stringr)
+library(ggplot2)
+library(gt)
+library(plotly)
+library(htmltools)
+```
+
+Then we can find the .fcs files stored within the `Luciernaga` packages extdata folder and sort them by their respective type
+
+```{r}
+File_Location <- system.file("extdata", package = "Luciernaga")
+FCS_Pattern <- ".fcs$"
+FCS_Files <- list.files(path = File_Location, pattern = FCS_Pattern,
+                        full.names = TRUE, recursive = FALSE)
+head(FCS_Files[10:30], 20)
+```
+
+```{r}
+UnstainedFCSFiles <- FCS_Files[grep("Unstained", FCS_Files)]
+UnstainedBeads <- UnstainedFCSFiles[grep("Beads", UnstainedFCSFiles)]
+UnstainedCells <- UnstainedFCSFiles[-grep("Beads", UnstainedFCSFiles)]
+
+BeadFCSFiles <- FCS_Files[grep("Beads", FCS_Files)]
+BeadSingleColors <- BeadFCSFiles[-grep("Unstained", BeadFCSFiles)]
+
+CellSingleColorFiles <- FCS_Files[grep("Cells", FCS_Files)]
+CellSingleColors <- CellSingleColorFiles[!str_detect("Unstained", CellSingleColorFiles)]
 ```
 
 
-### Reports from .fcs files
+Now lets create a GatingSet for our single-color cell unmixing controls
 
-The LuciernagaQC() will also produce .fcs files containing only the isolated signatures, and store these in the designated folder. Rather than re-running LuciernagaQC() just to return a report, and to allow for visualization of specific .fcs subfiles of interest, we have implemented functions that carry out similar functionality, but using these isolated fluorescent files as their start basis.
+```{r}
+MyCytoSet <- load_cytoset_from_fcs(CellSingleColors, 
+                                   truncate_max_range = FALSE, 
+                                   transform = FALSE)
+MyCytoSet
+MyGatingSet <- GatingSet(MyCytoSet)
+MyGatingSet
+```
 
-## Luciernaga_QC
+```{r, message = FALSE}
+MyGatingTemplate <- gatingTemplate(MyGates)
+gt_gating(MyGatingTemplate, MyGatingSet)
+MyGatingSet[[1]]
+```
 
-## Luciernaga_FCSToReport
 
-## Luciernaga_Brightness
+Now lets create a GatingSet for our unstained cell unmixing controls
 
-## Luciernaga_Lists
+```{r}
+MyUnstainedCytoSet <- load_cytoset_from_fcs(UnstainedCells, 
+                                   truncate_max_range = FALSE, 
+                                   transform = FALSE)
+MyUnstainedCytoSet
+MyUnstainedGatingSet <- GatingSet(MyUnstainedCytoSet)
+MyUnstainedGatingSet
+```
 
-## Luciernaga_Plots
+```{r}
+FileLocation <- system.file("extdata", package = "Luciernaga")
+MyGates <- fread(file.path(path = FileLocation, pattern = 'Gates.csv'))
+gt(MyGates)
+```
+
+```{r, message = FALSE}
+MyGatingTemplate <- gatingTemplate(MyGates)
+gt_gating(MyGatingTemplate, MyUnstainedGatingSet)
+MyUnstainedGatingSet[[1]]
+```
+# Generate Luciernaga_QC Outputs
+
+Now that the GatingSets are re-established, let's continue where the last vignette left off by processing all the fcs files with `Luciernaga_QC` to characterize the fluorescent signatures within. 
+
+Let's first provision the AFOverlap csv to handle conflicts. 
+
+```{r}
+FileLocation <- system.file("extdata", package = "Luciernaga")
+pattern = "AutofluorescentOverlaps.csv"
+AFOverlap <- list.files(path=FileLocation, pattern=pattern,
+                        full.names = TRUE)
+AFOverlap_CSV <- read.csv(AFOverlap, check.names = FALSE)
+AFOverlap_CSV
+```
+
+And next generate a CellAF unstained signature that can be used when these fluorophore-autofluorescence overlap files are encountered:
+
+```{r}
+# pData(MyUnstainedGatingSet[1])
+
+TheCellAF <- map(.x=MyUnstainedGatingSet[1], .f=Luciernaga_QC, subsets="lymphocytes",
+                              removestrings=removestrings, sample.name="GUID",
+                              unmixingcontroltype = "cells", Unstained = TRUE,
+                              ratiopopcutoff = 0.001, Verbose = FALSE,
+                              AFOverlap = AFOverlap, stats = "median",
+                              ExportType = "data", SignatureReturnNow = TRUE,
+                              outpath = TemporaryFolder, Increments=0.1,
+                              SecondaryPeaks=2, experiment = "FirstExperiment",
+                              condition = "ILTPanel", SCData="subtracted",
+                              NegativeType="default")
+
+TheCellAF <- TheCellAF[[1]] #Removes list caused by map
+
+gt(TheCellAF)
+```
+
+
+We will start with the ExportType = "data" return for now for both the cell Single-Color and Unstained Unmixing controls.
+
+```{r}
+SingleColor_Data <- map(.x=MyGatingSet, .f=Luciernaga_QC, subsets="lymphocytes",
+                              removestrings=removestrings, sample.name="GUID",
+                              unmixingcontroltype = "cells", Unstained = FALSE,
+                              ratiopopcutoff = 0.001, Verbose = FALSE,
+                              AFOverlap = AFOverlap, stats = "median",
+                              ExportType = "data", SignatureReturnNow = FALSE,
+                              outpath = TemporaryFolder, Increments=0.1,
+                              SecondaryPeaks=2, experiment = "FirstExperiment",
+                              condition = "ILTPanel", Subtraction = "Internal", 
+                              CellAF=TheCellAF, SCData="subtracted",
+                              NegativeType="default") %>% bind_rows()
+```
+```{r}
+nrow(SingleColor_Data)
+```
+```{r}
+gt(head(SingleColor_Data, 5))
+```
+
+Let's now repeat this process for the Unstained GatingSet. 
+
+```{r}
+# pData(MyUnstainedGatingSet)
+
+Unstained_Data <- map(.x=MyUnstainedGatingSet, .f=Luciernaga_QC, subsets="lymphocytes",
+                              removestrings=removestrings, sample.name="GUID",
+                              unmixingcontroltype = "cells", Unstained = TRUE,
+                              ratiopopcutoff = 0.001, Verbose = FALSE,
+                              AFOverlap = AFOverlap, stats = "median",
+                              ExportType = "data", SignatureReturnNow = FALSE,
+                              outpath = TemporaryFolder, Increments=0.1,
+                              SecondaryPeaks=2, experiment = "FirstExperiment",
+                              condition = "ILTPanel", Subtraction = "Internal", 
+                              CellAF=TheCellAF, SCData="subtracted",
+                              NegativeType="default") %>% bind_rows()
+```
+
+```{r}
+nrow(Unstained_Data)
+```
+```{r}
+gt(head(Unstained_Data, 5))
+```
+
+# Luciernaga_Plots
+
+The `Luciernaga_Plots()` function works directly from the `Luciernaga_QC()` output when the ExportType = "data". Let's start exploring what it can do. 
+
+We will first provide a file.path to the panel information, which will be used by `Luciernaga_Plots()` to arrange the plots/report by the order of the fluorophores listed in the panel. If there is a mismatch between the fluorophore data and the panel, it will not rearrange but proceed to the output. 
+
+```{r}
+FileLocation <- system.file("extdata", package = "Luciernaga")
+pattern = "Panel.csv"
+CSV <- list.files(path=FileLocation, pattern=pattern, full.names=TRUE)
+TheFluorophoreOrder <- read.csv(CSV, check.names = FALSE)
+```
+
+The SingleColor_Data output from above currently contains the information for every single fluorophore .fcs file that was processed. While we can pass the entire object to `Luciernaga_Plots()` and it will process a report for each, we can also tailor our output by using `r CRANpkg("dplyr")` to target particular fluorophores of interest if we want to find information for a specific fluorophore. 
+
+```{r}
+BUV615 <- SingleColor_Data %>% filter(str_detect(Sample, "BUV615"))
+nrow(BUV615)
+```
+
+```{r}
+head(BUV615)
+```
+As you can tell, we processed `Luciernaga_QC()` with increments set at 0.1 so there was a lot of splitting into specific Clusters for this fluorophore. This can be overwhelming for `Luciernaga_Plots()` default arguments in some individual circumstances, such as the example below:
+
+```{r}
+TheFluorophoreOrder <- read.csv(CSV, check.names = FALSE)
+TheFluorophore <- TheFluorophoreOrder %>% filter(Fluorophore %in% "BUV615")
+
+ThePlotReport <- Luciernaga_Plots(data=BUV615, RetainedType="normalized", CellPopRatio=0.001,
+                                  outfolder=NULL, filename="LuciernagaReport", returntype="patchwork",
+                                  LinePlots=TRUE, CosinePlots=TRUE, StackedBarPlots = TRUE,
+                                  HeatmapPlots = TRUE, reference = TheFluorophore)
+ThePlotReport[[1]]
+```
+
+To work around this, when the data.frame is handed to `Luciernaga_Plot()`, we can filter by CellPopRatio to dictate what percentage of the total outputed cells a Cluster needs to be to be visualized. For the clusters that are excluded, these are gathered by the function and classified as Cluster "Other". Let's see this in action by setting CellPopRatio to 0.05 (so a cluster is retained if it makes up 5% stained cells): 
+
+```{r}
+TheFluorophoreOrder <- read.csv(CSV, check.names = FALSE)
+TheFluorophore <- TheFluorophoreOrder %>% filter(Fluorophore %in% "BUV615")
+
+ThePlotReport <- Luciernaga_Plots(data=BUV615, RetainedType="normalized", CellPopRatio=0.05,
+                                  outfolder=NULL, filename="LuciernagaReport", returntype="patchwork",
+                                  LinePlots=TRUE, CosinePlots=TRUE, StackedBarPlots = TRUE,
+                                  HeatmapPlots = TRUE, reference = TheFluorophore)
+ThePlotReport[[1]]
+```
+From the above we can see the basic available formats of the `Luciernaga_Plots()` outputs. Namely, from the `Luciernaga_QC()` output we can visualize LinePlots (showing visualized signatures), CosinePlots (showing the cosine similarity matrix values of individual signatures relative to each other), StackedBarPlots and HeatmapPlots (which in different ways show relative abundance of the cluster signatures). 
+
+For the above example, we are using the returntype="patchwork" argument. As with other `Luciernaga` packages, it takes the same arguments that are passed to the `Utility_Patchwork()` function to dictate layout. Similarly, we can set returntype = "pdf" to generate a .pdf file with the report contents sent to the location specified by the outfolder and filename. 
+
+```{r}
+
+ThePlotReport <- Luciernaga_Plots(data=BUV615, RetainedType="normalized", CellPopRatio=0.05,
+                                  outfolder=NULL, filename="LuciernagaReport", returntype="patchwork",
+                                  LinePlots=TRUE, CosinePlots=TRUE, StackedBarPlots = TRUE,
+                                  HeatmapPlots = TRUE, reference = TheFluorophore, thecolumns=2,
+                                  therows=2, width=7, height=9)
+ThePlotReport[[1]]
+```
+
+In the cases above, the report returned all four plots. These can be turned on or off as desired. For example, if we want to only retrieve only individual plot elements, we would leave our desired plot value as TRUE, set the other plot arguments to FALSE. 
+
+```{r}
+
+ThePlotReport <- Luciernaga_Plots(data=BUV615, RetainedType="normalized", CellPopRatio=0.05,
+                                  outfolder=NULL, filename="LuciernagaReport", returntype="patchwork",
+                                  LinePlots=TRUE, CosinePlots=FALSE, StackedBarPlots = FALSE,
+                                  HeatmapPlots = TRUE, reference = TheFluorophore, thecolumns=2,
+                                  therows=2, width=7, height=9)
+ThePlotReport[[1]]
+```
+
+Additionally, we would switch from returntype = "patchwork" to "plots" to retrieve the actual ggplot2 object of interest. The returned objects are still in a list format, so we use `rCRANpkg("purrr")` flatten function to get rid of the list, allowing the ggplot2 object to be handed to `rCRANpkg("plotly")` ggplotly function to allow for interactive elements.
+
+```{r}
+ThePlotReport <- Luciernaga_Plots(data=BUV615, RetainedType="normalized", CellPopRatio=0.05,
+                                  outfolder=NULL, filename="LuciernagaReport", returntype="plots",
+                                  LinePlots=TRUE, CosinePlots=FALSE, StackedBarPlots = FALSE,
+                                  HeatmapPlots = FALSE, reference = TheFluorophore)
+
+ThePlotReport <- purrr::flatten(ThePlotReport)
+plotly::ggplotly(ThePlotReport[[1]])
+```
+
+```{r}
+ThePlotReport <- Luciernaga_Plots(data=BUV615, RetainedType="normalized", CellPopRatio=0.05,
+                                  outfolder=NULL, filename="LuciernagaReport", returntype="plots",
+                                  LinePlots=FALSE, CosinePlots=TRUE, StackedBarPlots = FALSE,
+                                  HeatmapPlots = FALSE, reference = TheFluorophore)
+
+ThePlotReport <- purrr::flatten(ThePlotReport)
+plotly::ggplotly(ThePlotReport[[1]])
+```
+
+```{r}
+ThePlotReport <- Luciernaga_Plots(data=BUV615, RetainedType="normalized", CellPopRatio=0.05,
+                                  outfolder=NULL, filename="LuciernagaReport", returntype="plots",
+                                  LinePlots=FALSE, CosinePlots=FALSE, StackedBarPlots = TRUE,
+                                  HeatmapPlots = FALSE, reference = TheFluorophore)
+
+ThePlotReport <- purrr::flatten(ThePlotReport)
+plotly::ggplotly(ThePlotReport[[1]])
+```
+
+```{r}
+ThePlotReport <- Luciernaga_Plots(data=BUV615, RetainedType="normalized", CellPopRatio=0.05,
+                                  outfolder=NULL, filename="LuciernagaReport", returntype="plots",
+                                  LinePlots=FALSE, CosinePlots=FALSE, StackedBarPlots = FALSE,
+                                  HeatmapPlots = TRUE, reference = TheFluorophore)
+
+ThePlotReport <- purrr::flatten(ThePlotReport)
+plotly::ggplotly(ThePlotReport[[1]])
+```
+
+Since the returned plots are ggplot2 objects, you can additionally modify them further using ggplot2 arguments to change respective elements appearance and aesthetics however you see fit. Please refer to `rCRANpkg("ggplot2")` vignettes and tutorials on how to do this, as it's outside of our scope for this vignette. 
+
+Having characterized the pieces of `Luciernaga_Plots()` for a single fluorophore, let's quickly see how it behaves without the initial filtering for the entire SC_Data
+
+```{r}
+TheFluorophoreOrder <- read.csv(CSV, check.names = FALSE)
+
+ThePlotReport <- Luciernaga_Plots(data=SingleColor_Data, RetainedType="normalized", CellPopRatio=0.05,
+                                  outfolder=NULL, filename="LuciernagaReport", returntype="patchwork",
+                                  LinePlots=TRUE, CosinePlots=TRUE, StackedBarPlots = TRUE,
+                                  HeatmapPlots = TRUE, reference = TheFluorophore)
+ThePlotReport[1:4]
+```
+
+As can be seen, it automatically processed the data for each individual fluorophore. As with the above, the arguments can be altered to turn on/off individual plot elements, change the orientation, and alter the return type as with the examples above. 
+
+```{r}
+TheFluorophoreOrder <- read.csv(CSV, check.names = FALSE)
+
+ThePlotReport <- Luciernaga_Plots(data=SingleColor_Data, RetainedType="normalized", CellPopRatio=0.05,
+                                  outfolder=NULL, filename="LuciernagaReport", returntype="plots",
+                                  LinePlots=FALSE, CosinePlots=FALSE, StackedBarPlots = FALSE,
+                                  HeatmapPlots = TRUE, reference = TheFluorophore)
+ThePlotReport[1:4]
+```
+The examples above relied on `LuciernagaQC()` ExportType = "data" output to generate the desired reports and plots. This can be saved by individual users as a .csv that can be retrieved for later use.
+
+```{r}
+# Saving Elsewhere
+StorageLocation <- file.path("C:", "Users", "12692", "Desktop")
+TheName <- "SingleColorData.csv"
+TheFinalLocation <- file.path(StorageLocation, TheName)
+write.csv(SingleColor_Data, TheFinalLocation, row.names=FALSE)
+
+# Reading in Later
+TheRetrievedData <- read.csv(TheFinalLocation, check.names=FALSE)
+```
+
+
+# Luciernaga_FCSToReport
+
+`Luciernaga_FCSToReport()` is a function that handles cases when there is no `LuciernagaQC()` ExportType = "data" to allow for the generation of plots and reports, and instead, we need to take the `LuciernagaQC()` ExportType = "fcs" outputs from their storage folder and re-derrive the equivalent data to be used with `Luciernaga_Plots()`. 
+
+# Luciernaga_Brightness
+
+One advantage of retrieving the data from `LuciernagaQC()` ExportType = "fcs" outputs is that we can generate an additional type of plot to look at the individual brightness for the isolates signatures. This is accomplished through the `Luciernaga_Brightness()` function
+
+# Luciernaga_Lists
+
+`Luciernaga_Lists()` is a wrapper function that allows us to merge in the `Luciernaga_Brightness()` plots with `Luciernaga_Plots()` plots to generate a more complete view of the fluorescent signatures for given samples. In addition to being able to return a "pdf" plot, it can also be used to generate a "html" output that is interactive (at the cost of being more storage space used on your computer)
+
+# Visualizing Longitudinally
+
+All of the above functions focused their work primarily in the context of visualizing the variation in `Luciernaga_QC()` isolated fluorescent signatures within the context of a single experiment. But what happens when we want to look longitudinally across a series of experiments to monitor for tandem degradation in an antibody vial, or pinpoint if the instrumental issue impacted fluorophore signatures on a particular day? 
+
+The following functions are still in active development, and require a little more upfront coding on the part of the user to ensure that the data.frame object is tidy compatible, but we attach the workflow below. 
+
+# Conclusion
+
+And this concludes the vignette covering how to visualize the `Luciernaga_QC()` outputs to leverage insight into what is occuring within individual fluorophores for a given experiment and across time. Thanks for your patience and happy visualizing. 
 
 ```{r sessionInfo, echo = FALSE}
 sessionInfo()

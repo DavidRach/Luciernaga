@@ -15,7 +15,11 @@ Luciernaga_Plots(
   StackedBarPlots = TRUE,
   HeatmapPlots = TRUE,
   returntype = "patchwork",
-  reference
+  reference,
+  thecolumns = 2,
+  therows = 2,
+  width = 9,
+  height = 7
 )
 }
 \arguments{
@@ -40,6 +44,14 @@ Luciernaga_Plots(
 \item{returntype}{Return "pdf", "patchwork" or "plots"}
 
 \item{reference}{path or data.frame containing Fluorophore column for ordering}
+
+\item{thecolumns}{The number of columns per page}
+
+\item{therows}{The number of rows per page}
+
+\item{width}{Desired page width}
+
+\item{height}{Desired page height}
 }
 \value{
 A value to be determined later
