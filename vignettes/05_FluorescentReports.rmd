@@ -494,6 +494,12 @@ The resulting brightness plot is a geom_density plot showing the  MFI for the re
 
 `Luciernaga_Lists()` is a wrapper function that allows us to merge in the `Luciernaga_Brightness()` plots with `Luciernaga_Plots()` plots to generate a more complete view of the fluorescent signatures for given samples. In addition to being able to return a "pdf" plot, it can also be used to generate a "html" output that is interactive (at the cost of being more storage space used on your computer)
 
+```{r, eval = FALSE}
+FinalPlots <- Luciernaga_Lists(ListOfList = TheMainPlots, SecondaryList = BrightnessPlots, thecolumns = 2, 
+                               therows = 3, width=9, height=7, ReturnFolder = ReferencePath,
+                               CurrentExperiment = "Test", PlotType = "html")
+```
+
 # Visualizing Longitudinally
 
 All of the above functions focused their work primarily in the context of visualizing the variation in `Luciernaga_QC()` isolated fluorescent signatures within the context of a single experiment. But what happens when we want to look longitudinally across a series of experiments to monitor for tandem degradation in an antibody vial, or pinpoint if the instrumental issue impacted fluorophore signatures on a particular day? 

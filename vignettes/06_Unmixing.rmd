@@ -234,9 +234,27 @@ We want to be upfront and say this is developmental. We have recently created th
 
 For now, the process works as follows (detailed explanation logic)
 
+```{r, eval = FALSE}
+PanelPath <- file.path(ReferencePath, "TodaysBrightnessPanel.csv")
+
+These <- Luciernaga_Tree(BrightnessFilePath = SCs_OutPath, PanelPath = PanelPath)
+```
+
 # Luciernaga_Move
 
 Once `Luciernaga_Tree()` has identified the `Luciernaga_QC()` output .fcs files that will likely produce the best unmixing outcome, it would be absolutely brutal having to track down within a folder of hundreds of .fcs files with some repetition of CCR4BUV615_UV6_10-V7_08-B3_04 nomenclature (believe me, I did so initially). `Luciernaga_Move()` takes the `Luciernaga_Tree()` list of ideal candidates, and copies these .fcs files to a designated folder, saving you the hassle, and allowing you to simply point at that folder for use in the functions mentioned below. 
+
+```{r, eval = FALSE}
+PanelPath <- file.path(ReferencePath, "TodaysBrightnessPanel.csv")
+
+These <- Luciernaga_Tree(BrightnessFilePath = SCs_OutPath, PanelPath = PanelPath)
+
+Panel <- read.csv(PanelPath, check.names=FALSE)
+Vector <- Panel %>% pull(Fluorophore)
+Vector
+
+walk(.x=Vector[c(1:28)], .f=Luciernaga_Move, data=These, input=SCs_OutPath, output=Selected_Outpath)
+```
 
 # Luciernaga_LinearSlices
 
@@ -244,9 +262,44 @@ We had previously showcased `Luciernaga_LinearSlices()` ability to take an .fcs 
 
 For today, we highlight the ability to do the same principle on the `Luciernaga_QC()` outputs, demonstrating that this variation in signature is not occuring, and that the sorting within `Luciernaga_QC()` appears to have sorted cells of similar signature regardless of brightness. These outputs can likewise be exported as a .pdf file that can be used for troubleshooting
 
+```{r, eval = FALSE}
+Selected_Files <- list.files(Selected_Outpath, pattern="fcs", full.names=TRUE)
+Selected_CS <- load_cytoset_from_fcs(Selected_Files, truncate_max_range = FALSE, transform = FALSE)
+Selected_GS <- GatingSet(Selected_CS)
+
+ThePlots <- map(.x=Selected_GS, .f=Luciernaga_LinearSlices, subset="root", removestrings=".fcs",
+                sample.name="GUID", stats="median", returntype="normalized", output="plot")
+
+Utility_Patchwork(ThePlots, filename = "LinearSlices", outfolder=ReferencePath, returntype = "pdf")
+```
+
 # Luciernaga_SingleColors
 
 The main purpose of `Luciernaga_SingleColors()` is to generate a reference matrix for use in unmixing full-stained samples. It additionally serves as a mechanism by which we can check the signatures that we are providing to the matrix and contrast them to reference signatures stored within `Luciernaga`. The outputed data.frame can be saved elsewhere and edited as desired, allowing for correction of any typos or format issues before creating unmixed .fcs files. 
+
+```{r, eval = FALSE}
+#pData(Selected_GS)
+removestrings=c("DR_", ".fcs")
+ThePanelCuts <- Panel %>% select(-Detector) %>% mutate(From=0.3) %>% mutate(To=1)
+
+SCs <- map(.x=Selected_GS, .f=Luciernaga_SingleColors, sample.name="TUBENAME",
+           removestrings=removestrings, subset="root", PanelCuts=ThePanelCuts,
+           stats="median", Verbose=TRUE, SignatureView=TRUE, returntype = "plots")
+
+Utility_Patchwork(x=SCs, filename="ReferenceMatches", outfolder = ReferencePath, returntype = "pdf")
+
+SC_Reference <- map(.x=Selected_GS, .f=Luciernaga_SingleColors, sample.name="TUBENAME",
+                    removestrings=removestrings, subset="root", PanelCuts=ThePanelCuts,
+                    stats="median", Verbose=FALSE, SignatureView=FALSE, returntype = "data") %>%
+                    bind_rows()
+
+SC_Reference <- SC_Reference %>%
+  mutate(Fluorophore = case_when(Fluorophore == "Unstained" ~ "AF", TRUE ~ Fluorophore))
+
+TheSCReferences <- file.path(ReferencePath, "UnmixingSCs.csv")
+
+write.csv(SC_Reference, TheSCReferences, row.names=FALSE)
+```
 
 # Luciernaga_Unmix
 
@@ -254,9 +307,41 @@ The main purpose of `Luciernaga_SingleColors()` is to generate a reference matri
 
 As previously stated, this remains experimental, and at the moment is just intended as a tool to allow me to querry how brightness/signature/abundance of individual single colors impacts the full-unmixing. As I improve on my existing knowledge, the quality of inputs/outputs is likely to also improve as I figure out the things that I don't yet know and correct for them. So consider this a work in progress for now, feel free to reach out if you know something I don't, and want to collaborate on getting it implemented here. 
 
+```{r, eval = FALSE}
+PanelPath <- file.path(ReferencePath, "TodaysNamePanel.csv")
+SingleColorReference <- read.csv(TheSCReferences, check.names=FALSE)
+
+FullStainLocation <- file.path(ReferencePath, "FullStainedSamples")
+UnmixedOutpath <- file.path(ReferencePath, "Unmixed")
+FilesForUnmixing <- list.files(FullStainLocation, pattern="fcs", full.names=TRUE)
+
+UnmixCytoSet <- load_cytoset_from_fcs(FilesForUnmixing, truncate_max_range = FALSE, transform = FALSE)
+UnmixGatingSet <- GatingSet(UnmixCytoSet)
+
+TheSampleName <- c("GROUPNAME", "TUBENAME")
+```
+
+```{r, eval = FALSE}
+UnmixSuccess <- map(.x=UnmixGatingSet, .f=Luciernaga_Unmix, controlData=SingleColorReference, sample.name=TheSampleName, addon="_TwoAF_Unmixed", subset="root", removestrings=".fcs", multiplier=50000, outpath=UnmixedOutpath, PanelPath=PanelPath, Verbose=FALSE)
+```
+
 # Luciernaga_IterativeUnmix
 
 This function is an extension of `Luciernaga_Unmix()` using the same inputs, with the added provision that you provide it a folder of variant of `Luciernaga_QC()` .fcs files for a single fluorophore of interest. `Luciernaga_IterativeUnmix()` will then proceed one by one through the files in that folder, process them individually and swap them in to the Reference Matrix, unmix the full-stain samples, and return the variant unmixed full-stain files to the outfolder. It will repeat this until everything is complete. What we will do subsequently, is use `Utility_UnityPlots()` and `Utility_NxNPlots()` and the workflow described in Vignette 1 to consolidate all the variant unmixed files and evaluate how the variation in that iterated single-color impacted the final unmixing. 
+
+```{r, eval = FALSE}
+IterativePath <- file.path(ReferencePath, "DifferentialPerCP")
+removestrings <- c("DR_", ".fcs")
+iterate_removestrings <- c("DR_", "(Cells)", ".fcs", " ", "PerCP-Cy5.5", "CD26", "_")
+TheSampleName <- c("GROUPNAME", "TUBENAME") 
+
+
+Luciernaga_IterativeUnmixing(IterativePath=IterativePath, iterate_removestrings=iterate_removestrings,
+                               removestrings=removestrings, sample.name=TheSampleName, subset="root",
+                               PanelCuts=ThePanelCuts, stats="median", Verbose=FALSE, SignatureView=FALSE,
+                               FullStainedGS=UnmixGatingSet, controlData=SingleColorReference, multiplier=50000,
+                               outpath=UnmixedOutpath, PanelPath=PanelPath)
+```
 
 # Conclusion
 
