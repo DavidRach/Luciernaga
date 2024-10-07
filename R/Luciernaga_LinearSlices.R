@@ -65,7 +65,8 @@ Luciernaga_LinearSlices <- function(x, subset, sample.name, removestrings, stats
     MultiDetector <- TRUE
     colnames(Normalized) <- gsub("-A", "", colnames(Normalized))
     data <- cbind(n, Normalized)
-  } else {data <- n}
+  } else {MultiDetector <- FALSE
+          data <- n}
 
   if(nrow(Detectors) > 1 && is.null(desiredAF)){
     message("Luciernaga_LinearSlices is only meant to work on LuciernagaQC output .fcs files,

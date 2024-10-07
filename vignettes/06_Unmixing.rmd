@@ -138,6 +138,7 @@ MyGatingTemplate <- gatingTemplate(MyGates)
 gt_gating(MyGatingTemplate, MyUnstainedGatingSet)
 MyUnstainedGatingSet[[1]]
 ```
+
 # Generate Luciernaga_QC Outputs
 
 Now that the GatingSets are re-established, let's continue where the last vignette left off by processing all the fcs files with `Luciernaga_QC` to characterize the fluorescent signatures within. 
@@ -175,124 +176,229 @@ TheCellAF <- TheCellAF[[1]] #Removes list caused by map
 gt(TheCellAF)
 ```
 
+Now let's use `Luciernaga_QC()` with ExportType = "fcs" to export the data as individual .fcs files, and set Brightness = TRUE to save .csv files that can be used for `Luciernaga_Tree()`. For this vignette, we will be saving the .fcs files to a temporary folder. On your own workstation, save the outputs to a folder where you can retrieve them later by providing a file.path to the outpath argument. 
 
-We will start with the ExportType = "data" return for now for both the cell Single-Color and Unstained Unmixing controls.
+Let's start by processing the single-color unmixing controls.
 
 ```{r}
-SingleColor_Data <- map(.x=MyGatingSet, .f=Luciernaga_QC, subsets="lymphocytes",
+#pData(MyGatingSet)
+
+StorageLocation <- file.path(tempdir(), "LuciernagaOutputs")
+
+if (!dir.exists(StorageLocation)) {
+  dir.create(StorageLocation)
+}
+
+SingleColor_Data  <- map(.x=MyGatingSet, .f=Luciernaga_QC, subsets="nonDebris",
                               removestrings=removestrings, sample.name="GUID",
                               unmixingcontroltype = "cells", Unstained = FALSE,
                               ratiopopcutoff = 0.001, Verbose = FALSE,
                               AFOverlap = AFOverlap, stats = "median",
-                              ExportType = "data", SignatureReturnNow = FALSE,
-                              outpath = TemporaryFolder, Increments=0.1,
+                              ExportType = "fcs", Brightness=TRUE, SignatureReturnNow = FALSE,
+                              outpath = StorageLocation, Increments=0.1,
                               SecondaryPeaks=2, experiment = "FirstExperiment",
                               condition = "ILTPanel", Subtraction = "Internal", 
                               CellAF=TheCellAF, SCData="subtracted",
-                              NegativeType="default") %>% bind_rows()
+                              NegativeType="default", minimalfcscutoff=0.01)
+
+TheLuciernagaOutputs_FCS <- list.files(StorageLocation, pattern="fcs", full.names = TRUE)
+head(TheLuciernagaOutputs_FCS, 4)
 ```
+And let's also process an unstained unmixing control specimen also to characterize autofluorescence that is present. 
 
 ```{r}
-nrow(SingleColor_Data)
-```
-
-```{r}
-gt(head(SingleColor_Data, 5))
-```
-
-Let's now repeat this process for the Unstained GatingSet. 
-
-```{r}
-# pData(MyUnstainedGatingSet)
-
-Unstained_Data <- map(.x=MyUnstainedGatingSet, .f=Luciernaga_QC, subsets="lymphocytes",
+#pData(MyUnstainedGatingSet)
+Unstained_Data  <- map(.x=MyUnstainedGatingSet[1], .f=Luciernaga_QC, subsets="nonDebris",
                               removestrings=removestrings, sample.name="GUID",
                               unmixingcontroltype = "cells", Unstained = TRUE,
                               ratiopopcutoff = 0.001, Verbose = FALSE,
                               AFOverlap = AFOverlap, stats = "median",
-                              ExportType = "data", SignatureReturnNow = FALSE,
-                              outpath = TemporaryFolder, Increments=0.1,
+                              ExportType = "fcs", Brightness=TRUE, SignatureReturnNow = FALSE,
+                              outpath = StorageLocation, Increments=0.1,
                               SecondaryPeaks=2, experiment = "FirstExperiment",
                               condition = "ILTPanel", Subtraction = "Internal", 
                               CellAF=TheCellAF, SCData="subtracted",
-                              NegativeType="default") %>% bind_rows()
-```
-
-```{r}
-nrow(Unstained_Data)
-```
-
-```{r}
-gt(head(Unstained_Data, 5))
+                              NegativeType="default", minimalfcscutoff=0.01)
 ```
 
 # Luciernaga_Tree
 
-We generate a lot of clusters with `Luciernaga_QC()`. We can visualize them using the report and plotting functions described in the previous vignettte, but selecting individual candidate output .fcs for use in unmixing can be tiresome and confusing. `Luciernaga_Tree()` is our initial attempt to reduce the burden, by instituting a decision tree to help filter the many outputs and return likely candidates that will work for unmixing. It relies on the `Luciernaga_QC()` Brightness=TRUE .csv outputs in making this decision. 
+We generate a lot of clusters with `Luciernaga_QC()`. We can visualize them using the report and plotting functions described in the previous vignette, but selecting individual candidate output .fcs for use in unmixing can be tiresome and confusing. `Luciernaga_Tree()` is our initial attempt to reduce the burden, by instituting a decision tree to help filter the many outputs and return likely candidates that will work for unmixing. It relies on the `Luciernaga_QC()` Brightness=TRUE .csv outputs in making this decision. 
 
-We want to be upfront and say this is developmental. We have recently created the tools to allow us to querry how fluorophore brightness, signature, and relative abundance impact the unmixing of full-stained samples. We have not had the time to delve into the outcomes at the depth we would like to come up with a grand unified theory of perfect unmixing. That is on my to-do-list as a postdoc/industry/whatever (hire me if this interest you or you want to avoid me working for your competitors). For the time, it works well enough, but with some notable bugs in the final unmixing. We highly encourage your feedback and tinkering with the decision trees step methodology in order to achieve more consistent results. 
+We want to be upfront and say this is developmental. We have recently created the tools to allow us to query how fluorophore brightness, signature, and relative abundance impact the unmixing of full-stained samples. We have not had the time to delve into the outcomes at the depth we would like to come up with a grand unified theory of perfect unmixing. That is on my to-do-list as a postdoc/industry/whatever (hire me if this interest you or you want to avoid me working for your competitors). For the time, it works well enough, but with occasional bugs in the final unmixing. We highly encourage your feedback and tinkering with the decision trees step methodology in order to achieve more consistent results. For now, the process works as follows (detailed explanation logic).
 
-For now, the process works as follows (detailed explanation logic)
+With that background out of the way, let's continue. 
 
-```{r, eval = FALSE}
-PanelPath <- file.path(ReferencePath, "TodaysBrightnessPanel.csv")
+```{r}
+ReferencePath <- system.file("extdata", package = "Luciernaga")
+PanelPath <- file.path(ReferencePath, "UnmixingPanel.csv")
+UnmixingPanel <- read.csv(PanelPath, check.names=FALSE)
 
-These <- Luciernaga_Tree(BrightnessFilePath = SCs_OutPath, PanelPath = PanelPath)
+MoveThese <- Luciernaga_Tree(BrightnessFilePath = StorageLocation, PanelPath = PanelPath)
+gt(head(MoveThese, 5))
 ```
+
+By scrolling through the returned selections, we can screen based on our knowledge of the panel and decide if the outcomes seem reasonable. We will also verify that these decisions were correct before we reach the unmixing process by visualizing vs. reference signatures in `Luciernaga_SingleColors()`. In the case that the wrong file output was selected, it is much easier to remove and replace one .fcs file than 30. 
 
 # Luciernaga_Move
 
 Once `Luciernaga_Tree()` has identified the `Luciernaga_QC()` output .fcs files that will likely produce the best unmixing outcome, it would be absolutely brutal having to track down within a folder of hundreds of .fcs files with some repetition of CCR4BUV615_UV6_10-V7_08-B3_04 nomenclature (believe me, I did so initially). `Luciernaga_Move()` takes the `Luciernaga_Tree()` list of ideal candidates, and copies these .fcs files to a designated folder, saving you the hassle, and allowing you to simply point at that folder for use in the functions mentioned below. 
 
-```{r, eval = FALSE}
-PanelPath <- file.path(ReferencePath, "TodaysBrightnessPanel.csv")
+Continuing from where we left off with `Luciernaga_Tree()` above, for this example, we will create a different temporary folder were we will store the selected .fcs files for later use in the unmixing. 
 
-These <- Luciernaga_Tree(BrightnessFilePath = SCs_OutPath, PanelPath = PanelPath)
+```{r}
+SortedStorageLocation <- file.path(tempdir(), "LuciernagaSelected")
 
-Panel <- read.csv(PanelPath, check.names=FALSE)
-Vector <- Panel %>% pull(Fluorophore)
-Vector
+if (!dir.exists(SortedStorageLocation)) {
+  dir.create(SortedStorageLocation)
+}
 
-walk(.x=Vector[c(1:28)], .f=Luciernaga_Move, data=These, input=SCs_OutPath, output=Selected_Outpath)
+UnmixingPanel <- read.csv(PanelPath, check.names=FALSE)
+TheseFluorophores <- UnmixingPanel %>% pull(Fluorophore)
+TheseFluorophores[1:5]
 ```
+
+```{r}
+walk(.x=TheseFluorophores, .f=Luciernaga_Move, data=MoveThese, input=StorageLocation, output=SortedStorageLocation)
+
+MovedFiles <- list.files(SortedStorageLocation, pattern="fcs", full.names=TRUE)
+length(MovedFiles)
+```
+With these steps completed, we are now ready to proceed to the steps to validate our choice in unmixing controls. 
 
 # Luciernaga_LinearSlices
 
-We had previously showcased `Luciernaga_LinearSlices()` ability to take an .fcs file, and visualize variation in the signature based on the quantile splits for the MFI brightness. Our example was as follows. 
+We had previously showcased `Luciernaga_LinearSlices()` ability to take an .fcs file, and visualize variation in the signature based on the quantile splits for the MFI brightness. What we saw for APC CD16 is replicated below: 
 
-For today, we highlight the ability to do the same principle on the `Luciernaga_QC()` outputs, demonstrating that this variation in signature is not occuring, and that the sorting within `Luciernaga_QC()` appears to have sorted cells of similar signature regardless of brightness. These outputs can likewise be exported as a .pdf file that can be used for troubleshooting
+```{r}
+#pData(MyGatingSet)
 
-```{r, eval = FALSE}
-Selected_Files <- list.files(Selected_Outpath, pattern="fcs", full.names=TRUE)
-Selected_CS <- load_cytoset_from_fcs(Selected_Files, truncate_max_range = FALSE, transform = FALSE)
+RawSlices <- Luciernaga_LinearSlices(x=MyGatingSet[6], subset="lymphocytes",
+                                  sample.name="GUID", removestrings=removestrings,
+                                  stats="median", returntype="raw",
+                                  probsratio=0.1, output="plot", desiredAF="R1-A")
+
+plotly::ggplotly(RawSlices)
+```
+
+```{r}
+#pData(MyGatingSet[6])
+
+NormalizedSlices <- Luciernaga_LinearSlices(x=MyGatingSet[6], subset="lymphocytes",
+                                  sample.name="GUID", removestrings=removestrings,
+                                  stats="median", returntype="normalized",
+                                  probsratio=0.1, output="plot", desiredAF="R1-A")
+
+plotly::ggplotly(NormalizedSlices)
+```
+
+For today, we highlight `Luciernaga_LinearSlices()` ability to do this also with the `Luciernaga_QC()` outputs.
+
+```{r}
+MovedFiles <- list.files(SortedStorageLocation, pattern="fcs", full.names=TRUE)
+Selected_CS <- load_cytoset_from_fcs(MovedFiles, truncate_max_range = FALSE, transform = FALSE)
 Selected_GS <- GatingSet(Selected_CS)
+
+pData(Selected_GS)
 
 ThePlots <- map(.x=Selected_GS, .f=Luciernaga_LinearSlices, subset="root", removestrings=".fcs",
                 sample.name="GUID", stats="median", returntype="normalized", output="plot")
 
-Utility_Patchwork(ThePlots, filename = "LinearSlices", outfolder=ReferencePath, returntype = "pdf")
+plotly::ggplotly(ThePlots[[1]])
+```
+
+As we can see, with the exception of cells below 30 percentile in brightness, most of the variation in signature we saw in the original file, and that the sorting within `Luciernaga_QC()` appears to have sorted cells of similar signature regardless of brightness.
+
+By passing the generated plots to `Utility_Patchwork()`, we can set returntype="pdf" or "patchwork" to generate a report for all fluorophores.
+
+```{r}
+PatchworkObjects <- Utility_Patchwork(ThePlots, filename = "LinearSlices", outfolder=ReferencePath, returntype = "patchwork")
+PatchworkObjects[1]
 ```
 
 # Luciernaga_SingleColors
 
-The main purpose of `Luciernaga_SingleColors()` is to generate a reference matrix for use in unmixing full-stained samples. It additionally serves as a mechanism by which we can check the signatures that we are providing to the matrix and contrast them to reference signatures stored within `Luciernaga`. The outputed data.frame can be saved elsewhere and edited as desired, allowing for correction of any typos or format issues before creating unmixed .fcs files. 
+The main purpose of `Luciernaga_SingleColors()` is to generate a reference matrix for use in unmixing full-stained samples. It additionally provides a mechanism by which we can visualize the signatures we plan on using and compare them to the reference signatures stored within `Luciernaga`. This allows us to screen out potential issues in the single-color reference matrix before we proceed to unmix the full-stained specimens. 
 
-```{r, eval = FALSE}
+To begin, we need to generate either a .csv file or a data.frame for each of the fluorophores present, and specify a cutoff point for each, dictated by our observations from what we saw with `Luciernaga_LinearSlices()`. For this example, we will do this in R and set the intervals from 0.4 to 1.0 across the board. If you want to fine-tune things further, it would be easier to save the output as a .csv file, modify it, and then return it to R. 
+
+```{r}
+UnmixingPanel <- read.csv(PanelPath, check.names=FALSE)
+ThePanelCuts <- UnmixingPanel %>% select(-Detector) %>% mutate(From=0.3) %>% mutate(To=1)
+head(ThePanelCuts, 5)
+#write.csv(ThePanelCuts, path="SaveHere.csv", row.names=FALSE)
+```
+An important thing to ensure is that we correctly identify each fluorophore and ligand at this step, to ensure names are correct in the unmixed full-stained .fcs file. 
+In this case, we are using the keyword "TUBENAME" to identify between the .fcs files. This is what the original name looks like:
+
+```{r}
+keyword(Selected_GS[1], "TUBENAME")
+```
+`Luciernaga_SingleColors()` will automatically clean up any portion of the name that has "(Cells)" or "(Beads)" present in it. However, that would leave the final name as "DR_CCR4 BUV615" which would be converted into Fluorophore = BUV615, Ligand = DR_CCR4. To clean this up, we will remove the authors initials ("DR_") by providing them as part of a list to the remove strings argument. 
+
+```{r}
 #pData(Selected_GS)
 removestrings=c("DR_", ".fcs")
-ThePanelCuts <- Panel %>% select(-Detector) %>% mutate(From=0.3) %>% mutate(To=1)
+SCs <- map(.x=Selected_GS[1], .f=Luciernaga_SingleColors, sample.name="TUBENAME",
+           removestrings=removestrings, subset="root", PanelCuts=ThePanelCuts,
+           stats="median", Verbose=TRUE, SignatureView=TRUE, returntype = "plots")
+```
+In the case above, we set the returntype = "plot" to visualize the outcome compared to the stored Reference Signatures within `Luciernaga`. Let's see what these look like:
 
+```{r}
+plotly::ggplotly(SCs[[1]])
+```
+
+As you can tell, the provided signature originating from our output .fcs file closely resembles that of the reference signature. 
+We can repeat this for all the fluorophores and using `Utility_Patchwork()`, set returntype = "pdf" and examine all fluorophores to spot any issues. 
+For this example, I will set it the argument to "patchwork" to visualize. 
+
+
+
+```{r, message = FALSE}
 SCs <- map(.x=Selected_GS, .f=Luciernaga_SingleColors, sample.name="TUBENAME",
            removestrings=removestrings, subset="root", PanelCuts=ThePanelCuts,
            stats="median", Verbose=TRUE, SignatureView=TRUE, returntype = "plots")
 
-Utility_Patchwork(x=SCs, filename="ReferenceMatches", outfolder = ReferencePath, returntype = "pdf")
+TheView <- Utility_Patchwork(x=SCs, filename="ReferenceMatches",
+                             outfolder = ReferencePath, returntype = "patchwork")
 
+TheView[3]
+```
+
+In this particular case, we can see that while most generated signatures aligned with their references, the .fcs files we are using for BUV737 and PacificBlue deviate substantially and are likely to impact the final unmixing. Within our workflow, we would follow up by removing the current output .fcs from the Selected Folder, and replace it with another variant. 
+
+While this highlights the visualizing portion of `Luciernaga_SingleColors()` lets go ahead and generate the reference matrix by changing returntype = "data"
+
+```{r}
 SC_Reference <- map(.x=Selected_GS, .f=Luciernaga_SingleColors, sample.name="TUBENAME",
                     removestrings=removestrings, subset="root", PanelCuts=ThePanelCuts,
                     stats="median", Verbose=FALSE, SignatureView=FALSE, returntype = "data") %>%
                     bind_rows()
+head(SC_Reference, 4)
+```
 
+While we are at it, we might as well identify how far the cosine difference for the trouble Pacific Blue Fluorophore is before we go and correct it:
+
+```{r}
+PacificBlue <- SC_Reference %>% select(-Ligand) %>% rename(Sample=Fluorophore)
+
+Results <- QC_WhatsThis(x="Pacific Blue", data=PacificBlue, NumberHits=10,
+                        returnPlots = TRUE)
+
+Results[[1]]
+```
+
+```{r}
+plotly::ggplotly(Results[[2]])
+```
+
+As you can tell, the fluorophore more closely resembles BV510 with no Pacific Blue appearing in the list of hits. This suggest that the returned fluorescent signature in the .fcs file is mainly autofluorescence, and should not be used. 
+
+Back on topic, once we have corrected the Selected Folder, rerun `Luciernaga_SingleColors()` and are satisfied with out results, we should go ahead
+and save the results data.frame elsewhere for further reference, or that they can be so edited to correct for any typos or format issues that may have been missed before creating unmixed .fcs files. 
+
+```{r, eval = FALSE}
 SC_Reference <- SC_Reference %>%
   mutate(Fluorophore = case_when(Fluorophore == "Unstained" ~ "AF", TRUE ~ Fluorophore))
 
@@ -307,22 +413,45 @@ write.csv(SC_Reference, TheSCReferences, row.names=FALSE)
 
 As previously stated, this remains experimental, and at the moment is just intended as a tool to allow me to querry how brightness/signature/abundance of individual single colors impacts the full-unmixing. As I improve on my existing knowledge, the quality of inputs/outputs is likely to also improve as I figure out the things that I don't yet know and correct for them. So consider this a work in progress for now, feel free to reach out if you know something I don't, and want to collaborate on getting it implemented here. 
 
-```{r, eval = FALSE}
-PanelPath <- file.path(ReferencePath, "TodaysNamePanel.csv")
-SingleColorReference <- read.csv(TheSCReferences, check.names=FALSE)
+For now, let's identify the raw full-stained files and load them into a GatingSet:
 
-FullStainLocation <- file.path(ReferencePath, "FullStainedSamples")
-UnmixedOutpath <- file.path(ReferencePath, "Unmixed")
-FilesForUnmixing <- list.files(FullStainLocation, pattern="fcs", full.names=TRUE)
+```{r}
+File_Location <- system.file("extdata", package = "Luciernaga")
+FCS_Pattern <- ".fcs$"
+FCS_Files <- list.files(path = File_Location, pattern = FCS_Pattern,
+                        full.names = TRUE, recursive = FALSE)
+RawFullStainedFCSFiles <- FCS_Files[grep("Tetramer", FCS_Files)]
+RawFullStainedFCSFiles <- RawFullStainedFCSFiles[-grep("Unmixed", RawFullStainedFCSFiles)]
 
-UnmixCytoSet <- load_cytoset_from_fcs(FilesForUnmixing, truncate_max_range = FALSE, transform = FALSE)
-UnmixGatingSet <- GatingSet(UnmixCytoSet)
-
-TheSampleName <- c("GROUPNAME", "TUBENAME")
+UnmixCytoSet <- load_cytoset_from_fcs(RawFullStainedFCSFiles, truncate_max_range = FALSE, transform = FALSE)
+UnmixGatingSet <- GatingSet(UnmixCytoSet)                                                
 ```
 
+Let's identify the Single Color Reference Data output from `Luciernaga_SingleColors()` that we have validated (correcting from any issues)
+
 ```{r, eval = FALSE}
-UnmixSuccess <- map(.x=UnmixGatingSet, .f=Luciernaga_Unmix, controlData=SingleColorReference, sample.name=TheSampleName, addon="_TwoAF_Unmixed", subset="root", removestrings=".fcs", multiplier=50000, outpath=UnmixedOutpath, PanelPath=PanelPath, Verbose=FALSE)
+ReferencePath <- system.file("extdata", package = "Luciernaga")
+ValidatedSCReferenceData <- file.path(ReferencePath, "ValidatedSCReferenceData.csv")
+SingleColorReference <- read.csv(ValidatedSCReferenceData, check.names = FALSE)
+```
+
+And finally, lets provide a file.path to the panel (to establish correct ordering of fluorophores in the final file)
+```{r}
+PanelPath <- file.path(ReferencePath, "UnmixingPanel.csv")
+PanelNames <- read.csv(PanelPath, check.names=FALSE)
+```
+
+With these pre-requisites prepared we can go ahead. For this example, we will merge the "GROUPNAME" and "TUBENAME" to form the final 
+name. For the final file, we will use the addon argument to append "_Unmixed" at the end. As Ordinary Least Squares (OLS) returns 
+values close to 0, the multiplier increases all values across the board, which allows the data to resemble that of other softwares
+when the bi-exponential transform is applied. 
+
+```{r, eval = FALSE}
+TheSampleName <- c("GROUPNAME", "TUBENAME")
+
+UnmixSuccess <- map(.x=UnmixGatingSet, .f=Luciernaga_Unmix, controlData=SingleColorReference,
+                    sample.name=TheSampleName, addon="_Unmixed", subset="root", removestrings=".fcs",
+                    multiplier=50000, outpath=UnmixedOutpath, PanelPath=PanelPath, Verbose=FALSE)
 ```
 
 # Luciernaga_IterativeUnmix

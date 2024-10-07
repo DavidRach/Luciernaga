@@ -1,5 +1,5 @@
 ---
-title: "05 Fluorescent Reports`"
+title: "05 Fluorescent Reports"
 date: "`r BiocStyle::doc_date()`"
 author:
 - name: David Rach
