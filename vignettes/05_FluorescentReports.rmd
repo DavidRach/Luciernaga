@@ -236,7 +236,7 @@ We will first provide a file.path to the panel information, which will be used b
 
 ```{r}
 FileLocation <- system.file("extdata", package = "Luciernaga")
-pattern = "Panel.csv"
+pattern = "^Panel.csv"
 CSV <- list.files(path=FileLocation, pattern=pattern, full.names=TRUE)
 TheFluorophoreOrder <- read.csv(CSV, check.names = FALSE)
 ```
@@ -447,7 +447,7 @@ ThePlotReport[1]
 
 One advantage of retrieving the data from `LuciernagaQC()` ExportType = "fcs" outputs is that we can generate an additional type of plot to look at the individual brightness for the cells that clustered within the isolated signatures. This is accomplished by switching up a couple arguments in `Luciernaga_FCSToReport()` and passing the intermediate to the `Luciernaga_Brightness()` function
 
-```{r}
+```{r, eval = FALSE}
 ReferencePath <- system.file("extdata", package = "Luciernaga")
 PanelPath <- file.path(ReferencePath, "Panel.csv")
 PanelNames <- read.csv(PanelPath, check.names = FALSE)
@@ -473,16 +473,15 @@ BrightnessOutput$Sample <- gsub(".", "", fixed=TRUE, BrightnessOutput$Sample)
 BrightnessOutput$Sample <- gsub(" ", "", fixed=TRUE, BrightnessOutput$Sample)
 #BrightnessOutput$Sample <- gsub("-", "", fixed=TRUE, BrightnessOutput$Sample)
 
-BrightnessPlots <- map(.x=PanelItems[c(28:29)], .f=Luciernaga_Brightness, data=BrightnessOutput,
-                       reference=PanelNames, Scaled=TRUE)
+BrightnessPlots <- map(.x=PanelItems[c(28:29)], .f=Luciernaga_Brightness, data=BrightnessOutput,                       reference=PanelNames, Scaled=TRUE)
 ```
 
-```{r}
+```{r, eval = FALSE}
 ThePlot <- BrightnessPlots[[8]]
 ThePlot
 ```
 
-```{r}
+```{r, eval = FALSE}
 plotly::ggplotly(ThePlot)
 ```
 

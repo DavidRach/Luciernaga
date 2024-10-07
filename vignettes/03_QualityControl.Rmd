@@ -454,7 +454,7 @@ And finally, we have an experimental function `QC_ProspectiveFluorophores()` tha
 OutPath <- "C:/Users/12692/Desktop"
 
 Folder_Location <- system.file("extdata", package = "Luciernaga")
-ThePanelLocation <- list.files(Folder_Location, pattern="Panel.csv", full.names=TRUE)
+ThePanelLocation <- list.files(Folder_Location, pattern="^Panel.csv", full.names=TRUE)
 ThePanel <- read.csv(ThePanelLocation, check.names=FALSE) %>% select(Fluorophore)
 ```
 
