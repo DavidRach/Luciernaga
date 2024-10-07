@@ -14,7 +14,20 @@
 #' @return A data.frame row
 #' @export
 #'
-#' @examples NULL
+#' @examples
+#'
+#' library(dplyr)
+#' library(purrr)
+#'
+#' File_Location <- system.file("extdata", package = "Luciernaga")
+#' FCS_Pattern <- ".fcs$"
+#' FCS_Files <- list.files(path = File_Location, pattern = FCS_Pattern,
+#' full.names = TRUE, recursive = FALSE)
+#' QCBeads <- FCS_Files[grep("Before|After", FCS_Files)]
+#' BeforeAfter_CS <- load_cytoset_from_fcs(files=QCBeads,
+#' transform=FALSE, truncate_max_range = FALSE)
+#' BeforeAfter <- map(.x=BeforeAfter_CS[1:2], .f=QC_GainMonitoring,
+#'  sample.name = "TUBENAME", stats="median") %>% bind_rows()
 QC_GainMonitoring <- function(x, sample.name, stats){
   Guts <- Luciernaga::QC_Retrieval(x=x, sample.name=sample.name)
   Data <- data.frame(exprs(x), check.names=FALSE)

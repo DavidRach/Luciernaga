@@ -22,5 +22,17 @@ Takes Before After QC .fcs files of QC beads run on assay settings, returns the 
 measurement in a data.frame to allow for plotting to assess stability over time.
 }
 \examples{
-NULL
+
+library(dplyr)
+library(purrr)
+
+File_Location <- system.file("extdata", package = "Luciernaga")
+FCS_Pattern <- ".fcs$"
+FCS_Files <- list.files(path = File_Location, pattern = FCS_Pattern,
+full.names = TRUE, recursive = FALSE)
+QCBeads <- FCS_Files[grep("Before|After", FCS_Files)]
+BeforeAfter_CS <- load_cytoset_from_fcs(files=QCBeads,
+transform=FALSE, truncate_max_range = FALSE)
+BeforeAfter <- map(.x=BeforeAfter_CS[1:2], .f=QC_GainMonitoring,
+ sample.name = "TUBENAME", stats="median") \%>\% bind_rows()
 }

@@ -19,8 +19,13 @@
 #' @return TBD
 #' @export
 #'
-#' @examples NULL
+#' @examples
 #'
+#' Folder_Location <- system.file("extdata", package = "Luciernaga")
+#' XML_Pattern <- ".XML$"
+#' XML_Files <- list.files(path = Folder_Location, pattern = XML_Pattern,
+#'                         full.names = TRUE, recursive = FALSE)
+#' SinglePlot <- QC_LibraryParse(XML_Files[2], returntype="plots", references=FALSE)
 QC_LibraryParse <- function(x, returntype, references=TRUE){
 
   doc <- read_xml(x)

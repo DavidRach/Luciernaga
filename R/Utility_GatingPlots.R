@@ -138,15 +138,16 @@ GatePlot <- function(x, data, TheDF, gtFile, bins=270, clearance = 0.2){
        linetype = "blank"), panel.grid.minor = element_line(linetype = "blank"),
        axis.title = element_text(size = 10, face = "bold"), legend.position = "none"))
   } else {
-    Plot <- as.ggplot(ggcyto(data, aes(x = .data[[xValue]], y = .data[[yValue]]),
-      subset = theSubset)) + geom_hex(bins=bins) + coord_cartesian(
-      xlim = c(theXmin, theXmax), ylim = c(theYmin, theYmax), default = TRUE) +
-      geom_gate(theGate) + theme_bw() + labs(title = NULL) + theme(
-      strip.background = element_blank(), strip.text.x = element_blank(),
-      panel.grid.major = element_line(linetype = "blank"),
-      panel.grid.minor = element_line( linetype = "blank"),
-      axis.title = element_text(size = 10, legend.position = "none"))
-
+    Plot <- as.ggplot(ggcyto(data, aes(x = .data[[xValue]], y = .data[[yValue]]), subset = theSubset)) +
+      geom_hex(bins=bins) +
+      coord_cartesian(xlim = c(theXmin, theXmax), ylim = c(theYmin, theYmax), default = TRUE) +
+      geom_gate(theGate) + theme_bw() + labs(title = NULL) +
+      theme(strip.background = element_blank(),
+            strip.text.x = element_blank(),
+            panel.grid.major = element_line(linetype = "blank"),
+            panel.grid.minor = element_line( linetype = "blank"),
+            axis.title = element_text(size = 10),
+            legend.position = "none")
   }
 }
 

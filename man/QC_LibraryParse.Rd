@@ -20,6 +20,10 @@ TBD
 Parses Library Reference Control .XML files and returns
 }
 \examples{
-NULL
 
+Folder_Location <- system.file("extdata", package = "Luciernaga")
+XML_Pattern <- ".XML$"
+XML_Files <- list.files(path = Folder_Location, pattern = XML_Pattern,
+                        full.names = TRUE, recursive = FALSE)
+SinglePlot <- QC_LibraryParse(XML_Files[2], returntype="plots", references=FALSE)
 }

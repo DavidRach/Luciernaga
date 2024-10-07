@@ -451,7 +451,7 @@ QC_ReferenceLibrary(FluorNameContains = "Spark", NumberDetectors=64)
 And finally, we have an experimental function `QC_ProspectiveFluorophores()` that will leverage information about an existing panel (and the peak detectors its fluorophore currently occupy) and contrast that to the reference library fluorophores to find candidate fluorophores that might potentially fit in the gaps. 
 
 ```{r}
-OutPath <- "C:/Users/12692/Desktop"
+OutPath <- file.path("C:", "Users", "JohnDoe", "Desktop")
 
 Folder_Location <- system.file("extdata", package = "Luciernaga")
 ThePanelLocation <- list.files(Folder_Location, pattern="^Panel.csv", full.names=TRUE)

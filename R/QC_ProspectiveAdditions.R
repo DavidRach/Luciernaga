@@ -26,7 +26,17 @@
 #' @return A csv containing selected fluorophores
 #' @export
 #'
-#' @examples NULL
+#' @examples
+#'
+#' Folder_Location <- system.file("extdata", package = "Luciernaga")
+#' ThePanelLocation <- list.files(Folder_Location, pattern="^Panel.csv",
+#'  full.names=TRUE)
+#' OutPath <- file.path("C:", "Users", "JohnDoe", "Desktop")
+#'
+#' ProspectiveAdditions <- QC_ProspectiveAdditions(path=ThePanelLocation, NumberDetectors=64,
+#' TheCutoff=0.9, returnAll=FALSE, returnCSV=FALSE,
+#' filename="ProspectiveAdditions", outpath=OutPath)
+#'
 QC_ProspectiveAdditions <- function(path, NumberDetectors, TheCutoff=0.9,
                                     returnAll=FALSE, filename, outpath,
                                     returnCSV){

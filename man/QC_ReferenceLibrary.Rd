@@ -20,5 +20,6 @@ A dataframe column containing matching Fluorophores from your querry
 Queries the available reference library for available fluorophores (and their naming conventions)
 }
 \examples{
-NULL
+
+QC_ReferenceLibrary(FluorNameContains = "FITC", NumberDetectors=64)
 }
