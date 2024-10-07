@@ -21,5 +21,10 @@ A dataframe.
 Converts the Cytek Aurora (TM)'s QC report into a data frame.
 }
 \examples{
-NULL
+
+File_Location <- system.file("extdata", package = "Luciernaga")
+CSV_Pattern <- ".CSV$"
+CSV_Files <- list.files(path=File_Location, pattern=CSV_Pattern,
+                       full.names=TRUE)
+TidyData <- QC_FilePrep(CSV_Files, TrackChange = FALSE)
 }
