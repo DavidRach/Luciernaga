@@ -14,7 +14,11 @@
 #'
 #' @export
 #'
-#' @examples NULL
+#' @examples
+#'
+#' name <- "DR BUV496 CD8 (Cells).fcs"
+#' removestrings <- c("DR", "(Cells)", ".fcs", " ")
+#' Cleaned_Name <- NameCleanUp(name, removestrings)
 
 NameCleanUp <- function(name, removestrings, substitutestrings){
 #InternalDevToDoList: The for-loop is iterating in place, don't believe its

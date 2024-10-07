@@ -1,6 +1,3 @@
-library(testthat)
-library(Luciernaga)
-
 test_that("QC_FilePrep returns a dataframe with more than 1 row", {
   # Prepare the experiment
   File_Location <- system.file("extdata", package = "Luciernaga")
