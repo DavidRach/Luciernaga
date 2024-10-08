@@ -12,6 +12,7 @@
 #' @param metric umap Argument, default is set to "euclidean"
 #' @param n_neighbors umap Argument, default is set to 15
 #' @param min_dist umap Argument, default is set to 0.5
+#' @param export When set to TRUE returns fcs files to specified outpath.
 #' @param ... Other arguments to pass to umap()
 #'
 #' @importFrom uwot umap

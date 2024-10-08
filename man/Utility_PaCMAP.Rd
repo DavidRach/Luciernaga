@@ -24,15 +24,19 @@ Utility_PaCMAP(
 
 \item{removestrings}{A list of things to remove from sample.name}
 
+\item{subset}{The subset of interest from gating hierarchy}
+
 \item{columns}{A subset of columns to pass instead}
 
 \item{notcolumns}{A subset of columns to remove}
 
 \item{subsample}{If downsampling is wanted.}
 
+\item{export}{When set to TRUE returns fcs files to specified outpath}
+
 \item{outpath}{Location to store new .fcs files}
 
-\item{subsets}{The subset of interest from gating hierarchy}
+\item{...}{Additional arguments passed to PaCMAP for fine tuning}
 }
 \value{
 Two columns for the Dimensionality visualized data

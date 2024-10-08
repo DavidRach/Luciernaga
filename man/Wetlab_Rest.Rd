@@ -25,8 +25,6 @@ Wetlab_Rest(
 \item{outpath}{File path of location to store the table}
 
 \item{filename}{File name to store the table as}
-
-\item{x}{A list of specimens to be mapped}
 }
 \value{
 A data.frame of resuspension measurements to get to the desired parameters

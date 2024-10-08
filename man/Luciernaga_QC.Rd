@@ -109,6 +109,8 @@ for specified autofluorescence.}
 \item{NegativeType}{Whether to append a negative pop to .fcs file, "default",
 "artifical" or "samples"}
 
+\item{TotalNegatives}{When setting NegativeType to "artificial" or "sample", how many events to add.}
+
 \item{outpath}{Location where created .fcs and .csv files are sent}
 }
 \value{

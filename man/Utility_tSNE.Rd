@@ -35,6 +35,8 @@ or other.}
 
 \item{subsample}{If downsampling is wanted.}
 
+\item{export}{When set to TRUE returns fcs files to specified outpath.}
+
 \item{outpath}{Location to store new .fcs files}
 
 \item{max_iter}{Rtsne argument, default is set to 1000}

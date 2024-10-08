@@ -40,6 +40,7 @@
 #' @param BeadMainAF The detector that corresponds to the "main" bead AF, albeit dim.
 #' @param CellAF A passed data.frame row containing the reference for cell unstained.
 #' @param CellMainAF The detector that corresponds to the "main" cell AF.
+#' @param TotalNegatives When setting NegativeType to "artificial" or "sample", how many events to add.
 #'
 #' @importFrom flowCore keyword
 #' @importFrom stringr str_detect

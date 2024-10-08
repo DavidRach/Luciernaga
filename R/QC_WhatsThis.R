@@ -3,6 +3,7 @@
 #' @param x Name in the Sample column you want to filter for
 #' @param data A data.frame object from QC_LibraryParse containing Fluorophore name column and numeric detector columns.
 #' @param NumberHits Number of most similar fluorophores by cosine.
+#' @param returnPlots Whether to return signature plots, default is set to FALSE.
 #'
 #' @importFrom dplyr filter
 #' @importFrom dplyr slice
@@ -37,7 +38,7 @@
 #'
 #' Results <- QC_WhatsThis(x=TheFluorophore, data=Data, NumberHits = 10, returnPlots=FALSE)
 
-QC_WhatsThis <- function(x, data, NumberHits, returnPlots) {
+QC_WhatsThis <- function(x, data, NumberHits, returnPlots=FALSE) {
 
   StartingData <- data %>% filter(Sample %in% x)
 

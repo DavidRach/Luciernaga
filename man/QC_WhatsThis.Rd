@@ -4,7 +4,7 @@
 \alias{QC_WhatsThis}
 \title{Querries reference signatures and returns most similar fluorophores by cosine similarity.}
 \usage{
-QC_WhatsThis(x, data, NumberHits, returnPlots)
+QC_WhatsThis(x, data, NumberHits, returnPlots = FALSE)
 }
 \arguments{
 \item{x}{Name in the Sample column you want to filter for}
@@ -12,6 +12,8 @@ QC_WhatsThis(x, data, NumberHits, returnPlots)
 \item{data}{A data.frame object from QC_LibraryParse containing Fluorophore name column and numeric detector columns.}
 
 \item{NumberHits}{Number of most similar fluorophores by cosine.}
+
+\item{returnPlots}{Whether to return signature plots, default is set to FALSE.}
 }
 \value{
 A dataframe of similar fluorophores

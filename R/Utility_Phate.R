@@ -3,11 +3,13 @@
 #' @param x A gating set object
 #' @param sample.name Keyword for which sample name is stored
 #' @param removestrings A list of things to remove from sample.name
-#' @param subsets The subset of interest from gating hierarchy
+#' @param subset The subset of interest from gating hierarchy
 #' @param columns A subset of columns to pass instead
 #' @param notcolumns A subset of columns to remove
 #' @param subsample If downsampling is wanted.
 #' @param outpath Location to store new .fcs files
+#' @param export When set to TRUE returns fcs files to specified outpath.
+#' @param ... Additional arguments passed to Phate for fine tuning
 #'
 #' @importFrom basilisk basiliskStart
 #' @importFrom basilisk basiliskStop

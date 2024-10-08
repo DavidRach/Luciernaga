@@ -12,6 +12,7 @@
 #' @param max_iter Rtsne argument, default is set to 1000
 #' @param perplexity Rtsne argument, default is set to 30
 #' @param ... Other Arguments to pass to Rtsne
+#' @param export When set to TRUE returns fcs files to specified outpath.
 #'
 #' @importFrom Rtsne Rtsne
 #' @importFrom flowWorkspace keyword

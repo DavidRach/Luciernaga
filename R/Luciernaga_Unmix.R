@@ -31,7 +31,7 @@
 
 Luciernaga_Unmix <- function(x, controlData, sample.name, removestrings, Verbose, addon,
                              subset="root", multiplier, outpath, PanelPath,
-                             Experimental=FALSE, returntype="fcs"){
+                             returntype="fcs"){
 
   if (length(sample.name) == 2){
     first <- sample.name[[1]]

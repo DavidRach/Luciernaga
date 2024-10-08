@@ -11,7 +11,7 @@ QC_ReferenceLibrary(FluorNameContains, NumberDetectors, returnPlots = FALSE)
 
 \item{NumberDetectors}{The Number of Detectors for your instrument}
 
-\item{ReturnPlots}{Whether to return signature plot as well. Default FALSE.}
+\item{returnPlots}{Whether to return signature plot as well. Default FALSE.}
 }
 \value{
 A dataframe column containing matching Fluorophores from your querry

@@ -53,7 +53,7 @@ library(Luciernaga)
 library(shiny)
 library(DataEditR)
 library(gt)
-library(ghibli)
+#library(ghibli)
 library(stringr)  
 })
 ```
@@ -69,7 +69,7 @@ library(Luciernaga)
 library(shiny)
 library(DataEditR)
 library(gt)
-library(ghibli)
+#library(ghibli)
 library(stringr)
 ```
 

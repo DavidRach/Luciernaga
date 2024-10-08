@@ -25,6 +25,7 @@ measurement in a data.frame to allow for plotting to assess stability over time.
 
 library(dplyr)
 library(purrr)
+library(flowWorkspace)
 
 File_Location <- system.file("extdata", package = "Luciernaga")
 FCS_Pattern <- ".fcs$"

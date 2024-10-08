@@ -23,8 +23,8 @@
 #' @param therows Number of desired rows for the .pdf file
 #' @param width Desired page width
 #' @param height Desired page height
-#'
 #' @param outpath Location to store the generated .pdf file
+#' @param ... Additional Arguments to NameForSample to derive filename.
 #'
 #' @importFrom flowWorkspace keyword
 #' @importFrom flowWorkspace gs_pop_get_data

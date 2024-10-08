@@ -33,7 +33,7 @@ Luciernaga_IterativeUnmixing <- function(IterativePath, iterate_removestrings, r
   TheFCSFiles <- list.files(path=IterativePath, pattern="fcs", full.names=TRUE)
 
   #Incorporate into a Gating Set
-  Selected_CS <- load_cytoset_from_fcs(TheFCSFiles, truncate_max_range = FALSE, transform = FALSE)
+  Selected_CS <- load_cytoset_from_fcs(TheFCSFiles, truncate_max_range = FALSE, transformation = FALSE)
   Selected_GS <- GatingSet(Selected_CS)
 
   #Set up NewNames

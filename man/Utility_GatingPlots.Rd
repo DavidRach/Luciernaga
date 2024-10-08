@@ -36,6 +36,8 @@ Desired <- c("nonDebris, "lymphocytes")}
 \item{export}{Whether to return as a .pdf file or as individual patchwork ggplot
 objects.}
 
+\item{...}{Additional Arguments to NameForSample to derive filename.}
+
 \item{experiment.name}{The .fcs keyword that contains the name of the experiment}
 
 \item{experiment}{Directly provide the name of the experiment (alternative to

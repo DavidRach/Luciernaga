@@ -1,6 +1,5 @@
 #' Takes Concentration output, returns re-suspension amounts for Wetlab users.
 #'
-#' @param x A list of specimens to be mapped
 #' @param data The Wetlab_Concentration output (modified correct Total mL amounts)
 #' @param DesiredConcentration_MillionperML Final desired concentration (ex. 1, 3, etc.)
 #' @param MaxMLperTube The Final Volume of the rest tube

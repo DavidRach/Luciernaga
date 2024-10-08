@@ -11,6 +11,8 @@
 #' @param sample.name The keyword that determines a specimens name
 #' @param removestrings A list of string characters to remove from the name
 #' @param tilesize Equivalent of bin, determines the height and width of the tile dots.
+#' @param reference Provide Coereba reference when splitpoint equals crossreference
+#' @param FactorNames Provide factor names when splitpoint equals categorical
 #'
 #' @return A ggplot object with z-axis cells highlighted from background cells
 #' @export

@@ -15,7 +15,6 @@ Luciernaga_Unmix(
   multiplier,
   outpath,
   PanelPath,
-  Experimental = FALSE,
   returntype = "fcs"
 )
 }

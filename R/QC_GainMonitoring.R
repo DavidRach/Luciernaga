@@ -18,6 +18,7 @@
 #'
 #' library(dplyr)
 #' library(purrr)
+#' library(flowWorkspace)
 #'
 #' File_Location <- system.file("extdata", package = "Luciernaga")
 #' FCS_Pattern <- ".fcs$"

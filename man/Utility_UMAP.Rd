@@ -36,6 +36,8 @@ use one or other.}
 
 \item{subsample}{If downsampling is wanted.}
 
+\item{export}{When set to TRUE returns fcs files to specified outpath.}
+
 \item{outpath}{Location to store new .fcs files}
 
 \item{metric}{umap Argument, default is set to "euclidean"}

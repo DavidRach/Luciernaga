@@ -12,11 +12,13 @@ QC_SimilarFluorophores(
 )
 }
 \arguments{
-\item{NumberHits}{Number of most similar fluorophores by cosine.}
+\item{TheFluorophore}{The name of the Fluorophore compare, see QC_ReferenceLibrary}
 
-\item{x}{Name of Fluorophore You Want to Examine}
+\item{NumberDetectors}{Number of detectors of the instrument}
 
-\item{data}{The dataframe object from QC_LibraryParse}
+\item{NumberHits}{Number of most similar fluorophores by cosine}
+
+\item{returnPlots}{Whether to also return signature plots, default is set FALSE}
 }
 \value{
 A dataframe of similar fluorophores

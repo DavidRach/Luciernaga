@@ -1,8 +1,9 @@
 #' Queries fluorophore and returns similar fluorophores.
 #'
-#' @param x Name of Fluorophore You Want to Examine
-#' @param data The dataframe object from QC_LibraryParse
-#' @param NumberHits Number of most similar fluorophores by cosine.
+#' @param TheFluorophore The name of the Fluorophore compare, see QC_ReferenceLibrary
+#' @param NumberDetectors Number of detectors of the instrument
+#' @param NumberHits Number of most similar fluorophores by cosine
+#' @param returnPlots Whether to also return signature plots, default is set FALSE
 #'
 #' @importFrom dplyr filter
 #' @importFrom dplyr slice

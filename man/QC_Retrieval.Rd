@@ -21,13 +21,15 @@ CytoSet.
 }
 \examples{
 
+library(flowWorkspace)
+
 File_Location <- system.file("extdata", package = "Luciernaga")
 FCS_Pattern <- ".fcs$"
 FCS_Files <- list.files(path = File_Location, pattern = FCS_Pattern,
 full.names = TRUE, recursive = FALSE)
 QCBeads <- FCS_Files[grep("Before", FCS_Files)]
 MyCytoSet <- load_cytoset_from_fcs(QCBeads[1], truncate_max_range = FALSE,
-transform = FALSE)
+transformatio = FALSE)
 MyGatingSet <- GatingSet(MyCytoSet)
 
 SingleSpecimen <- QC_Retrieval(x=MyGatingSet[[1]], sample.name="TUBENAME")

@@ -2,7 +2,7 @@
 #'
 #' @param FluorNameContains A character string pattern to match, example "APC"
 #' @param NumberDetectors The Number of Detectors for your instrument
-#' @param ReturnPlots Whether to return signature plot as well. Default FALSE.
+#' @param returnPlots Whether to return signature plot as well. Default FALSE.
 #'
 #' @importFrom dplyr select
 #' @importFrom dplyr filter

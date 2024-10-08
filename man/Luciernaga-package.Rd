@@ -4,7 +4,7 @@
 \name{Luciernaga-package}
 \alias{Luciernaga}
 \alias{Luciernaga-package}
-\title{Luciernaga: Tools for the evaluation of Spectral Flow Cytometry (SFC) unmixing controls.}
+\title{Luciernaga: Tools for the evaluation of Spectral Flow Cytometry (SFC) unmixing controls}
 \description{
 To learn more about using the Luciernaga package, please start by browsing the
 vignettes:

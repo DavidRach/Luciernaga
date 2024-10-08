@@ -1,11 +1,19 @@
 Package: Luciernaga
 Type: Package
-Title: Tools for the evaluation of Spectral Flow Cytometry (SFC) unmixing controls. 
+Title: Tools for the evaluation of Spectral Flow Cytometry (SFC) unmixing controls 
 Version: 0.99.1
 Authors@R: 
     person("David", "Rach", , "drach@som.umaryland.edu", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0003-2235-5585"))
-Description: High quality unmixing controls are critical in Spectral Flow Cytometry (SFC) for the accurate unmixing of full-stained samples. Despite this importance, few tools are available for their quality control. Luciernaga provides series of functions to allow individual researchers to implement quality control and interrogate effects that different fluorescent signatures have on their unmixing to make informed decisions while reducing the guess-work. Tools are implemented for individual .fcs files at a single timepoint or across an experimental run 
+Description:
+  High quality unmixing controls are critical in Spectral Flow Cytometry (SFC)
+  for the accurate unmixing of full-stained samples. Despite this importance,
+  few tools are available for their quality control. Luciernaga provides series
+  of functions to allow individual researchers to implement quality control and
+  interrogate effects that different fluorescent signatures have on their
+  unmixing to make informed decisions while reducing the guess-work.
+  Tools are implemented for individual .fcs files at a single timepoint
+  or across an experimental run 
 License: AGPL (>= 3)
 Encoding: UTF-8
 LazyData: FALSE
@@ -24,6 +32,7 @@ Imports:
     ggplot2,
     grDevices,
     ggridges,
+    gt,
     htmltools,
     lsa,
     methods,
@@ -31,6 +40,7 @@ Imports:
     plotly,
     purrr,
     reshape2,
+    reticulate,
     Rtsne,
     stats,
     stringr,
@@ -51,9 +61,10 @@ Suggests:
     DataEditR,
     DT,
     knitr,
-    lubridate,
     openCyto,
+    RColorBrewer,
     rmarkdown,
+    scales,
     shiny,
     shinyBS,
     shinydashboard,
