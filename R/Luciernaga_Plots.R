@@ -147,6 +147,14 @@ Luciernaga_Plots <- function(data, RetainedType, CellPopRatio, outfolder, filena
 #' @importFrom dplyr mutate
 #' @importFrom viridis scale_fill_viridis
 #' @importFrom figpatch fig
+#' @importFrom ggplot2 scale_color_hue
+#' @importFrom ggplot2 theme_linedraw
+#' @importFrom ggplot2 element_rect
+#' @importFrom ggplot2 geom_tile
+#' @importFrom ggplot2 scale_fill_gradient2
+#' @importFrom ggplot2 unit
+#' @importFrom ggplot2 geom_col
+#' @importFrom ggplot2 scale_fill_gradient
 #'
 #' @noRd
 InternalReport <- function(x, data, FirstDetectorColumn, LastDetectorColumn,

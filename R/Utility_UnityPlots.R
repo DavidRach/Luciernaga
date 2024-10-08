@@ -76,7 +76,16 @@ Utility_UnityPlot <- function(x, y, GatingSet, marginsubset, gatesubset,
 #' @importFrom tidyr all_of
 #' @importFrom ggcyto as.ggplot
 #' @importFrom ggcyto ggcyto
+#' @importFrom ggplot2 aes
+#' @importFrom ggplot2 geom_point
 #' @importFrom ggplot2 geom_hex
+#' @importFrom ggplot2 coord_cartesian
+#' @importFrom ggplot2 element_line
+#' @importFrom ggplot2 theme_bw
+#' @importFrom ggplot2 theme
+#' @importFrom ggplot2 element_line
+#' @importFrom ggplot2 geom_vline
+#'
 #'
 #' @noRd
 Unity <- function(x, TheY, TheX, marginsubset, gatesubset, sample.name, removestrings,

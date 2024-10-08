@@ -8,7 +8,7 @@
 #' @param width Desired page width
 #' @param height Desired page height
 #' @param returntype Whether to return "pdf" (to desired location) or "patchwork" (to R)
-#' @param NotListOfList Internal default is True, don't touch.
+#' @param NotListofList Internal default is True, don't touch.
 #'
 #' @importFrom purrr map
 #' @importFrom patchwork wrap_plots

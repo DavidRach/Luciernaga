@@ -33,7 +33,7 @@ Utility_Patchwork(
 
 \item{returntype}{Whether to return "pdf" (to desired location) or "patchwork" (to R)}
 
-\item{NotListOfList}{Internal default is True, don't touch.}
+\item{NotListofList}{Internal default is True, don't touch.}
 }
 \value{
 Some additional value to edit

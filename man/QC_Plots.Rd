@@ -53,6 +53,8 @@ Takes the dataframe generated from CytekQCFilePrep and returns all the QC plots
 }
 \examples{
 
+library(ggplot2)
+
 File_Location <- system.file("extdata", package = "Luciernaga")
 CSV_Pattern <- ".CSV$"
 CSV_Files <- list.files(path=File_Location, pattern=CSV_Pattern,
