@@ -592,6 +592,7 @@ return(PeakDetectorCounts)
 #' @importFrom dplyr filter
 #' @importFrom ggplot2 ggplot
 #' @importFrom dplyr select
+#' @importFrom ggplot2 geom_segment
 #'
 #' @return A value to be determined later
 #' @noRd

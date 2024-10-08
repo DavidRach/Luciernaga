@@ -25,7 +25,6 @@
 #' @export
 #'
 #' @examples
-#'
 #' Results <- QC_SimilarFluorophores(TheFluorophore="Spark Blue 550",
 #'  NumberDetectors=64, NumberHits = 10, returnPlots=TRUE)
 

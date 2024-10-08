@@ -22,7 +22,6 @@ Takes Before After QC .fcs files of QC beads run on assay settings, returns the 
 measurement in a data.frame to allow for plotting to assess stability over time.
 }
 \examples{
-
 library(dplyr)
 library(purrr)
 library(flowWorkspace)

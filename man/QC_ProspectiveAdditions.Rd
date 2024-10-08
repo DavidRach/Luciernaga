@@ -38,7 +38,6 @@ From existing panel, figures out open detectors, and returns potential
  fluorophores that might fit between the existing ones
 }
 \examples{
-
 Folder_Location <- system.file("extdata", package = "Luciernaga")
 ThePanelLocation <- list.files(Folder_Location, pattern="^Panel.csv",
  full.names=TRUE)

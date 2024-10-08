@@ -17,7 +17,6 @@
 #' @export
 #'
 #' @examples
-#'
 #' library(flowWorkspace)
 #'
 #' File_Location <- system.file("extdata", package = "Luciernaga")

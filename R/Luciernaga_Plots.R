@@ -155,6 +155,8 @@ Luciernaga_Plots <- function(data, RetainedType, CellPopRatio, outfolder, filena
 #' @importFrom ggplot2 unit
 #' @importFrom ggplot2 geom_col
 #' @importFrom ggplot2 scale_fill_gradient
+#' @importFrom ggplot2 coord_fixed
+#' @importFrom ggplot2 geom_text
 #'
 #' @noRd
 InternalReport <- function(x, data, FirstDetectorColumn, LastDetectorColumn,

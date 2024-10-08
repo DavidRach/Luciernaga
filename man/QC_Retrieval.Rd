@@ -20,7 +20,6 @@ Returns Detector Gains, Laser Delay and Scalings from individual .fcs files in a
 CytoSet.
 }
 \examples{
-
 library(flowWorkspace)
 
 File_Location <- system.file("extdata", package = "Luciernaga")

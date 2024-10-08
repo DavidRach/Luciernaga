@@ -12,7 +12,6 @@
 #' @export
 #'
 #' @examples
-#'
 #' QC_ReferenceLibrary(FluorNameContains = "FITC", NumberDetectors=64)
 QC_ReferenceLibrary <- function(FluorNameContains, NumberDetectors, returnPlots=FALSE){
   ReferenceData <- InstrumentReferences(NumberDetectors=NumberDetectors)

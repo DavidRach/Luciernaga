@@ -31,7 +31,6 @@
 #' @export
 #'
 #' @examples
-#'
 #' library(ggplot2)
 #'
 #' File_Location <- system.file("extdata", package = "Luciernaga")
@@ -120,6 +119,10 @@ QC_Plots <- function(x, FailedFlag, MeasurementType=NULL, Metadata = NULL, plotT
 #' @importFrom patchwork wrap_plots
 #' @importFrom ggplot2 ggplot
 #' @importFrom lubridate ymd_hms
+#' @importFrom ggplot2 scale_color_manual
+#' @importFrom ggplot2 scale_fill_manual
+#' @importFrom ggplot2 scale_shape_manual
+#' @importFrom ggplot2 scale_size_manual
 #'
 #' @return The pdf and/the plots.
 #'

@@ -26,7 +26,7 @@
 #' @export
 #'
 #' @examples
-#'
+#' library(dplyr)
 #' Folder_Location <- system.file("extdata", package = "Luciernaga")
 #' XML_Pattern <- ".XML$"
 #' XML_Files <- list.files(path = Folder_Location, pattern = XML_Pattern,

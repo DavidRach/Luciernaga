@@ -15,7 +15,6 @@
 #' @export
 #'
 #' @examples
-#'
 #' library(dplyr)
 #' library(purrr)
 #' library(flowWorkspace)

@@ -52,7 +52,6 @@ The pdf and/the plots.
 Takes the dataframe generated from CytekQCFilePrep and returns all the QC plots
 }
 \examples{
-
 library(ggplot2)
 
 File_Location <- system.file("extdata", package = "Luciernaga")

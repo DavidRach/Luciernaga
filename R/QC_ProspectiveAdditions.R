@@ -27,7 +27,6 @@
 #' @export
 #'
 #' @examples
-#'
 #' Folder_Location <- system.file("extdata", package = "Luciernaga")
 #' ThePanelLocation <- list.files(Folder_Location, pattern="^Panel.csv",
 #'  full.names=TRUE)

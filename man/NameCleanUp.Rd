@@ -23,7 +23,6 @@ The shortened variable
 Shorten a variable name
 }
 \examples{
-
 name <- "DR BUV496 CD8 (Cells).fcs"
 removestrings <- c("DR", "(Cells)", ".fcs", " ")
 Cleaned_Name <- NameCleanUp(name, removestrings)

@@ -62,6 +62,7 @@ Utility_RidgePlots <- function(gs, subset, TheX=NULL, TheY, TheFill, inverse.tra
 #' @importFrom ggcyto axis_x_inverse_trans
 #' @importFrom ggcyto as.ggplot
 #' @importFrom ggridges geom_density_ridges
+#' @importFrom ggplot2 facet_null
 #'
 #' @keywords internal
 RidgePlots <- function(x, cs, TheY, TheFill){

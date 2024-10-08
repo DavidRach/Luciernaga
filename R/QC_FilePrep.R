@@ -18,7 +18,6 @@
 #' @export
 #'
 #' @examples
-#'
 #' File_Location <- system.file("extdata", package = "Luciernaga")
 #' CSV_Pattern <- ".CSV$"
 #' CSV_Files <- list.files(path=File_Location, pattern=CSV_Pattern,

@@ -37,6 +37,7 @@
 #' @importFrom dplyr pull
 #' @importFrom dplyr left_join
 #' @importFrom purrr map
+#' @importFrom ggplot2 geom_bar
 #'
 #' @noRd
 SingleStainSignatures <- function(x, WorkAround1, ColsN, StartNormalizedMergedCol,
