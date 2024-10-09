@@ -151,7 +151,7 @@ Once we have the list of desired .fcs files, we can use the `r Biocpkg("flowWork
 
 ```{r}
 MyCytoSet <- load_cytoset_from_fcs(UnstainedCells, truncate_max_range = FALSE,
-                                   transform = FALSE)
+                                   transformation = FALSE)
 #MyCytoSet
 MyGatingSet <- GatingSet(MyCytoSet)
 MyGatingSet
