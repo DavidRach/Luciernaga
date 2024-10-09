@@ -1,5 +1,5 @@
 ---
-title: "03 Quality Control"
+title: "Quality Control"
 date: "`r BiocStyle::doc_date()`"
 author:
 - name: David Rach

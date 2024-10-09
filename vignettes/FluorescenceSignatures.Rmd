@@ -590,8 +590,10 @@ plotly::ggplotly(NormalizedSlices)
 This is more particularly pronounced in context of the single-color unmixing controls, for example, here is what CD16 APC looks like when filtered solely on the basis of peak-detector:
 
 ```{r}
-#Currently Failing Here
-#pData(MyGatingSet)
+##########################
+# Currently Failing Here #
+##########################
+#pData(MyGatingSet[6])
 
 RawSlices <- Luciernaga_LinearSlices(x=MyGatingSet[6], subset="lymphocytes",
                                   sample.name="GUID", removestrings=removestrings,

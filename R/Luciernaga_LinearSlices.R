@@ -61,6 +61,8 @@ Luciernaga_LinearSlices <- function(x, subset, sample.name, removestrings, stats
   rownames(PeakDetectorCounts) <- NULL
   Detectors <- PeakDetectorCounts %>% filter(Counts > 0)
 
+  if (nrow(Detectors) == 0){stop("No Detectors Filtered!")}
+
   if (nrow(Detectors) > 1){
     MultiDetector <- TRUE
     colnames(Normalized) <- gsub("-A", "", colnames(Normalized))
@@ -76,13 +78,17 @@ Luciernaga_LinearSlices <- function(x, subset, sample.name, removestrings, stats
     Detectors <- Detectors %>% filter(Fluors %in% desiredAF)
   }
 
+  if (nrow(Detectors) == 0){stop("No Detectors Filtered at point 2!")}
+
   TheDetector <- Detectors %>% pull(Fluors)
 
   if (MultiDetector == TRUE){
     NormDetector <- gsub("-A", "", TheDetector)
-    data <- data %>% filter(.data[[NormDetector]] == 1)
+    data <- data %>% filter(.data[[NormDetector]] == 1) # Bug is here?
+    if (nrow(data) == 0){stop("We lost data at the filter step")}
     Normalized <- data %>% select(!matches("-A"))
     colnames(Normalized) <- paste0(colnames(Normalized), "-A")
+    data <- data %>% select(matches("-A")) # Adding to Restore
   }
 
   #Assigning by Percentiles
