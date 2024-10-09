@@ -97,6 +97,8 @@ QC_UserLibraries <- function(x, Data, NameAppend, outpath, references=TRUE,
 #' @importFrom dplyr rename
 #' @importFrom dplyr mutate
 #'
+#' @return An internal value
+#'
 #' @noRd
 QC_RefPlots <- function(x, Data, references=FALSE, refData=NULL){
 

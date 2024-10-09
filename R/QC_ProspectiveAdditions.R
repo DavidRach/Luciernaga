@@ -103,6 +103,8 @@ QC_ProspectiveAdditions <- function(path, NumberDetectors, TheCutoff=0.9,
 #' @importFrom purrr map
 #' @importFrom dplyr bind_rows
 #'
+#' @return An internal value
+#'
 #' @noRd
 Comparison <- function(x, TheOtherDetectors, TheList, ReferenceData, TheCutoff){
   TheDetector <- x
@@ -136,6 +138,8 @@ Comparison <- function(x, TheOtherDetectors, TheList, ReferenceData, TheCutoff){
 #' @importFrom lsa cosine
 #' @importFrom tidyselect all_of
 #' @importFrom dplyr sym
+#'
+#' @return An internal value
 #'
 #' @noRd
 InternalComparison <- function(x, TheList, ReferenceData, TheCutoff, TheDetector){

@@ -18,13 +18,7 @@
 #' name <- "DR BUV496 CD8 (Cells).fcs"
 #' removestrings <- c("DR", "(Cells)", ".fcs", " ")
 #' Cleaned_Name <- NameCleanUp(name, removestrings)
-
 NameCleanUp <- function(name, removestrings, substitutestrings){
-#InternalDevToDoList: The for-loop is iterating in place, don't believe its
-  #subject to replacing
-# Rather than specifying everything, provide a data.frame for substitutions.
-  #Have it iterate afterwards.
-
   for(i in removestrings){
     name <- str_replace_all(name, fixed(i), "")
   }
@@ -48,6 +42,7 @@ NameCleanUp <- function(name, removestrings, substitutestrings){
 #' @importFrom dplyr pull
 #'
 #' @return A name matching the provided information for use in plot labeling.
+#'
 #' @noRd
 NameForSample <- function(x, sample.name, removestrings, experiment.name = NULL,
                           experiment = NULL, condition.name = NULL, condition = NULL,
@@ -107,6 +102,8 @@ NameForSample <- function(x, sample.name, removestrings, experiment.name = NULL,
 #' @param Unstained When set true pastes Unstained for downstream use
 #'
 #' @importFrom stringr str_detect
+#'
+#' @return An internal value
 #'
 #' @noRd
 Typing <- function(name, unmixingcontroltype, Unstained = FALSE){

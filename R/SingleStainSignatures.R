@@ -39,6 +39,8 @@
 #' @importFrom purrr map
 #' @importFrom ggplot2 geom_bar
 #'
+#' @return An internal value
+#'
 #' @noRd
 SingleStainSignatures <- function(x, WorkAround1, ColsN, StartNormalizedMergedCol,
   EndNormalizedMergedCol, Samples, Increments, Subtraction = "Internal", stats,
@@ -277,6 +279,8 @@ SingleStainSignatures <- function(x, WorkAround1, ColsN, StartNormalizedMergedCo
 #' @importFrom dplyr near
 #' @importFrom utils head
 #'
+#' @return An internal value
+#'
 #' @noRd
 ClusterIteration <- function(x, data, TheDetector, StartNormalizedMergedCol,
                              EndNormalizedMergedCol, ColsN, AggregateName, Verbose,
@@ -344,6 +348,8 @@ ClusterIteration <- function(x, data, TheDetector, StartNormalizedMergedCol,
 #' @param Arg1 The first Detector Column
 #' @param Arg2 The second Detector Column
 #' @param data A data.frame
+#'
+#' @return An internal value
 #'
 #' @noRd
 SignatureCluster <- function(Arg1, Arg2, data){

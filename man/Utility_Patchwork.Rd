@@ -43,5 +43,4 @@ Generate the plots into a single pdf
 }
 \examples{
 NULL
-
 }

@@ -154,9 +154,9 @@ QC_FilePrep <- function(x, TrackChange){
 #'
 #' @importFrom utils read.csv
 #'
-#' @noRd
+#' @return An internal value
 #'
-
+#' @noRd
 ChunkReader <- function(x){
   ReadChunks <- read.csv(x, check.names = FALSE)
 }
@@ -171,8 +171,9 @@ ChunkReader <- function(x){
 #' @importFrom lubridate mdy_hms
 #' @importFrom lubridate mdy_hm
 #'
+#' @return An internal value
+#'
 #' @noRd
-
 Internal_ChangeCalcs <- function(x, y, TheData){
   xx <- TheData %>% select(all_of(x))
   yy <- TheData %>% select(all_of(y))

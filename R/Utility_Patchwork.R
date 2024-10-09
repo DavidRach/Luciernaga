@@ -19,8 +19,6 @@
 #' @export
 #'
 #' @examples NULL
-#'
-
 Utility_Patchwork <- function(x, filename, outfolder, thecolumns=2, therows=3,
   width = 7, height = 9, returntype="pdf", NotListofList = TRUE){
 
@@ -50,6 +48,9 @@ Utility_Patchwork <- function(x, filename, outfolder, thecolumns=2, therows=3,
 }
 
 #' Splits available plots into sublist
+#'
+#' @return An internal value
+#'
 #' @noRd
 split_list <- function(input_list, chunk_size) {
   split(input_list, ceiling(seq_along(input_list) / chunk_size))
@@ -57,6 +58,9 @@ split_list <- function(input_list, chunk_size) {
 
 #' Wraps the sublist to hand off to patchwork
 #' @importFrom patchwork wrap_plots
+#'
+#' @return An internal value
+#'
 #' @noRd
 sublist_plots <- function(x, thecolumns, therows){
   p <- wrap_plots(x, ncol = thecolumns, nrow = therows, widths = 0.8, heights = 0.8)

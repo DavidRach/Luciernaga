@@ -53,6 +53,8 @@ Luciernaga_Lists <- function(ListOfList, SecondaryList=NULL, PlotType,
 #' @param ListOfList A list of list
 #' @param n Passed number of indices in the above
 #'
+#' @return An internal value
+#'
 #' @noRd
 ItemSelect <- function(ListOfList, n) {
   result <- lapply(ListOfList, function(innerList) innerList[[n]])
@@ -68,6 +70,8 @@ ItemSelect <- function(ListOfList, n) {
 #' @importFrom plotly ggplotly
 #' @importFrom htmltools tagList
 #' @importFrom htmltools div
+#'
+#' @return An internal value
 #'
 #' @keywords internal
 Subplots <- function(i, data) {

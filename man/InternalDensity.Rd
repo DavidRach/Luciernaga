@@ -13,6 +13,9 @@ InternalDensity(x, cs, TheFill)
 
 \item{TheFill}{The passed factor to fill plots by}
 }
+\value{
+An internal value
+}
 \description{
 Internal for Utility_DensityOverlay
 }

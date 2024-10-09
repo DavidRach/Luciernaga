@@ -75,6 +75,7 @@ Luciernaga_IterativeUnmixing <- function(IterativePath, iterate_removestrings, r
 #' @importFrom purrr map
 #'
 #' @return Passes unmixed full-stain .fcs files to the outpath
+#'
 #' @noRd
 IterativeUnmixingInternal <- function(x, sample.name, removestrings, subset, PanelCuts, stats,
                                       Verbose, SignatureView, returntype, FullStainedGS, controlData,

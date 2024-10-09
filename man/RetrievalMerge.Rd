@@ -13,6 +13,9 @@ RetrievalMerge(x, y, TheData)
 
 \item{TheData}{The datset}
 }
+\value{
+An internal value
+}
 \description{
 Internal for QC_Retrieval
 }

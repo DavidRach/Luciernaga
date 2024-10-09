@@ -33,7 +33,6 @@
 #' @export
 #'
 #' @examples  NULL
-
 Utility_UnityPlot <- function(x, y, GatingSet, marginsubset, gatesubset,
   sample.name, removestrings, clearance, bins, gatelines, reference, returntype,
   outpath){
@@ -86,6 +85,7 @@ Utility_UnityPlot <- function(x, y, GatingSet, marginsubset, gatesubset,
 #' @importFrom ggplot2 element_line
 #' @importFrom ggplot2 geom_vline
 #'
+#' @return An internal value
 #'
 #' @noRd
 Unity <- function(x, TheY, TheX, marginsubset, gatesubset, sample.name, removestrings,
@@ -133,8 +133,6 @@ Unity <- function(x, TheY, TheX, marginsubset, gatesubset, sample.name, removest
      axis.title = element_text(size = 10, face = "bold"),
      legend.position = "none"))
   }
-
-
 
   if (gatelines == TRUE){Value <- reference %>% dplyr::filter(specimen %in% name) %>%
     select(all_of(TheX)) %>% pull(.)

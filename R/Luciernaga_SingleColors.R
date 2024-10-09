@@ -34,7 +34,6 @@
 #' @export
 #'
 #' @examples NULL
-
 Luciernaga_SingleColors <- function(x, sample.name, removestrings, subset, PanelCuts,
                                     stats, SignatureView, Verbose=FALSE, returntype="data"){
 

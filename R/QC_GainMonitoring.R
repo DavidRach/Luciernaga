@@ -25,7 +25,7 @@
 #' full.names = TRUE, recursive = FALSE)
 #' QCBeads <- FCS_Files[grep("Before|After", FCS_Files)]
 #' BeforeAfter_CS <- load_cytoset_from_fcs(files=QCBeads,
-#' transform=FALSE, truncate_max_range = FALSE)
+#' transformation=FALSE, truncate_max_range = FALSE)
 #' BeforeAfter <- map(.x=BeforeAfter_CS[1:2], .f=QC_GainMonitoring,
 #'  sample.name = "TUBENAME", stats="median") %>% bind_rows()
 QC_GainMonitoring <- function(x, sample.name, stats){

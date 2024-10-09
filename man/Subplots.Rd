@@ -11,6 +11,9 @@ Subplots(i, data)
 
 \item{data}{The Transposed List of Lists}
 }
+\value{
+An internal value
+}
 \description{
 Internal for Luciernaga_Lists
 }

@@ -26,7 +26,7 @@
 #'
 #' @examples
 #' Results <- QC_SimilarFluorophores(TheFluorophore="Spark Blue 550",
-#'  NumberDetectors=64, NumberHits = 10, returnPlots=TRUE)
+#'  NumberDetectors=64, NumberHits = 10, returnPlots=FALSE)
 
 QC_SimilarFluorophores <- function(TheFluorophore, NumberDetectors, NumberHits, returnPlots=FALSE) {
 
@@ -88,6 +88,8 @@ QC_SimilarFluorophores <- function(TheFluorophore, NumberDetectors, NumberHits, 
 #' @importFrom ggplot2 element_text
 #' @importFrom ggplot2 element_blank
 #' @importFrom ggplot2 scale_x_discrete
+#'
+#' @return An internal value
 #'
 #' @noRd
 SimilarFluorPlots <- function(TheseFluorophores, TheFluorophore, data){

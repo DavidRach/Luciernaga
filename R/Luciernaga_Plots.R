@@ -158,6 +158,8 @@ Luciernaga_Plots <- function(data, RetainedType, CellPopRatio, outfolder, filena
 #' @importFrom ggplot2 coord_fixed
 #' @importFrom ggplot2 geom_text
 #'
+#' @return An internal value
+#'
 #' @noRd
 InternalReport <- function(x, data, FirstDetectorColumn, LastDetectorColumn,
                            RetainedType, CellPopRatio, LinePlots, CosinePlots,
@@ -298,6 +300,8 @@ InternalReport <- function(x, data, FirstDetectorColumn, LastDetectorColumn,
 #'
 #'  @importFrom stats as.dist
 #'  @importFrom stats hclust
+#'
+#' @return An internal value
 #'
 #' @noRd
 ReorderedCosine <- function(CosineMatrix){

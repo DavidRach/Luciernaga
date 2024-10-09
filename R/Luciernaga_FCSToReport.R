@@ -28,7 +28,6 @@
 #' @export
 #'
 #' @examples NULL
-
 Luciernaga_FCSToReport <- function(path, reference, stats = "median",
                                     LinePlots = TRUE, CosinePlots = TRUE,
                                     StackedBarPlots = TRUE, HeatmapPlots = TRUE,
@@ -85,8 +84,10 @@ Luciernaga_FCSToReport <- function(path, reference, stats = "median",
 #' @param inputfiles List of .fcs files from path
 #'
 #' @importFrom stringr str_detect
+#'
+#' @return An internal value
+#'
 #' @noRd
-
 FluorophoreFilePresent <- function(x, inputfiles){
   fcs_files <- inputfiles[str_detect(basename(inputfiles), x) &
                             str_detect(basename(inputfiles), ".fcs$")]
@@ -110,8 +111,9 @@ FluorophoreFilePresent <- function(x, inputfiles){
 #' @importFrom dplyr mutate
 #' @importFrom dplyr relocate
 #'
+#' @return An internal value
+#'
 #' @noRd
-
 FCSImportFile <- function(x, Fluorophore, sample.name = "FILENAME"){
   filename <- keyword(x, sample.name)
   filename <- sub(".*\\\\", "", filename)
@@ -152,9 +154,9 @@ FCSImportFile <- function(x, Fluorophore, sample.name = "FILENAME"){
 #' @importFrom dplyr arrange
 #' @importFrom dplyr left_join
 #'
+#' @return An internal value
+#'
 #' @noRd
-
-
 FCSImport <- function(x, data, inputfiles, RetainedType, TheSummary, stats){
 
   # For each Fluorophore
@@ -221,10 +223,3 @@ FCSImport <- function(x, data, inputfiles, RetainedType, TheSummary, stats){
   }
 
 }
-
-
-
-
-
-
-

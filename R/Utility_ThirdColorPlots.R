@@ -18,7 +18,6 @@
 #' @export
 #'
 #' @examples NULL
-
 Utility_ThirdColorPlots <- function(x, subset, xaxis, yaxis, zaxis, splitpoint = 100,
   thecolor="red", sample.name, removestrings, tilesize=0.7, FactorNames = NULL,
   reference = NULL){

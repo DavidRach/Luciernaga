@@ -498,6 +498,9 @@ Luciernaga_QC <- function(x, subsets, sample.name, removestrings=NULL, Verbose =
 #' @importFrom stats median
 #' @importFrom dplyr summarise
 #' @importFrom tidyselect all_of
+#'
+#' @return An internal value
+#'
 #' @noRd
 BeadDetectors <- function(x, data){
   y <- paste0(x, "-A")
@@ -514,6 +517,9 @@ BeadDetectors <- function(x, data){
 #' @importFrom dplyr select
 #' @importFrom tidyselect all_of
 #' @importFrom dplyr rename
+#'
+#' @return An internal value
+#'
 #' @noRd
 LuciernagaSmallReport <- function( x, Data, RetainedType, ColsN,
     StartNormalizedMergedCol, EndNormalizedMergedCol, stats){
@@ -532,6 +538,9 @@ LuciernagaSmallReport <- function( x, Data, RetainedType, ColsN,
 #'
 #' @importFrom dplyr filter
 #' @importFrom dplyr pull
+#'
+#' @return An internal value
+#'
 #' @noRd
 TroubleChannelExclusion <- function(x, TheSCData, MainDetector, AFChannels){
   Internal <- TheSCData %>% filter(Fluorophore %in% x) %>% pull(MainDetector)
@@ -561,6 +570,8 @@ AveragedSignature <- function(x, stats){
 #' @importFrom dplyr select
 #' @importFrom tidyselect all_of
 #' @importFrom dplyr arrange
+#'
+#' @return An internal value
 #'
 #' @noRd
 DetectorPeakCounts <- function(x, StartN, EndN){
@@ -595,6 +606,7 @@ return(PeakDetectorCounts)
 #' @importFrom ggplot2 geom_segment
 #'
 #' @return A value to be determined later
+#'
 #' @noRd
 LocalMaxima <- function(theX, theY, therepeats, w, alternatename,
                         Verbose = FALSE, ...){
@@ -668,6 +680,7 @@ LocalMaxima <- function(theX, theY, therepeats, w, alternatename,
 #' @importFrom dplyr bind_rows
 #'
 #' @return A value to be determined later
+#'
 #' @noRd
 RelativeBrightness <- function(x){
   Regular <- x
@@ -723,6 +736,8 @@ RelativeBrightness <- function(x){
 #' @importFrom dplyr across
 #' @importFrom dplyr coalesce
 #'
+#' @return An internal value
+#'
 #' @noRd
 FillIterate <- function(x, data){
   IndividualCluster <- data %>% dplyr::filter(Cluster %in% x)
@@ -770,7 +785,6 @@ FillIterate <- function(x, data){
 #' fluorescence per detector
 #' @param ExportType Passed from above, set to "fcs" for fcs.file return
 #'
-#'
 #' @importFrom flowCore parameters
 #' @importFrom flowWorkspace keyword
 #' @importFrom dplyr arrange
@@ -779,6 +793,8 @@ FillIterate <- function(x, data){
 #' @importFrom purrr map
 #' @importFrom dplyr bind_rows
 #' @importFrom utils write.csv
+#'
+#' @return An internal value
 #'
 #' @noRd
 Genesis <- function(x, ff, minimalfcscutoff, AggregateName,
@@ -846,6 +862,8 @@ Genesis <- function(x, ff, minimalfcscutoff, AggregateName,
 #' @importFrom dplyr bind_cols
 #' @importFrom dplyr relocate
 #' @importFrom flowCore write.FCS
+#'
+#' @return An internal value
 #'
 #' @noRd
 InternalGenesis <- function(x, Data, AggregateName, outpath=NULL, OriginalStart,

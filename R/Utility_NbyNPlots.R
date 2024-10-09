@@ -37,7 +37,6 @@
 #' @export
 #'
 #' @examples NULL
-
 Utility_NbyNPlots <- function(x, sample.name, removestrings, experiment = NULL,
   experiment.name = NULL, condition = NULL, condition.name = NULL, marginsubset,
   gatesubset, ycolumn, bins, clearance, gatelines, reference = NULL, outpath, returntype,
@@ -107,6 +106,8 @@ Utility_NbyNPlots <- function(x, sample.name, removestrings, experiment = NULL,
 #' @importFrom patchwork plot_spacer
 #' @importFrom purrr map
 #'
+#' @return An internal value
+#'
 #' @noRd
 UniversalIterator <- function(x, x_ff,
                               TheDF, yValue, columnlist, gatelines,
@@ -131,6 +132,8 @@ UniversalIterator <- function(x, x_ff,
 #' @importFrom patchwork wrap_plots
 #' @importFrom patchwork plot_spacer
 #' @importFrom purrr map
+#'
+#' @return An internal value
 #'
 #' @noRd
 ParallelUniversalIterator <- function(x, x_ff, y_ff,
@@ -178,6 +181,7 @@ ParallelUniversalIterator <- function(x, x_ff, y_ff,
 #' @importFrom ggplot2 ggplot
 #'
 #' @return A value to be determined later
+#'
 #' @noRd
 GeneralGating <- function(x, name, ff, yValue, clearance, bins,
                           columnlist, TheDF, gatelines, reference = NULL) {

@@ -20,7 +20,6 @@
 #' @export
 #'
 #' @examples NULL
-
 Luciernaga_Tree <- function(BrightnessFilePath, PanelPath){
 
   TheCSVs <- list.files(BrightnessFilePath, pattern="RelativeBrightness", full.names = TRUE)
@@ -53,6 +52,8 @@ Luciernaga_Tree <- function(BrightnessFilePath, PanelPath){
 #' @importFrom dplyr desc
 #' @importFrom dplyr pull
 #' @importFrom dplyr row_number
+#'
+#' @return An internal value
 #'
 #' @noRd
 InternalTree <- function(x, TheData){
@@ -120,6 +121,8 @@ InternalTree <- function(x, TheData){
 #' @param utils read.csv
 #' @param dplyr mutate
 #' @param dplyr relocate
+#'
+#' @return An internal value
 #'
 #' @noRd
 CSVRead <- function(x){

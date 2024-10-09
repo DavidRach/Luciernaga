@@ -64,7 +64,9 @@ Utility_RidgePlots <- function(gs, subset, TheX=NULL, TheY, TheFill, inverse.tra
 #' @importFrom ggridges geom_density_ridges
 #' @importFrom ggplot2 facet_null
 #'
-#' @keywords internal
+#' @return An internal value
+#'
+#' @noRd
 RidgePlots <- function(x, cs, TheY, TheFill){
   p <- ggcyto(cs, aes(x = .data[[x]]))
   p1 <- p + geom_density_ridges(aes(y = .data[[TheY]], fill = .data[[TheFill]], alpha = 0.2)) +

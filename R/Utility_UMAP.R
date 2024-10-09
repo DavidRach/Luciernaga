@@ -28,7 +28,6 @@
 #' @export
 #'
 #' @examples NULL
-
 Utility_UMAP <- function(x, sample.name, removestrings, subset, columns=NULL,
   notcolumns=NULL, subsample=NULL, export=FALSE, outpath=NULL, metric = "euclidean",
   n_neighbors = 15, min_dist = 0.5, ...){

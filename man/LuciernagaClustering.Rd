@@ -13,6 +13,9 @@ LuciernagaClustering(MyData, These, DetectorName)
 
 \item{DetectorName}{The brightest peak everything is normalized to.}
 }
+\value{
+An internal value
+}
 \description{
 Internal for UnstainedSignatures And SingleStainSignatures
 }

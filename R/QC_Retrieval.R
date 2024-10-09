@@ -25,7 +25,7 @@
 #' full.names = TRUE, recursive = FALSE)
 #' QCBeads <- FCS_Files[grep("Before", FCS_Files)]
 #' MyCytoSet <- load_cytoset_from_fcs(QCBeads[1], truncate_max_range = FALSE,
-#' transformatio = FALSE)
+#' transformation = FALSE)
 #' MyGatingSet <- GatingSet(MyCytoSet)
 #'
 #' SingleSpecimen <- QC_Retrieval(x=MyGatingSet[[1]], sample.name="TUBENAME")
@@ -87,6 +87,8 @@ QC_Retrieval <- function(x, sample.name){
 #' @importFrom dplyr select
 #' @importFrom tidyselect all_of
 #' @importFrom dplyr slice
+#'
+#' @return An internal value
 #'
 #' @keywords internal
 RetrievalMerge <- function(x, y, TheData){

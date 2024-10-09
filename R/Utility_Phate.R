@@ -30,7 +30,6 @@
 #' @export
 #'
 #' @examples NULL
-
 Utility_Phate <- function(x, sample.name, removestrings, subset, columns=NULL,
                           notcolumns=NULL, subsample=NULL, export=FALSE, outpath=NULL,
                           ...){

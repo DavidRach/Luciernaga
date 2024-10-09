@@ -28,7 +28,6 @@
 #' @export
 #'
 #' @examples NULL
-
 Luciernaga_Unmix <- function(x, controlData, sample.name, removestrings, Verbose, addon,
                              subset="root", multiplier, outpath, PanelPath,
                              returntype="fcs"){
@@ -124,6 +123,8 @@ Luciernaga_Unmix <- function(x, controlData, sample.name, removestrings, Verbose
 #' @importFrom dplyr slice
 #' @importFrom tidyr unnest
 #' @importFrom tidyselect where
+#'
+#' @return An internal value
 #'
 #' @noRd
 InternalUnmix <- function(cs, StashedDF, TheData, Ligands){

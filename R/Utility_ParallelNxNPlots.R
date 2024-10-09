@@ -133,6 +133,8 @@ Utility_ParallelNbyNPlots <- function(x, y, sample.name, removestrings,
 #' @importFrom dplyr mutate
 #' @importFrom ggplot2 ggplot
 #'
+#' @return An internal value
+#'
 #' @noRd
 ParallelGating <- function(x, x_ff, y_ff, TheDF, yValue, columnlist, gatelines,
   reference, clearance, bins, AltNameX, AltNameY, colorX, colorY) {

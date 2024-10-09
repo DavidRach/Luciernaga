@@ -37,7 +37,6 @@
 #' @export
 #'
 #' @examples NULL
-
 Utility_GatingPlots <- function(x, sample.name, removestrings, subset="root", gtFile,
   DesiredGates = NULL, outpath = NULL, export = TRUE, ...){
 
@@ -95,6 +94,7 @@ Utility_GatingPlots <- function(x, sample.name, removestrings, subset="root", gt
 #' @importFrom ggplot2 ggplot
 #'
 #' @return A ggplot corresponding to the given inputs
+#'
 #' @noRd
 GatePlot <- function(x, data, TheDF, gtFile, bins=270, clearance = 0.2){
     i <- x
@@ -150,5 +150,3 @@ GatePlot <- function(x, data, TheDF, gtFile, bins=270, clearance = 0.2){
             legend.position = "none")
   }
 }
-
-

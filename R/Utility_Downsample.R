@@ -27,8 +27,6 @@
 #' @export
 #'
 #' @examples NULL
-
-
 Utility_Downsample <- function(x, sample.name, removestrings,
                                   subsets, subsample=NULL, inverse.transform = FALSE,
                                   internal = FALSE, export = FALSE, outpath = NULL){

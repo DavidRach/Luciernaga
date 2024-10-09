@@ -7,6 +7,8 @@
 #' @importFrom dplyr mutate
 #' @importFrom dplyr case_when
 #'
+#' @return An internal value
+#'
 #' @keywords internal
 LuciernagaClustering <- function(MyData, These, DetectorName){
   MyData$Cluster <- paste(DetectorName, "10-", sep = "_")

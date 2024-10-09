@@ -20,7 +20,6 @@
 #' @export
 #'
 #' @examples NULL
-
 Utility_IterativeGating <- function(x, subset, gate, xValue, yValue, sample.name,
                                     removestrings, bins=270){
   gs <- x
@@ -53,6 +52,7 @@ Utility_IterativeGating <- function(x, subset, gate, xValue, yValue, sample.name
 #' @importFrom purrr map
 #'
 #' @return A ggplot corresponding to the given inputs
+#'
 #' @noRd
 InternalIterator <- function(x, gs, subset, gate, xValue, yValue, sample.name,
                              removestrings, bins){
@@ -81,6 +81,3 @@ InternalIterator <- function(x, gs, subset, gate, xValue, yValue, sample.name,
 
   return(Plot)
 }
-
-
-

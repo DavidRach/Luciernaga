@@ -66,6 +66,8 @@ Wetlab_Decision <- function(data, FinalConcentration_MillionperML, MillionCellsP
 #' @importFrom dplyr select
 #' @importFrom purrr map2
 #'
+#' @return An internal value
+#'
 #' @noRd
 DecisionInternal <- function(x, data, FinalConcentration_MillionperML,
                              MillionCellsPerTube, TheConditions, ReturnLeftover){
@@ -185,6 +187,8 @@ DecisionInternal <- function(x, data, FinalConcentration_MillionperML,
 #' @param TotalCells The passed Total Cells
 #' @param RestConcentration The passed rest concentration
 #'
+#' @return An internal value
+#'
 #' @noRd
 TheInsufficient <- function(x, name, Date, TotalCells, RestConcentration){
 
@@ -213,6 +217,8 @@ TheInsufficient <- function(x, name, Date, TotalCells, RestConcentration){
 #' @param RestConcentration The passed RestConcentration
 #' @param FinalConcentration The passed FinalConcentration
 #' @param TheConditions The Passed csv data
+#'
+#' @return An internal value
 #'
 #' @noRd
 SliderConditionWrap <- function(x, y, name, Date, TotalCells, RestConcentration, FinalConcentration,
@@ -257,6 +263,8 @@ SliderConditionWrap <- function(x, y, name, Date, TotalCells, RestConcentration,
 #' @param FinalConcentration The passed final concentration
 #' @param CellsPerTube The passed cells per tube
 #' @param TheConditions The passed CSV data.
+#'
+#' @return An internal value
 #'
 #' @noRd
 ConditionWrap <- function(x, name, Date, TotalCells, RestConcentration, FinalConcentration, CellsPerTube,

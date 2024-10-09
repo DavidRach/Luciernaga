@@ -17,7 +17,6 @@
 #' @export
 #'
 #' @examples NULL
-
 Utility_ColAppend <- function(ff, DF, columnframe, shift=FALSE){
 
   columnframe <- columnframe #New Columns To Add
@@ -79,6 +78,8 @@ Utility_ColAppend <- function(ff, DF, columnframe, shift=FALSE){
 #'
 #' @importFrom dplyr select
 #' @importFrom tidyselect all_of
+#'
+#' @return An internal value
 #'
 #' @noRd
 InternalShift <- function(x, columnframe){

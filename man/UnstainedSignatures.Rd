@@ -37,6 +37,9 @@ progress monitoring}
 
 \item{SecondaryPeaks}{Number of Secondary Peaks, default is set to 2.}
 }
+\value{
+An internal value
+}
 \description{
 Internal to LuciernagaQC
 }

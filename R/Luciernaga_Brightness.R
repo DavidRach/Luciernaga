@@ -27,7 +27,6 @@
 #' @export
 #'
 #' @examples NULL
-
 Luciernaga_Brightness <- function(x, data, Downsample=TRUE, subsample = NULL,
                                   reference, clearance=0.02, Scaled = TRUE){
     TheFluorophore <- x
