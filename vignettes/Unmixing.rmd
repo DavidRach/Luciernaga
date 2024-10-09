@@ -271,8 +271,9 @@ We had previously showcased `Luciernaga_LinearSlices()` ability to take an .fcs 
 
 ```{r}
 #pData(MyGatingSet)
+APC_Example <- subset(MyGatingSet, str_detect(name, "CD16_"))
 
-RawSlices <- Luciernaga_LinearSlices(x=MyGatingSet[6], subset="lymphocytes",
+RawSlices <- Luciernaga_LinearSlices(x=APC_Example[1], subset="lymphocytes",
                                   sample.name="GUID", removestrings=removestrings,
                                   stats="median", returntype="raw",
                                   probsratio=0.1, output="plot", desiredAF="R1-A")
@@ -283,7 +284,7 @@ plotly::ggplotly(RawSlices)
 ```{r}
 #pData(MyGatingSet[6])
 
-NormalizedSlices <- Luciernaga_LinearSlices(x=MyGatingSet[6], subset="lymphocytes",
+NormalizedSlices <- Luciernaga_LinearSlices(x=APC_Example[1], subset="lymphocytes",
                                   sample.name="GUID", removestrings=removestrings,
                                   stats="median", returntype="normalized",
                                   probsratio=0.1, output="plot", desiredAF="R1-A")

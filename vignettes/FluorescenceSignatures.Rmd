@@ -590,12 +590,11 @@ plotly::ggplotly(NormalizedSlices)
 This is more particularly pronounced in context of the single-color unmixing controls, for example, here is what CD16 APC looks like when filtered solely on the basis of peak-detector:
 
 ```{r}
-##########################
-# Currently Failing Here #
-##########################
 #pData(MyGatingSet[6])
 
-RawSlices <- Luciernaga_LinearSlices(x=MyGatingSet[6], subset="lymphocytes",
+APC_Example <- subset(MyGatingSet, str_detect(name, "CD16_"))
+
+RawSlices <- Luciernaga_LinearSlices(x=APC_Example[1], subset="lymphocytes",
                                   sample.name="GUID", removestrings=removestrings,
                                   stats="median", returntype="raw",
                                   probsratio=0.1, output="plot", desiredAF="R1-A")
@@ -606,7 +605,7 @@ plotly::ggplotly(RawSlices)
 ```{r}
 #pData(MyGatingSet[6])
 
-NormalizedSlices <- Luciernaga_LinearSlices(x=MyGatingSet[6], subset="lymphocytes",
+NormalizedSlices <- Luciernaga_LinearSlices(x=APC_Example[1], subset="lymphocytes",
                                   sample.name="GUID", removestrings=removestrings,
                                   stats="median", returntype="normalized",
                                   probsratio=0.1, output="plot", desiredAF="R1-A")
@@ -617,7 +616,7 @@ plotly::ggplotly(NormalizedSlices)
 For the dimmest cells in terms of brightness (raw MFI), the resulting normalized signatures retain significant portion of autofluorescence signature that contaminates the final normalized signature. We can compare how different these are by setting the returntype to "data" and passing the rows of comparison interest to `QC_WhatsThis()`
 
 ```{r}
-NormalizedSliceData <- Luciernaga_LinearSlices(x=MyGatingSet[6], subset="lymphocytes",
+NormalizedSliceData <- Luciernaga_LinearSlices(x=APC_Example[1], subset="lymphocytes",
                                   sample.name="GUID", removestrings=removestrings,
                                   stats="median", returntype="normalized",
                                   probsratio=0.1, output="data", desiredAF="R1-A")
