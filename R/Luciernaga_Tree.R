@@ -28,11 +28,14 @@ Luciernaga_Tree <- function(BrightnessFilePath, PanelPath){
   if(!is.data.frame(PanelPath)){Panel <- read.csv(PanelPath, check.names = FALSE)
   } else {Panel <- PanelPath}
 
+  OriginalPanel <- Panel
+  Panel$Fluorophore <- gsub(" ", "", Panel$Fluorophore)
+
   TheFluorophores <- Panel %>% pull(Fluorophore)
   #TheFluorophores <- TheFluorophores[c(4, 16, 25)]
   TheFluorophores <- gsub("-A", "", TheFluorophores)
 
-  #x <- TheFluorophores[13]
+  #x <- TheFluorophores[19]
 
   NewData <- map(.x=TheFluorophores, .f=InternalTree, TheData=TheData) %>% bind_rows()
 
@@ -57,10 +60,15 @@ Luciernaga_Tree <- function(BrightnessFilePath, PanelPath){
 #'
 #' @noRd
 InternalTree <- function(x, TheData){
-
-  if (x %in% c("PE", "APC")){x <- paste0(x, " ")} #ExceptionHandling
+  OriginalX <- x
 
   Internal <- TheData %>% dplyr::filter(str_detect(sample, fixed(x, ignore_case = TRUE)))
+
+  if (x %in% c("PE", "APC")){
+
+    Internal <- Internal %>% dplyr::filter(!str_detect(sample, "PE-|APC-|Per"))
+  } #ExceptionHandling
+
 
   Total <- sum(Internal$Count, na.rm = TRUE)
   Internal <- Internal %>% mutate(Ratio = Count / Total) %>% relocate(Ratio, .after=Count)

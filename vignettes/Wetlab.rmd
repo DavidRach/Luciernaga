@@ -1,5 +1,5 @@
 ---
-title: "07 Wetlab Helper Functions"
+title: "Wetlab Helper Functions"
 date: "`r BiocStyle::doc_date()`"
 author:
 - name: David Rach
@@ -10,7 +10,7 @@ output:
   BiocStyle::html_document
 bibliography: "`r file.path(system.file('extdata', package='Luciernaga'), 'refs.bib')`"
 vignette: |
-  %\VignetteIndexEntry{07 Wetlab Helpers}
+  %\VignetteIndexEntry{Wetlab Helpers}
   %\VignettePackage{Luciernaga}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}

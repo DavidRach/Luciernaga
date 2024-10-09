@@ -1,5 +1,5 @@
 ---
-title: "06 Unmixing with `Luciernaga`"
+title: "Unmixing with `Luciernaga`"
 date: "`r BiocStyle::doc_date()`"
 author:
 - name: David Rach
@@ -10,7 +10,7 @@ output:
   BiocStyle::html_document
 bibliography: "`r file.path(system.file('extdata', package='Luciernaga'), 'refs.bib')`"
 vignette: |
-  %\VignetteIndexEntry{06 Unmixing}
+  %\VignetteIndexEntry{Unmixing}
   %\VignettePackage{Luciernaga}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
@@ -255,7 +255,6 @@ if (!dir.exists(SortedStorageLocation)) {
 
 UnmixingPanel <- read.csv(PanelPath, check.names=FALSE)
 TheseFluorophores <- UnmixingPanel %>% pull(Fluorophore)
-TheseFluorophores[1:5]
 ```
 
 ```{r}

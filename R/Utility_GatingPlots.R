@@ -62,12 +62,12 @@ Utility_GatingPlots <- function(x, sample.name, removestrings, subset="root", gt
   if (export == TRUE){
     AssembledPlots <- Utility_Patchwork(x=CompiledPlots, filename=AggregateName,
                                         outfolder=outpath, returntype = "pdf",
-                                        therows=thetrows, thecolumns=thecolumns,
+                                        therows=therows, thecolumns=thecolumns,
                                         width = width, height = height)
   } else if (export == FALSE){
     AssembledPlots <- Utility_Patchwork(x=CompiledPlots, filename=AggregateName,
                                         outfolder=outpath, returntype = "patchwork",
-                                        therows=thetrows, thecolumns=thecolumns,
+                                        therows=therows, thecolumns=thecolumns,
                                         width = width, height = height)}
 
   return(AssembledPlots)

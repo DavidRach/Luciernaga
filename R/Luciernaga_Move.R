@@ -15,14 +15,18 @@
 #'
 #' @examples NULL
 Luciernaga_Move <- function(x, data, input, output){
-  #Internal <- data %>% filter(str_detect(sample %in% x))
+  OriginalX <- x
   x <- gsub("-A", "", x)
-
-  if (x %in% c("PE", "APC")){x <- paste0(x, " ")} #ExceptionHandling
+  x <- gsub(" ", "", x)
 
   Internal <- data %>% dplyr::filter(str_detect(sample, fixed(x, ignore_case = TRUE)))
 
-  #Internal <- data %>% dplyr::filter(str_detect(sample, x))
+  if (x %in% c("PE", "APC")){
+
+    Internal <- Internal %>% dplyr::filter(!str_detect(sample, "PE-|APC-|Per"))
+
+    } #ExceptionHandling
+
 
   Fluor <- Internal %>% pull(sample) %>% unique()
   Clusterlet <- Internal %>% pull(Cluster) %>% unique()

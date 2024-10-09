@@ -1,5 +1,5 @@
 ---
-title: "04 Fluorescence Signatures"
+title: "Fluorescence Signatures"
 date: "`r BiocStyle::doc_date()`"
 author:
 - name: David Rach
@@ -10,7 +10,7 @@ output:
   BiocStyle::html_document
 bibliography: "`r file.path(system.file('extdata', package='Luciernaga'), 'refs.bib')`"
 vignette: |
-  %\VignetteIndexEntry{04 Fluorescence Signatures}
+  %\VignetteIndexEntry{Fluorescence Signatures}
   %\VignettePackage{Luciernaga}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}

@@ -1,4 +1,16 @@
 url: https://davidrach.github.io/Luciernaga/
 template:
   bootstrap: 5
+articles:
+- title: Articles
+  navbar: ~
+  contents:
+    - DataVisualization
+    - DimensionalityVisualization
+    - QualityControl
+    - FluorescenceSignatures
+    - FluorescenceReports
+    - Unmixing
+    - Wetlab
+
 
