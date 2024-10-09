@@ -157,6 +157,8 @@ Luciernaga_Plots <- function(data, RetainedType, CellPopRatio, outfolder, filena
 #' @importFrom ggplot2 scale_fill_gradient
 #' @importFrom ggplot2 coord_fixed
 #' @importFrom ggplot2 geom_text
+#' @importFrom stats as.dist
+#' @importFrom stats hclust
 #'
 #' @return An internal value
 #'
@@ -168,7 +170,7 @@ InternalReport <- function(x, data, FirstDetectorColumn, LastDetectorColumn,
   Last <- LastDetectorColumn+1
 
   subset <- data %>% filter(Sample %in% c(x))
-  colnames(subset) <- Luciernaga:::NameCleanUp(colnames(subset), removestrings="-A")
+  colnames(subset) <- NameCleanUp(colnames(subset), removestrings="-A")
 
   #ZeroBuggedRows <- subset %>% filter(rowSums(select(.,
   #    all_of(First:Last)), na.rm = TRUE) == 0) %>% nrow(.)
@@ -298,8 +300,8 @@ InternalReport <- function(x, data, FirstDetectorColumn, LastDetectorColumn,
 
 #' Internal for LuciernagaReport
 #'
-#'  @importFrom stats as.dist
-#'  @importFrom stats hclust
+#' @importFrom stats as.dist
+#' @importFrom stats hclust
 #'
 #' @return An internal value
 #'

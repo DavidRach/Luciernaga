@@ -123,7 +123,7 @@ Luciernaga_SingleColors <- function(x, sample.name, removestrings, subset, Panel
   ValuesInterest <- TheColumns %>% filter(
     .data[[TheDetector]]  >= LowerBoundMFI & .data[[TheDetector]] <= UpperBoundMFI)
 
-  Samples <- Luciernaga:::AveragedSignature(x=ValuesInterest, stats=stats)
+  Samples <- AveragedSignature(x=ValuesInterest, stats=stats)
 
 
   Data <- cbind(TheFluorophores, TheLigand, Samples) %>% rename(Fluorophore = TheFluorophores) %>%

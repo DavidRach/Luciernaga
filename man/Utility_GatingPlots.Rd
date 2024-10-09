@@ -13,6 +13,12 @@ Utility_GatingPlots(
   DesiredGates = NULL,
   outpath = NULL,
   export = TRUE,
+  bins = 270,
+  therows = 2,
+  thecolumns = 2,
+  width = 7,
+  height = 9,
+  clearance = 0.2,
   ...
 )
 }
@@ -36,30 +42,20 @@ Desired <- c("nonDebris, "lymphocytes")}
 \item{export}{Whether to return as a .pdf file or as individual patchwork ggplot
 objects.}
 
-\item{...}{Additional Arguments to NameForSample to derive filename.}
-
-\item{experiment.name}{The .fcs keyword that contains the name of the experiment}
-
-\item{experiment}{Directly provide the name of the experiment (alternative to
-experiment.name)}
-
-\item{condition.name}{The .fcs keyword that contains the name of the condition.}
-
-\item{condition}{Directly provide the name of the condition (alternative to
-condition.name)}
-
 \item{bins}{Argument to geom_hex for number of bins to visualize the plotted
 data density.}
 
-\item{clearance}{A buffer area around the plot edge}
+\item{therows}{Number of desired rows for the .pdf file}
 
 \item{thecolumns}{Number of desired columns for the .pdf file}
-
-\item{therows}{Number of desired rows for the .pdf file}
 
 \item{width}{Desired page width}
 
 \item{height}{Desired page height}
+
+\item{clearance}{A buffer area around the plot edge}
+
+\item{...}{Additional Arguments to NameForSample to derive filename.}
 }
 \value{
 Additional information to be added

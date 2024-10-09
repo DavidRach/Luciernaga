@@ -256,6 +256,7 @@ MyUnstainedBeadsGatingSet
 For this example, we will use the `r Biocpkg("openCyto")` package to automatically gate each of our .fcs files for the bead singlets. To do this, we first read in the example .csv file containing our desired gates (that can be found in Luciernaga's extdata folder) using the `r CRANpkg("data.table")` package
 
 ```{r, message=FALSE}
+# Failing here?
 FileLocation <- system.file("extdata", package = "Luciernaga")
 MyBeadsGates <- fread(file.path(path = FileLocation, 
                                 pattern = 'GatesBeads.csv'))
@@ -589,6 +590,7 @@ plotly::ggplotly(NormalizedSlices)
 This is more particularly pronounced in context of the single-color unmixing controls, for example, here is what CD16 APC looks like when filtered solely on the basis of peak-detector:
 
 ```{r}
+#Currently Failing Here
 #pData(MyGatingSet)
 
 RawSlices <- Luciernaga_LinearSlices(x=MyGatingSet[6], subset="lymphocytes",

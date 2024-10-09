@@ -29,13 +29,13 @@
 #' BeforeAfter <- map(.x=BeforeAfter_CS[1:2], .f=QC_GainMonitoring,
 #'  sample.name = "TUBENAME", stats="median") %>% bind_rows()
 QC_GainMonitoring <- function(x, sample.name, stats){
-  Guts <- Luciernaga::QC_Retrieval(x=x, sample.name=sample.name)
+  Guts <- QC_Retrieval(x=x, sample.name=sample.name)
   Data <- data.frame(exprs(x), check.names=FALSE)
-  Data <- Luciernaga:::AveragedSignature(Data, stats)
+  Data <- AveragedSignature(Data, stats)
   Data <- Data %>% select(-Time)
   Bound <- cbind(Guts, Data)
-  Bound[["SAMPLE"]] <- Luciernaga:::NameCleanUp(Bound[["SAMPLE"]], removestrings = ".fcs")
-  Bound[["SAMPLE"]] <- Luciernaga:::NameCleanUp(Bound[["SAMPLE"]], removestrings = ".fcs")
+  Bound[["SAMPLE"]] <- NameCleanUp(Bound[["SAMPLE"]], removestrings = ".fcs")
+  Bound[["SAMPLE"]] <- NameCleanUp(Bound[["SAMPLE"]], removestrings = ".fcs")
   if (str_detect(Bound[["SAMPLE"]], "efore")){
     Bound <- Bound %>% mutate(Timepoint = "Before") %>% relocate(Timepoint, .after=TIME)
   } else if (str_detect(Bound[["SAMPLE"]], "fter")){

@@ -39,7 +39,7 @@ Utility_Phate <- function(x, sample.name, removestrings, subset, columns=NULL,
 
   # Retrieving the metadata # the abbreviated version
   name <- keyword(x, sample.name)
-  # alternatename <- Luciernaga:::NameCleanUp(name, removestrings)
+  # alternatename <- NameCleanUp(name, removestrings)
   alternatename <- NameCleanUp(name, removestrings)
 
   #Retrieving the exprs data for my subset population of interest

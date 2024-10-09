@@ -92,9 +92,9 @@ Luciernaga_QC <- function(x, subsets, sample.name, removestrings=NULL, Verbose =
     name <- paste(first, second, sep="_")
   } else {name <- keyword(x, sample.name)}
 
-  Type <- Luciernaga:::Typing(name=name, unmixingcontroltype=unmixingcontroltype,
+  Type <- Typing(name=name, unmixingcontroltype=unmixingcontroltype,
                  Unstained=Unstained)
-  AggregateName <- Luciernaga:::NameForSample(x=x, sample.name=sample.name,
+  AggregateName <- NameForSample(x=x, sample.name=sample.name,
                                  removestrings=removestrings)
 
   if (is.null(experiment) && is.null(experiment.name) && SignatureReturnNow==FALSE){
@@ -102,7 +102,7 @@ Luciernaga_QC <- function(x, subsets, sample.name, removestrings=NULL, Verbose =
             consider adding one or the other.")
             }
 
-  Experiment <- Luciernaga:::NameForSample(x=x, sample.name=sample.name,
+  Experiment <- NameForSample(x=x, sample.name=sample.name,
     removestrings=removestrings, experiment = experiment,
     experiment.name = experiment.name, returnType = "experiment")
 
@@ -111,12 +111,12 @@ Luciernaga_QC <- function(x, subsets, sample.name, removestrings=NULL, Verbose =
             consider adding one or the other.")
     }
 
-  Condition <- Luciernaga:::NameForSample(x=x, sample.name=sample.name,
+  Condition <- NameForSample(x=x, sample.name=sample.name,
     removestrings=removestrings, condition=condition,
     condition.name = condition.name, returnType = "condition")
 
   InternalCleanupList <- c(".fcs", "Cells", "Beads", " ", "_", "-", ".", "(", ")")
-  name <- Luciernaga:::NameCleanUp(name, InternalCleanupList)
+  name <- NameCleanUp(name, InternalCleanupList)
 
   if (Unstained == TRUE) {
     if(!str_detect(name, "stained")){name <- paste0(name, "_Unstained")}
@@ -236,7 +236,7 @@ Luciernaga_QC <- function(x, subsets, sample.name, removestrings=NULL, Verbose =
   TheSCData$Fluorophore <- gsub("-A", "", TheSCData$Fluorophore)
   TroubleChannels <- TheSCData %>% pull(Fluorophore)
 
-  results <- map(.x=TroubleChannels, .f=Luciernaga:::TroubleChannelExclusion,
+  results <- map(.x=TroubleChannels, .f=TroubleChannelExclusion,
                  TheSCData=TheSCData, MainDetector=MainDetector,
                  AFChannels=AFChannels) %>% set_names(TroubleChannels)
 
@@ -294,7 +294,7 @@ Luciernaga_QC <- function(x, subsets, sample.name, removestrings=NULL, Verbose =
   if (Subtraction == "Internal"|Subtraction == "Internal_General"){
     if (InternalOverride != TRUE){
 
-    if (!is.null(desiredAF)){TheMainAF <- Luciernaga:::NameCleanUp(desiredAF, c("-A"))}
+    if (!is.null(desiredAF)){TheMainAF <- NameCleanUp(desiredAF, c("-A"))}
 
     This <- WorkAround %>% filter(.data[[TheMainAF]] == 1) %>% select(all_of(1:ColsN))
 
@@ -335,7 +335,7 @@ Luciernaga_QC <- function(x, subsets, sample.name, removestrings=NULL, Verbose =
       } else {TheMainAF <- Detectors %>% pull(Fluors)}
 
 
-      if(!is.null(desiredAF)){TheMainAF <- Luciernaga:::NameCleanUp(desiredAF, c("-A"))}
+      if(!is.null(desiredAF)){TheMainAF <- NameCleanUp(desiredAF, c("-A"))}
 
       This <- WorkAround %>% filter(.data[[TheMainAF]] == 1) %>% select(all_of(1:ColsN))
 
@@ -368,7 +368,7 @@ Luciernaga_QC <- function(x, subsets, sample.name, removestrings=NULL, Verbose =
 
   if (Type == "Cells_Unstained"){
     # x <- Retained[3]
-    RetainedDF <- map(.x= Retained, .f=Luciernaga:::UnstainedSignatures,
+    RetainedDF <- map(.x= Retained, .f=UnstainedSignatures,
                       WorkAround1=WorkAround1, alternatename=AggregateName,
                       ColsN=ColsN, StartNormalizedMergedCol=StartNormalizedMergedCol,
                       EndNormalizedMergedCol=EndNormalizedMergedCol, Verbose=Verbose,
@@ -385,7 +385,7 @@ Luciernaga_QC <- function(x, subsets, sample.name, removestrings=NULL, Verbose =
     }
 
     # x <- Retained[4]
-    RetainedDF <- map(.x= Retained, .f=Luciernaga:::SingleStainSignatures,
+    RetainedDF <- map(.x= Retained, .f=SingleStainSignatures,
                       WorkAround1=WorkAround1, AggregateName=AggregateName,
                       ColsN=ColsN, StartNormalizedMergedCol=StartNormalizedMergedCol,
                       EndNormalizedMergedCol=EndNormalizedMergedCol, Samples=Samples,
@@ -418,7 +418,7 @@ Luciernaga_QC <- function(x, subsets, sample.name, removestrings=NULL, Verbose =
     if (!is.null(BeadMainAF)){TheMainAF <- gsub("-A", "", BeadMainAF)
     } else {stop("Please provide a placeholder detector to the BeadMainAF argument")}
 
-    RetainedDF <- map(.x= Retained, .f=Luciernaga:::SingleStainSignatures,
+    RetainedDF <- map(.x= Retained, .f=SingleStainSignatures,
                       WorkAround1=WorkAround1, AggregateName=AggregateName,
                       ColsN=ColsN, StartNormalizedMergedCol=StartNormalizedMergedCol,
                       EndNormalizedMergedCol=EndNormalizedMergedCol, Samples=Samples,
@@ -818,7 +818,7 @@ Genesis <- function(x, ff, minimalfcscutoff, AggregateName,
 
   Data <- x
 
-  TheBrightness <- map(.x=fcs_clusters, .f=Luciernaga:::InternalGenesis, Data=Data,
+  TheBrightness <- map(.x=fcs_clusters, .f=InternalGenesis, Data=Data,
     AggregateName=AggregateName, outpath=outpath, OriginalStart=OriginalStart,
     OriginalEnd=OriginalEnd, stats=stats, NegativeType=NegativeType,
     TotalNegatives=TotalNegatives, Samples=Samples, ExportType=ExportType,
@@ -827,7 +827,7 @@ Genesis <- function(x, ff, minimalfcscutoff, AggregateName,
   #message("TargetReached")
 
   if (Brightness == TRUE){
-    RelativeBrightness <- Luciernaga:::RelativeBrightness(TheBrightness)
+    RelativeBrightness <- RelativeBrightness(TheBrightness)
     CSVName <- paste0("RelativeBrightness", AggregateName, ".csv")
     CSVSpot <- file.path(outpath, CSVName)
     write.csv(RelativeBrightness, CSVSpot, row.names = FALSE)

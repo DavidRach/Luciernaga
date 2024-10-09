@@ -210,7 +210,7 @@ FCSImport <- function(x, data, inputfiles, RetainedType, TheSummary, stats){
       SmallHelper <- function(x, data, stats){
       Cluster <- x
       Internal <- data %>% dplyr::filter(Cluster %in% x) %>% dplyr::select(where(is.numeric))
-      Summarized <- Luciernaga:::AveragedSignature(x=Internal, stats=stats)
+      Summarized <- AveragedSignature(x=Internal, stats=stats)
       Summarized <- cbind(Cluster, Summarized)
       }
 

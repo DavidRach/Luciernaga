@@ -3,12 +3,6 @@
 #' @param x A GatingSet object
 #' @param sample.name The .fcs keyword that contains an unique name for that sample
 #' @param removestrings A string of character values to remove from the sample.name
-#' @param experiment.name The .fcs keyword that contains the name of the experiment
-#' @param experiment Directly provide the name of the experiment (alternative to
-#' experiment.name)
-#' @param condition.name The .fcs keyword that contains the name of the condition.
-#' @param condition Directly provide the name of the condition (alternative to
-#' condition.name)
 #' @param subset The GatingSet subset that you want to visualize for data plotting,
 #' "root" is the default.
 #' @param bins Argument to geom_hex for number of bins to visualize the plotted
@@ -38,7 +32,8 @@
 #'
 #' @examples NULL
 Utility_GatingPlots <- function(x, sample.name, removestrings, subset="root", gtFile,
-  DesiredGates = NULL, outpath = NULL, export = TRUE, ...){
+  DesiredGates = NULL, outpath = NULL, export = TRUE, bins=270, therows=2, thecolumns=2,
+  width=7, height=9, clearance=0.2, ...){
 
   # Setting up individual file name
   if (is.null(outpath)){outpath <- getwd()}
@@ -60,16 +55,20 @@ Utility_GatingPlots <- function(x, sample.name, removestrings, subset="root", gt
 
   #Plot Generation
   CompiledPlots <- map(.x = TheXYZgates, .f = GatePlot, data=x2, TheDF = TheDF,
-                       gtFile = gtFile)
-  # CompiledPlots <- map(.x = TheXYZgates, .f = Luciernaga:::GatePlot, data=x2,
+                       gtFile = gtFile, bins=bins, clearance=clearance)
+  # CompiledPlots <- map(.x = TheXYZgates, .f = GatePlot, data=x2,
   #gtFile = gtFile)
 
   if (export == TRUE){
     AssembledPlots <- Utility_Patchwork(x=CompiledPlots, filename=AggregateName,
-                                        outfolder=outpath, returntype = "pdf")
+                                        outfolder=outpath, returntype = "pdf",
+                                        therows=thetrows, thecolumns=thecolumns,
+                                        width = width, height = height)
   } else if (export == FALSE){
     AssembledPlots <- Utility_Patchwork(x=CompiledPlots, filename=AggregateName,
-                                        outfolder=outpath, returntype = "patchwork")}
+                                        outfolder=outpath, returntype = "patchwork",
+                                        therows=thetrows, thecolumns=thecolumns,
+                                        width = width, height = height)}
 
   return(AssembledPlots)
 }
