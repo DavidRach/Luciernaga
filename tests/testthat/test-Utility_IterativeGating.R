@@ -30,6 +30,6 @@ test_that("Utility_IterativeGating returns a ggplot2 object", {
                                             yValue = "SSC-A",
                                             bins = 270)
 
-  # Did it return a patchwork object?
+  # Did it return a ggplot2 object?
   expect_true(inherits(SingleSpecimen[[1]], "gg"))
 })
