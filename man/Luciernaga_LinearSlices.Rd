@@ -38,7 +38,7 @@ only used to override the main peak detector when a .fcs file has more than a si
 detector, default is set to NULL}
 }
 \value{
-Either ggplots or the summarized data.frame object preceeding
+Either ggplots or the summarized data.frame object preceding
 }
 \description{
 Takes a Lucierna SingleColorQC .fcs, splits into percentiles, and plots the results.

@@ -32,7 +32,7 @@
 #' @importFrom tidyselect all_of
 #' @importFrom ggplot2 ggplot
 #'
-#' @return Either ggplots or the summarized data.frame object preceeding
+#' @return Either ggplots or the summarized data.frame object preceding
 #' @export
 #'
 #' @examples NULL
@@ -75,16 +75,18 @@ Luciernaga_LinearSlices <- function(x, subset, sample.name, removestrings, stats
             your file ", name," contained two peak detectors, only the first was selected")
             Detectors <- Detectors %>% slice(1)
   } else if (nrow(Detectors) > 1 && !is.null(desiredAF)){
-    Detectors <- Detectors %>% filter(Fluors %in% desiredAF)
+    #desiredAF <- as.character(desiredAF)
+    #Detectors$Fluors <- as.character(Detectors$Fluors)
+    Detectors <- Detectors %>% dplyr::filter(Fluors %in% desiredAF)
   }
 
-  if (nrow(Detectors) == 0){stop("No Detectors Filtered at point 2!")}
+  if (nrow(Detectors) == 0){stop("No Detectors Filtered at point 2! for sample ", name)}
 
   TheDetector <- Detectors %>% pull(Fluors)
 
   if (MultiDetector == TRUE){
     NormDetector <- gsub("-A", "", TheDetector)
-    data <- data %>% filter(.data[[NormDetector]] == 1) # Bug is here?
+    data <- data %>% dplyr::filter(.data[[NormDetector]] == 1) # Bug is here?
     if (nrow(data) == 0){stop("We lost data at the filter step")}
     Normalized <- data %>% select(!matches("-A"))
     colnames(Normalized) <- paste0(colnames(Normalized), "-A")
