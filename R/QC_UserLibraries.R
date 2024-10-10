@@ -33,7 +33,6 @@
 #' library(dplyr)
 #'
 #' StorageLocation <- file.path(tempdir(), "LuciernagaTemporaryExamples")
-#'
 #' if (!dir.exists(StorageLocation)) {dir.create(StorageLocation)}
 #'
 #' Folder_Location <- system.file("extdata", package = "Luciernaga")
