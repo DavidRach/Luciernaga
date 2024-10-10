@@ -597,7 +597,7 @@ pData(UnmixedGatingSet)
 #colnames(UnmixedGatingSet)
 Plot <- Utility_DensityOverlay(gs=UnmixedGatingSet, subset="lymphocytes", TheX="APC-Fire 810-A",
                                TheFill="specimen", returntype="plots",
-                               outpath="C:/Users/12692/Desktop/", filename="CD4_Expression")
+                               outpath=StorageLocation, filename="CD4_Expression")
 
 plotly::ggplotly(Plot[[1]])
 ```

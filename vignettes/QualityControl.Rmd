@@ -369,21 +369,24 @@ When working with XML files for multiple users, the assembled dataframe output o
 function, that will filter the individual library controls by user, and send them off to `Utility_Patchwork()` to create a .pdf output to the desired specifications. This can be useful tool for core staff to quickly generate outputs for each instrument user, that can then be sent to them to decide if they need to change any of their existing library reference controls. The saveCSV = TRUE argument would additionally return a .csv of the corresponding dataframe. 
 
 
-```{r, eval=FALSE}
-Outpath <- file.path("C:", "Users", "JohnDoe", "Desktop",
-                             "LibraryControls5L")
+```{r}
+TemporaryLocation <- file.path(tempdir(), "LuciernagaTemporaryExamples")
+if (!dir.exists(TemporaryLocation)) {dir.create(TemporaryLocation)}
 
 TheIndividuals <- TheData %>% pull(Creator) %>% unique()
 TheIndividuals
 
 IndividualUser <- QC_UserLibraries(x=TheIndividuals[[1]], Data=TheData,
-                                   NameAppend="_LibraryQC", outpath=Outpath,
+                                   NameAppend="_LibraryQC", outpath=TemporaryLocation,
                                    references = TRUE, thecolumns = 3, therows=4,
                                    width=7, height=9, saveCSV=FALSE)
 
-AllUsers <- map(.x=TheIndividuals, .f=QC_UserLibraries, Data=TheData,
-                 NameAppend="_LibraryQC", outpath=Outpath,references = TRUE,
+AllUsers <- map(.x=TheIndividuals[1:2], .f=QC_UserLibraries, Data=TheData,
+                 NameAppend="_LibraryQC", outpath=TemporaryLocation,references = TRUE,
                  thecolumns = 3, therows=4, width=7, height=9, saveCSV=FALSE)
+
+ThePDF <- list.files(TemporaryLocation, pattern="_LibraryQC.pdf")
+ThePDF
 ```
 
 # Comparing Normalized Signatures
