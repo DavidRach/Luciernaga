@@ -1,8 +1,9 @@
 test_that("QC_Retrieval returns a dataframe with more than 1 row", {
+
+  # Prepare the test
   library(flowCore)
   library(flowWorkspace)
 
-  # Prepare the experiment
   File_Location <- system.file("extdata", package = "Luciernaga")
   FCS_Pattern <- ".fcs$"
   FCS_Files <- list.files(path = File_Location, pattern = FCS_Pattern,
@@ -12,7 +13,7 @@ test_that("QC_Retrieval returns a dataframe with more than 1 row", {
                                      transform = FALSE)
   MyGatingSet <- GatingSet(MyCytoSet)
 
-  # Execute the experiment
+  # Execute the test
   SingleSpecimen <- QC_Retrieval(x=MyGatingSet[[1]], sample.name="TUBENAME")
 
   # Did it return a data.frame

@@ -1,8 +1,8 @@
 bibentry(
   bibtype  = "Manual",
-  title    = "Luciernaga: Quality control of single color and unstained controls for Spectral Flow Cytometry",
+  title    = "Luciernaga: Tools for the evaluation of Spectral Flow Cytometry (SFC) unmixing controls",
   author   = "David Rach",
   year     = "2024",
-  note   = "R package version 0.1.0",
+  note   = "R package version 0.99.0",
   url   = "https://github.com/DavidRach/Luciernaga"
 )
