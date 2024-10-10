@@ -101,6 +101,5 @@ TheseFluorophores <- UnmixingPanel \%>\% pull(Fluorophore)
 walk(.x=TheseFluorophores, .f=Luciernaga_Move, data=MoveThese,
  input=StorageLocation, output=SortedStorageLocation)
 MovedFiles <- list.files(SortedStorageLocation, pattern="fcs", full.names=TRUE)
-length(MovedFiles)
 
 }
