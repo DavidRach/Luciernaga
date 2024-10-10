@@ -222,7 +222,7 @@ To facilitate this process, we have implemented the `Utility_Concatinate()` func
 
 ```{r}
 removestrings <- c("DTR_", ".fcs")
-StorageLocation <- file.path("C:", "Users", "12692", "Desktop")
+StorageLocation <- file.path("C:", "Users", "JohnDoe", "Desktop")
 
 #Return Types: "data.frame", "flow.frame", "fcs"
 ConcatinatedReturn <- Utility_Concatinate(gs=UnmixedGatingSet,
