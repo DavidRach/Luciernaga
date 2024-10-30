@@ -68,7 +68,7 @@
 Baltimore<br><a class="author_email" href="mailto:#"></a><a href="mailto:drach@som.umaryland.edu" class="email">drach@som.umaryland.edu</a>
       </address>
                   
-            <h4 data-toc-skip class="date">29 October 2024</h4>
+            <h4 data-toc-skip class="date">30 October 2024</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/DavidRach/Luciernaga/blob/HEAD/vignettes/DimensionalityVisualization.Rmd" class="external-link"><code>vignettes/DimensionalityVisualization.Rmd</code></a></small>
       <div class="d-none name"><code>DimensionalityVisualization.Rmd</code></div>
@@ -1310,24 +1310,24 @@ both raw and unmixed data:</p>
 <span><span class="co">#&gt;   Running PHATE on 3303 observations and 64 variables.</span></span>
 <span><span class="co">#&gt;   Calculating graph and diffusion operator...</span></span>
 <span><span class="co">#&gt;     Calculating KNN search...</span></span>
-<span><span class="co">#&gt;     Calculated KNN search in 0.70 seconds.</span></span>
+<span><span class="co">#&gt;     Calculated KNN search in 0.71 seconds.</span></span>
 <span><span class="co">#&gt;     Calculating affinities...</span></span>
-<span><span class="co">#&gt;     Calculated affinities in 1.72 seconds.</span></span>
-<span><span class="co">#&gt;   Calculated graph and diffusion operator in 2.49 seconds.</span></span>
+<span><span class="co">#&gt;     Calculated affinities in 1.46 seconds.</span></span>
+<span><span class="co">#&gt;   Calculated graph and diffusion operator in 2.23 seconds.</span></span>
 <span><span class="co">#&gt;   Calculating landmark operator...</span></span>
 <span><span class="co">#&gt;     Calculating SVD...</span></span>
-<span><span class="co">#&gt;     Calculated SVD in 1.16 seconds.</span></span>
+<span><span class="co">#&gt;     Calculated SVD in 1.21 seconds.</span></span>
 <span><span class="co">#&gt;     Calculating KMeans...</span></span>
-<span><span class="co">#&gt;     Calculated KMeans in 3.47 seconds.</span></span>
-<span><span class="co">#&gt;   Calculated landmark operator in 6.17 seconds.</span></span>
+<span><span class="co">#&gt;     Calculated KMeans in 3.74 seconds.</span></span>
+<span><span class="co">#&gt;   Calculated landmark operator in 6.54 seconds.</span></span>
 <span><span class="co">#&gt;   Calculating optimal t...</span></span>
-<span><span class="co">#&gt;     Automatically selected t = 23</span></span>
-<span><span class="co">#&gt;   Calculated optimal t in 3.05 seconds.</span></span>
+<span><span class="co">#&gt;     Automatically selected t = 24</span></span>
+<span><span class="co">#&gt;   Calculated optimal t in 2.86 seconds.</span></span>
 <span><span class="co">#&gt;   Calculating diffusion potential...</span></span>
-<span><span class="co">#&gt;   Calculated diffusion potential in 2.18 seconds.</span></span>
+<span><span class="co">#&gt;   Calculated diffusion potential in 1.47 seconds.</span></span>
 <span><span class="co">#&gt;   Calculating metric MDS...</span></span>
-<span><span class="co">#&gt;   Calculated metric MDS in 4.49 seconds.</span></span>
-<span><span class="co">#&gt; Calculated PHATE in 18.40 seconds.</span></span>
+<span><span class="co">#&gt;   Calculated metric MDS in 4.17 seconds.</span></span>
+<span><span class="co">#&gt; Calculated PHATE in 17.28 seconds.</span></span>
 <span></span>
 <span><span class="va">cf</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/flowWorkspace/man/convert.html" class="external-link">flowFrame_to_cytoframe</a></span><span class="op">(</span><span class="va">Phate_Output</span><span class="op">)</span></span>
 <span><span class="va">TheNewCS</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/flowWorkspace/man/cytoset.html" class="external-link">cytoset</a></span><span class="op">(</span><span class="op">)</span></span>
@@ -1369,24 +1369,24 @@ both raw and unmixed data:</p>
 <span><span class="co">#&gt;   Running PHATE on 3317 observations and 8 variables.</span></span>
 <span><span class="co">#&gt;   Calculating graph and diffusion operator...</span></span>
 <span><span class="co">#&gt;     Calculating KNN search...</span></span>
-<span><span class="co">#&gt;     Calculated KNN search in 0.22 seconds.</span></span>
+<span><span class="co">#&gt;     Calculated KNN search in 0.23 seconds.</span></span>
 <span><span class="co">#&gt;     Calculating affinities...</span></span>
 <span><span class="co">#&gt;     Calculated affinities in 0.05 seconds.</span></span>
-<span><span class="co">#&gt;   Calculated graph and diffusion operator in 0.27 seconds.</span></span>
+<span><span class="co">#&gt;   Calculated graph and diffusion operator in 0.29 seconds.</span></span>
 <span><span class="co">#&gt;   Calculating landmark operator...</span></span>
 <span><span class="co">#&gt;     Calculating SVD...</span></span>
-<span><span class="co">#&gt;     Calculated SVD in 0.24 seconds.</span></span>
+<span><span class="co">#&gt;     Calculated SVD in 0.27 seconds.</span></span>
 <span><span class="co">#&gt;     Calculating KMeans...</span></span>
-<span><span class="co">#&gt;     Calculated KMeans in 3.16 seconds.</span></span>
-<span><span class="co">#&gt;   Calculated landmark operator in 4.29 seconds.</span></span>
+<span><span class="co">#&gt;     Calculated KMeans in 3.96 seconds.</span></span>
+<span><span class="co">#&gt;   Calculated landmark operator in 5.17 seconds.</span></span>
 <span><span class="co">#&gt;   Calculating optimal t...</span></span>
-<span><span class="co">#&gt;     Automatically selected t = 16</span></span>
-<span><span class="co">#&gt;   Calculated optimal t in 3.00 seconds.</span></span>
+<span><span class="co">#&gt;     Automatically selected t = 23</span></span>
+<span><span class="co">#&gt;   Calculated optimal t in 2.94 seconds.</span></span>
 <span><span class="co">#&gt;   Calculating diffusion potential...</span></span>
-<span><span class="co">#&gt;   Calculated diffusion potential in 1.33 seconds.</span></span>
+<span><span class="co">#&gt;   Calculated diffusion potential in 2.11 seconds.</span></span>
 <span><span class="co">#&gt;   Calculating metric MDS...</span></span>
-<span><span class="co">#&gt;   Calculated metric MDS in 4.23 seconds.</span></span>
-<span><span class="co">#&gt; Calculated PHATE in 13.14 seconds.</span></span>
+<span><span class="co">#&gt;   Calculated metric MDS in 4.32 seconds.</span></span>
+<span><span class="co">#&gt; Calculated PHATE in 14.84 seconds.</span></span>
 <span></span>
 <span><span class="va">cf</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/flowWorkspace/man/convert.html" class="external-link">flowFrame_to_cytoframe</a></span><span class="op">(</span><span class="va">Phate_Output</span><span class="op">)</span></span>
 <span><span class="va">TheNewCS</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/flowWorkspace/man/cytoset.html" class="external-link">cytoset</a></span><span class="op">(</span><span class="op">)</span></span>
