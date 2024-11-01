@@ -4,7 +4,8 @@
 #' @param sample.name Keyword specifying sample name
 #' @param removestrings Value to be removed from sample name
 #' @param subsets The gating hierarchy subset you want to include
-#' @param subsample Total number of events to sub-sample from each specimen
+#' @param subsample Total number of events to sub-sample from each specimen.
+#'  If value between 0 and 1, grabs that equivalent proportion of total cells.
 #' @param inverse.transform Whether to reverse the GatingSet Transform on the data,
 #' default is set to FALSE.
 #' @param internal Whether to return as a data.frame (vs. a flow frame or .fcs file)

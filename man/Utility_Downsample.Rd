@@ -26,7 +26,8 @@ Utility_Downsample(
 
 \item{subsets}{The gating hierarchy subset you want to include}
 
-\item{subsample}{Total number of events to sub-sample from each specimen}
+\item{subsample}{Total number of events to sub-sample from each specimen.
+If value between 0 and 1, grabs that equivalent proportion of total cells.}
 
 \item{inverse.transform}{Whether to reverse the GatingSet Transform on the data,
 default is set to FALSE.}
