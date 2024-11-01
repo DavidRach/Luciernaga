@@ -16,12 +16,14 @@
 #' @param metadataCols column names from pData to append as metadata for the .fcs, default NULL
 #'
 #' @importFrom purrr map
-#' @importFrom dplyr mutate
+#' @importFrom dplyr bind_rows
 #' @importFrom dplyr select
-#' @importFrom dplyr left_join
-#' @importFrom dplyr rename
 #' @importFrom tidyselect all_of
+#' @importFrom dplyr bind_cols
+#' @importFrom utils write.csv
+#' @importFrom tidyselect starts_with
 #' @importFrom flowWorkspace gs_pop_get_data
+#' @importFrom methods new
 #' @importFrom flowCore write.FCS
 #'
 #' @return A concatenated data.frame, flow.frame or fcs file, with reference .csv for
@@ -156,7 +158,22 @@ if (ReturnType == "fcs") {write.FCS(new_FCS_2, filename = fileSpot, delimiter="#
 } else {return(new_FCS_2)}
 }
 
-
+#' Internal for Utility_Concatinate
+#'
+#' @param x The iterated metadata column being acted on.
+#' @param data The concatinated data.frame
+#' @param dictionary The reference table data.frame with the new numeric factors to swap out
+#' the old character values
+#'
+#' @importFrom rlang !!
+#' @importFrom dplyr select
+#' @importFrom rlang sym
+#' @importFrom rlang :=
+#' @importFrom dplyr mutate
+#' @importFrom dplyr recode
+#' @importFrom stats setNames
+#'
+#' @noRd
 ExecuteSwap <- function(x, data, dictionary){
   newname <- paste0("New_", x)
   data %>% select(!!sym(x))
@@ -166,7 +183,23 @@ ExecuteSwap <- function(x, data, dictionary){
   return(data)
 }
 
-
+#' Internal for Utility_Concatinate
+#'
+#' @param x The iterated metadata column name
+#' @param data The concatinated data.frame
+#' @param conversion The reference dictionary data.frame table
+#'
+#' @importFrom dplyr filter
+#' @importFrom dplyr pull
+#' @importFrom dplyr select
+#' @importFrom tidyselect all_of
+#' @importFrom dplyr arrange
+#' @importFrom dplyr desc
+#' @importFrom dplyr mutate
+#' @importFrom rlang !!
+#' @importFrom rlang :=
+#'
+#' @noRd
 ExecuteCharacters <- function(x, data, conversion){
 
   Numbers <- conversion  %>% dplyr::filter(Column %in% x) %>% pull(Numbers)
@@ -184,6 +217,19 @@ ExecuteCharacters <- function(x, data, conversion){
   } else {SpecimenNames <- NULL}
 }
 
+#' Internal for Utility_Concatinate
+#'
+#' @param x Iterated metadata column name to edit on
+#' @param data The concatenated data.frame to be edited
+#' @param conversion The output of DoWeConvert
+#'
+#' @importFrom dplyr filter
+#' @importFrom dplyr pull
+#' @importFrom dplyr mutate
+#' @importFrom dplyr across
+#' @importFrom tidyselect all_of
+#'
+#' @noRd
 ExecuteNumerics <- function(x, data, conversion){
 
   Numbers <- conversion  %>% dplyr::filter(Column %in% x) %>% pull(Numbers)
@@ -200,7 +246,11 @@ ExecuteNumerics <- function(x, data, conversion){
   return(data)
 }
 
-
+#' Internal for Utility_Concatinate
+#'
+#' @param data Selected metadata columns
+#'
+#' @noRd
 DoWeConvert <- function(data) {
 
 results <- data.frame(Column=character(), Numbers=logical(),

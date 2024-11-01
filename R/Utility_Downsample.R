@@ -19,9 +19,13 @@
 #' @importFrom flowCore exprs
 #' @importFrom dplyr slice_sample
 #' @importFrom flowCore parameters
+#' @importFrom methods new
 #' @importFrom flowCore write.FCS
 #' @importFrom dplyr mutate
-#' @importFrom methods new
+#' @importFrom Biobase pData
+#' @importFrom dplyr select
+#' @importFrom tidyselect all_of
+#' @importFrom dplyr slice
 #'
 #' @return Either a data.frame, a flow.frame or an .fcs file depending on your
 #' selected options
@@ -89,8 +93,17 @@ Utility_Downsample <- function(x, sample.name, removestrings,
   DF <- as.data.frame(df, check.names = FALSE)
 
   # If down-sampling is specified
-  if (!is.null(subsample)) {DF <- slice_sample(DF, n = subsample,
-                                              replace = FALSE)
+  if (!is.null(subsample)) {
+
+    if (subsample < 1) {
+      Count <- nrow(df)
+      Count <- Count*subsample
+      Count <- round(Count, 0)
+      subsample <- Count
+    }
+
+    DF <- slice_sample(DF, n = subsample, replace = FALSE)
+
   } else {DF <- DF}
 
   if (internal == FALSE){
@@ -122,7 +135,3 @@ Utility_Downsample <- function(x, sample.name, removestrings,
     }
   }
 }
-
-
-
-
