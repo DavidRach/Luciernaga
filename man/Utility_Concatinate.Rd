@@ -14,7 +14,8 @@ Utility_Concatinate(
   newName,
   outpath = NULL,
   export = FALSE,
-  inverse.transform = FALSE
+  inverse.transform,
+  metadataCols = NULL
 )
 }
 \arguments{
@@ -40,6 +41,8 @@ to an "fcs" file to the outpath location}
 
 \item{inverse.transform}{Whether to reverse the GatingSet Transform on the data,
 default is set to FALSE.}
+
+\item{metadataCols}{column names from pData to append as metadata for the .fcs, default NULL}
 }
 \value{
 A concatenated data.frame, flow.frame or fcs file, with reference .csv for

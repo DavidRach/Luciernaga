@@ -12,6 +12,7 @@
 #' .fcs file to outpath.
 #' @param outpath When export is true, the file.path to where you want the .fcs file
 #' stored.
+#' @param metadataCols column names from pData to append as metadata for the .fcs, default NULL
 #'
 #' @importFrom flowWorkspace keyword
 #' @importFrom flowWorkspace gs_pop_get_data
@@ -66,8 +67,9 @@
 #'  subsets = "live", subsample = 2500, internal = FALSE, export = FALSE)
 #'
 Utility_Downsample <- function(x, sample.name, removestrings,
-                                  subsets, subsample=NULL, inverse.transform = FALSE,
-                                  internal = FALSE, export = FALSE, outpath = NULL){
+                                  subsets, subsample=NULL, inverse.transform,
+                                  internal = FALSE, export = FALSE, outpath = NULL,
+                                  metadataCols=NULL){
 
   if(length(sample.name) == 1){
     name <- keyword(x, sample.name)
@@ -105,7 +107,22 @@ Utility_Downsample <- function(x, sample.name, removestrings,
                               write.FCS(new_fcs, filename = fileSpot, delimiter="#")
     } else {return(new_fcs)}
 
-  } else { message(alternatename, " has been processed")
-           DF <- DF %>% mutate(specimen = alternatename)
-           return(DF)}
+  } else {
+
+   if (is.null(metadataCols)){message(alternatename, " has been processed")
+     DF <- DF %>% mutate(specimen = alternatename)
+     return(DF)
+  } else {
+    Repeats <- nrow(DF)
+    Metadata <- pData(x) %>% select(all_of(metadataCols)) %>%
+      slice(rep(1:n(), length.out = Repeats))
+    row.names(Metadata) <- NULL
+    DF <- cbind(DF, Metadata)
+    return(DF)
+    }
+  }
 }
+
+
+
+

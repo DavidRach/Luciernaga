@@ -10,10 +10,11 @@ Utility_Downsample(
   removestrings,
   subsets,
   subsample = NULL,
-  inverse.transform = FALSE,
+  inverse.transform,
   internal = FALSE,
   export = FALSE,
-  outpath = NULL
+  outpath = NULL,
+  metadataCols = NULL
 )
 }
 \arguments{
@@ -37,6 +38,8 @@ default is set to FALSE.}
 
 \item{outpath}{When export is true, the file.path to where you want the .fcs file
 stored.}
+
+\item{metadataCols}{column names from pData to append as metadata for the .fcs, default NULL}
 }
 \value{
 Either a data.frame, a flow.frame or an .fcs file depending on your

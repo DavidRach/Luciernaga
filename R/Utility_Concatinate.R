@@ -13,12 +13,14 @@
 #' @param export Whether to export as a .fcs file.
 #' @param inverse.transform Whether to reverse the GatingSet Transform on the data,
 #' default is set to FALSE.
+#' @param metadataCols column names from pData to append as metadata for the .fcs, default NULL
 #'
 #' @importFrom purrr map
 #' @importFrom dplyr mutate
 #' @importFrom dplyr select
 #' @importFrom dplyr left_join
 #' @importFrom dplyr rename
+#' @importFrom tidyselect all_of
 #' @importFrom flowWorkspace gs_pop_get_data
 #' @importFrom flowCore write.FCS
 #'
@@ -62,7 +64,7 @@
 #'   newName = "MyConcatinatedFile", outpath = StorageLocation, export = FALSE)
 #'
 Utility_Concatinate <- function(gs, sample.name, removestrings, subsets, subsample=NULL,
-  ReturnType, newName, outpath=NULL, export=FALSE, inverse.transform = FALSE) {
+  ReturnType, newName, outpath=NULL, export=FALSE, inverse.transform, metadataCols=NULL) {
 
 gs <- gs
 sample.name <- sample.name
@@ -76,45 +78,144 @@ if (!is.null(subsample)){
 
 ConcatenatedFile <- map(gs, .f=Utility_Downsample, sample.name=sample.name,
   removestrings=removestrings, subsets=subsets, subsample=subsample,
-  internal = TRUE, export=FALSE) %>% bind_rows
+  internal = TRUE, export=FALSE, metadataCols=metadataCols, inverse.transform=inverse.transform) %>% bind_rows
 
 if (ReturnType == "data.frame"){return(ConcatenatedFile)
 }
 
-SpecimenNames <- data.frame(table(ConcatenatedFile$specimen))
-colnames(SpecimenNames)[[1]] <- "specimen"
-colnames(SpecimenNames)[[2]] <- "Count"
-SpecimenNames <- SpecimenNames %>% mutate(Reference = as.numeric(factor(specimen)))
+NewData <- ConcatenatedFile %>% select(all_of(metadataCols))
+Decisions <- Luciernaga:::DoWeConvert(NewData)
+
+for(i in metadataCols){
+ConcatenatedFile <- Luciernaga:::ExecuteNumerics(x=i, data=ConcatenatedFile, conversion=Decisions)
+}
+
+NewData <- ConcatenatedFile %>% select(all_of(metadataCols))
+Decisions <- Luciernaga:::DoWeConvert(NewData)
+
+if (!nrow(Decisions)==0){
+CharResults <- map(.x=metadataCols, .f=ExecuteCharacters, data=ConcatenatedFile, conversion=Decisions)
+CharResults <- Filter(Negate(is.null), CharResults)
+
+if (length(CharResults)>1){Table <- bind_cols(CharResults)
+  } else {Table <- CharResults[[1]]}
+
 CSVName <- paste0("ReferenceDictionary", newName, ".csv")
 if (is.null(outpath)) {outpath <- getwd()}
 CSVDestination <- file.path(outpath, CSVName)
 
-if (export == TRUE){write.csv(x=SpecimenNames, file=CSVDestination, row.names = FALSE)}
+if (export == TRUE){write.csv(x=Table, file=CSVDestination, row.names = FALSE)}
 
-SpecimenNames <- SpecimenNames %>% select(-Count)
-Referenced <- left_join(ConcatenatedFile, SpecimenNames, by="specimen")
-# If Alternative Found Enter Stage Right
-Referenced <- Referenced %>% select(-specimen)
-Referenced <- Referenced %>% rename(specimen = Reference)
+
+Table <- Table %>% select(-starts_with("Count"))
+Old <- Table %>% select(-starts_with("New")) %>% colnames()
+#New <- Table %>% select(starts_with("New")) %>% colnames()
+
+data <- ConcatenatedFile
+
+for(i in Old){
+  data <- ExecuteSwap(x=i, data=data, dictionary=Table)
+}
+
+} else {data <- ConcatenatedFile}
+
+#str(data)
+Referenced <- data
 
 ff <- gs_pop_get_data(gs, subsets, inverse.transform = inverse.transform)
-ConcatenatedExtra <- Referenced %>% select(specimen)
-ConcatenatedMain <- Referenced %>% select(-specimen)
+ConcatenatedExtra <- Referenced %>% select(all_of(metadataCols))
+ConcatenatedMain <- Referenced %>% select(-all_of(metadataCols))
 
 new_fcs <- Utility_ColAppend(ff=ff, DF=ConcatenatedMain, columnframe=ConcatenatedExtra)
 
-# Renaming of the .fcs file in the internal parameters would occur here.
-new_FCS_2 <- new_fcs
-#Until Then
+new_kw <- new_fcs@description
+UpdatedParameters <- parameters(new_fcs)
+UpdatedExprs <- exprs(new_fcs)
 
-if (ReturnType == "flow.frame") {return(new_FCS_2)}
+#Temporary Fix to "Comp-" issue
 
-if (ReturnTye  == "fcs"){
-  if (is.null(outpath)) {outpath <- getwd()}
-  TheFileName <- paste0(newName, ".fcs")
-  fileSpot <- file.path(outpath, TheFileName)
-  write.FCS(new_FCS_2, filename = fileSpot, delimiter="#")
+UpdatedParameters@data$name <- gsub("Comp-", "", UpdatedParameters@data$name)
+colnames(UpdatedExprs) <- gsub("Comp-", "", colnames(UpdatedExprs))
+
+#for (i in seq_along(new_kw)) {
+#  new_kw[[i]] <- gsub("Comp-", "", new_kw[[i]])
+#}
+
+new_FCS_2 <- new("flowFrame", exprs=UpdatedExprs, parameters=UpdatedParameters, description=new_kw)
+
+AssembledName <- paste0(newName, ".fcs")
+
+new_FCS_2@description$GUID <- AssembledName
+new_FCS_2@description$`$FIL` <- AssembledName
+
+if (is.null(outpath)) {outpath <- getwd()}
+
+fileSpot <- file.path(outpath, AssembledName)
+
+if (ReturnType == "fcs") {write.FCS(new_FCS_2, filename = fileSpot, delimiter="#")
+} else {return(new_FCS_2)}
 }
 
+
+ExecuteSwap <- function(x, data, dictionary){
+  newname <- paste0("New_", x)
+  data %>% select(!!sym(x))
+
+  data <- data %>% mutate(!!sym(x) := recode(!!sym(x), !!!setNames(dictionary[[newname]],
+                                                                   dictionary[[x]])))
+  return(data)
 }
 
+
+ExecuteCharacters <- function(x, data, conversion){
+
+  Numbers <- conversion  %>% dplyr::filter(Column %in% x) %>% pull(Numbers)
+  Letters <- conversion  %>% dplyr::filter(Column %in% x) %>% pull(Letters)
+  if (Numbers == FALSE && Letters==TRUE){
+    newName <- paste0("New_", x)
+    Internal <- data %>% select(all_of(x))
+    SpecimenNames <- data.frame(table(Internal))
+    #colnames(SpecimenNames)[[1]] <- "specimen"
+    TheCount <- paste0("Count_", x)
+    colnames(SpecimenNames)[[2]] <- TheCount
+    SpecimenNames <- SpecimenNames %>% arrange(desc(TheCount))
+    SpecimenNames <- SpecimenNames %>% mutate(!!newName := as.numeric(factor(x)))
+    return(SpecimenNames)
+  } else {SpecimenNames <- NULL}
+}
+
+ExecuteNumerics <- function(x, data, conversion){
+
+  Numbers <- conversion  %>% dplyr::filter(Column %in% x) %>% pull(Numbers)
+  Letters <- conversion  %>% dplyr::filter(Column %in% x) %>% pull(Letters)
+  if (Numbers == TRUE && Letters==FALSE){
+    data <- data %>% mutate(across(all_of(x), ~ as.numeric(.)))
+  }
+
+  if (Numbers == TRUE && Letters==TRUE){
+    data <- data %>%
+      mutate(across(all_of(x), ~ gsub("[A-Za-z]", "", .))) %>%
+      mutate(across(all_of(x), ~ as.numeric(.)))
+  }
+  return(data)
+}
+
+
+DoWeConvert <- function(data) {
+
+results <- data.frame(Column=character(), Numbers=logical(),
+                        Letters=logical(), stringsAsFactors = FALSE)
+
+for (i in names(data)) {
+  if (is.character(data[[i]])) {
+    NumbersPaa <- any(grepl("\\d", data[[i]]))
+    LettersPaa <- any(grepl("[A-Za-z]", data[[i]]))
+
+    results <- rbind(results, data.frame(Column=i, Numbers=NumbersPaa,
+                                     Letters=LettersPaa,
+                                     stringsAsFactors = FALSE))
+  }
+}
+
+return(results)
+}
