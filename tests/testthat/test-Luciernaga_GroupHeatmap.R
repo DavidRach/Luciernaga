@@ -1,4 +1,4 @@
-test_that("Luciernaga_Plots returns a ggplot2 object", {
+test_that("Luciernaga_GroupHeatmap returns a ggplot2 object", {
 
   # Prepare the test
 

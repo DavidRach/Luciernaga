@@ -2,6 +2,7 @@
 
 export(AveragedSignature)
 export(Luciernaga_Brightness)
+export(Luciernaga_Cosine)
 export(Luciernaga_FCSToReport)
 export(Luciernaga_GroupHeatmap)
 export(Luciernaga_IterativeUnmixing)
