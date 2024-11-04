@@ -29,8 +29,8 @@ Luciernaga_QC(
   Increments,
   LocalMaximaRatio = 0.15,
   SecondaryPeaks = 2,
-  RetainedType = "normalized",
   Brightness = FALSE,
+  RetainedType = "raw",
   ExportType,
   minimalfcscutoff = 0.05,
   SCData = "subtracted",
@@ -96,9 +96,9 @@ for specified autofluorescence.}
 
 \item{SecondaryPeaks}{Number of Secondary Peaks, default is set to 2.}
 
-\item{RetainedType}{Whether to return "raw" or "normalized" values for lineplots.}
-
 \item{Brightness}{Whether sum of detectors should be returned.}
+
+\item{RetainedType}{Whether to return "raw" or "normalized" values for lineplots.}
 
 \item{ExportType}{Whether to return "fcs", "data"}
 

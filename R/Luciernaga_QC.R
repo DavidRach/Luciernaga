@@ -111,7 +111,7 @@ Luciernaga_QC <- function(x, subsets, sample.name, removestrings=NULL, Verbose =
                           Subtraction = "Internal", desiredAF=NULL, BeadAF=NULL,
                           BeadMainAF=NULL, CellAF=NULL, CellMainAF=NULL,
                           SignatureReturnNow=FALSE, Increments, LocalMaximaRatio=0.15,
-                          SecondaryPeaks=2, RetainedType="normalized", Brightness=FALSE,
+                          SecondaryPeaks=2, Brightness=FALSE, RetainedType="raw",
                           ExportType, minimalfcscutoff = 0.05, SCData = "subtracted",
                           NegativeType= "default", TotalNegatives = 500, outpath){
 
@@ -560,11 +560,16 @@ LuciernagaSmallReport <- function( x, Data, RetainedType, ColsN,
     StartNormalizedMergedCol, EndNormalizedMergedCol, stats){
 
     if (RetainedType == "raw"){Data <- Data %>% filter(Cluster %in% x) %>%
-      select(all_of(1:ColsN))}
-    if (RetainedType == "normalized"){Data <- Data %>% filter(Cluster %in% x) %>%
-      select(all_of(StartNormalizedMergedCol:EndNormalizedMergedCol))}
-
+      select(all_of(1:ColsN))
     Averaged <- AveragedSignature(Data, stats)
+    }
+    if (RetainedType == "normalized"){
+      # Data <- Data %>% filter(Cluster %in% x) %>%
+      # select(all_of(StartNormalizedMergedCol:EndNormalizedMergedCol))
+      Data <- Data %>% filter(Cluster %in% x) %>%
+        select(all_of(1:ColsN))
+      Averaged <- AveragedSignature(Data, stats, normalize=TRUE)
+      }
     Summary <- cbind(x, Averaged) %>% rename(Cluster = x)
     return(Summary)
 }
@@ -588,6 +593,7 @@ TroubleChannelExclusion <- function(x, TheSCData, MainDetector, AFChannels){
 #'
 #' @param x A data.frame containing double or numeric data.
 #' @param stats Desired Stats "mean" or "median" to pass to summarize_all
+#' @param normalize Default FALSE, TRUE peak detector normalizes.
 #'
 #' @importFrom dplyr summarize_all
 #'
@@ -621,8 +627,20 @@ TroubleChannelExclusion <- function(x, TheSCData, MainDetector, AFChannels){
 #'
 #' Signature <- AveragedSignature(TheDataValues, stats="median")
 #'
-AveragedSignature <- function(x, stats){
+AveragedSignature <- function(x, stats, normalize=FALSE){
+
+  if (normalize == TRUE){
+    x[x < 0] <- 0
+    A <- do.call(pmax, x)
+    x <- x/A
+  }
+
   Signature <- x %>% summarize_all(stats)
+
+  if (normalize == TRUE){
+  Signature <- round(Signature, 3)
+  }
+
   return(Signature)
 }
 

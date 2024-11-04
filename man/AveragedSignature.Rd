@@ -4,12 +4,14 @@
 \alias{AveragedSignature}
 \title{Summarize a data.frame to desired stat}
 \usage{
-AveragedSignature(x, stats)
+AveragedSignature(x, stats, normalize = FALSE)
 }
 \arguments{
 \item{x}{A data.frame containing double or numeric data.}
 
 \item{stats}{Desired Stats "mean" or "median" to pass to summarize_all}
+
+\item{normalize}{Default FALSE, TRUE peak detector normalizes.}
 }
 \value{
 A data.frame row of summarized data

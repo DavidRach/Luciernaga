@@ -33,7 +33,7 @@ test_that("Luciernaga_Plots returns a ggplot2 object", {
                           outpath = TemporaryFolder, Increments=0.1, SecondaryPeaks=2,
                           experiment = "FirstExperiment", condition = "ILTPanel",
                           Subtraction = "Internal", CellAF=TheCellAF, SCData="subtracted",
-                          NegativeType="default") %>% bind_rows()
+                          NegativeType="default", RetainedType="normalized") %>% bind_rows()
 
   pattern = "^Panel.csv"
   CSV <- list.files(path=FileLocation, pattern=pattern, full.names=TRUE)

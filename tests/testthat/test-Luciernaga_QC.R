@@ -34,7 +34,7 @@ test_that("Luciernaga_QC returns a dataframe with at least 1 row", {
                           outpath = TemporaryFolder, Increments=0.1, SecondaryPeaks=2,
                           experiment = "FirstExperiment", condition = "ILTPanel",
                           Subtraction = "Internal", CellAF=TheCellAF, SCData="subtracted",
-                          NegativeType="default") %>% bind_rows()
+                          NegativeType="default", RetainedType="normalized") %>% bind_rows()
 
   # Did it return a data.frame
   expect_s3_class(SingleColor_Data, "data.frame")
