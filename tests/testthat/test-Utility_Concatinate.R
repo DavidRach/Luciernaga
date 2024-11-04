@@ -39,6 +39,7 @@ test_that("Utility_Concatinate returns a flowframe", {
                                             ReturnType = "flow.frame",
                                             newName = "MyConcatinatedFile",
                                             outpath = StorageLocation,
+                                            inverse.transform=TRUE,
                                             export = FALSE)
 
   # Did it return a patchwork object?

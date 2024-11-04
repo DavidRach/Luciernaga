@@ -38,7 +38,8 @@ test_that("Utility_Downsample returns a flowframe with correct number rows", {
   # Execute the experiment
   SingleSample <- Utility_Downsample(UnmixedGatingSet[1], sample.name = "GROUPNAME",
                                      removestrings=removestrings, subsets = "live",
-                                     subsample = 2500, internal = FALSE, export = FALSE)
+                                     subsample = 2500, internal = FALSE, export = FALSE,
+                                     inverse.transform=TRUE)
 
   # Did it return a patchwork object?
   expect_equal(nrow(SingleSample), 2500)
