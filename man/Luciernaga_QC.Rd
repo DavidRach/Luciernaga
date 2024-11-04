@@ -36,7 +36,8 @@ Luciernaga_QC(
   SCData = "subtracted",
   NegativeType = "default",
   TotalNegatives = 500,
-  outpath
+  outpath,
+  inverse.transform = FALSE
 )
 }
 \arguments{
@@ -112,6 +113,9 @@ for specified autofluorescence.}
 \item{TotalNegatives}{When setting NegativeType to "artificial" or "sample", how many events to add.}
 
 \item{outpath}{Location where created .fcs and .csv files are sent}
+
+\item{inverse.transform}{Passed to flowWorkspace, if data has been transformed and wish to return to
+raw values, set to TRUE.}
 }
 \value{
 Additional information to be added
