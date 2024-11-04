@@ -3,6 +3,7 @@
 export(AveragedSignature)
 export(Luciernaga_Brightness)
 export(Luciernaga_FCSToReport)
+export(Luciernaga_GroupHeatmap)
 export(Luciernaga_IterativeUnmixing)
 export(Luciernaga_LinearSlices)
 export(Luciernaga_Lists)
