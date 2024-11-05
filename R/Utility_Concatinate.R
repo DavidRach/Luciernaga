@@ -66,8 +66,10 @@
 #'   newName = "MyConcatinatedFile", outpath = StorageLocation, export = FALSE)
 #'
 Utility_Concatinate <- function(gs, sample.name, removestrings, subsets, subsample=NULL,
-  ReturnType, newName, outpath=NULL, export=FALSE, inverse.transform, metadataCols=NULL) {
+  ReturnType, newName, outpath=NULL, export=FALSE, inverse.transform, metadataCols=NULL,
+  Override = FALSE, DataOverride = NULL) {
 
+if (Override == FALSE){
 gs <- gs
 sample.name <- sample.name
 removestrings <- removestrings
@@ -84,6 +86,8 @@ ConcatenatedFile <- map(gs, .f=Utility_Downsample, sample.name=sample.name,
 
 if (ReturnType == "data.frame"){return(ConcatenatedFile)
 }
+
+} else {ConcatenatedFile <- DataOverride}
 
 NewData <- ConcatenatedFile %>% select(all_of(metadataCols))
 Decisions <- Luciernaga:::DoWeConvert(NewData)
