@@ -63,7 +63,8 @@
 #' ConcatinatedReturn <- Utility_Concatinate(gs=UnmixedGatingSet,
 #'   sample.name = "GROUPNAME", removestrings=removestrings,
 #'   subsets="live", subsample = 2000, ReturnType = "flow.frame",
-#'   newName = "MyConcatinatedFile", outpath = StorageLocation, export = FALSE)
+#'   newName = "MyConcatinatedFile", outpath = StorageLocation,
+#'    export = FALSE, inverse.transform=TRUE)
 #'
 Utility_Concatinate <- function(gs, sample.name, removestrings, subsets, subsample=NULL,
   ReturnType, newName, outpath=NULL, export=FALSE, inverse.transform, metadataCols=NULL,
@@ -88,6 +89,9 @@ if (ReturnType == "data.frame"){return(ConcatenatedFile)
 }
 
 } else {ConcatenatedFile <- DataOverride}
+
+if (is.null(metadataCols)){metadataCols <- setdiff(colnames(ConcatenatedFile),colnames(gs[1]))}
+
 
 NewData <- ConcatenatedFile %>% select(all_of(metadataCols))
 Decisions <- Luciernaga:::DoWeConvert(NewData)
@@ -129,6 +133,7 @@ for(i in Old){
 Referenced <- data
 
 ff <- gs_pop_get_data(gs, subsets, inverse.transform = inverse.transform)
+
 ConcatenatedExtra <- Referenced %>% select(all_of(metadataCols))
 ConcatenatedMain <- Referenced %>% select(-all_of(metadataCols))
 

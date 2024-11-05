@@ -84,6 +84,7 @@ StorageLocation <- file.path("C:", "Users", "JohnDoe", "Desktop")
 ConcatinatedReturn <- Utility_Concatinate(gs=UnmixedGatingSet,
   sample.name = "GROUPNAME", removestrings=removestrings,
   subsets="live", subsample = 2000, ReturnType = "flow.frame",
-  newName = "MyConcatinatedFile", outpath = StorageLocation, export = FALSE)
+  newName = "MyConcatinatedFile", outpath = StorageLocation,
+   export = FALSE, inverse.transform=TRUE)
 
 }

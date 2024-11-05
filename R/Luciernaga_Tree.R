@@ -87,7 +87,7 @@ Luciernaga_Tree <- function(BrightnessFilePath, PanelPath){
   } else {Panel <- PanelPath}
 
   OriginalPanel <- Panel
-  Panel$Fluorophore <- gsub(" ", "", Panel$Fluorophore)
+  #Panel$Fluorophore <- gsub(" ", "", Panel$Fluorophore)
 
   TheFluorophores <- Panel %>% pull(Fluorophore)
   #TheFluorophores <- TheFluorophores[c(4, 16, 25)]

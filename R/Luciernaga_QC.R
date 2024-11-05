@@ -41,6 +41,8 @@
 #' @param CellAF A passed data.frame row containing the reference for cell unstained.
 #' @param CellMainAF The detector that corresponds to the "main" cell AF.
 #' @param TotalNegatives When setting NegativeType to "artificial" or "sample", how many events to add.
+#' @param inverse.transform Passed to flowWorkspace, if data has been transformed and wish to return to
+#' raw values, set to TRUE.
 #'
 #' @importFrom flowCore keyword
 #' @importFrom stringr str_detect
@@ -111,9 +113,10 @@ Luciernaga_QC <- function(x, subsets, sample.name, removestrings=NULL, Verbose =
                           Subtraction = "Internal", desiredAF=NULL, BeadAF=NULL,
                           BeadMainAF=NULL, CellAF=NULL, CellMainAF=NULL,
                           SignatureReturnNow=FALSE, Increments, LocalMaximaRatio=0.15,
-                          SecondaryPeaks=2, RetainedType="normalized", Brightness=FALSE,
+                          SecondaryPeaks=2, Brightness=FALSE, RetainedType="raw",
                           ExportType, minimalfcscutoff = 0.05, SCData = "subtracted",
-                          NegativeType= "default", TotalNegatives = 500, outpath){
+                          NegativeType= "default", TotalNegatives = 500, outpath,
+                          inverse.transform=FALSE){
 
   ###################
   # Metadata Module #
@@ -162,7 +165,7 @@ Luciernaga_QC <- function(x, subsets, sample.name, removestrings=NULL, Verbose =
   # Exprs Setup #
   ###############
 
-  ff <- gs_pop_get_data(x, subsets)
+  ff <- gs_pop_get_data(x, subsets, inverse.transform=inverse.transform)
   startingcells <- nrow(ff)[[1]]
   DF <- as.data.frame(exprs(ff[[1]]), check.names=FALSE)
 
@@ -560,11 +563,16 @@ LuciernagaSmallReport <- function( x, Data, RetainedType, ColsN,
     StartNormalizedMergedCol, EndNormalizedMergedCol, stats){
 
     if (RetainedType == "raw"){Data <- Data %>% filter(Cluster %in% x) %>%
-      select(all_of(1:ColsN))}
-    if (RetainedType == "normalized"){Data <- Data %>% filter(Cluster %in% x) %>%
-      select(all_of(StartNormalizedMergedCol:EndNormalizedMergedCol))}
-
+      select(all_of(1:ColsN))
     Averaged <- AveragedSignature(Data, stats)
+    }
+    if (RetainedType == "normalized"){
+      # Data <- Data %>% filter(Cluster %in% x) %>%
+      # select(all_of(StartNormalizedMergedCol:EndNormalizedMergedCol))
+      Data <- Data %>% filter(Cluster %in% x) %>%
+        select(all_of(1:ColsN))
+      Averaged <- AveragedSignature(Data, stats, normalize=TRUE)
+      }
     Summary <- cbind(x, Averaged) %>% rename(Cluster = x)
     return(Summary)
 }
@@ -588,6 +596,7 @@ TroubleChannelExclusion <- function(x, TheSCData, MainDetector, AFChannels){
 #'
 #' @param x A data.frame containing double or numeric data.
 #' @param stats Desired Stats "mean" or "median" to pass to summarize_all
+#' @param normalize Default FALSE, TRUE peak detector normalizes.
 #'
 #' @importFrom dplyr summarize_all
 #'
@@ -621,8 +630,20 @@ TroubleChannelExclusion <- function(x, TheSCData, MainDetector, AFChannels){
 #'
 #' Signature <- AveragedSignature(TheDataValues, stats="median")
 #'
-AveragedSignature <- function(x, stats){
+AveragedSignature <- function(x, stats, normalize=FALSE){
+
+  if (normalize == TRUE){
+    x[x < 0] <- 0
+    A <- do.call(pmax, x)
+    x <- x/A
+  }
+
   Signature <- x %>% summarize_all(stats)
+
+  if (normalize == TRUE){
+  Signature <- round(Signature, 3)
+  }
+
   return(Signature)
 }
 

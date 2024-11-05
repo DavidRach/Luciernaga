@@ -199,7 +199,8 @@ SingleSample <- Utility_Downsample(UnmixedGatingSet[1],
                                    sample.name = "GROUPNAME",
                                    removestrings=removestrings,
                                    subsets = "live", subsample = 2500,
-                                   internal = FALSE, export = FALSE)
+                                   internal = FALSE, export = FALSE,
+                                   inverse.transform=TRUE)
 SingleSample
 ```
 
@@ -209,7 +210,7 @@ SingleSample
 MultipleSamples <- map(.x=UnmixedGatingSet, .f=Utility_Downsample,
                        sample.name =  "GROUPNAME", removestrings=removestrings,
                        subsets = "live", subsample = 2500, internal = FALSE,
-                       export = FALSE)
+                       export = FALSE, inverse.transform=TRUE)
 MultipleSamples
 ```
 
@@ -232,7 +233,7 @@ ConcatinatedReturn <- Utility_Concatinate(gs=UnmixedGatingSet,
                                           ReturnType = "flow.frame",
                                           newName = "MyConcatinatedFile",
                                           outpath = StorageLocation,
-                                          export = FALSE)
+                                          export = FALSE, inverse.transform=TRUE)
 
 ConcatinatedReturn
 ```

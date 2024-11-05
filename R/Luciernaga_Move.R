@@ -96,7 +96,7 @@
 Luciernaga_Move <- function(x, data, input, output){
   OriginalX <- x
   x <- gsub("-A", "", x)
-  x <- gsub(" ", "", x)
+  ### x <- gsub(" ", "", x)
 
   Internal <- data %>% dplyr::filter(str_detect(sample, fixed(x, ignore_case = TRUE)))
 

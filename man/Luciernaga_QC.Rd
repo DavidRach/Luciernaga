@@ -29,14 +29,15 @@ Luciernaga_QC(
   Increments,
   LocalMaximaRatio = 0.15,
   SecondaryPeaks = 2,
-  RetainedType = "normalized",
   Brightness = FALSE,
+  RetainedType = "raw",
   ExportType,
   minimalfcscutoff = 0.05,
   SCData = "subtracted",
   NegativeType = "default",
   TotalNegatives = 500,
-  outpath
+  outpath,
+  inverse.transform = FALSE
 )
 }
 \arguments{
@@ -96,9 +97,9 @@ for specified autofluorescence.}
 
 \item{SecondaryPeaks}{Number of Secondary Peaks, default is set to 2.}
 
-\item{RetainedType}{Whether to return "raw" or "normalized" values for lineplots.}
-
 \item{Brightness}{Whether sum of detectors should be returned.}
+
+\item{RetainedType}{Whether to return "raw" or "normalized" values for lineplots.}
 
 \item{ExportType}{Whether to return "fcs", "data"}
 
@@ -112,6 +113,9 @@ for specified autofluorescence.}
 \item{TotalNegatives}{When setting NegativeType to "artificial" or "sample", how many events to add.}
 
 \item{outpath}{Location where created .fcs and .csv files are sent}
+
+\item{inverse.transform}{Passed to flowWorkspace, if data has been transformed and wish to return to
+raw values, set to TRUE.}
 }
 \value{
 Additional information to be added

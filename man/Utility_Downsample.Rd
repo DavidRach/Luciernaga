@@ -86,6 +86,7 @@ Counts_Specimen <- CountData \%>\%
 
 SingleSample <- Utility_Downsample(UnmixedGatingSet[1],
  sample.name = "GROUPNAME", removestrings=removestrings,
- subsets = "live", subsample = 2500, internal = FALSE, export = FALSE)
+ subsets = "live", subsample = 2500, internal = FALSE,
+ export = FALSE, inverse.transform=TRUE)
 
 }

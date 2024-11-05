@@ -84,7 +84,7 @@ IterativeUnmixingInternal <- function(x, sample.name, removestrings, subset, Pan
   SC_Reference <- Luciernaga_SingleColors(x=x, sample.name=sample.name, removestrings=removestrings,
                                           subset=subset, PanelCuts=PanelCuts, stats=stats,
                                           Verbose=Verbose, SignatureView=SignatureView,
-                                          returntype=returntype)
+                                          returntype="data")
 
   NotOverlapped <- controlData %>% anti_join(SC_Reference, by = c("Fluorophore", "Ligand"))
   controlData <- bind_rows(SC_Reference, NotOverlapped)

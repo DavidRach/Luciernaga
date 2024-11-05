@@ -1,4 +1,4 @@
-test_that("Luciernaga_QC returns a dataframe with at least 1 row", {
+test_that("Luciernaga_GroupHeatmap returns a ggplot2 object", {
 
   # Prepare the test
 
@@ -8,12 +8,13 @@ test_that("Luciernaga_QC returns a dataframe with at least 1 row", {
   library(data.table)
   library(dplyr)
   library(purrr)
-  #'
+
   File_Location <- system.file("extdata", package = "Luciernaga")
   FCS_Files <- list.files(path = File_Location, pattern = ".fcs", full.names = TRUE)
-  CellSingleColorFiles <- FCS_Files[grep("Cells", FCS_Files)]
-  CellSingleColors <- CellSingleColorFiles[!str_detect("Unstained", CellSingleColorFiles)]
-  MyCytoSet <- load_cytoset_from_fcs(CellSingleColors[1:3],
+  UnstainedFCSFiles <- FCS_Files[grep("Unstained", FCS_Files)]
+  UnstainedCells <- UnstainedFCSFiles[-grep(
+    "Beads", UnstainedFCSFiles)]
+  MyCytoSet <- load_cytoset_from_fcs(UnstainedCells[c(1,3,5)],
                                      truncate_max_range = FALSE,transformation = FALSE)
   MyGatingSet <- GatingSet(MyCytoSet)
   MyGates <- fread(file.path(path = File_Location, pattern = 'Gates.csv'))
@@ -25,20 +26,21 @@ test_that("Luciernaga_QC returns a dataframe with at least 1 row", {
   pattern = "AutofluorescentOverlaps.csv"
   AFOverlap <- list.files(path=FileLocation, pattern=pattern, full.names = TRUE)
 
-  # Execute the test
-  SingleColor_Data <- map(.x=MyGatingSet[1:3], .f=Luciernaga_QC, subsets="lymphocytes",
-                          removestrings=removestrings, sample.name="GUID",
-                          unmixingcontroltype = "cells", Unstained = FALSE,
+  reports <- map(.x=MyGatingSet[1:3], .f=Luciernaga_QC, subsets="lymphocytes",
+                          removestrings=removestrings, sample.name="GROUPNAME",
+                          unmixingcontroltype = "cells", Unstained = TRUE,
                           ratiopopcutoff = 0.001, Verbose = FALSE, AFOverlap = AFOverlap,
                           stats = "median", ExportType = "data", SignatureReturnNow = FALSE,
                           outpath = TemporaryFolder, Increments=0.1, SecondaryPeaks=2,
-                          experiment = "FirstExperiment", condition = "ILTPanel",
-                          Subtraction = "Internal", CellAF=TheCellAF, SCData="subtracted",
-                          NegativeType="default", RetainedType="normalized") %>% bind_rows()
+                          experiment = "Lymphocytes", condition = "Ctrl",
+                          Subtraction = "Internal", SCData="subtracted",
+                          NegativeType="default")
+
+  # Execute the test
+
+  plot <- Luciernaga_GroupHeatmap(reports=reports, nameColumn="Sample", cutoff=0.02, returntype = "plot")
+
 
   # Did it return a data.frame
-  expect_s3_class(SingleColor_Data, "data.frame")
-
-  # Is it more than 1 row
-  expect_gt(nrow(SingleColor_Data), 0)
+  expect_true(inherits(plot, "gg"))
 })

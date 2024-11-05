@@ -203,6 +203,11 @@ Luciernaga_Plots <- function(data, RetainedType, CellPopRatio, outfolder, filena
 #' @importFrom ggplot2 geom_text
 #' @importFrom stats as.dist
 #' @importFrom stats hclust
+#' @importFrom ggplot2 aes
+#' @importFrom ggplot2 theme_bw
+#' @importFrom ggplot2 theme
+#' @importFrom ggplot2 element_blank
+#' @importFrom ggplot2 element_text
 #'
 #' @return An internal value
 #'
