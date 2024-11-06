@@ -13,6 +13,8 @@
 #' @param therows The number of rows per page
 #' @param width Desired page width
 #' @param height Desired page height
+#' @param strict Default FALSE, when TRUE, parameters must be exact match for MeasurementType
+#' rather than simply containing those character strings.
 #'
 #' @importFrom dplyr select
 #' @importFrom tidyselect contains
@@ -47,8 +49,9 @@
 #'                          FailedFlag = TRUE, returntype="patchwork",
 #'                          path=StorageLocation, filename="CytekAurora5L_QC")
 
-QC_Plots <- function(x, FailedFlag, MeasurementType=NULL, Metadata = NULL, plotType = "individual",
-                     returntype, path, filename, thecolumns=1, therows=3, width=7, height=9){
+QC_Plots <- function(x, FailedFlag, MeasurementType=NULL, Metadata = NULL,
+                     plotType = "individual", returntype, path, filename,
+                     thecolumns=1, therows=3, width=7, height=9, strict=FALSE){
 
   # Select or Create DateTime
   if (any(str_detect(colnames(x), "DateTime"))){
@@ -65,6 +68,10 @@ QC_Plots <- function(x, FailedFlag, MeasurementType=NULL, Metadata = NULL, plotT
   # Select Optional Columns
   if (!is.null(MeasurementType)){
   x <- x %>% select(contains(MeasurementType))
+  }
+
+  if (strict == TRUE){
+    x <- x %>% select(all_of(MeasurementType))
   }
 
   # Remove Any Retained Character Columns

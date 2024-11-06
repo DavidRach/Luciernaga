@@ -87,12 +87,12 @@ IterativeUnmixingInternal <- function(x, sample.name, removestrings, subset, Pan
                                           returntype="data")
 
   NotOverlapped <- controlData %>% anti_join(SC_Reference, by = c("Fluorophore", "Ligand"))
-  controlData <- bind_rows(SC_Reference, NotOverlapped)
+  controlData1 <- bind_rows(SC_Reference, NotOverlapped)
 
   AddOn <- pData(x)$NewName
   TheAddOn <- paste0("_", AddOn, "_Unmixed")
 
-  UnmixSuccess <- map(.x=FullStainedGS, .f=Luciernaga_Unmix, controlData=controlData, sample.name=TheSampleName,
+  UnmixSuccess <- map(.x=FullStainedGS, .f=Luciernaga_Unmix, controlData=controlData1, sample.name=TheSampleName,
                       addon=TheAddOn, subset=subset, removestrings=removestrings, multiplier=multiplier,
-                      outpath=UnmixedOutpath, PanelPath=PanelPath, Verbose=FALSE)
+                      outpath=outpath, PanelPath=PanelPath, Verbose=FALSE)
 }

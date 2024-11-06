@@ -16,7 +16,8 @@ QC_Plots(
   thecolumns = 1,
   therows = 3,
   width = 7,
-  height = 9
+  height = 9,
+  strict = FALSE
 )
 }
 \arguments{
@@ -44,6 +45,9 @@ from the column names for plotting}
 \item{width}{Desired page width}
 
 \item{height}{Desired page height}
+
+\item{strict}{Default FALSE, when TRUE, parameters must be exact match for MeasurementType
+rather than simply containing those character strings.}
 }
 \value{
 The pdf and/the plots.
