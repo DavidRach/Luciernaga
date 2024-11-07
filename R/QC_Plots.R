@@ -70,17 +70,25 @@ QC_Plots <- function(x, FailedFlag, MeasurementType=NULL, Metadata = NULL,
   x <- x %>% select(contains(MeasurementType))
   }
 
-  if (strict == TRUE){
-    x <- x %>% select(all_of(MeasurementType))
-  }
+  x <- x %>%
+    mutate(across(starts_with("Flag"), ~ as.logical(.)))
 
   # Remove Any Retained Character Columns
   x <- x %>% select(where( ~ !is.character(.)))
 
-  # Select Flag columns (alternate would be contains)
+  if (strict == TRUE){
+    Regular <- x %>% select(all_of(MeasurementType))
+    EquivalentFlags <- paste0("Flag-", colnames(Regular))
+    if (!plotType == "comparison"){
+    Flagged <- x %>% select(all_of(EquivalentFlags))
+    ReorderedData <- cbind(Regular, Flagged)
+    } else {ReorderedData <- Regular}
+  } else{
   Regular <- x %>% select(-starts_with("Flag"))
   Flagged <- x %>% select(starts_with("Flag"))
   ReorderedData <- cbind(Regular, Flagged)
+  }
+
   FlaggedStart <- length(Regular)+1
   FlaggedEnd <- length(ReorderedData)
   RegularStop <- length(Regular)
@@ -89,6 +97,7 @@ QC_Plots <- function(x, FailedFlag, MeasurementType=NULL, Metadata = NULL,
   #Reassemble the data.frame
   TheData <- cbind(TheDateTime, ReorderedData)
 
+  # x <- DFNames[1]
   Plots <- map(.x=DFNames, .f = LevyJennings, FailedFlag = FailedFlag, xValue="DateTime",
                TheData=TheData, Metadata=Metadata, plotType=plotType)
 

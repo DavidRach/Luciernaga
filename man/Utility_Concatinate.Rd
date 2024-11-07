@@ -15,7 +15,9 @@ Utility_Concatinate(
   outpath = NULL,
   export = FALSE,
   inverse.transform,
-  metadataCols = NULL
+  metadataCols = NULL,
+  Override = FALSE,
+  DataOverride = NULL
 )
 }
 \arguments{
