@@ -17,7 +17,8 @@ QC_Plots(
   therows = 3,
   width = 7,
   height = 9,
-  strict = FALSE
+  strict = FALSE,
+  YAxisLabel = NULL
 )
 }
 \arguments{
@@ -48,6 +49,8 @@ from the column names for plotting}
 
 \item{strict}{Default FALSE, when TRUE, parameters must be exact match for MeasurementType
 rather than simply containing those character strings.}
+
+\item{YAxisLabel}{Character string for the y-axis label.}
 }
 \value{
 The pdf and/the plots.

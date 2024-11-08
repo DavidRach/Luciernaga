@@ -15,6 +15,7 @@
 #' @param height Desired page height
 #' @param strict Default FALSE, when TRUE, parameters must be exact match for MeasurementType
 #' rather than simply containing those character strings.
+#' @param YAxisLabel Character string for the y-axis label.
 #'
 #' @importFrom dplyr select
 #' @importFrom tidyselect contains
@@ -51,7 +52,8 @@
 
 QC_Plots <- function(x, FailedFlag, MeasurementType=NULL, Metadata = NULL,
                      plotType = "individual", returntype, path, filename,
-                     thecolumns=1, therows=3, width=7, height=9, strict=FALSE){
+                     thecolumns=1, therows=3, width=7, height=9, strict=FALSE,
+                     YAxisLabel=NULL){
 
   # Select or Create DateTime
   if (any(str_detect(colnames(x), "DateTime"))){
@@ -99,7 +101,7 @@ QC_Plots <- function(x, FailedFlag, MeasurementType=NULL, Metadata = NULL,
 
   # x <- DFNames[1]
   Plots <- map(.x=DFNames, .f = LevyJennings, FailedFlag = FailedFlag, xValue="DateTime",
-               TheData=TheData, Metadata=Metadata, plotType=plotType)
+               TheData=TheData, Metadata=Metadata, plotType=plotType, YAxisLabel=YAxisLabel)
 
   if (returntype == "pdf"){
     if(is.null(path)){path <- getwd()}
@@ -143,7 +145,7 @@ QC_Plots <- function(x, FailedFlag, MeasurementType=NULL, Metadata = NULL,
 #' @return The pdf and/the plots.
 #'
 #' @noRd
-LevyJennings <- function(x, FailedFlag, xValue, TheData, Metadata, plotType){
+LevyJennings <- function(x, FailedFlag, xValue, TheData, Metadata, plotType, YAxisLabel){
   yValue <- x
 
   # Select Equivalent Flag Column
@@ -199,12 +201,12 @@ LevyJennings <- function(x, FailedFlag, xValue, TheData, Metadata, plotType){
         shape = .data[[FlagColumn]], size = .data[[FlagColumn]],
         fill = .data[[FlagColumn]])) + scale_shape_manual(values = shape_qc) +
         scale_fill_manual(values = fill_qc) + scale_size_manual(values = size_qc) +
-        labs(title = yValue, x = NULL, y = "Values") + theme_bw() +
+        labs(title = yValue, x = NULL, y = YAxisLabel) + theme_bw() +
         theme(legend.position = "none")
 
     } else {Plot <- ggplot(TheData, aes(x=.data[[xValue]], y = .data[[yValue]],
             color = mycolor)) + geom_line(color = mycolor) + geom_point(
-            color = mycolor) + labs(title = yValue, x = NULL, y = "Values") +
+            color = mycolor) + labs(title = yValue, x = NULL, y = YAxisLabel) +
             theme_bw() + theme(legend.position = "none")
     }
   }
@@ -216,7 +218,7 @@ LevyJennings <- function(x, FailedFlag, xValue, TheData, Metadata, plotType){
     Plot <- ggplot(TheData, aes(x=.data[[xValue]], y = .data[[yValue]], group = .data[[Metadata]],
       color=.data[[Metadata]])) + geom_line(aes(color = .data[[Metadata]])) +
       geom_point(aes(color = .data[[Metadata]])) + scale_color_manual(values = VariantColor) +
-      labs(title = yValue, x = NULL, y = "Values") + theme(legend.position = "none") + theme_bw()
+      labs(title = yValue, x = NULL, y = YAxisLabel) + theme(legend.position = "none") + theme_bw()
   }
 
   return(Plot)
