@@ -337,3 +337,63 @@ ColorCodeStatus <- function(x, y){
   QCResults <- data.frame(Instrument = x, QCStatus=ColorCode)
   return(QCResults)
 }
+
+#' Dashboard Internal, returns designated hex color.
+#'
+#' @param x The instrument designation
+#' @param data The QC status data.frame
+#'
+#' @importFrom dplyr filter
+#' @importFrom dplyr pull
+#'
+#' @return A hex code to fill with
+#' @noRd
+ColorCode <- function(x, data){
+  Color <- data %>% dplyr::filter(Instrument %in% x) %>%
+    pull(QCStatus)
+
+  Hex <- "#FFFFFF"
+
+  if (Color == "Red"){Hex <- "#C80815"}
+  if (Color == "Orange"){Hex <- "#FF6E00"}
+  if (Color == "Green"){Hex <- "#0B6623"}
+  return(Hex)
+}
+
+#' Dashboard Internal, returns gt table
+#'
+#' @param data The QC color status returns
+#'
+#' @importFrom gt gt
+#' @importFrom gt data_color
+#' @importFrom scales col_factor
+#' @importFrom gt sub_values
+#' @importFrom gt opt_table_font
+#' @importFrom gt cols_align
+#' @noRd
+SmallTable <- function(data){
+  table <- data %>%
+    gt() %>%
+    data_color(
+      columns = c(Gain, rCV),
+      colors = scales::col_factor(
+        palette = c("Green" = "#0B6623",
+                    "Orange" = "#FF6E00",
+                    "Red" = "#C80815"),
+        domain = c("Green", "Orange", "Red")
+      )
+    )
+
+  Substituted <- table  |>
+    sub_values(values= c("Green"), replacement = "Pass") |>
+    sub_values(values= c("Orange"), replacement = "Caution") |>
+    sub_values(values= c("Red"), replacement = "Failing")
+
+  Bolded <- Substituted |>
+    opt_table_font(font = "Montserrat") |>
+    cols_align(align = "center")
+
+  Final <- Bolded
+
+  return(Final)
+}
