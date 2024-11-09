@@ -232,6 +232,7 @@ ScalePriority <- function(colors){
 #'
 #' @importFrom dplyr filter
 #' @importFrom dplyr select
+#' @importFrom lubridate weeks
 #' @importFrom tidyselect starts_with
 #' @importFrom tidyselect contains
 #' @importFrom tidyselect all_of
@@ -326,8 +327,7 @@ QCSummaryCheck <- function(x, data){
 #' @return Global Passing Status
 #' @noRd
 ColorCodeStatus <- function(x, y){
-  #x <- x[[1]]
-  data <- y[[1]]
+  data <- y
   if (any(data$Gain == "Red") || any(data$rCV == "Red")) {
     ColorCode <- "Red"
   } else if (any(data$Gain == "Orange") || any(data$rCV == "Orange")) {
