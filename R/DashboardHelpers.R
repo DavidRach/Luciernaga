@@ -1,0 +1,339 @@
+#' Dashboard Internal, updates instrument tracking CSV
+#'
+#' @param MainFolder The file.path to the Main Folder
+#' @param x The Cytometer Folder Name
+#' @param Maintainer Logical override for when number of columns don't match
+#'
+#' @importFrom dplyr mutate
+#' @importFrom dplyr across
+#' @importFrom tidyselect starts_with
+#' @importFrom utils read.csv
+#' @importFrom lubridate ymd_hms
+#' @importFrom generics setdiff
+#' @importFrom utils write.csv
+#'
+#' @return Updated tracking data CSV in the Archive Folder
+#' @noRd
+LevyJenningsParse <- function(MainFolder, x, Maintainer=FALSE){
+
+  Folder <- file.path(MainFolder, x)
+  LJTrackingFiles <- list.files(Folder, pattern="LJ",
+                                full.names = TRUE)
+
+  if (!length(LJTrackingFiles)==0){
+
+    if (length(LJTrackingFiles)==1){
+
+      Parsed <- QC_FilePrep(x=LJTrackingFiles, TrackChange=FALSE)
+      Parsed <- Parsed %>% mutate(across(starts_with("Flag"), ~ as.logical(.)))
+
+    } else {stop("Two csv files in the folder found!")}
+
+    TheArchive <- file.path(Folder, "Archive")
+    ArchivedDataFile <- list.files(TheArchive, pattern="Archived",
+                                   full.names = TRUE)
+
+    if (!length(ArchivedDataFile)==0){
+
+      if(length(ArchivedDataFile)==1){
+        ArchivedData <- read.csv(ArchivedDataFile, check.names=FALSE)
+      } else {message("Two csv files in the folder found!")}
+
+      # Troubleshooting
+      if (!ncol(ArchivedData) == ncol(Parsed)){
+
+        if (Maintainer==TRUE){
+          TheseColumns <- setdiff(colnames(Parsed), colnames(ArchivedData))
+
+          for (col in TheseColumns) {
+            ArchivedData[[col]] <- NA
+          }
+
+          if (!ncol(ArchivedData) == ncol(Parsed)){stop("Still no rescue")}
+
+        } else {
+          stop("The number of columns for the new data don't match
+       that of the archived data. Please make sure to
+       export the Levy-Jennings trackings with all available
+       parameters")
+        }
+      }
+
+      ArchivedData$DateTime <- ymd_hms(ArchivedData$DateTime)
+      ArchivedData <- ArchivedData %>% mutate(across(starts_with("Flag"), ~ as.logical(.)))
+      NewData <- generics::setdiff(Parsed, ArchivedData)
+      UpdatedData <- rbind(NewData, ArchivedData)
+
+      file.remove(ArchivedDataFile)
+
+    } else {UpdatedData <- Parsed}
+
+    file.remove(LJTrackingFiles)
+
+    name <- paste0("ArchivedData", x, ".csv")
+    StorageLocation <- file.path(TheArchive, name)
+    write.csv(UpdatedData, StorageLocation, row.names=FALSE)
+  } else {message("No LevyJennings files to update with in ", x)}
+
+}
+
+#' Dashboard Internal, updates MFI tracking CSV
+#'
+#' @param x The cytometer folder name
+#' @param MainFolder The file.path to main folder
+#'
+#' @importFrom flowWorkspace load_cytoset_from_fcs
+#' @importFrom purrr map
+#' @importFrom dplyr bind_rows
+#' @importFrom dplyr mutate
+#' @importFrom dplyr relocate
+#' @importFrom utils read.csv
+#' @importFrom lubridate ymd_hms
+#' @importFrom lubridate ymd
+#' @importFrom lubridate hms
+#' @importFrom dplyr arrange
+#' @importFrom dplyr desc
+#' @importFrom generics setdiff
+#' @importFrom utils write.csv
+#'
+#' @return Updated MFI tracking CSV
+#' @noRd
+QCBeadParse <- function(x, MainFolder){
+  Folder <- file.path(MainFolder, x)
+  FCS_Files <- list.files(Folder, pattern="fcs", full.names=TRUE)
+
+  if(!length(FCS_Files) == 0){
+
+    QCBeads <- FCS_Files[grep("Before|After", FCS_Files)]
+    BeforeAfter_CS <- load_cytoset_from_fcs(files=QCBeads,
+                                            transformation=FALSE, truncate_max_range = FALSE)
+
+    BeforeAfter <- map(.x=BeforeAfter_CS, .f=QC_GainMonitoring,
+                       sample.name = "TUBENAME", stats="median") %>% bind_rows()
+
+    BeforeAfter <- BeforeAfter %>% mutate(DateTime = DATE+TIME) %>%
+      relocate(DateTime, .before=DATE)
+
+    ArchiveFolder <- file.path(Folder, "Archive")
+    ArchiveCSV <- list.files(ArchiveFolder, pattern="Bead", full.names=TRUE)
+
+    if (length(ArchiveCSV) == 1){
+      ArchiveData <- read.csv(ArchiveCSV, check.names=FALSE)
+      ArchiveData$DateTime <- ymd_hms(ArchiveData$DateTime)
+      ArchiveData$DATE <- ymd(ArchiveData$DATE)
+      ArchiveData$TIME <- hms(ArchiveData$TIME)
+      Export <- ArchiveData %>% arrange(desc(DateTime))
+      #write.csv(Export, "BeadData5L.csv", row.names=FALSE)
+
+      if (ncol(BeforeAfter) == ncol(ArchiveData)){
+        NewData <- generics::setdiff(BeforeAfter, ArchiveData)
+        AssembledData <- rbind(NewData, ArchiveData)
+        Export <- AssembledData %>% arrange(desc(DateTime))
+
+        file.remove(ArchiveCSV)
+
+        name <- paste0("BeadData", x, ".csv")
+        StorageLocation <- file.path(ArchiveFolder, name)
+
+        write.csv(Export, StorageLocation, row.names=FALSE)
+
+        file.remove(FCS_Files)
+
+      } else {
+        stop("The number of columns for the new data don't match
+       that of the archived data. Please reach out")
+      }
+    } else {stop("Two BeadData csv files in the archive folder!")}
+
+
+  } else {message("No fcs files to update with in ", x)}
+
+}
+
+#' Dashboard Internal, loads updated data
+#'
+#' @param x The Cytometer Folder Name
+#' @param MainFolder The file.path to the main folder
+#' @param type Whether to return "MFI" or "Gain" plots
+#'
+#' @importFrom utils read.csv
+#' @importFrom lubridate ymd_hms
+#' @importFrom lubridate ymd
+#' @importFrom lubridate hms
+#' @importFrom stringr str_detect
+#' @importFrom lubridate mdy_hm
+#' @importFrom dplyr arrange
+#' @importFrom dplyr desc
+#'
+#' @return Updated Tracking Data CSV for specified type
+#' @noRd
+CurrentData <- function(x, MainFolder, type){
+  ArchiveLocation <- file.path(MainFolder, x, "Archive")
+
+  if (type == "MFI"){
+    BeadData <- list.files(ArchiveLocation, pattern="Bead",
+                           full.names=TRUE)
+    Data <- read.csv(BeadData, check.names=FALSE)
+    Data$DateTime <- lubridate::ymd_hms(Data$DateTime)
+    Data$DATE <- lubridate::ymd(Data$DATE)
+    Data$TIME <- lubridate::hms(Data$TIME)
+  }
+
+  if (type == "Gain"){
+    ArchiveData <- list.files(ArchiveLocation, pattern="Archived",
+                              full.names=TRUE)
+    Data <- read.csv(ArchiveData, check.names=FALSE)
+    #lubridate::ymd_hms(Data$DateTime)
+
+    if (any(str_detect(Data$DateTime, ":.*:"))){
+      Data$DateTime <- lubridate::ymd_hms(Data$DateTime)
+    } else {Data$DateTime <- lubridate::mdy_hm(Data$DateTime)}
+  }
+
+  Data <- Data %>% arrange(desc(DateTime))
+  return(Data)
+}
+
+#' Dashboard Internal, rearranges vector by color
+#'
+#' @param colors A vector of cytometer parameters to be rearranged
+#'
+#' @return Reordered vector according to light wavelength
+#' @noRd
+ColorPriority <- function(colors){
+  Ordered <- colors[order(grepl("^Ultra", colors) * -1,
+                          grepl("^UV", colors) * -1,
+                          grepl("^Violet", colors) * -1,
+                          grepl("^Blue", colors) * -1,
+                          grepl("^Yellow", colors) * -1,
+                          grepl("^Red", colors) * -1)]
+  return(Ordered)
+}
+
+#' Dashboard Internal, rearranges vector by scatter parameter
+#'
+#' @param colors A vector of scatter parameters to be rearranged
+#'
+#' @return Rearranged vector of scatter parameters
+#' @noRd
+ScalePriority <- function(colors){
+  Ordered <- colors[order(grepl("^FSC", colors) * -1,
+                          grepl("^SSC", colors) * -1,
+                          grepl("-A", colors) * -1,
+                          grepl("-H", colors) * -1,
+                          grepl("-W", colors) * -1)]
+  return(Ordered)
+}
+
+
+#' Dashboard Internal, processes to did parameter pass in past week
+#'
+#' @param x The data.frame output from LevyJennings or QCBeads Parse
+#'
+#' @importFrom dplyr filter
+#' @importFrom dplyr select
+#' @importFrom tidyselect starts_with
+#' @importFrom tidyselect contains
+#' @importFrom tidyselect all_of
+#' @importFrom tidyr pivot_longer
+#' @importFrom dplyr left_join
+#' @importFrom dplyr pull
+#' @importFrom purrr map
+#' @importFrom dplyr bind_rows
+#'
+#' @return Data frame of passing status for respective parameters
+#' @noRd
+VisualQCSummary <- function(x){
+  WindowOfInterest <- Sys.time() - weeks(1)
+
+  #x <- x[[1]]
+  Data <- x %>% filter(DateTime > WindowOfInterest)
+  Flags <- Data %>% select(starts_with("Flag"))
+  colnames(Flags) <- gsub("Flag-", "", colnames(Flags))
+  Gains <- Flags %>% select(contains("Gain"))
+  TheGains <- colnames(Gains)
+  rCV <- Flags %>% select(contains("rCV"))
+  TherCV <- colnames(rCV)
+
+  TheGainData <- Data %>% select(all_of(c("DateTime", TheGains)))
+  colnames(Gains) <- gsub("-Gain", "", fixed=TRUE, colnames(Gains))
+  colnames(TheGainData) <- gsub("-Gain", "", fixed=TRUE, colnames(TheGainData))
+
+  TheGainData <- TheGainData %>%
+    pivot_longer(!DateTime, names_to = "Detector", values_to = "Gain")
+
+  Gains <- Gains %>% mutate(DateTime=Data$DateTime) %>% relocate(DateTime, .before=1)
+
+  Gains <- Gains %>%
+    pivot_longer(!DateTime, names_to = "Detector", values_to = "Gain_Logical")
+
+  TherCVData <- Data %>% select(all_of(c("DateTime", TherCV)))
+  colnames(rCV) <- gsub("-% rCV", "", fixed=TRUE, colnames(rCV))
+  colnames(TherCVData) <- gsub("-% rCV", "", fixed=TRUE, colnames(TherCVData))
+
+  TherCVData <- TherCVData %>% pivot_longer(!DateTime, names_to = "Detector", values_to = "rCV")
+
+  rCV <- rCV %>% mutate(DateTime=Data$DateTime) %>% relocate(DateTime, .before=1)
+
+  rCV <- rCV %>% pivot_longer(!DateTime, names_to = "Detector", values_to = "rCV_Logical")
+
+  Tidy <- TheGainData %>%
+    left_join(Gains, by = c("Detector", "DateTime")) %>%
+    left_join(TherCVData, by = c("Detector", "DateTime")) %>%
+    left_join(rCV, by = c("Detector", "DateTime"))
+
+  TheDetectors <- Tidy %>% pull(Detector) %>% unique()
+
+  Summary <- map(.x=TheDetectors, .f=QCSummaryCheck, data=Tidy) %>% bind_rows()
+  return(Summary)
+}
+
+#' Dashboard Internal, summarizes passing status
+#'
+#' @param x The iterated parameter
+#' @param data The data being compared against
+#'
+#' @importFrom dplyr filter
+#' @importFrom dplyr slice
+#' @importFrom dplyr pull
+#'
+#' @return The color-coded summary
+#' @noRd
+QCSummaryCheck <- function(x, data){
+  Subset <- data %>% dplyr::filter(Detector %in% x)
+
+  if (any(Subset$Gain_Logical == TRUE)){
+    Followup <- Subset %>% slice(1) %>% pull(Gain_Logical)
+    if (Followup == TRUE){GainValue <- "Red"
+    } else {GainValue <- "Orange"}
+  } else {GainValue <- "Green"}
+
+  if (any(Subset$rCV_Logical == TRUE)){
+    Followup <- Subset %>% slice(1) %>% pull(rCV_Logical)
+    if (Followup == TRUE){rCVValue <- "Red"
+    } else {rCVValue <- "Orange"}
+  } else {rCVValue <- "Green"}
+
+  Summary <- data.frame(Detector=x, Gain=GainValue, rCV=rCVValue)
+  return(Summary)
+}
+
+#' Dashboard Internal, holistic passing summary
+#'
+#' @param x The Instrument Name
+#' @param y The Instrument Data
+#'
+#' @return Global Passing Status
+#' @noRd
+ColorCodeStatus <- function(x, y){
+  #x <- x[[1]]
+  data <- y[[1]]
+  if (any(data$Gain == "Red") || any(data$rCV == "Red")) {
+    ColorCode <- "Red"
+  } else if (any(data$Gain == "Orange") || any(data$rCV == "Orange")) {
+    ColorCode <- "Orange"
+  } else {ColorCode <- "Green"}
+
+  QCResults <- data.frame(Instrument = x, QCStatus=ColorCode)
+  return(QCResults)
+}
