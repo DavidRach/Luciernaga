@@ -18,7 +18,8 @@ QC_Plots(
   width = 7,
   height = 9,
   strict = FALSE,
-  YAxisLabel = NULL
+  YAxisLabel = NULL,
+  RepairVisits = NULL
 )
 }
 \arguments{
@@ -51,6 +52,8 @@ from the column names for plotting}
 rather than simply containing those character strings.}
 
 \item{YAxisLabel}{Character string for the y-axis label.}
+
+\item{RepairVisits}{Passed data.frame of engineer visits for vertical lines, default NULL.}
 }
 \value{
 The pdf and/the plots.

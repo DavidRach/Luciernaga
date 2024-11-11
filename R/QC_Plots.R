@@ -16,6 +16,7 @@
 #' @param strict Default FALSE, when TRUE, parameters must be exact match for MeasurementType
 #' rather than simply containing those character strings.
 #' @param YAxisLabel Character string for the y-axis label.
+#' @param RepairVisits Passed data.frame of engineer visits for vertical lines, default NULL.
 #'
 #' @importFrom dplyr select
 #' @importFrom tidyselect contains
@@ -53,7 +54,7 @@
 QC_Plots <- function(x, FailedFlag, MeasurementType=NULL, Metadata = NULL,
                      plotType = "individual", returntype, path, filename,
                      thecolumns=1, therows=3, width=7, height=9, strict=FALSE,
-                     YAxisLabel=NULL){
+                     YAxisLabel=NULL, RepairVisits = NULL){
 
   # Select or Create DateTime
   if (any(str_detect(colnames(x), "DateTime"))){
@@ -66,6 +67,19 @@ QC_Plots <- function(x, FailedFlag, MeasurementType=NULL, Metadata = NULL,
   # Select Date Time and Optional Metadata
   if(!is.null(Metadata)){TheDateTime <- TheDateTime %>% select(DateTime, contains(Metadata))
   } else {TheDateTime <- TheDateTime %>% select(DateTime)}
+
+  if(!is.null(RepairVisits)){
+    if (!is.data.frame(RepairVisits)){Visit <- read.csv(RepairVisits, check.names=FALSE)
+    } else {Visit <- RepairVisits}
+
+    Earliest <- TheDateTime %>% arrange(DateTime) %>% slice(1) %>% pull(DateTime)
+    Earliest <- Earliest - days(1)
+    Earliest
+
+    RepairVisits$date <- lubridate::mdy(RepairVisits$date)
+    TimeWindow <- RepairVisits %>% filter(date > Earliest)
+    TheEngineerVisits <- TimeWindow %>% pull(date)
+  }
 
   # Select Optional Columns
   if (!is.null(MeasurementType)){
@@ -99,9 +113,24 @@ QC_Plots <- function(x, FailedFlag, MeasurementType=NULL, Metadata = NULL,
   #Reassemble the data.frame
   TheData <- cbind(TheDateTime, ReorderedData)
 
-  # x <- DFNames[1]
+  if(!is.null(RepairVisits)){
   Plots <- map(.x=DFNames, .f = LevyJennings, FailedFlag = FailedFlag, xValue="DateTime",
-               TheData=TheData, Metadata=Metadata, plotType=plotType, YAxisLabel=YAxisLabel)
+               TheData=TheData, Metadata=Metadata, plotType=plotType, YAxisLabel=YAxisLabel,
+               EngineerVisits=NULL)
+  } else {
+
+    if (length(TheEngineerVisits) > 0){
+      Plots <- map(.x=DFNames, .f = LevyJennings, FailedFlag = FailedFlag, xValue="DateTime",
+                   TheData=TheData, Metadata=Metadata, plotType=plotType, YAxisLabel=YAxisLabel,
+                   EngineerVisits=TheEngineerVisits)
+
+    } else {
+
+      Plots <- map(.x=DFNames, .f = LevyJennings, FailedFlag = FailedFlag, xValue="DateTime",
+                   TheData=TheData, Metadata=Metadata, plotType=plotType, YAxisLabel=YAxisLabel,
+                   EngineerVisits=NULL)
+    }
+  }
 
   if (returntype == "pdf"){
     if(is.null(path)){path <- getwd()}
@@ -130,6 +159,7 @@ QC_Plots <- function(x, FailedFlag, MeasurementType=NULL, Metadata = NULL,
 #' @param TheData The passed data.frame from which to retrieve data
 #' @param Metadata The optional column name to be used for "comparison"
 #' @param plotType Whether to look "individual" or "comparison"
+#' @param EngineerVisits Passed data.frame of engineer visits for vertical lines, default NULL.
 #'
 #' @importFrom dplyr select
 #' @importFrom tidyr starts_with
@@ -145,7 +175,7 @@ QC_Plots <- function(x, FailedFlag, MeasurementType=NULL, Metadata = NULL,
 #' @return The pdf and/the plots.
 #'
 #' @noRd
-LevyJennings <- function(x, FailedFlag, xValue, TheData, Metadata, plotType, YAxisLabel){
+LevyJennings <- function(x, FailedFlag, xValue, TheData, Metadata, plotType, YAxisLabel, EngineerVisits=NULL){
   yValue <- x
 
   # Select Equivalent Flag Column
@@ -219,6 +249,11 @@ LevyJennings <- function(x, FailedFlag, xValue, TheData, Metadata, plotType, YAx
       color=.data[[Metadata]])) + geom_line(aes(color = .data[[Metadata]])) +
       geom_point(aes(color = .data[[Metadata]])) + scale_color_manual(values = VariantColor) +
       labs(title = yValue, x = NULL, y = YAxisLabel) + theme(legend.position = "none") + theme_bw()
+  }
+
+  if (!is.null(EngineerVisits)){
+    Plot <- Plot +
+      geom_vline(xintercept = as.numeric(EngineerVisits), color = "red", linetype = "dashed")
   }
 
   return(Plot)
