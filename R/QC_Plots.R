@@ -30,6 +30,12 @@
 #' @importFrom purrr map
 #' @importFrom patchwork wrap_plots
 #' @importFrom ggplot2 ggplot
+#' @importFrom lubridate days
+#' @importFrom utils read.csv
+#' @importFrom lubridate mdy
+#' @importFrom dplyr pull
+#' @importFrom dplyr slice
+#' @importFrom dplyr arrange
 #'
 #' @return The pdf and/the plots.
 #' @export
@@ -76,10 +82,10 @@ QC_Plots <- function(x, FailedFlag, MeasurementType=NULL, Metadata = NULL,
     Earliest <- Earliest - days(1)
     Earliest
 
-    RepairVisits$date <- lubridate::mdy(RepairVisits$date)
-    TimeWindow <- RepairVisits %>% filter(date > Earliest)
+    Visit$date <- lubridate::mdy(Visit$date)
+    TimeWindow <- Visit %>% filter(date > Earliest)
     TheEngineerVisits <- TimeWindow %>% pull(date)
-  }
+  } else {TheEngineerVisits <- NULL}
 
   # Select Optional Columns
   if (!is.null(MeasurementType)){
@@ -113,24 +119,20 @@ QC_Plots <- function(x, FailedFlag, MeasurementType=NULL, Metadata = NULL,
   #Reassemble the data.frame
   TheData <- cbind(TheDateTime, ReorderedData)
 
-  if(!is.null(RepairVisits)){
-  Plots <- map(.x=DFNames, .f = LevyJennings, FailedFlag = FailedFlag, xValue="DateTime",
-               TheData=TheData, Metadata=Metadata, plotType=plotType, YAxisLabel=YAxisLabel,
-               EngineerVisits=NULL)
+  if (is.null(TheEngineerVisits)) {
+    Plots <- map(.x=DFNames, .f = LevyJennings, FailedFlag = FailedFlag, xValue="DateTime",
+                 TheData=TheData, Metadata=Metadata, plotType=plotType, YAxisLabel=YAxisLabel,
+                 EngineerVisits=NULL)
+  } else if (length(TheEngineerVisits) > 0){
+    Plots <- map(.x=DFNames, .f = LevyJennings, FailedFlag = FailedFlag, xValue="DateTime",
+                 TheData=TheData, Metadata=Metadata, plotType=plotType, YAxisLabel=YAxisLabel,
+                 EngineerVisits=TheEngineerVisits)
   } else {
-
-    if (length(TheEngineerVisits) > 0){
-      Plots <- map(.x=DFNames, .f = LevyJennings, FailedFlag = FailedFlag, xValue="DateTime",
-                   TheData=TheData, Metadata=Metadata, plotType=plotType, YAxisLabel=YAxisLabel,
-                   EngineerVisits=TheEngineerVisits)
-
-    } else {
-
-      Plots <- map(.x=DFNames, .f = LevyJennings, FailedFlag = FailedFlag, xValue="DateTime",
-                   TheData=TheData, Metadata=Metadata, plotType=plotType, YAxisLabel=YAxisLabel,
-                   EngineerVisits=NULL)
-    }
+    Plots <- map(.x=DFNames, .f = LevyJennings, FailedFlag = FailedFlag, xValue="DateTime",
+                       TheData=TheData, Metadata=Metadata, plotType=plotType, YAxisLabel=YAxisLabel,
+                       EngineerVisits=NULL)
   }
+
 
   if (returntype == "pdf"){
     if(is.null(path)){path <- getwd()}
@@ -166,16 +168,25 @@ QC_Plots <- function(x, FailedFlag, MeasurementType=NULL, Metadata = NULL,
 #' @importFrom stringr str_detect
 #' @importFrom patchwork wrap_plots
 #' @importFrom ggplot2 ggplot
+#' @importFrom ggplot2 aes
+#' @importFrom ggplot2 geom_line
+#' @importFrom ggplot2 geom_point
+#' @importFrom ggplot2 theme
+#' @importFrom ggplot2 labs
+#' @importFrom ggplot2 theme_bw
 #' @importFrom lubridate ymd_hms
 #' @importFrom ggplot2 scale_color_manual
 #' @importFrom ggplot2 scale_fill_manual
 #' @importFrom ggplot2 scale_shape_manual
 #' @importFrom ggplot2 scale_size_manual
+#' @importFrom ggplot2 geom_vline
 #'
 #' @return The pdf and/the plots.
 #'
 #' @noRd
-LevyJennings <- function(x, FailedFlag, xValue, TheData, Metadata, plotType, YAxisLabel, EngineerVisits=NULL){
+LevyJennings <- function(x, FailedFlag, xValue, TheData, Metadata,
+                         plotType, YAxisLabel, EngineerVisits=NULL){
+
   yValue <- x
 
   # Select Equivalent Flag Column
@@ -238,6 +249,7 @@ LevyJennings <- function(x, FailedFlag, xValue, TheData, Metadata, plotType, YAx
             color = mycolor)) + geom_line(color = mycolor) + geom_point(
             color = mycolor) + labs(title = yValue, x = NULL, y = YAxisLabel) +
             theme_bw() + theme(legend.position = "none")
+
     }
   }
 
@@ -251,10 +263,12 @@ LevyJennings <- function(x, FailedFlag, xValue, TheData, Metadata, plotType, YAx
       labs(title = yValue, x = NULL, y = YAxisLabel) + theme(legend.position = "none") + theme_bw()
   }
 
-  if (!is.null(EngineerVisits)){
-    Plot <- Plot +
-      geom_vline(xintercept = as.numeric(EngineerVisits), color = "red", linetype = "dashed")
+  if (is.null(EngineerVisits)){
+    Plot1 <- Plot
+  } else {
+    Plot1 <- Plot + geom_vline(xintercept = as.POSIXct(EngineerVisits),
+                              color = "red", linetype = "dashed")
   }
 
-  return(Plot)
+  return(Plot1)
 }
