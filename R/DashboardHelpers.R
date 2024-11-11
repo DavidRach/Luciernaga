@@ -247,8 +247,10 @@ ScalePriority <- function(colors){
 VisualQCSummary <- function(x){
   WindowOfInterest <- Sys.time() - weeks(1)
 
-  #x <- x[[1]]
+  if (nrow(x) > 1){
   Data <- x %>% filter(DateTime > WindowOfInterest)
+  } else {Data <- x}
+
   Flags <- Data %>% select(starts_with("Flag"))
   colnames(Flags) <- gsub("Flag-", "", colnames(Flags))
   Gains <- Flags %>% select(contains("Gain"))
@@ -285,7 +287,7 @@ VisualQCSummary <- function(x){
 
   TheDetectors <- Tidy %>% pull(Detector) %>% unique()
 
-  Summary <- map(.x=TheDetectors, .f=QCSummaryCheck, data=Tidy) %>% bind_rows()
+  Summary <- map(.x=TheDetectors, .f=Luciernaga:::QCSummaryCheck, data=Tidy) %>% bind_rows()
   return(Summary)
 }
 
@@ -328,11 +330,18 @@ QCSummaryCheck <- function(x, data){
 #' @noRd
 ColorCodeStatus <- function(x, y){
   data <- y
+
+  if(nrow(data)== 0){ColorCode <- "Unknown"}
+
+  if (nrow(data) > 0){
+
   if (any(data$Gain == "Red") || any(data$rCV == "Red")) {
     ColorCode <- "Red"
   } else if (any(data$Gain == "Orange") || any(data$rCV == "Orange")) {
     ColorCode <- "Orange"
   } else {ColorCode <- "Green"}
+
+  }
 
   QCResults <- data.frame(Instrument = x, QCStatus=ColorCode)
   return(QCResults)
@@ -376,6 +385,128 @@ SmallTable <- function(data){
     gt() %>%
     data_color(
       columns = c(Gain, rCV),
+      colors = scales::col_factor(
+        palette = c("Green" = "#0B6623",
+                    "Orange" = "#FF6E00",
+                    "Red" = "#C80815"),
+        domain = c("Green", "Orange", "Red")
+      )
+    )
+
+  Substituted <- table  |>
+    sub_values(values= c("Green"), replacement = "Pass") |>
+    sub_values(values= c("Orange"), replacement = "Caution") |>
+    sub_values(values= c("Red"), replacement = "Failing")
+
+  Bolded <- Substituted |>
+    opt_table_font(font = "Montserrat") |>
+    cols_align(align = "center")
+
+  Final <- Bolded
+
+  return(Final)
+}
+
+#' Dashboard Internal, summarizes 3 months QC data for all instruments
+#'
+#' @param x A vector of instrument names
+#' @param y A list of LevyJenningParse updated data objects
+#'
+#' @importFrom purrr map2
+#' @importFrom dplyr bind_rows
+#' @importFrom dplyr mutate
+#' @importFrom dplyr filter
+#' @importFrom dplyr pull
+#' @importFrom dplyr group_by
+#' @importFrom dplyr slice
+#' @importFrom dplyr ungroup
+#' @importFrom tidyr pivot_wider
+#'
+#' @return Data ready for gt coloring
+#' @noRd
+QCHistory <- function(x, y){
+  TheInstrumentLength <- length(y)
+
+  #x <- x[[1]] # y <- y[[1]]
+  TheDataset <- map2(.x=x, .f=Luciernaga:::AcrossTime, .y=y) %>% bind_rows()
+
+  TheDates <- TheDataset %>% group_by(DateTime) %>%
+    dplyr::mutate(TheInstrumentCount = n()) %>%
+    dplyr::filter(TheInstrumentCount == TheInstrumentLength) %>% pull(DateTime)
+
+  Assembled <- TheDataset %>% dplyr::filter(DateTime %in% TheDates)
+
+  Assembled <- Assembled %>% group_by(DateTime, Instrument) %>% slice(1) %>% ungroup()
+
+  Figure <- Assembled %>% group_by(Instrument) %>%
+    pivot_wider(names_from = DateTime, values_from = QCStatus)
+
+  return(Figure)
+}
+
+#' Dashboard Internal, wrapper for individual instrument history
+#'
+#' @param x  The Instrument name
+#' @param y The Instrument data
+#'
+#' @importFrom dplyr filter
+#' @importFrom dplyr pull
+#' @importFrom purrr map
+#' @importFrom dplyr bind_rows
+#'
+#' @return Individual instrument QC history summary
+#' @noRd
+AcrossTime <- function(x, y){
+  WindowOfInterest <- Sys.time() - months(3)
+  data <- y
+  data <- data %>% dplyr::filter(DateTime >= WindowOfInterest)
+  TheDates <- data %>% pull(DateTime) %>% unique()
+
+  Instrument <- x
+
+  # x <- TheDates[1]
+
+  InstrumentHistory <- map(.x=TheDates, data=data, .f=Luciernaga:::DateMapper, Instrument=Instrument) %>% bind_rows()
+  return(InstrumentHistory)
+}
+
+#' Dashboard Mapper, individual date history retrieval
+#'
+#' @param x The individual date
+#' @param data The instrument data
+#' @param Instrument The name of the instrument
+#'
+#' @importFrom dplyr filter
+#'
+#' @return Individual date QC summary
+#' @noRd
+DateMapper <- function(x, data, Instrument){
+  DateTime <- x
+  TheDateData <- data %>% filter(DateTime %in% x)
+  TheDateSummary <- Luciernaga:::VisualQCSummary(x=TheDateData)
+  InstrumentStatus <- Luciernaga:::ColorCodeStatus(x=Instrument, y=TheDateSummary)
+  Snapshot <- cbind(DateTime, InstrumentStatus)
+  Snapshot$DateTime <- as.Date(Snapshot$DateTime)
+  return(Snapshot)
+}
+
+#' Dashboard Internal, fills color code for global view
+#'
+#' @param data Assembled data for cytometer pass fails past three months
+#'
+#' @importFrom gt gt
+#' @importFrom gt data_color
+#' @importFrom tidyselect everything
+#' @importFrom scales col_factor
+#' @importFrom gt sub_values
+#' @importFrom gt opt_table_font
+#' @importFrom gt cols_align
+#' @noRd
+SmallTableGlobal <- function(data){
+  table <- data %>%
+    gt() %>%
+    data_color(
+      columns = c(everything()),
       colors = scales::col_factor(
         palette = c("Green" = "#0B6623",
                     "Orange" = "#FF6E00",
