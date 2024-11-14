@@ -385,7 +385,7 @@ SmallTable <- function(data){
     gt() %>%
     data_color(
       columns = c(Gain, rCV),
-      colors = scales::col_factor(
+      fn = scales::col_factor(
         palette = c("Green" = "#0B6623",
                     "Orange" = "#FF6E00",
                     "Red" = "#C80815"),
@@ -425,14 +425,15 @@ SmallTable <- function(data){
 #' @return Data ready for gt coloring
 #' @noRd
 QCHistory <- function(x, y){
-  TheInstrumentLength <- length(y)
+  InstrumentLength <- length(y)
 
-  #x <- x[[1]] # y <- y[[1]]
+  if (InstrumentLength > 1){TheInstrumentLength <- 2}
+
   TheDataset <- map2(.x=x, .f=Luciernaga:::AcrossTime, .y=y) %>% bind_rows()
 
   TheDates <- TheDataset %>% group_by(DateTime) %>%
     dplyr::mutate(TheInstrumentCount = n()) %>%
-    dplyr::filter(TheInstrumentCount == TheInstrumentLength) %>% pull(DateTime)
+    dplyr::filter(TheInstrumentCount >= TheInstrumentLength) %>% pull(DateTime)
 
   Assembled <- TheDataset %>% dplyr::filter(DateTime %in% TheDates)
 
@@ -507,7 +508,7 @@ SmallTableGlobal <- function(data){
     gt() %>%
     data_color(
       columns = c(everything()),
-      colors = scales::col_factor(
+      fn = scales::col_factor(
         palette = c("Green" = "#0B6623",
                     "Orange" = "#FF6E00",
                     "Red" = "#C80815"),
