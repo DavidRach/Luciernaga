@@ -308,13 +308,13 @@ QCSummaryCheck <- function(x, data){
   if (any(Subset$Gain_Logical == TRUE)){
     Followup <- Subset %>% slice(1) %>% pull(Gain_Logical)
     if (Followup == TRUE){GainValue <- "Red"
-    } else {GainValue <- "Orange"}
+    } else {GainValue <- "Yellow"}
   } else {GainValue <- "Green"}
 
   if (any(Subset$rCV_Logical == TRUE)){
     Followup <- Subset %>% slice(1) %>% pull(rCV_Logical)
     if (Followup == TRUE){rCVValue <- "Red"
-    } else {rCVValue <- "Orange"}
+    } else {rCVValue <- "Yellow"}
   } else {rCVValue <- "Green"}
 
   Summary <- data.frame(Detector=x, Gain=GainValue, rCV=rCVValue)
@@ -335,10 +335,12 @@ ColorCodeStatus <- function(x, y){
 
   if (nrow(data) > 0){
 
-  if (any(data$Gain == "Red") || any(data$rCV == "Red")) {
-    ColorCode <- "Red"
-  } else if (any(data$Gain == "Orange") || any(data$rCV == "Orange")) {
-    ColorCode <- "Orange"
+  if (any(data$Gain == "Red") && any(data$rCV == "Red")) {
+    ColorCode <- "Red" # Overall QC Fail
+  } else if (any(data$Gain == "Red") || any(data$rCV == "Red")) {
+    ColorCode <- "Orange" # Single QC Fail
+  } else if (any(data$Gain == "Yellow") || any(data$rCV == "Yellow")) {
+    ColorCode <- "Yellow"
   } else {ColorCode <- "Green"}
 
   }
@@ -365,6 +367,7 @@ ColorCode <- function(x, data){
 
   if (Color == "Red"){Hex <- "#C80815"}
   if (Color == "Orange"){Hex <- "#FF6E00"}
+  if (Color == "Yellow"){Hex <- "#BA8E23"}
   if (Color == "Green"){Hex <- "#0B6623"}
   return(Hex)
 }
@@ -381,28 +384,33 @@ ColorCode <- function(x, data){
 #' @importFrom gt cols_align
 #' @noRd
 SmallTable <- function(data){
+
   table <- data %>%
     gt() %>%
     data_color(
       columns = c(Gain, rCV),
-      fn = scales::col_factor(
-        palette = c("Green" = "#0B6623",
-                    "Orange" = "#FF6E00",
-                    "Red" = "#C80815"),
-        domain = c("Green", "Orange", "Red")
-      )
-    )
+      fn = function(x) {
+        dplyr::case_when(
+          x == "Green" ~ "#0B6623",
+          x == "Orange" ~ "#FF6E00",
+          x == "Yellow" ~ "#BA8E23",
+          x == "Red" ~ "#C80815",
+          TRUE ~ NA_character_
+        )
+      }
+  )
 
-  Substituted <- table  |>
-    sub_values(values= c("Green"), replacement = "Pass") |>
-    sub_values(values= c("Orange"), replacement = "Caution") |>
-    sub_values(values= c("Red"), replacement = "Failing")
+    Substituted <- table  |>
+      sub_values(values= c("Green"), replacement = "Pass") |>
+      sub_values(values= c("Orange"), replacement = "Warning") |>
+      sub_values(values= c("Yellow"), replacement = "Caution") |>
+      sub_values(values= c("Red"), replacement = "Fail")
 
-  Bolded <- Substituted |>
-    opt_table_font(font = "Montserrat") |>
-    cols_align(align = "center")
+    Bolded <- Substituted |>
+      opt_table_font(font = "Montserrat") |>
+      cols_align(align = "center")
 
-  Final <- Bolded
+    Final <- Bolded
 
   return(Final)
 }
@@ -508,18 +516,23 @@ SmallTableGlobal <- function(data){
     gt() %>%
     data_color(
       columns = c(everything()),
-      fn = scales::col_factor(
-        palette = c("Green" = "#0B6623",
-                    "Orange" = "#FF6E00",
-                    "Red" = "#C80815"),
-        domain = c("Green", "Orange", "Red")
-      )
+      fn = function(x) {
+        x <- as.character(x)
+
+        dplyr::case_when(
+          x == "Green" ~ "#0B6623",
+          x == "Orange" ~ "#BA8E23",
+          x == "Red" ~ "#C80815",
+          is.na(x) ~ "#ECECEC",
+          TRUE ~ "#FFFFFF"
+        )
+      }
     )
 
   Substituted <- table  |>
     sub_values(values= c("Green"), replacement = "Pass") |>
-    sub_values(values= c("Orange"), replacement = "Caution") |>
-    sub_values(values= c("Red"), replacement = "Failing")
+    sub_values(values= c("Orange"), replacement = "Warning") |>
+    sub_values(values= c("Red"), replacement = "Fail")
 
   Bolded <- Substituted |>
     opt_table_font(font = "Montserrat") |>
