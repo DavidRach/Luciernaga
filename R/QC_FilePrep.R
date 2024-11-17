@@ -25,7 +25,7 @@
 
 QC_FilePrep_DailyQC <- function(x){
   ReadInfo <- readLines(x)
-  ReadInfo
+  #ReadInfo
   index <- grep("^Laser Settings", ReadInfo)
   Final <- length(ReadInfo)
 
@@ -113,13 +113,18 @@ QC_FilePrep_DailyQC <- function(x){
   FSCArea <- FSCArea %>%
     mutate(across(everything(), ~ FALSE, .names = "Flag-{.col}"))
 
+
   FlowRateIndex <- grep("^Flow", LaserSegment)
+
+  if(length(FlowRateIndex) > 0){
   FlowRate <- LaserSegment[FlowRateIndex]
   FlowRate <- strsplit(FlowRate, ",")[[1]]
   FlowRate = data.frame(FlowRate=FlowRate[[2]])
   FlowRate$FlowRate <- as.numeric(FlowRate$FlowRate)
   FlowRate <- FlowRate %>%
     mutate(across(everything(), ~ FALSE, .names = "Flag-{.col}"))
+  FSCArea <- cbind(FSCArea, FlowRate)
+  }
 
   TemperatureIndex <- grep("^Temperature", LaserSegment)
   Temperature <- LaserSegment[TemperatureIndex]
@@ -142,8 +147,27 @@ QC_FilePrep_DailyQC <- function(x){
   colnames(LaserFrame) <- gsub(" A", "A", colnames(LaserFrame))
   #LaserFrame <- LaserFrame %>% mutate(across(everything(), as.numeric))
 
+  if (any(str_detect(colnames(LaserFrame), "Laser Power"))){
+
+    LaserPower <- LaserFrame %>%
+      select(-`Area Scaling Factor`, -`Laser Delay`) %>%
+      pivot_wider(
+        names_from = Laser,
+        values_from = `Laser Power`,
+        names_glue = "{Laser}-Laser Power"
+      )
+
+    LaserPower <- LaserPower %>% mutate(across(everything(), as.numeric))
+    LaserPower <- LaserPower %>%
+      mutate(across(everything(), ~ FALSE, .names = "Flag-{.col}"))
+
+    LaserFrame <- LaserFrame %>% select(-`Laser Power`)
+
+    FSCArea <- cbind(LaserPower, FSCArea)
+  }
+
   LaserDelay <- LaserFrame %>%
-    select(-`Area Scaling Factor`, -`Laser Power`) %>%
+    select(-`Area Scaling Factor`) %>%
     pivot_wider(
       names_from = Laser,
       values_from = `Laser Delay`,
@@ -154,20 +178,8 @@ QC_FilePrep_DailyQC <- function(x){
   LaserDelay <- LaserDelay %>%
     mutate(across(everything(), ~ FALSE, .names = "Flag-{.col}"))
 
-  LaserPower <- LaserFrame %>%
-    select(-`Area Scaling Factor`, -`Laser Delay`) %>%
-    pivot_wider(
-      names_from = Laser,
-      values_from = `Laser Power`,
-      names_glue = "{Laser}-Laser Power"
-    )
-
-  LaserPower <- LaserPower %>% mutate(across(everything(), as.numeric))
-  LaserPower <- LaserPower %>%
-    mutate(across(everything(), ~ FALSE, .names = "Flag-{.col}"))
-
   LaserArea <- LaserFrame %>%
-    select(-`Laser Power`, -`Laser Delay`) %>%
+    select(-`Laser Delay`) %>%
     pivot_wider(
       names_from = Laser,
       values_from = `Area Scaling Factor`,
@@ -178,7 +190,7 @@ QC_FilePrep_DailyQC <- function(x){
   LaserArea <- LaserArea %>%
     mutate(across(everything(), ~ FALSE, .names = "Flag-{.col}"))
 
-  NewData <- cbind(Assembly, LaserDelay, LaserPower, LaserArea, FSCArea, FlowRate, Temperature)
+  NewData <- cbind(Assembly, LaserDelay, LaserArea, FSCArea, Temperature)
 
   NewData <- NewData %>% select(-Instrument)
 
