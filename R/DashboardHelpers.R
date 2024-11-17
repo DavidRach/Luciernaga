@@ -399,14 +399,22 @@ QCSummaryCheck <- function(x, data){
 ColorCodeStatus <- function(x, y){
   data <- y
 
+  CytekMandate <- c("FSC", "SSC", "SSC-B")
+  CytekData <- data %>%
+    filter(Detector %in% CytekMandate)
+  RCVdata <- data %>%
+    filter(str_detect(Detector, "3")) %>%
+    filter(!str_detect(Detector, "1"))
+  RCVdata <- rbind(CytekData, RCVdata)
+
   if(nrow(data)== 0){ColorCode <- "Unknown"}
 
   if (nrow(data) > 0){
 
-  if (any(data$Gain == "Red") && any(data$rCV == "Red")) {
+  if (any(data$Gain == "Red") || any(RCVdata$rCV == "Red")) {
     ColorCode <- "Red" # Overall QC Fail
-  } else if (any(data$Gain == "Red") || any(data$rCV == "Red")) {
-    ColorCode <- "Orange" # Single QC Fail
+  } else if (any(data$rCV == "Red")) {
+    ColorCode <- "Orange" # Non-primary RCV Fail
   } else if (any(data$Gain == "Yellow") || any(data$rCV == "Yellow")) {
     ColorCode <- "Yellow"
   } else {ColorCode <- "Green"}
@@ -534,7 +542,7 @@ QCHistory <- function(x, y){
 #' @return Individual instrument QC history summary
 #' @noRd
 AcrossTime <- function(x, y){
-  WindowOfInterest <- Sys.time() - months(3)
+  WindowOfInterest <- Sys.time() - months(6)
   data <- y
   data <- data %>% dplyr::filter(DateTime >= WindowOfInterest)
   TheDates <- data %>% pull(DateTime) %>% unique()
@@ -590,6 +598,7 @@ SmallTableGlobal <- function(data){
         dplyr::case_when(
           x == "Green" ~ "#0B6623",
           x == "Orange" ~ "#BA8E23",
+          x == "Yellow" ~ "#BA8E23",
           x == "Red" ~ "#C80815",
           is.na(x) ~ "#ECECEC",
           TRUE ~ "#FFFFFF"
@@ -599,7 +608,8 @@ SmallTableGlobal <- function(data){
 
   Substituted <- table  |>
     sub_values(values= c("Green"), replacement = "Pass") |>
-    sub_values(values= c("Orange"), replacement = "Warning") |>
+    sub_values(values= c("Orange"), replacement = "Caution") |>
+    sub_values(values= c("Yellow"), replacement = "Caution") |>
     sub_values(values= c("Red"), replacement = "Fail")
 
   Bolded <- Substituted |>
