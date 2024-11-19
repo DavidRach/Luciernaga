@@ -202,7 +202,7 @@ QCBeadParse <- function(x, MainFolder){
       }
 
       NewData <- BeforeAfter %>%
-        anti_join(ArchiveData1, by = c("DATE", "TIME"))
+        anti_join(ArchiveData, by = c("DATE", "TIME"))
 
       UpdatedData <- rbind(NewData, ArchiveData)
 
