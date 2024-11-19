@@ -2,31 +2,32 @@
 #'
 #' @param MainFolder The file.path to the Main Folder
 #' @param x The Cytometer Folder Name
-#' @param Maintainer Logical override for when number of columns don't match
 #'
+#' @importFrom purrr map
+#' @importFrom dplyr bind_rows
 #' @importFrom dplyr mutate
 #' @importFrom dplyr across
 #' @importFrom tidyselect starts_with
 #' @importFrom utils read.csv
 #' @importFrom lubridate ymd_hms
 #' @importFrom generics setdiff
+#' @importFrom dplyr arrange
+#' @importFrom dplyr desc
 #' @importFrom utils write.csv
-#' @importFrom purrr map
-#' @importFrom dplyr bind_rows
 #'
 #' @return Updated tracking data CSV in the Archive Folder
 #' @noRd
-DailyQCParse <- function(MainFolder, x, Maintainer=FALSE){
+DailyQCParse <- function(MainFolder, x){
 
   Folder <- file.path(MainFolder, x)
-  LJTrackingFiles <- list.files(Folder, pattern="DailyQC",
+  DailyQCFiles <- list.files(Folder, pattern="DailyQC",
                                 full.names = TRUE)
 
-  if (!length(LJTrackingFiles)==0){
+  if (!length(DailyQCFiles)==0){
 
-    if (length(LJTrackingFiles)>=1){
+    if (length(DailyQCFiles)>=1){
 
-      Parsed <- map(.x=LJTrackingFiles, .f=QC_FilePrep_DailyQC) %>% bind_rows()
+      Parsed <- map(.x=DailyQCFiles, .f=QC_FilePrep_DailyQC) %>% bind_rows()
       Parsed <- Parsed %>% mutate(across(starts_with("Flag"), ~ as.logical(.)))
 
     } else {stop("Two csv files in the folder found!")}
@@ -38,7 +39,7 @@ DailyQCParse <- function(MainFolder, x, Maintainer=FALSE){
     if (!length(ArchivedDataFile)==0){
 
       if(length(ArchivedDataFile)==1){
-        ArchivedData <- read.csv(ArchivedDataFile, check.names=FALSE)
+        ArchivedData <- read.csv(ArchivedDataFile[1], check.names=FALSE)
       } else {message("Two csv files in the folder found!")}
 
       # Troubleshooting
@@ -46,7 +47,7 @@ DailyQCParse <- function(MainFolder, x, Maintainer=FALSE){
         stop("Mismatched Number of Columns")
         }
 
-      ArchivedData$DateTime <- ymd_hms(ArchivedData$DateTime)
+      ArchivedData$DateTime <- lubridate::ymd_hms(ArchivedData$DateTime)
       ArchivedData <- ArchivedData %>% mutate(across(starts_with("Flag"), ~ as.logical(.)))
       NewData <- generics::setdiff(Parsed, ArchivedData)
       UpdatedData <- rbind(NewData, ArchivedData)
@@ -55,14 +56,14 @@ DailyQCParse <- function(MainFolder, x, Maintainer=FALSE){
 
     } else {UpdatedData <- Parsed}
 
-    file.remove(LJTrackingFiles)
+    file.remove(DailyQCFiles)
 
     UpdatedData <- UpdatedData %>% arrange(desc(DateTime))
 
     name <- paste0("ArchivedData", x, ".csv")
     StorageLocation <- file.path(TheArchive, name)
     write.csv(UpdatedData, StorageLocation, row.names=FALSE)
-  } else {message("No LevyJennings files to update with in ", x)}
+  } else {message("No DailyQCFiles files to update with in ", x)}
 
 }
 
@@ -155,13 +156,13 @@ LevyJenningsParse <- function(MainFolder, x, Maintainer=FALSE){
 #' @importFrom dplyr bind_rows
 #' @importFrom dplyr mutate
 #' @importFrom dplyr relocate
+#' @importFrom dplyr arrange
+#' @importFrom dplyr desc
 #' @importFrom utils read.csv
 #' @importFrom lubridate ymd_hms
 #' @importFrom lubridate ymd
 #' @importFrom lubridate hms
-#' @importFrom dplyr arrange
-#' @importFrom dplyr desc
-#' @importFrom generics setdiff
+#' @importFrom dplyr anti_join
 #' @importFrom utils write.csv
 #'
 #' @return Updated MFI tracking CSV
@@ -182,40 +183,43 @@ QCBeadParse <- function(x, MainFolder){
     BeforeAfter <- BeforeAfter %>% mutate(DateTime = DATE+TIME) %>%
       relocate(DateTime, .before=DATE)
 
+    BeforeAfter <- BeforeAfter %>% arrange(desc(DateTime))
+
     ArchiveFolder <- file.path(Folder, "Archive")
     ArchiveCSV <- list.files(ArchiveFolder, pattern="Bead", full.names=TRUE)
 
-    if (length(ArchiveCSV) == 1){
+    if (!length(ArchiveCSV) == 0){
+
+    if (!length(ArchiveCSV) > 1){
+
       ArchiveData <- read.csv(ArchiveCSV, check.names=FALSE)
-      ArchiveData$DateTime <- ymd_hms(ArchiveData$DateTime)
-      ArchiveData$DATE <- ymd(ArchiveData$DATE)
-      ArchiveData$TIME <- hms(ArchiveData$TIME)
-      Export <- ArchiveData %>% arrange(desc(DateTime))
-      #write.csv(Export, "BeadData5L.csv", row.names=FALSE)
+      ArchiveData$DateTime <- lubridate::ymd_hms(ArchiveData$DateTime)
+      ArchiveData$DATE <- lubridate::ymd(ArchiveData$DATE)
+      ArchiveData$TIME <- lubridate::hms(ArchiveData$TIME)
 
-      if (ncol(BeforeAfter) == ncol(ArchiveData)){
-        NewData <- generics::setdiff(BeforeAfter, ArchiveData)
-        AssembledData <- rbind(NewData, ArchiveData)
-        Export <- AssembledData %>% arrange(desc(DateTime))
-
-        file.remove(ArchiveCSV)
-
-        name <- paste0("BeadData", x, ".csv")
-        StorageLocation <- file.path(ArchiveFolder, name)
-
-        write.csv(Export, StorageLocation, row.names=FALSE)
-
-        file.remove(FCS_Files)
-
-      } else {
-        stop("The number of columns for the new data don't match
-       that of the archived data. Please reach out")
+      if (!ncol(BeforeAfter) == ncol(ArchiveData)){
+        stop("Mismatched Number of Columns")
       }
+
+      NewData <- BeforeAfter %>%
+        anti_join(ArchiveData1, by = c("DATE", "TIME"))
+
+      UpdatedData <- rbind(NewData, ArchiveData)
+
+      file.remove(ArchiveCSV)
+
     } else {stop("Two BeadData csv files in the archive folder!")}
 
+    } else {UpdatedData <- BeforeAfter}
 
-  } else {message("No fcs files to update with in ", x)}
+    UpdatedData <- UpdatedData %>% arrange(desc(DateTime))
 
+    file.remove(FCS_Files)
+    name <- paste0("BeadData", x, ".csv")
+    StorageLocation <- file.path(ArchiveFolder, name)
+    write.csv(UpdatedData, StorageLocation, row.names=FALSE)
+
+    } else {message("No fcs files to update with in ", x)}
 }
 
 #' Dashboard Internal, loads updated data
