@@ -321,6 +321,9 @@ VisualQCSummary <- function(x){
 
   if (nrow(x) > 1){
   Data <- x %>% filter(DateTime > WindowOfInterest)
+
+  if(nrow(Data) == 0){Data <- x %>% slice(1)}
+
   } else {Data <- x}
 
   Flags <- Data %>% select(starts_with("Flag"))
