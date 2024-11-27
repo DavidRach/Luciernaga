@@ -228,7 +228,8 @@ Luciernaga_QC <- function(x, subsets, sample.name, removestrings=NULL, Verbose =
     TheMedians <- map(.x=TheCandidates, .f=BeadDetectors, data=WorkAround) %>%
       bind_rows()
     if (Verbose == TRUE){message("Returning Peak Bead Detector Medians")
-                         print(TheMedians)
+                         #print(TheMedians)
+                         TheMedians
                          }
     PeakCutoffVal <- mean(TheMedians$TheMedian)
     TheRemnant <- TheMedians %>% dplyr::filter(TheMedian > PeakCutoffVal) %>%

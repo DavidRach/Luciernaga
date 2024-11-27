@@ -101,7 +101,8 @@ SingleStainSignatures <- function(x, WorkAround1, ColsN, StartNormalizedMergedCo
     angle = 45, hjust = 1)) +
     labs(title=paste(x, AggregateName, "Initial"), sep=" ")
 
-  if (Verbose == TRUE) {print(Total)
+  if (Verbose == TRUE) {#print(Total)
+                        Total
                         InitialPlot
   }
 

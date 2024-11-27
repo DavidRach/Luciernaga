@@ -53,7 +53,7 @@ Imports:
     uwot,
     xml2,
     zoo
-Depends: R (>= 4.3.0)
+Depends: R (>= 4.4.0)
 Suggests: 
     BiocStyle,
     data.table,

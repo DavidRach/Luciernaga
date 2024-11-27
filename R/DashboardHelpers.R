@@ -472,7 +472,7 @@ SmallTable <- function(data){
     gt() %>%
     data_color(
       columns = c(Gain, rCV),
-      fn = function(x) {
+      fn=function(x) {
         dplyr::case_when(
           x == "Green" ~ "#0B6623",
           x == "Orange" ~ "#FF6E00",
@@ -599,7 +599,7 @@ SmallTableGlobal <- function(data){
     gt() %>%
     data_color(
       columns = c(everything()),
-      fn = function(x) {
+      fn=function(x) {
         x <- as.character(x)
 
         dplyr::case_when(

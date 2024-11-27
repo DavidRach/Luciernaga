@@ -106,7 +106,7 @@ SimilarFluorPlots <- function(TheseFluorophores, TheFluorophore, data){
       }
 
       if (is.numeric(TheData$Detector)) {
-        MyVector <- 1:Iterations
+        MyVector <- seq_len(Iterations)
       }
 
       if (any(TheData$value > 2)){YAxisLabel <- "Raw MFI"
