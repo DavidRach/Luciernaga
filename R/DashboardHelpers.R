@@ -20,7 +20,7 @@ utils::globalVariables(c("%rCV", ".", ".data", "AdjustedY", "AggregateName",
                           "matches", "n", "name", "opt_table_outline", "parent",
                          "px", "rCV", "rCV_Logical", "regular_split", "specimen",
                          "tab_options", "tags", "value", "x", "xlim", "yhat",
-                         "ylim"))
+                         "ylim", "pData<-", "parameters<-"))
 
 
 #' Dashboard Internal, updates instrument tracking CSV from DailyQC

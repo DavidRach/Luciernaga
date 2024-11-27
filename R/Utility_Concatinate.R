@@ -14,6 +14,8 @@
 #' @param inverse.transform Whether to reverse the GatingSet Transform on the data,
 #' default is set to FALSE.
 #' @param metadataCols column names from pData to append as metadata for the .fcs, default NULL
+#' @param Override Testing purposes default FALSE
+#' @param DataOverride Testing Purpose default NULL
 #'
 #' @importFrom purrr map
 #' @importFrom dplyr bind_rows
