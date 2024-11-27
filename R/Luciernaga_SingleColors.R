@@ -229,7 +229,7 @@ Luciernaga_SingleColors <- function(x, sample.name, removestrings, subset, Panel
 
     NData <- Samples
     NumberDetectors <- ncol(NData)
-    ReferenceData <- ReferenceCall(NumberDetectors)
+    ReferenceData <- InstrumentReferences(NumberDetectors)
     ReferenceData <- ReferenceData %>% select(-Instrument) %>% rename(value=AdjustedY) %>%
       dplyr::filter(Fluorophore %in%TheFluorophores)
 
@@ -274,32 +274,3 @@ Luciernaga_SingleColors <- function(x, sample.name, removestrings, subset, Panel
   } else {return(Data)}
 
 }
-
-
-
-#' Internal to quickly bring up reference data for comparison plotting
-#'
-#' @param NumberDetectors Passed Number of Columns to decipher instrument
-#' @importFrom utils read.csv
-#'
-#' @return The corresponding reference data.frame
-#'
-#' @noRd
-ReferenceCall <- function(NumberDetectors){
-  if (NumberDetectors == 64){instrument <- "FiveLaser"
-  FileLocation <- system.file("extdata", package = "Luciernaga")
-  TheFile <- file.path(FileLocation, "CytekReferenceLibrary5L.csv")
-  ReferenceData <- read.csv(TheFile, check.names = FALSE)
-  } else if (NumberDetectors == 54){instrument <- "FourLaser"
-  FileLocation <- system.file("extdata", package = "Luciernaga")
-  TheFile <- file.path(FileLocation, "CytekReferenceLibrary4LUV.csv")
-  ReferenceData <- read.csv(TheFile, check.names = FALSE)
-  } else if (NumberDetectors == 38){instrument <- "ThreeLaser"
-  FileLocation <- system.file("extdata", package = "Luciernaga")
-  TheFile <- file.path(FileLocation, "CytekReferenceLibrary3L.csv")
-  ReferenceData <- read.csv(TheFile, check.names = FALSE)
-  } else {message("No References Found")}
-
-  return(ReferenceData)
-}
-
