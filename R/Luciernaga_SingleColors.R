@@ -269,7 +269,7 @@ Luciernaga_SingleColors <- function(x, sample.name, removestrings, subset, Panel
   if (SignatureView == TRUE & returntype == "plots"){
     return(plot)
   } else if (SignatureView == TRUE & returntype == "data"){
-    #print(plot)
+    #YNW(plot)
     plot
     return(Data)
   } else {return(Data)}

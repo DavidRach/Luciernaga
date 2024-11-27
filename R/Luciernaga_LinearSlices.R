@@ -68,7 +68,6 @@
 #'
 Luciernaga_LinearSlices <- function(x, subset, sample.name, removestrings, stats,
                                     returntype, probsratio=0.1, output, desiredAF=NULL){
-
   name <- keyword(x, sample.name)
   name <- NameCleanUp(name, removestrings)
 

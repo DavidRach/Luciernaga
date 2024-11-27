@@ -228,7 +228,7 @@ Luciernaga_QC <- function(x, subsets, sample.name, removestrings=NULL, Verbose =
     TheMedians <- map(.x=TheCandidates, .f=BeadDetectors, data=WorkAround) %>%
       bind_rows()
     if (Verbose == TRUE){message("Returning Peak Bead Detector Medians")
-                         #print(TheMedians)
+                         #YNW(TheMedians)
                          TheMedians
                          }
     PeakCutoffVal <- mean(TheMedians$TheMedian)
@@ -238,7 +238,8 @@ Luciernaga_QC <- function(x, subsets, sample.name, removestrings=NULL, Verbose =
   }
 
   if (Verbose == TRUE){
-    print(Detectors)
+    #YNW(Detectors)
+    Detectors
   }
 
   if (Type == "Beads_Unstained") {
@@ -251,7 +252,8 @@ Luciernaga_QC <- function(x, subsets, sample.name, removestrings=NULL, Verbose =
     message("Returning designated stats values for Beads_Unstained, please return
     to LuciernagaQC as BeadsAF for subtraction for single color unmixing controls")
 
-    print(Plot)
+    #YNW(Plot)
+      Plot
     }
     return(ReferenceUnstained)
   }
@@ -294,7 +296,9 @@ Luciernaga_QC <- function(x, subsets, sample.name, removestrings=NULL, Verbose =
 
   if (length(Retained) == 0) {stop("There were no Retained detectors in ", name)}
 
-  if (Verbose == TRUE){print(Retained)}
+  if (Verbose == TRUE){#YNW(Retained)
+                       Retained
+    }
 
 
   ##############################################
@@ -389,8 +393,10 @@ Luciernaga_QC <- function(x, subsets, sample.name, removestrings=NULL, Verbose =
     Plot <- QC_ViewSignature(x=name, data=ThePlot, Normalize=TRUE)
 
     if (Verbose == TRUE){
-      print(Detectors)
-      print(Plot)
+      #YNW(Detectors)
+      #YNW(Plot)
+      Detectors
+      Plot
     }
 
    return(Samples)
@@ -542,6 +548,7 @@ Luciernaga_QC <- function(x, subsets, sample.name, removestrings=NULL, Verbose =
 #'
 #' @noRd
 BeadDetectors <- function(x, data){
+
   y <- paste0(x, "-A")
   FuckOff <- data %>% dplyr::filter(.data[[x]] == 1) %>% select(all_of(y))
   TheDetector <- x
@@ -658,6 +665,7 @@ AveragedSignature <- function(x, stats, normalize=FALSE){
 #'
 #' @noRd
 DetectorPeakCounts <- function(x, StartN, EndN){
+
 x <- x %>% select(-Backups)
 Normalized <- x %>% select(all_of(
   StartN:EndN))
@@ -736,7 +744,9 @@ LocalMaxima <- function(theX, theY, therepeats, w, alternatename,
           axis.title.x = element_blank(), axis.title.y = element_blank(),
           panel.grid.major = element_blank(), panel.grid.minor = element_blank())
 
-  if (Verbose == TRUE) {print(Views)}
+  if (Verbose == TRUE) {#YNW(Views)
+                        Views
+    }
 
   PointData <- PointData %>% select(-y)
 

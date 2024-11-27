@@ -94,14 +94,14 @@ if (is.null(metadataCols)){metadataCols <- setdiff(colnames(ConcatenatedFile),co
 
 
 NewData <- ConcatenatedFile %>% select(all_of(metadataCols))
-Decisions <- Luciernaga:::DoWeConvert(NewData)
+Decisions <- DoWeConvert(NewData)
 
 for(i in metadataCols){
-ConcatenatedFile <- Luciernaga:::ExecuteNumerics(x=i, data=ConcatenatedFile, conversion=Decisions)
+ConcatenatedFile <- ExecuteNumerics(x=i, data=ConcatenatedFile, conversion=Decisions)
 }
 
 NewData <- ConcatenatedFile %>% select(all_of(metadataCols))
-Decisions <- Luciernaga:::DoWeConvert(NewData)
+Decisions <- DoWeConvert(NewData)
 
 if (!nrow(Decisions)==0){
 CharResults <- map(.x=metadataCols, .f=ExecuteCharacters, data=ConcatenatedFile, conversion=Decisions)
@@ -240,6 +240,7 @@ ExecuteCharacters <- function(x, data, conversion){
 #'
 #' @noRd
 ExecuteNumerics <- function(x, data, conversion){
+
 
   Numbers <- conversion  %>% dplyr::filter(Column %in% x) %>% pull(Numbers)
   Letters <- conversion  %>% dplyr::filter(Column %in% x) %>% pull(Letters)

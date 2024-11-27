@@ -64,6 +64,7 @@
 #' Plot <- Luciernaga_Cosine(data=FinalData, returntype="plot")
 #'
 Luciernaga_Cosine <- function(data, returntype="plot"){
+
     Names <- data %>% select(!where(is.numeric))
     if (ncol(Names) > 1){stop("Please use single column for names")}
     Names <- Names[[1]]

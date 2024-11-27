@@ -1,3 +1,28 @@
+utils::globalVariables(c("%rCV", ".", ".data", "AdjustedY", "AggregateName",
+                         "Area Scaling Factor", "Averaged", "Backups", "Baseline",
+                         "Brightness", "CellRatio_Retained", "Cluster", "Clusters",
+                          "ColorSelection", "Column", "ConcentrationScientific",
+                         "Condition", "Count", "Counts", "Creator",
+                         "CurrentConcentration", "DATE", "Date", "DateTime", "Decision",
+                         "DeltaGain", "DesiredConcentration", "Detector", "Detector1Raw",
+                         "Detectors", "Experiment", "Fluorochrome", "Fluorophore",
+                         "Fluors", "Freq", "From", "Gain", "GainFlag", "Gain_Logical",
+                          "IncreaseVolumeML", "Instrument", "Laser", "Laser Delay",
+                         "Laser Power", "Ligand", "LostRatio", "LowerLimit_MillionCells",
+                         "MainDetector", "NewID", "Partition", "Percentiles", "QCStatus",
+                         "RCVFlag", "RankImportance", "RankValue", "Ratio", "Sample",
+                          "Specimen", "SpinDown", "Splitpoint", "Summed", "TIME",
+                         "TheDetector", "TheDetectors", "TheHeight", "TheInstrumentCount",
+                         "TheMedian", "TheSampleName", "TheSamples", "TheSums",
+                         "Theoretical", "Time", "Timepoint", 'To', "TotalCells",
+                         "TotalTubes", "TotalVolume", "Type", "Var1", "Var2",
+                         "cell_fill", "cell_text", "cols_label", "cutoff", "dims",
+                          "matches", "n", "name", "opt_table_outline", "parent",
+                         "px", "rCV", "rCV_Logical", "regular_split", "specimen",
+                         "tab_options", "tags", "value", "x", "xlim", "yhat",
+                         "ylim"))
+
+
 #' Dashboard Internal, updates instrument tracking CSV from DailyQC
 #'
 #' @param MainFolder The file.path to the Main Folder
@@ -240,6 +265,7 @@ QCBeadParse <- function(x, MainFolder){
 #' @return Updated Tracking Data CSV for specified type
 #' @noRd
 CurrentData <- function(x, MainFolder, type){
+
   ArchiveLocation <- file.path(MainFolder, x, "Archive")
 
   if (type == "MFI"){
@@ -317,6 +343,7 @@ ScalePriority <- function(colors){
 #' @return Data frame of passing status for respective parameters
 #' @noRd
 VisualQCSummary <- function(x){
+
   WindowOfInterest <- Sys.time() - weeks(1)
 
   if (nrow(x) > 1){
@@ -362,7 +389,7 @@ VisualQCSummary <- function(x){
 
   TheDetectors <- Tidy %>% pull(Detector) %>% unique()
 
-  Summary <- map(.x=TheDetectors, .f=Luciernaga:::QCSummaryCheck, data=Tidy) %>% bind_rows()
+  Summary <- map(.x=TheDetectors, .f=QCSummaryCheck, data=Tidy) %>% bind_rows()
   return(Summary)
 }
 
@@ -404,6 +431,7 @@ QCSummaryCheck <- function(x, data){
 #' @return Global Passing Status
 #' @noRd
 ColorCodeStatus <- function(x, y){
+
   data <- y
 
   CytekMandate <- c("FSC", "SSC", "SSC-B")
@@ -443,6 +471,7 @@ ColorCodeStatus <- function(x, y){
 #' @return A hex code to fill with
 #' @noRd
 ColorCode <- function(x, data){
+
   Color <- data %>% dplyr::filter(Instrument %in% x) %>%
     pull(QCStatus)
 
@@ -472,15 +501,7 @@ SmallTable <- function(data){
     gt() %>%
     data_color(
       columns = c(Gain, rCV),
-      fn=function(x) {
-        dplyr::case_when(
-          x == "Green" ~ "#0B6623",
-          x == "Orange" ~ "#FF6E00",
-          x == "Yellow" ~ "#BA8E23",
-          x == "Red" ~ "#C80815",
-          TRUE ~ NA_character_
-        )
-      }
+      fn=ExternalColor1(x)
   )
 
     Substituted <- table  |>
@@ -496,6 +517,16 @@ SmallTable <- function(data){
     Final <- Bolded
 
   return(Final)
+}
+
+ExternalColor1 <- function(x) {
+  dplyr::case_when(
+    x == "Green" ~ "#0B6623",
+    x == "Orange" ~ "#FF6E00",
+    x == "Yellow" ~ "#BA8E23",
+    x == "Red" ~ "#C80815",
+    TRUE ~ NA_character_
+  )
 }
 
 #' Dashboard Internal, summarizes 3 months QC data for all instruments
@@ -520,7 +551,7 @@ QCHistory <- function(x, y){
 
   if (InstrumentLength > 1){TheInstrumentLength <- 2}
 
-  TheDataset <- map2(.x=x, .f=Luciernaga:::AcrossTime, .y=y) %>% bind_rows()
+  TheDataset <- map2(.x=x, .f=AcrossTime, .y=y) %>% bind_rows()
 
   TheDates <- TheDataset %>% group_by(DateTime) %>%
     dplyr::mutate(TheInstrumentCount = n()) %>%
@@ -558,7 +589,7 @@ AcrossTime <- function(x, y){
 
   # x <- TheDates[1]
 
-  InstrumentHistory <- map(.x=TheDates, data=data, .f=Luciernaga:::DateMapper, Instrument=Instrument) %>% bind_rows()
+  InstrumentHistory <- map(.x=TheDates, data=data, .f=DateMapper, Instrument=Instrument) %>% bind_rows()
   return(InstrumentHistory)
 }
 
@@ -575,8 +606,8 @@ AcrossTime <- function(x, y){
 DateMapper <- function(x, data, Instrument){
   DateTime <- x
   TheDateData <- data %>% filter(DateTime %in% x)
-  TheDateSummary <- Luciernaga:::VisualQCSummary(x=TheDateData)
-  InstrumentStatus <- Luciernaga:::ColorCodeStatus(x=Instrument, y=TheDateSummary)
+  TheDateSummary <- VisualQCSummary(x=TheDateData)
+  InstrumentStatus <- ColorCodeStatus(x=Instrument, y=TheDateSummary)
   Snapshot <- cbind(DateTime, InstrumentStatus)
   Snapshot$DateTime <- as.Date(Snapshot$DateTime)
   return(Snapshot)
@@ -599,18 +630,7 @@ SmallTableGlobal <- function(data){
     gt() %>%
     data_color(
       columns = c(everything()),
-      fn=function(x) {
-        x <- as.character(x)
-
-        dplyr::case_when(
-          x == "Green" ~ "#0B6623",
-          x == "Orange" ~ "#BA8E23",
-          x == "Yellow" ~ "#BA8E23",
-          x == "Red" ~ "#C80815",
-          is.na(x) ~ "#ECECEC",
-          TRUE ~ "#FFFFFF"
-        )
-      }
+      fn=ExternalColor2(x)
     )
 
   Substituted <- table  |>
@@ -626,4 +646,17 @@ SmallTableGlobal <- function(data){
   Final <- Bolded
 
   return(Final)
+}
+
+ExternalColor2 <- function(x) {
+  x <- as.character(x)
+
+  dplyr::case_when(
+    x == "Green" ~ "#0B6623",
+    x == "Orange" ~ "#BA8E23",
+    x == "Yellow" ~ "#BA8E23",
+    x == "Red" ~ "#C80815",
+    is.na(x) ~ "#ECECEC",
+    TRUE ~ "#FFFFFF"
+  )
 }

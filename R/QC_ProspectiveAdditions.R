@@ -107,6 +107,7 @@ QC_ProspectiveAdditions <- function(path, NumberDetectors, TheCutoff=0.9,
 #'
 #' @noRd
 Comparison <- function(x, TheOtherDetectors, TheList, ReferenceData, TheCutoff){
+
   TheDetector <- x
 
   TheComparisonList <- TheOtherDetectors %>% dplyr::filter(Detector %in% x) %>%

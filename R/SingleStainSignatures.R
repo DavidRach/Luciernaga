@@ -47,6 +47,8 @@ SingleStainSignatures <- function(x, WorkAround1, ColsN, StartNormalizedMergedCo
   ratioSCcutoff=0.01, TheMainAF, AggregateName, Verbose = FALSE,
   SCData = "subtracted", LocalMaximaRatio, SecondaryPeaks){
 
+
+
   if (Subtraction == "Internal"){
   # Filtering the Non-Rounded Values First
   AutofluorescentSubset <- WorkAround1 %>% filter(.data[[TheMainAF]] %in% 1.000) %>%
@@ -101,7 +103,7 @@ SingleStainSignatures <- function(x, WorkAround1, ColsN, StartNormalizedMergedCo
     angle = 45, hjust = 1)) +
     labs(title=paste(x, AggregateName, "Initial"), sep=" ")
 
-  if (Verbose == TRUE) {#print(Total)
+  if (Verbose == TRUE) {#YNW(Total)
                         Total
                         InitialPlot
   }
@@ -166,7 +168,8 @@ SingleStainSignatures <- function(x, WorkAround1, ColsN, StartNormalizedMergedCo
   RevisedPeakDetectorCounts <- RevisedPeakDetectorCounts %>% arrange(desc(Counts))
 
   if (Verbose == TRUE){
-    print(RevisedPeakDetectorCounts)
+    #YNW(RevisedPeakDetectorCounts)
+    RevisedPeakDetectorCounts
   }
 
   TheRevisedList <- RevisedPeakDetectorCounts %>% dplyr::filter(Counts > 0) %>% pull(Fluors)
@@ -286,6 +289,8 @@ SingleStainSignatures <- function(x, WorkAround1, ColsN, StartNormalizedMergedCo
 ClusterIteration <- function(x, data, TheDetector, StartNormalizedMergedCol,
                              EndNormalizedMergedCol, ColsN, AggregateName, Verbose,
                              LocalMaximaRatio = 0.15, SecondaryPeaks){
+
+
 
   subset <- data %>% filter(Cluster %in% x)
   StashedIDs <- subset %>% select(Backups)
