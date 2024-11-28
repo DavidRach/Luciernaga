@@ -17,7 +17,7 @@ utils::globalVariables(c("%rCV", ".", ".data", "AdjustedY", "AggregateName",
                          "Theoretical", "Time", "Timepoint", 'To', "TotalCells",
                          "TotalTubes", "TotalVolume", "Type", "Var1", "Var2",
                          "cell_fill", "cell_text", "cols_label", "cutoff", "dims",
-                          "matches", "n", "name", "opt_table_outline", "parent",
+                          "matches", "name", "opt_table_outline", "parent",
                          "px", "rCV", "rCV_Logical", "regular_split", "specimen",
                          "tab_options", "tags", "value", "x", "xlim", "yhat",
                          "ylim", "pData<-", "parameters<-"))
