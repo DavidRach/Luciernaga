@@ -501,7 +501,15 @@ SmallTable <- function(data){
     gt() %>%
     data_color(
       columns = c(Gain, rCV),
-      fn=ExternalColor1(x)
+      fn=function(x) {
+        dplyr::case_when(
+          x == "Green" ~ "#0B6623",
+          x == "Orange" ~ "#FF6E00",
+          x == "Yellow" ~ "#BA8E23",
+          x == "Red" ~ "#C80815",
+          TRUE ~ NA_character_
+        )
+      }
   )
 
     Substituted <- table  |>
@@ -517,16 +525,6 @@ SmallTable <- function(data){
     Final <- Bolded
 
   return(Final)
-}
-
-ExternalColor1 <- function(x) {
-  dplyr::case_when(
-    x == "Green" ~ "#0B6623",
-    x == "Orange" ~ "#FF6E00",
-    x == "Yellow" ~ "#BA8E23",
-    x == "Red" ~ "#C80815",
-    TRUE ~ NA_character_
-  )
 }
 
 #' Dashboard Internal, summarizes 3 months QC data for all instruments
@@ -630,7 +628,18 @@ SmallTableGlobal <- function(data){
     gt() %>%
     data_color(
       columns = c(everything()),
-      fn=ExternalColor2(x)
+      fn=function(x) {
+        x <- as.character(x)
+
+        dplyr::case_when(
+          x == "Green" ~ "#0B6623",
+          x == "Orange" ~ "#BA8E23",
+          x == "Yellow" ~ "#BA8E23",
+          x == "Red" ~ "#C80815",
+          is.na(x) ~ "#ECECEC",
+          TRUE ~ "#FFFFFF"
+        )
+      }
     )
 
   Substituted <- table  |>
@@ -646,17 +655,4 @@ SmallTableGlobal <- function(data){
   Final <- Bolded
 
   return(Final)
-}
-
-ExternalColor2 <- function(x) {
-  x <- as.character(x)
-
-  dplyr::case_when(
-    x == "Green" ~ "#0B6623",
-    x == "Orange" ~ "#BA8E23",
-    x == "Yellow" ~ "#BA8E23",
-    x == "Red" ~ "#C80815",
-    is.na(x) ~ "#ECECEC",
-    TRUE ~ "#FFFFFF"
-  )
 }
