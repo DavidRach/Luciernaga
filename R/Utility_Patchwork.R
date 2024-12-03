@@ -68,8 +68,7 @@ Utility_Patchwork <- function(x, filename, outfolder, thecolumns=2, therows=3,
     pdf(file = paste(MergedName, ".pdf", sep = "", collapse = NULL), width = width,
         height = height)
     p <- map(sublists, .f=sublist_plots, thecolumns=thecolumns, therows=therows)
-    #YNW(p)
-    p
+    print(p)
     dev.off()
 
   } else if (returntype == "patchwork"){
