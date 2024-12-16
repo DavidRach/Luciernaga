@@ -58,21 +58,8 @@ QC_LibraryParse <- function(x, returntype, references=TRUE){
   } else if (returntype == "plots"){
 
     if(references==TRUE){
-      Folder_Location <- system.file("extdata", package = "Luciernaga")
-
-      TotalDetectors <- nrow(TheValue2)
-
-      if (TotalDetectors == 64){instrument <- "FiveLaser"
-      TheFile <- file.path(Folder_Location, "CytekReferenceLibrary5L.csv")
-      ReferenceData <- read.csv(TheFile, check.names = FALSE)
-      } else if (TotalDetectors == 54){instrument <- "FourLaser"
-      TheFile <- file.path(Folder_Location, "CytekReferenceLibrary4LUV.csv")
-      ReferenceData <- read.csv(TheFile, check.names = FALSE)
-      } else if (TotalDetectors == 38){instrument <- "ThreeLaser"
-      TheFile <- file.path(Folder_Location, "CytekReferenceLibrary3L.csv")
-      ReferenceData <- read.csv(TheFile, check.names = FALSE)
-      } else {message("No References Found")}
-
+      NumberDetectors <- nrow(TheValue2)
+      ReferenceData <- InstrumentReferences(NumberDetectors)
       ReferenceData <- ReferenceData %>% rename(TheValue = "AdjustedY")
       ReferenceFluorList <- ReferenceData %>% select(Fluorophore) %>%
         unique() %>% pull()

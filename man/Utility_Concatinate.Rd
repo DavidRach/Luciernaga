@@ -45,6 +45,10 @@ to an "fcs" file to the outpath location}
 default is set to FALSE.}
 
 \item{metadataCols}{column names from pData to append as metadata for the .fcs, default NULL}
+
+\item{Override}{Testing purposes default FALSE}
+
+\item{DataOverride}{Testing Purpose default NULL}
 }
 \value{
 A concatenated data.frame, flow.frame or fcs file, with reference .csv for

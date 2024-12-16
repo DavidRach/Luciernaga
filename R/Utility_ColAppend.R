@@ -23,6 +23,7 @@
 #' library(flowWorkspace)
 #' library(openCyto)
 #' library(data.table)
+#' library(dplyr)
 #'
 #' File_Location <- system.file("extdata", package = "Luciernaga")
 #' FCS_Files <- list.files(path = File_Location, pattern = ".fcs",

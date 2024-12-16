@@ -161,6 +161,7 @@ FluorophoreFilePresent <- function(x, inputfiles){
 #'
 #' @noRd
 FCSImportFile <- function(x, Fluorophore, sample.name = "FILENAME"){
+
   filename <- keyword(x, sample.name)
   filename <- sub(".*\\\\", "", filename)
   filename <- sub(paste0(".*", Fluorophore), Fluorophore, filename)

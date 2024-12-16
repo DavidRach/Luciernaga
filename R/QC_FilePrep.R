@@ -290,8 +290,8 @@ QC_FilePrep <- function(x, TrackChange){
     for (i in seq_along(TheLineChunks)) {
       filename <- paste0("LineChunk_", i, ".txt")
       writeLines(TheLineChunks[[i]], filename)
-      cat("Lines extracted from", StartPositions[i], "to",
-          EndPositions[i], "written to", filename, "\n")
+      message("Lines extracted from ", StartPositions[i], " to ",
+              EndPositions[i], " written to ", filename)
     }
 
     pattern <- "LineChunk_.*\\.txt$"

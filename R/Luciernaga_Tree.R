@@ -1,4 +1,3 @@
-
 #' Select candidate Luciernaga output .fcs files for future use in unmixing.
 #'
 #' @param BrightnessFilePath A path to the folder the individual brightness files are in.
@@ -192,6 +191,7 @@ InternalTree <- function(x, TheData){
 #'
 #' @noRd
 CSVRead <- function(x){
+
   name <- basename(x)
   internalstrings <- c("RelativeBrightness", ".csv")
   name <- Luciernaga::NameCleanUp(name, removestrings=internalstrings)

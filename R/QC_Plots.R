@@ -114,7 +114,7 @@ QC_Plots <- function(x, FailedFlag, MeasurementType=NULL, Metadata = NULL,
   FlaggedStart <- length(Regular)+1
   FlaggedEnd <- length(ReorderedData)
   RegularStop <- length(Regular)
-  DFNames <- colnames(ReorderedData[1:RegularStop])
+  DFNames <- colnames(ReorderedData[seq_len(RegularStop)])
 
   #Reassemble the data.frame
   TheData <- cbind(TheDateTime, ReorderedData)

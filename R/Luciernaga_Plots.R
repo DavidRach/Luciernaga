@@ -24,6 +24,8 @@
 #' @importFrom dplyr mutate
 #' @importFrom dplyr rename
 #' @importFrom dplyr across
+#' @importFrom dplyr select
+#' @importFrom tidyselect all_of
 #' @importFrom tidyselect everything
 #' @importFrom dplyr bind_rows
 #' @importFrom dplyr bind_cols
@@ -118,7 +120,7 @@ Luciernaga_Plots <- function(data, RetainedType, CellPopRatio, outfolder, filena
   FirstDetectorColumn <- which(grepl("\\d", colnames(data)))[1]
   LastDetectorColumn <- tail(which(grepl("\\d", colnames(data))), 1)
 
-  Replacement <- data %>% select(FirstDetectorColumn:LastDetectorColumn) %>%
+  Replacement <- data %>% select(all_of(FirstDetectorColumn:LastDetectorColumn)) %>%
     head(OtherN) %>% mutate(across(everything(), ~0))
 
   Replacements <- bind_cols(Other, Replacement) %>% ungroup()

@@ -107,6 +107,7 @@ QC_ProspectiveAdditions <- function(path, NumberDetectors, TheCutoff=0.9,
 #'
 #' @noRd
 Comparison <- function(x, TheOtherDetectors, TheList, ReferenceData, TheCutoff){
+
   TheDetector <- x
 
   TheComparisonList <- TheOtherDetectors %>% dplyr::filter(Detector %in% x) %>%
@@ -182,13 +183,29 @@ InstrumentReferences <- function(NumberDetectors){
   FileLocation <- system.file("extdata", package = "Luciernaga")
   TheFile <- file.path(FileLocation, "CytekReferenceLibrary5L.csv")
   ReferenceData <- read.csv(TheFile, check.names = FALSE)
-  } else if (NumberDetectors == 54){instrument <- "FourLaser"
+  } else if (NumberDetectors == 54){instrument <- "FourLaserUV"
   FileLocation <- system.file("extdata", package = "Luciernaga")
   TheFile <- file.path(FileLocation, "CytekReferenceLibrary4LUV.csv")
+  ReferenceData <- read.csv(TheFile, check.names = FALSE)
+  } else if (NumberDetectors == 48){instrument <- "FourLaserYG"
+  FileLocation <- system.file("extdata", package = "Luciernaga")
+  TheFile <- file.path(FileLocation, "CytekReferenceLibrary4LYG.csv")
   ReferenceData <- read.csv(TheFile, check.names = FALSE)
   } else if (NumberDetectors == 38){instrument <- "ThreeLaser"
   FileLocation <- system.file("extdata", package = "Luciernaga")
   TheFile <- file.path(FileLocation, "CytekReferenceLibrary3L.csv")
+  ReferenceData <- read.csv(TheFile, check.names = FALSE)
+  } else if (NumberDetectors == 30){instrument <- "TwoLaserVB"
+  FileLocation <- system.file("extdata", package = "Luciernaga")
+  TheFile <- file.path(FileLocation, "CytekReferenceLibrary2LVB.csv")
+  ReferenceData <- read.csv(TheFile, check.names = FALSE)
+  } else if (NumberDetectors == 22){instrument <- "TwoLaserBR"
+  FileLocation <- system.file("extdata", package = "Luciernaga")
+  TheFile <- file.path(FileLocation, "CytekReferenceLibrary2LBR.csv")
+  ReferenceData <- read.csv(TheFile, check.names = FALSE)
+  } else if (NumberDetectors == 14){instrument <- "OneLaser"
+  FileLocation <- system.file("extdata", package = "Luciernaga")
+  TheFile <- file.path(FileLocation, "CytekReferenceLibrary1L.csv")
   ReferenceData <- read.csv(TheFile, check.names = FALSE)
   } else {message("No References Found")}
 }

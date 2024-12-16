@@ -28,6 +28,7 @@ Imports:
     figpatch,
     flowCore,
     flowWorkspace,
+    generics,
     ggcyto,
     ggplot2,
     grDevices,
@@ -41,7 +42,9 @@ Imports:
     purrr,
     reshape2,
     reticulate,
+    rlang,
     Rtsne,
+    scales,
     stats,
     stringr,
     tibble,
@@ -53,7 +56,7 @@ Imports:
     uwot,
     xml2,
     zoo
-Depends: R (>= 4.3.0)
+Depends: R (>= 4.4.0)
 Suggests: 
     BiocStyle,
     data.table,
@@ -64,7 +67,6 @@ Suggests:
     openCyto,
     RColorBrewer,
     rmarkdown,
-    scales,
     shiny,
     shinyBS,
     shinydashboard,

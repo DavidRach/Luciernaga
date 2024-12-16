@@ -62,7 +62,7 @@ QC_UserLibraries <- function(x, Data, NameAppend, outpath, references=TRUE,
 
   #Re-leveling the factor
   Iterations <- columnLength-4
-  MyVector <- 1:Iterations
+  MyVector <- seq_len(Iterations)
   TheGatheredData$Detector <- factor(TheGatheredData$Detector, levels=MyVector)
 
   #Identifying the iterator samples
@@ -151,7 +151,7 @@ QC_RefPlots <- function(x, Data, references=FALSE, refData=NULL){
       ReferenceData1 <- refData %>% filter(Fluorophore %in% TheFluorochrome) %>%
         rename(value=TheValue)
       Iterations <- nrow(ReferenceData1)
-      MyVector <- 1:Iterations
+      MyVector <- seq_len(Iterations)
       ReferenceData1$Detector <- factor(ReferenceData1$Detector, levels=MyVector)
       ReferenceData1 <- ReferenceData1 %>% mutate(TheSamples="Nope")
 
