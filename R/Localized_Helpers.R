@@ -74,7 +74,7 @@ SC_Unmix <- function(x, sample.name, removestrings, subset,
 
   MaxValues <- WorkAround %>% filter(.data[[Retained]] == 1) %>%
     select(all_of(RetainedA)) %>% pull(.)
-  hist(MaxValues)
+  #hist(MaxValues)
   TargetValue <- quantile(MaxValues, 0.95)
   TargetValue <- TargetValue[[1]]
 
@@ -373,7 +373,7 @@ StainingIndexApproximation <- function(x, NumberDetectors){
   NegativeVals <- Negative %>% pull(1)
   MFI_Neg <- quantile(NegativeVals, probs=0.5, na.rm =TRUE)
   MFI_Neg <- MFI_Neg[[1]]
-  hist(NegativeVals)
+  #hist(NegativeVals)
   MinNeg <- quantile(NegativeVals, probs=0.03, na.rm =TRUE)
   MinNeg <- MinNeg[[1]]
   MaxNeg <- quantile(NegativeVals, probs=0.97, na.rm =TRUE)
@@ -393,6 +393,39 @@ StainingIndexApproximation <- function(x, NumberDetectors){
   colnames(FinalData)[1] <- "name"
 
   return(FinalData)
+}
+
+#' Wrapper Function for Scrambled Eggs Protocol
+#'
+#' @param NumberRepeats Desired number of bootstrap runs
+#' @param NumberFluors Desired Number of Additional Fluorophores
+#' @param NumberDetectors Detector configuration original FCS file
+#' @param GS The GatingSet object corresponding to desired SC
+#' @param sample.name The keyword designating single-color sample name
+#' @param removestrings Values to be removed to leave just the sample name
+#' @param subset The desired gating node
+#' @param multiplier The multiplier for unmixing, default set to 50000
+#' @param outpath Internal outpath argument
+#' @param addon Internal unmix argument
+#'
+#' @importFrom purrr map
+#' @importFrom dplyr bind_rows
+#'
+#' @return A data.frame summarizing the Staining Index and Kappa for each bootstrap
+#' @noRd
+ScrambledEggs <- function(NumberRepeats, NumberFluors, NumberDetectors, GS, sample.name="TUBENAME",
+                          removestrings, subset="lymphocytes", multiplier=50000,
+                          outpath, addon=addon){
+  Data <- list()
+  for(i in seq_along(1:NumberRepeats)){
+    Data[[i]] <- Luciernaga:::SC_Unmix(x=GS, sample.name=sample.name,
+                                       removestrings=removestrings, subset=subset, multiplier=multiplier,
+                                       outpath=outpath, returntype="data", Verbose=FALSE, addon="_Unmixed",
+                                       ratiopopcutoff=0.01, NumberFluors=NumberFluors)
+  }
+  GatedData <- map(.x=Data, .f=Luciernaga:::ToSmallGatingSet)
+  MyData <- map(.x=GatedData, .f=Luciernaga:::StainingIndexApproximation, NumberDetectors=NumberDetectors) %>% bind_rows()
+  return(MyData)
 }
 
 
