@@ -23,6 +23,7 @@
 #' @importFrom dplyr arrange
 #' @importFrom stats lsfit
 #' @importFrom flowCore write.FCS
+#' @importFrom purrr map
 #'
 #' @return A new .fcs file with the new columns appended
 #' @noRd
@@ -70,10 +71,13 @@ SC_Unmix <- function(x, sample.name, removestrings, subset,
   Detectors <- PeakDetectorCounts %>% dplyr::filter(Counts > CellCutoff)
   Retained <- Luciernaga:::RetainTheDetectors(AFOverlap=AFOverlap, Detectors=Detectors, name=name)
 
+  if (!length(Retained)>1){
   RetainedA <- paste0(Retained, "-A")
-
   MaxValues <- WorkAround %>% filter(.data[[Retained]] == 1) %>%
     select(all_of(RetainedA)) %>% pull(.)
+  } else {
+    MaxValues <- map(.x=Retained, .f=RetainedParse, data=WorkAround) %>% unlist()
+  }
   #hist(MaxValues)
   TargetValue <- quantile(MaxValues, 0.95)
   TargetValue <- TargetValue[[1]]
@@ -206,6 +210,24 @@ RetainTheDetectors <- function(AFOverlap, Detectors, name){
   return(Retained)
 }
 
+#' Internal for SC Unmix
+#'
+#' @param x Passed Retained Detector
+#' @param data The Raw and Normed Data.frame
+#'
+#' @importFrom dplyr filter
+#' @importFrom dplyr select
+#' @importFrom dplyr pull
+#' @importFrom tidyselect all_of
+#'
+#' @return A vector of values to be passed to quantile
+#' @noRd
+RetainedParse <- function(x, data){
+  RetainedA <- paste0(x, "-A")
+  MaxValues <- data %>% filter(.data[[x]] == 1) %>%
+    select(all_of(RetainedA)) %>% pull(.)
+}
+
 #' Internal for SC_Unmix
 #'
 #' @param name The passed ligand fluorophore name
@@ -227,7 +249,9 @@ RetainTheDetectors <- function(AFOverlap, Detectors, name){
 #'
 #' @noRd
 ReferenceScramble <- function(name, NumberDetectors, NumberFluors){
-  Name <- strsplit(name, " ")[[1]]
+  Spaces <- str_count(name, " ")
+  if (Spaces <= 1){Name <- strsplit(name, " ")[[1]]
+  } else {Name <- c(sub(" .*", "", name), sub("^[^ ]+ ", "", name))}
   Name <- Name[2]
   TheFluor <- QC_ReferenceLibrary(Name, NumberDetectors=NumberDetectors)
   TheFluor <- TheFluor[[1]]
