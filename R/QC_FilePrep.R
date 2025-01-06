@@ -203,6 +203,7 @@ QC_FilePrep_DailyQC <- function(x){
 #' converts into a "tidyed" dataframe for plotting. Currently works on our 3L, 4L, 5L
 #' Auroras. Please reach out if you find an issue, the .csv export varies a bit and
 #' I want to continue to improve on the code to handle these odd exceptions.
+#' @param DailyQC A single DailyQCReport .csv file, used to import baseline settings.
 #' @param TrackChange Whether to derive a change between previous QC days.
 #'
 #' @importFrom purrr map
@@ -223,7 +224,7 @@ QC_FilePrep_DailyQC <- function(x){
 #'                        full.names=TRUE)
 #' TidyData <- QC_FilePrep(CSV_Files, TrackChange = FALSE)
 
-QC_FilePrep <- function(x, TrackChange){
+QC_FilePrep_LJTracking <- function(x, TrackChange, DailyQC){
 
     # Read the lines of the CSV file
     ReadInfo <- readLines(x)
@@ -254,7 +255,7 @@ QC_FilePrep <- function(x, TrackChange){
       }
     }
 
-    EmptyRowCheck
+    #EmptyRowCheck
 
     StartPositions <- ThePositions + 1
 
