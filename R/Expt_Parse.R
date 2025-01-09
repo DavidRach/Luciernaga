@@ -18,6 +18,7 @@ SpectroFloSignatureParser <- function(x, ColumnNames="detector", returnType="dat
   Landing <- xml_children(Parsed)
   Info <- Landing[xml_name(Landing) == "Info"][[1]]
   Info_child <- xml_children(Info)
+  if (any(xml_name(Info_child) == "ExperimentDesc")){
   ExperimentDesc <- Info_child[xml_name(Info_child) == "ExperimentDesc"][[1]]
   Experiment_child <- xml_children(ExperimentDesc)
   RefSetUp <- Experiment_child[xml_name(Experiment_child) == "_RefSetupResult"][[1]]
@@ -43,6 +44,8 @@ SpectroFloSignatureParser <- function(x, ColumnNames="detector", returnType="dat
     Value <- NULL
     return(Value)
   }
+
+  } else {message("Old software version")}
 
 }
 
