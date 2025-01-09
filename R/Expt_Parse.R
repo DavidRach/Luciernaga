@@ -16,21 +16,38 @@
 SpectroFloSignatureParser <- function(x, ColumnNames="detector", returnType="data"){
   Parsed <- read_xml(x)
   Landing <- xml_children(Parsed)
-  Info <- Landing[xml_name(Landing) == "Info"][[1]]
-  Info_child <- xml_children(Info)
-  if (any(xml_name(Info_child) == "ExperimentDesc")){
-  ExperimentDesc <- Info_child[xml_name(Info_child) == "ExperimentDesc"][[1]]
-  Experiment_child <- xml_children(ExperimentDesc)
+
+  # Two Older Versions
+  if (any(xml_name(Landing) == "ExperimentData")){
+    ExperimentData <- Landing[xml_name(Landing) == "ExperimentData"]
+    Experiment_child <- xml_children(ExperimentData)
+    if (length(Experiment_child) == 0){
+      Info <- Landing[xml_name(Landing) == "Info"][[1]]
+      Info_child <- xml_children(Info)
+      if (any(xml_name(Info_child) == "ExperimentDesc")){
+        ExperimentDesc <- Info_child[xml_name(Info_child) == "ExperimentDesc"][[1]]
+        Experiment_child <- xml_children(ExperimentDesc)
+      } else {message("Missed version for ", x)}
+    }
+  } else { # More Recent Version
+    Info <- Landing[xml_name(Landing) == "Info"][[1]]
+    Info_child <- xml_children(Info)
+    if (any(xml_name(Info_child) == "ExperimentDesc")){
+      ExperimentDesc <- Info_child[xml_name(Info_child) == "ExperimentDesc"][[1]]
+      Experiment_child <- xml_children(ExperimentDesc)
+    } else {message("Missed version for ", x)}
+  }
+
   RefSetUp <- Experiment_child[xml_name(Experiment_child) == "_RefSetupResult"][[1]]
   RefSetUp_child <- xml_children(RefSetUp)
 
   if (length(RefSetUp_child) != 0){
   SpillOverColumn <- RefSetUp_child[xml_name(RefSetUp_child) == "SpilloverColumnList"][[1]]
   Spill_child <- xml_children(SpillOverColumn) # Number Children
-  Data <- map(.x=Spill_child, .f=NormalizedParser) %>% bind_rows()
+  Data <- map(.x=Spill_child, .f=Luciernaga:::NormalizedParser) %>% bind_rows()
 
   if (ColumnNames=="detector"){
-    Data <- ColumnNaming(x=Data)
+    Data <- Luciernaga:::ColumnNaming(x=Data)
   }
 
   if (returnType == "data"){
@@ -45,7 +62,7 @@ SpectroFloSignatureParser <- function(x, ColumnNames="detector", returnType="dat
     return(Value)
   }
 
-  } else {message("Old software version")}
+  #} else {message("Old software version")}
 
 }
 
@@ -117,7 +134,13 @@ PlotlySignatures <- function(data, TheFactor="Fluorophore"){
     Fluorophore <- data.frame(Fluorophore)
 
     Param_child <- Parameters[xml_name(Parameters) == "_SpilloverVectorArea"]
+
     FloatingValues <- xml_find_all(Param_child, ".//d7p1:float", ns = xml_ns(Param_child))
+
+    if (length(FloatingValues) == 0){
+      FloatingValues <- xml_find_all(Param_child, ".//d6p1:float", ns = xml_ns(Param_child))
+    }
+
     ValueVector <- as.numeric(xml2::xml_text(FloatingValues))
     Data <- data.frame(t(ValueVector))
     Data <- cbind(DateTime, Fluorophore, Data)
