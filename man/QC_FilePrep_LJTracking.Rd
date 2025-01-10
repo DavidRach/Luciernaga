@@ -4,15 +4,13 @@
 \alias{QC_FilePrep_LJTracking}
 \title{Converts the Cytek Aurora (TM)'s QC report into a data frame.}
 \usage{
-QC_FilePrep_LJTracking(x, TrackChange, DailyQC)
+QC_FilePrep_LJTracking(x, DailyQC)
 }
 \arguments{
 \item{x}{Takes a Levy-Jennings QC tracking report saved as a .csv file, and
 converts into a "tidyed" dataframe for plotting. Currently works on our 3L, 4L, 5L
 Auroras. Please reach out if you find an issue, the .csv export varies a bit and
 I want to continue to improve on the code to handle these odd exceptions.}
-
-\item{TrackChange}{Whether to derive a change between previous QC days.}
 
 \item{DailyQC}{A single DailyQCReport .csv file, used to import baseline settings.}
 }
@@ -27,5 +25,5 @@ File_Location <- system.file("extdata", package = "Luciernaga")
 CSV_Pattern <- ".CSV$"
 CSV_Files <- list.files(path=File_Location, pattern=CSV_Pattern,
                        full.names=TRUE)
-TidyData <- QC_FilePrep(CSV_Files, TrackChange = FALSE)
+TidyData <- QC_FilePrep(x=CSV_Files, DailyQC=DailyQC)
 }

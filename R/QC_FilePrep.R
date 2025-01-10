@@ -204,15 +204,20 @@ QC_FilePrep_DailyQC <- function(x){
 #' Auroras. Please reach out if you find an issue, the .csv export varies a bit and
 #' I want to continue to improve on the code to handle these odd exceptions.
 #' @param DailyQC A single DailyQCReport .csv file, used to import baseline settings.
-#' @param TrackChange Whether to derive a change between previous QC days.
 #'
-#' @importFrom purrr map
+#' @importFrom purrr map2
+#' @importFrom tidyr pivot_longer
+#' @importFrom tidyr pivot_wider
+#' @importFrom tidyselect all_of
+#' @importFrom dplyr "%>%"
+#' @importFrom dplyr mutate
 #' @importFrom dplyr select
-#' @importFrom dplyr rename
-#' @importFrom dplyr %>%
-#' @importFrom tidyr starts_with
+#' @importFrom dplyr left_join
+#' @importFrom dplyr case_when
+#' @importFrom dplyr bind_cols
+#' @importFrom dplyr across
+#' @importFrom tidyselect everything
 #' @importFrom lubridate mdy_hms
-#' @importFrom lubridate mdy_hm
 #'
 #' @return A dataframe.
 #' @export
@@ -222,133 +227,198 @@ QC_FilePrep_DailyQC <- function(x){
 #' CSV_Pattern <- ".CSV$"
 #' CSV_Files <- list.files(path=File_Location, pattern=CSV_Pattern,
 #'                        full.names=TRUE)
-#' TidyData <- QC_FilePrep(CSV_Files, TrackChange = FALSE)
+#' TidyData <- QC_FilePrep(x=CSV_Files, DailyQC=DailyQC)
 
-QC_FilePrep_LJTracking <- function(x, TrackChange, DailyQC){
+QC_FilePrep_LJTracking <- function(x, DailyQC){
+  ReadInfo <- readLines(x)
+  ReadInfo <- ReadInfo[ReadInfo != ""]
 
-    # Read the lines of the CSV file
-    ReadInfo <- readLines(x)
+  GainIndex <- grep("^Gain", ReadInfo)
+  rCVIndex <- grep("^% rCV", ReadInfo)
+  LaserIndex <- grep("^Laser Delay", ReadInfo)
+  AreaIndex <- grep("^Area Scaling Factor", ReadInfo)
+  FSCIndex <- grep("^FSC Area Scaling Factor", ReadInfo)
+  LaserPowerIndex <- grep("^Laser Power", ReadInfo)
 
-    # More than one way into a house...
-    ReadInfo <- ReadInfo[ReadInfo != ""]
+  ThePositions <- c(GainIndex, rCVIndex, LaserIndex,
+                    AreaIndex, FSCIndex, LaserPowerIndex)
 
-    GainIndex <- grep("^Gain", ReadInfo)
-    rCVIndex <- grep("^% rCV", ReadInfo)
-    LaserIndex <- grep("^Laser Delay", ReadInfo)
-    AreaIndex <- grep("^Area Scaling Factor", ReadInfo)
-    FSCIndex <- grep("^FSC Area Scaling Factor", ReadInfo)
-    LaserPowerIndex <- grep("^Laser Power", ReadInfo)
+  Final <- length(ReadInfo)
+  StartPositions <- ThePositions + 1
+  EndPositions <- ThePositions - 1
+  EndPositions <- EndPositions[-1]
+  EndPosition <- c(EndPositions, Final)
 
-    ThePositions <- c(GainIndex, rCVIndex, LaserIndex, AreaIndex, FSCIndex,
-                      LaserPowerIndex)
-    #ThePositions <- c(GainIndex, LaserIndex, AreaIndex, rCVIndex,  FSCIndex,
-    #LaserPowerIndex)
+  if (StartPositions[length(StartPositions)] > Final){
+    StartHere <- StartPositions[-length(StartPositions)]
+    EndHere <- EndPosition[-length(EndPosition)]
+  } else {
+    StartHere <- StartPositions
+    EndHere <- EndPosition
+  }
 
-    ThePositions <- sort(ThePositions) #In case not everything was exported
+  TheFrames <- map2(.x=StartHere, .y=EndHere, ReadInfo=ReadInfo, .f=ParseThis)
 
-    EmptyRowCheck <- logical(length(ThePositions))
-    for (i in seq_along(ThePositions)) {
-      if (ThePositions[i] > 1) {
-        EmptyRowCheck[i] <- grepl("^,*$", ReadInfo[ThePositions[i] - 1])
-      } else {
-        EmptyRowCheck[i] <- FALSE
-      }
-    }
+  Updated <- TheFrames
 
-    #EmptyRowCheck
+  Gains <- Updated[[1]]
+  GainLength <- ncol(Gains)
 
-    StartPositions <- ThePositions + 1
+  GainLonger <- Gains %>%
+    pivot_longer(all_of(2:GainLength), names_to="DetectorMain", values_to="Value")
 
-    SpacePositions <- ThePositions - ifelse(EmptyRowCheck, 2, 0)
-    NoSpacePositions <- SpacePositions - ifelse(EmptyRowCheck, 0, 1)
+  Baseline <- DailyQCBaseline(DailyQC)
+  Comparison <- cbind(GainLonger, Baseline)
+  Comparison$Value <- as.numeric(Comparison$Value)
+  Comparison$Comparison <- as.numeric(Comparison$Comparison)
 
-    EndPositions <- NoSpacePositions[-1]
+  Comparison <- Comparison %>%
+    mutate(GainFlag = Value > Comparison) %>%
+    select(-Detector, -Comparison) %>% mutate(DetectorFlag=paste0("Flag-", DetectorMain))
 
-    FinalPosition <- length(ReadInfo)
+  GainsMain <- Comparison %>% select(DateTime, DetectorMain, Value) %>%
+    pivot_wider(names_from = DetectorMain, values_from = Value)
 
-    #if (grepl("^,*$", ReadInfo[FinalPosition])){}
+  GainsFlag <- Comparison %>% select(DateTime, DetectorFlag, GainFlag) %>%
+    pivot_wider(names_from = DetectorFlag, values_from = GainFlag)
 
-    ReadInfo[FinalPosition - 1]
+  TheGains <- left_join(GainsMain, GainsFlag, by="DateTime")
 
-    EndPositions <- c(EndPositions, FinalPosition)
+  RCVs <- Updated[[2]]
+  RCVsLength <- ncol(RCVs)
+  RCVsLonger <- RCVs %>%
+    pivot_longer(all_of(2:RCVsLength), names_to = "RCVMain", values_to = "Value")
 
-    difference <- StartPositions - EndPositions
+  RCVsLonger$Value <- as.numeric(RCVsLonger$Value)
 
-    if (length(unique(difference)) > 1) {
-      stop("There are different number of blank rows in the .csv file.
-           Please make sure   there is a single space in between chunks ")
-    }
+  Comparison <- RCVsLonger %>% mutate(RCVFlag = Value > 6) %>%
+    mutate(Detector=gsub("-% rCV", "", RCVMain)) %>%
+    mutate(RCVFlag = case_when(
+      Detector == "SSC" | Detector == "SSC-B" & Value < 8 ~ FALSE,
+      TRUE ~ RCVFlag)) %>% select(-Detector) %>%
+      mutate(FlagRCV=paste0("Flag-", RCVMain))
 
-    TheLineChunks <- list()
+  RCVsMain <- Comparison %>% select(DateTime, RCVMain, Value) %>%
+    pivot_wider(names_from=RCVMain, values_from = Value)
 
-    for (i in seq_along(StartPositions)) {
-      start <- StartPositions[i]
-      end <- EndPositions[i]
+  RCVsFlag <- Comparison %>% select(DateTime, FlagRCV, RCVFlag) %>%
+    pivot_wider(names_from=FlagRCV, values_from = RCVFlag)
 
-      TheLineChunks[[i]] <- ReadInfo[start:end]
-    }
+  TheRCVs <- left_join(RCVsMain, RCVsFlag, by="DateTime")
 
-    for (i in seq_along(TheLineChunks)) {
-      filename <- paste0("LineChunk_", i, ".txt")
-      writeLines(TheLineChunks[[i]], filename)
-      message("Lines extracted from ", StartPositions[i], " to ",
-              EndPositions[i], " written to ", filename)
-    }
+  UpdatedItems <- length(Updated)
 
-    pattern <- "LineChunk_.*\\.txt$"
-    #searchlocation <- dirname(path)
-    TheLineChunkText <- list.files(pattern=pattern) #It's in working directory
-    TheLineChunkText
+  Others <- Updated[3:UpdatedItems] %>%
+    lapply(function(df) df %>% select(-DateTime)) %>%
+    bind_cols()
 
-    TidyedData <- map(TheLineChunkText, .f=ChunkReader) %>% bind_cols()
+  Others[] <- lapply(Others, as.numeric)
 
-    unlink(TheLineChunkText) #For Cleanup (or make temp folder)
+  OtherAdditional <- Others %>%
+    mutate(across(everything(), ~ FALSE, .names = "Flag-{.col}"))
 
-    TidyedData_Clean <- TidyedData[, colSums(is.na(TidyedData)) != nrow(TidyedData)]
+  TheDataset <- left_join(TheGains, TheRCVs, by="DateTime")
+  TheDataset <- cbind(TheDataset, OtherAdditional)
 
-    df <- TidyedData_Clean
-    col_names <- colnames(df)
+  TheDataset$DateTime <- mdy_hms(TheDataset$DateTime)
 
-    for (i in seq_along(col_names)) {
-      if (grepl("Out of Range Flag", col_names[i])) {
-        prev_col_name <- col_names[i - 1]
-        new_col_name <- paste0("Flag-", prev_col_name)
-        names(df)[i] <- new_col_name
-      }
-    }
-
-    RedundantColumns <- df %>% select(starts_with("DateTime")) %>%
-      select(-1) %>% colnames()
-    UpdatedDF <- df %>% select(-one_of(RedundantColumns)) %>%
-      rename(DateTime = "DateTime...1")
-    #colnames(UpdatedDF)
-    #str(UpdatedDF)
-
-    if (any(grepl("AM", UpdatedDF$DateTime))) {
-      UpdatedDF$DateTime <- mdy_hms(UpdatedDF$DateTime)
-    } else {UpdatedDF$DateTime <- mdy_hm(UpdatedDF$DateTime)}
-
-    if (TrackChange == TRUE){
-      FinalCol <- length(UpdatedDF)
-      DateTime <- UpdatedDF %>% select(1)
-      MainData <- UpdatedDF %>% select(all_of(2:FinalCol))
-
-      Main_Columns <- MainData[, seq(1, ncol(MainData), by = 2)]
-      Flag_Columns <- MainData[, seq(2, ncol(MainData), by = 2)]
-
-      Main_Columns <- colnames(Main_Columns)
-      Flag_Columns <- colnames(Flag_Columns)
-
-      NewlyUpdatedDF <- map2(.x=Main_Columns, .y=Flag_Columns,
-         .f=Internal_ChangeCalcs, TheData=MainData) %>% bind_cols()
-      NewlyUpdatedDF <- cbind(DateTime, NewlyUpdatedDF)
-
-    } else {NewlyUpdatedDF <- UpdatedDF}
-
-    return(NewlyUpdatedDF)
-
+  TheDataset$DateTime <-
+  return(TheDataset)
 }
 
+#' Internal for LJTracking parser
+#'
+#' @param x A DailyQC report .csv
+#'
+#' @importFrom lubridate ymd
+#' @importFrom lubridate hms
+#' @importFrom dplyr mutate
+#' @importFrom dplyr relocate
+#' @importFrom dplyr select
+#'
+#' @return A data.frame comparing the cutoffs for Gains
+#' @noRd
+DailyQCBaseline <- function(x){
+  ReadInfo <- readLines(x)
+  #ReadInfo
+  index <- grep("^Laser Settings", ReadInfo)
+  Final <- length(ReadInfo)
+
+  #Instrument
+  InitialIndex <- grep("^DailyQC", ReadInfo)
+  Initial <- ReadInfo[InitialIndex]
+  String <- gsub("DailyQCReport_", "", Initial)
+  Parts <- strsplit(String, "_")[[1]]
+  Instrument <- data.frame(Instrument = Parts[1])
+  Date <- data.frame(Date = Parts[2])
+  Date$Date <- lubridate::ymd(Date$Date)
+  Time <- data.frame(Time = Parts[3])
+  Time$Time <- sub("(\\d{2})(\\d{2})(\\d{2})", "\\1:\\2:\\3", Time$Time)
+  Time$Time <- lubridate::hms(Time$Time)
+  Intro <- cbind(Date, Time, Instrument)
+  Intro <- Intro %>%
+    mutate(DateTime=Date+Time) %>%
+    relocate(DateTime, .before=1) %>%
+    select(-Date, -Time)
+
+  # Detector Section
+  StartDetector <- grep("^Laser,Detector", ReadInfo)
+  #FinalDetector <- grep("^Red,R8", ReadInfo)
+  DetectorSegment <- ReadInfo[StartDetector:(index-3)]
+  DetectorLength <- length(DetectorSegment)
+
+  header <- strsplit(DetectorSegment[1], ",")[[1]]
+  #extra <- strsplit(DetectorSegment[2], ",")[[1]]
+  #header <- c(header, extra)
+
+  data <- DetectorSegment[3:DetectorLength]
+  data <- strsplit(data, ",")
+
+  TheData <- do.call(rbind, lapply(
+    data, function(x) as.data.frame(t(x), stringsAsFactors = FALSE)))
+  colnames(TheData) <- header
+
+  TheData$Detector <- gsub(" .*", "", TheData$Detector)
+  colnames(TheData) <- gsub(" ", "", colnames(TheData))
+  TheData$Gain <- as.integer(TheData$Gain)
+  TheData$DeltaGain <- as.integer(TheData$DeltaGain)
+  TheData$`%rCV` <- as.numeric(TheData$`%rCV`)
+
+  #TheData[2,7] <- 7
+
+  Updated <- TheData %>%
+    mutate(Baseline=Gain-DeltaGain) %>%
+    mutate(Comparison=Baseline*2)
+
+  Cutoff <- Updated %>% select(Detector, Comparison)
+  return(Cutoff)
+}
+
+#' Internal for LJTracking Parse
+#'
+#' @param x The starting index
+#' @param y The End Index
+#' @param ReadInfo The ReadLines object
+#'
+#' @importFrom stringr str_detect
+#' @importFrom dplyr select
+#' @importFrom tidyselect all_of
+#'
+#' @return A data.frame chunk from the original
+#'
+#' @noRd
+ParseThis <- function(x, y, ReadInfo){
+  DetectorSegment <- ReadInfo[x:y]
+  DetectorLength <- length(DetectorSegment)
+  header <- strsplit(DetectorSegment[1], ",")[[1]]
+  data <- strsplit(DetectorSegment, ",")
+  TheData <- do.call(rbind, lapply(data, function(x) as.data.frame(t(x), stringsAsFactors = FALSE)))
+  colnames(TheData) <- header
+  TheData <- TheData[-1,]
+  cols_to_select <- which(str_detect(colnames(TheData), "Out of Range Flag"))
+  SelectedData <- TheData %>% select(-all_of(cols_to_select))
+  return(SelectedData)
+}
 
 #' Internal for CytekQCFilePrep
 #'
