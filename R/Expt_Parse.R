@@ -16,6 +16,18 @@
 SpectroFloSignatureParser <- function(x, ColumnNames="detector", returnType="data"){
   Parsed <- read_xml(x)
   Landing <- xml_children(Parsed)
+  Info <- Landing[xml_name(Landing) == "Info"][[1]]
+  Info_child <- xml_children(Info)
+  IsConventional <- Info_child[xml_name(Info_child) == "IsConventional"]
+
+  if (length(IsConventional) > 0){
+    Conventional <- xml_text(IsConventional)
+    if (Conventional == "true"){
+      message("Conventional experiment, skipping")
+      Value <- NULL
+      return(Value)
+    }
+  }
 
   # Two Older Versions
   if (any(xml_name(Landing) == "ExperimentData")){
@@ -125,7 +137,7 @@ PlotlySignatures <- function(data, TheFactor="Fluorophore"){
     DateTime <- TheDate + TheTime
     DateTime <- data.frame(DateTime)
 
-    DateValues <- xml_find_all(Date, ".//d4p1:float", ns = xml_ns(Date))
+    #DateValues <- xml_find_all(Date, ".//d4p1:float", ns = xml_ns(Date))
 
     RefControl <- Parameters[xml_name(Parameters) == "_RefControlDesc"]
     RefControl_child <- xml_children(RefControl)
