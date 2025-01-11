@@ -4,14 +4,24 @@
 \alias{QC_LibraryParse}
 \title{Parses Library Reference Control .XML files and returns}
 \usage{
-QC_LibraryParse(x, returntype, references = TRUE)
+QC_LibraryParse(
+  x,
+  returntype,
+  references = TRUE,
+  myfactor = "Fluorophore",
+  namefactor = "Sample"
+)
 }
 \arguments{
 \item{x}{An .XML file}
 
-\item{returntype}{What to return "dataframe" or "plots"}
+\item{returntype}{What to return "data" or "plots"}
 
-\item{references}{Whether to add reference fluorophore signature in red}
+\item{references}{Plot argument, adds red reference signature}
+
+\item{myfactor}{Plot argument, data column to group by for plotting. Default "Fluorophore".}
+
+\item{namefactor}{Plot argument, data column name added to Plot Title.}
 }
 \value{
 TBD
