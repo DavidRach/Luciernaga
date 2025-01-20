@@ -144,7 +144,10 @@ QC_FilePrep_DailyQC <- function(x){
   Temperature <- Temperature %>%
     mutate(across(everything(), ~ FALSE, .names = "Flag-{.col}"))
 
-  LaserFrame <- LaserSegment[2:(FSCIndex-1)]
+  if (length(FSCIndex) == 2){
+  LaserFrame <- LaserSegment[2:(FSCIndex[1]-1)]
+  } else {LaserFrame <- LaserSegment[2:(FSCIndex-1)]}
+    
   LaserFrame <- strsplit(LaserFrame, ",")
 
   LaserFrame <- do.call(rbind, lapply(
@@ -205,7 +208,7 @@ QC_FilePrep_DailyQC <- function(x){
   NewData <- NewData %>% select(-Instrument)
 
   return(NewData)
-}
+  }
 
 #' Converts the Cytek Aurora (TM)'s QC report into a data frame.
 #'
