@@ -226,7 +226,7 @@ InternalUnmix <- function(cs, StashedDF, TheData, Ligands){
   colnames(NewMatrix) <- TheSpilloverNames
 
   new_kw$`$SPILLOVER` <- NewMatrix
-  new_kw$`CREATOR` <- "Luciernaga 0.0.1"
+  new_kw$`CREATOR` <- "Luciernaga 0.99.1"
 
   # Adding back to extract again?
   fr@exprs <- cols
