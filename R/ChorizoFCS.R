@@ -47,12 +47,18 @@ TheWrapperFunction <- function(x){
  TheParamList <- flatten(TheParamList)
  #View(TheParamList)
 
+ TheNames <- Parameters[['name']]
+ TheNames <- TheNames[!grepl("Time|FSC|SSC", TheNames, ignore.case = TRUE)]
+ Diagonally <- diag(1, nrow = length(TheNames), ncol = length(TheNames))
+ colnames(Diagonally) <- TheNames
+ Diagonally[2, 1] <- 0.000001
+
  # SpillOver Matrix Creation
 
  Description_2 <- list(
    '$PAR'='0',
    '$PROJ'='0',
-   '$SPILLOVER'='0',
+   '$SPILLOVER'= Diagonally,
    '$TIMESTEP'='0',
    '$TOT'='0',
    '$VOL'='0',
@@ -91,6 +97,20 @@ TheWrapperFunction <- function(x){
  AllLasers <- map(.x=Lasers, .f=LaserList, data=LaserData_subset)
  AllLasers <- flatten(AllLasers)
  #View(AllLasers)
+
+ DisplaySetup <- ParameterAdjust %>% select(name)
+ DisplaySetup <- DisplaySetup %>% mutate(Display="LOG")
+ DisplaySetup <- DisplaySetup %>% mutate(
+   Display = case_when(name == "Time" ~ 'LIN', TRUE ~ Display),
+   Display = case_when(name == "FSC-A" ~ 'LIN', TRUE ~ Display),
+   Display = case_when(name == "FSC-H" ~ 'LIN', TRUE ~ Display),
+   Display = case_when(name == "FSC-W" ~ 'LIN', TRUE ~ Display),
+   Display = case_when(name == "SSC-A" ~ 'LIN', TRUE ~ Display),
+   Display = case_when(name == "SSC-H" ~ 'LIN', TRUE ~ Display),
+   Display = case_when(name == "SSC-W" ~ 'LIN', TRUE ~ Display),
+   Display = case_when(name == "SSC-B-A" ~ 'LIN', TRUE ~ Display),
+   Display = case_when(name == "SSC-B-H" ~ 'LIN', TRUE ~ Display),
+   Display = case_when(name == "SSC-B-W" ~ 'LIN', TRUE ~ Display))
 
  #View(Display)
 
