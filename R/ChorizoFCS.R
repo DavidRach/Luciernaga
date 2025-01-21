@@ -1,4 +1,4 @@
-#' Main Function for Chorizo
+#' Creates a Description List for .fcs file from scratch.
 #'
 #' @param x The data.frame of exprs values (including time and scatters)
 #'
@@ -9,10 +9,12 @@
 #' @importFrom dplyr pull
 #' @importFrom dplyr mutate
 #' @importFrom dplyr relocate
+#' @importFrom dplyr select
+#' @importFrom dplyr case_when
 #'
 #' @return A TBD product
 #' @noRd
-TheWrapperFunction <- function(x){
+DescriptionGenesis <- function(x){
  Parameters <- ParameterPrep(x)
 
  Description <- list(
@@ -56,19 +58,19 @@ TheWrapperFunction <- function(x){
  # SpillOver Matrix Creation
 
  Description_2 <- list(
-   '$PAR'='0',
-   '$PROJ'='0',
+   '$PAR'='74',
+   '$PROJ'='2025_Example',
    '$SPILLOVER'= Diagonally,
-   '$TIMESTEP'='0',
-   '$TOT'='0',
-   '$VOL'='0',
-   'APPLY COMPENSATION'='0',
-   'CHARSET'='0',
-   'CREATOR'='0',
-   'FILENAME'='0',
-   'FSC ASF'='0',
-   'GROUPNAME'='0',
-   'GUID'='0'
+   '$TIMESTEP'='0.0001',
+   '$TOT'='10000',
+   '$VOL'='30.28',
+   'APPLY COMPENSATION'='FALSE',
+   'CHARSET'='utf-8',
+   'CREATOR'='Luciernaga 0.99.1',
+   'FILENAME'='C:\\Users\\FulanoDeTal\\Desktop\\ExampleData.fcs',
+   'FSC ASF'='1.04',
+   'GROUPNAME'='ExampleGroup',
+   'GUID'='ExampleData.fcs'
  )
 
  #View(Description_2)
@@ -112,6 +114,11 @@ TheWrapperFunction <- function(x){
    Display = case_when(name == "SSC-B-H" ~ 'LIN', TRUE ~ Display),
    Display = case_when(name == "SSC-B-W" ~ 'LIN', TRUE ~ Display))
 
+ TheDisplayNames <- rownames(DisplaySetup)
+
+ DisplayList <- map(.x=TheDisplayNames, .f=DisplayInternal, data=DisplaySetup)
+ Display <- flatten(DisplayList)
+
  #View(Display)
 
  Description_3 <- list(
@@ -123,6 +130,37 @@ TheWrapperFunction <- function(x){
  )
  #View(Description_3)
 
+ ###################
+ # List, Assemble! #
+ ###################
+
+ TheMegaList <- c(Description, TheParamList, Description_2,
+                  AllLasers, Display, Description_3)
+
+ return(TheMegaList)
+}
+
+
+#' Internal for Chorizo, setup Display parameters for Description
+#'
+#' @param x The iterated rowname
+#' @param data The Display data.frame to be filtered
+#'
+#' @importFrom dplyr pull
+#'
+#' @return The list of display parameters for the detector
+#' @noRd
+DisplayInternal <- function(x, data){
+  Subset <- data[x,]
+
+  TheX <- gsub("$", "", fixed=TRUE, x)
+
+  Display <- paste0(TheX, "DISPLAY")
+  DisplayVal <- Subset %>% pull(Display)
+
+  DisplayList <- list(Display=DisplayVal)
+  names(DisplayList) <- Display
+  return(DisplayList)
 }
 
 #' Internal for Chorizo, iterates out individual detector parameters
@@ -158,8 +196,9 @@ ParameterDictate <- function(x, data){
   } else if (str_detect(NameVal, "Time")){
     TypeVal <-  'Time'
   } else {TypeVal <-  'Raw_Fluorescence'}
-  VoltVal <-  '307'
 
+  if (!str_detect(NameVal, "Time")){
+  VoltVal <-  '307'
   DetectorList <- list(
     Bits = BitsVal,
     Ehh = EhhVal,
@@ -168,9 +207,17 @@ ParameterDictate <- function(x, data){
     Type = TypeVal,
     Volt = VoltVal
   )
-
-  # Optionally, set the names programmatically if dynamic
   names(DetectorList) <- c(Bits, Ehh, Name, Range, Type, Volt)
+  } else {
+    DetectorList <- list(
+      Bits = BitsVal,
+      Ehh = EhhVal,
+      Name = NameVal,
+      Range = RangeVal,
+      Type = TypeVal
+    )
+    names(DetectorList) <- c(Bits, Ehh, Name, Range, Type)
+  }
 
   return(DetectorList)
 }
