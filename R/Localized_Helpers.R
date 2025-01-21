@@ -234,6 +234,7 @@ RetainedParse <- function(x, data){
 #' @param NumberDetectors The number of detectors for referencing
 #' @param NumberFluors Desired number of additional fluorophores in the matrix
 #'
+#' @importFrom stringr str_count
 #' @importFrom dplyr select
 #' @importFrom dplyr filter
 #' @importFrom dplyr pull
@@ -250,7 +251,8 @@ RetainedParse <- function(x, data){
 #' @noRd
 ReferenceScramble <- function(name, NumberDetectors, NumberFluors){
   Spaces <- str_count(name, " ")
-  if (Spaces <= 1){Name <- strsplit(name, " ")[[1]]
+  if (Spaces == 0){message("Provide argument like `CD4 BUV805` for correct formatting")
+  } else if (Spaces <= 1){Name <- strsplit(name, " ")[[1]]
   } else {Name <- c(sub(" .*", "", name), sub("^[^ ]+ ", "", name))}
   Name <- Name[2]
   TheFluor <- QC_ReferenceLibrary(Name, NumberDetectors=NumberDetectors)

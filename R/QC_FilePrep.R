@@ -9,6 +9,7 @@
 #' @importFrom dplyr relocate
 #' @importFrom dplyr select
 #' @importFrom dplyr case_when
+#' @importFrom dplyr rename
 #' @importFrom tidyr pivot_wider
 #' @importFrom tidyselect everything
 #' @importFrom dplyr across
@@ -66,8 +67,17 @@ QC_FilePrep_DailyQC <- function(x){
   TheData$Detector <- gsub(" .*", "", TheData$Detector)
   colnames(TheData) <- gsub(" ", "", colnames(TheData))
   TheData$Gain <- as.integer(TheData$Gain)
-  TheData$DeltaGain <- as.integer(TheData$DeltaGain)
   TheData$`%rCV` <- as.numeric(TheData$`%rCV`)
+
+  if(any(colnames(TheData) == "DeltaGain")){
+  TheData$DeltaGain <- as.integer(TheData$DeltaGain)
+  }
+
+  if(any(colnames(TheData) == "GainChange")){
+    TheData <- TheData %>% rename(DeltaGain = GainChange)
+    TheData$DeltaGain <- as.integer(TheData$DeltaGain)
+  }
+
 
   #TheData[2,7] <- 7
 
@@ -134,7 +144,10 @@ QC_FilePrep_DailyQC <- function(x){
   Temperature <- Temperature %>%
     mutate(across(everything(), ~ FALSE, .names = "Flag-{.col}"))
 
-  LaserFrame <- LaserSegment[2:(FSCIndex-1)]
+  if (length(FSCIndex) == 2){
+  LaserFrame <- LaserSegment[2:(FSCIndex[1]-1)]
+  } else {LaserFrame <- LaserSegment[2:(FSCIndex-1)]}
+    
   LaserFrame <- strsplit(LaserFrame, ",")
 
   LaserFrame <- do.call(rbind, lapply(
@@ -195,7 +208,7 @@ QC_FilePrep_DailyQC <- function(x){
   NewData <- NewData %>% select(-Instrument)
 
   return(NewData)
-}
+  }
 
 #' Converts the Cytek Aurora (TM)'s QC report into a data frame.
 #'
