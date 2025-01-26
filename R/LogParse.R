@@ -13,8 +13,9 @@ ApplicationLogParse <- function(x, returnType="clean"){
 
   ReadInfo <- readLines(x)
   #ReadInfo <- ReadInfo[ReadInfo != ""]
-  Splits <- strsplit(ReadInfo, "\t")
-  
+  #Splits <- strsplit(ReadInfo, "\t")
+  Splits <- strsplit(ReadInfo, "\\s*\\t\\s*")
+
   Data <- data.frame(
     DateTime = sapply(Splits, function(x) x[1]),
     Command = sapply(Splits, function(x) x[2])
@@ -31,11 +32,14 @@ ApplicationLogParse <- function(x, returnType="clean"){
   }
   
   Dataset <- Dataset[!is.na(Dataset$DateTime), ]
+
+  if (nrow(Dataset) != 0){
   Dataset$DateTime <- trimws(Dataset$DateTime, which="right")
   Dataset$DateTime <- mdy_hms(Dataset$DateTime)
   #Troubleshooting <- Dataset[is.na(Dataset$DateTime), ]
-  
-  return(Dataset)
+  } else {message("No error-free rows detected, returning NULL, expect bind_rows to error")
+    Dataset <- NULL}
+  return(Dataset) 
   }
 
 #' Internal for Application Log Parse, filters out or in the Error and StackTraces
@@ -54,9 +58,10 @@ ErrorStacks <- function(data, returnType="clean"){
     ErrorReadoutsIndex <- which(grepl(" ", IndicatorChar))
     ErrorReadoutsIndex2 <- which(grepl("-", IndicatorChar))
     ErrorReadoutsIndex3 <- which(grepl("^[a-zA-Z]", IndicatorChar))
+    ErrorReadoutsIndex4 <- which(grepl("'", IndicatorChar))
     
     These <- sort(unique(c(ErrorIndex, StackTraceIndex, ErrorReadoutsIndex,
-     ErrorReadoutsIndex2, ErrorReadoutsIndex3)))
+     ErrorReadoutsIndex2, ErrorReadoutsIndex3, ErrorReadoutsIndex4)))
     
     if (returnType != "clean"){
         ErrorStacks <- data[These, ]
@@ -64,4 +69,4 @@ ErrorStacks <- function(data, returnType="clean"){
         ErrorStacks <- data[-These, ]
         }
     return(ErrorStacks)
-    }
+}
