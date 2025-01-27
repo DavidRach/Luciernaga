@@ -43,6 +43,7 @@
 #' @param TotalNegatives When setting NegativeType to "artificial" or "sample", how many events to add.
 #' @param inverse.transform Passed to flowWorkspace, if data has been transformed and wish to return to
 #' raw values, set to TRUE.
+#' @param Consolidate Default NULL, alternative Cluster character string to partly match to consolidate fcs_export
 #'
 #' @importFrom flowCore keyword
 #' @importFrom stringr str_detect
@@ -116,7 +117,7 @@ Luciernaga_QC <- function(x, subsets, sample.name, removestrings=NULL, Verbose =
                           SecondaryPeaks=2, Brightness=FALSE, RetainedType="raw",
                           ExportType, minimalfcscutoff = 0.05, SCData = "subtracted",
                           NegativeType= "default", TotalNegatives = 500, outpath,
-                          inverse.transform=FALSE){
+                          inverse.transform=FALSE, Consolidate=NULL){
 
   ###################
   # Metadata Module #
@@ -498,7 +499,7 @@ Luciernaga_QC <- function(x, subsets, sample.name, removestrings=NULL, Verbose =
                         outpath=outpath, OriginalStart = OriginalStart,
                         OriginalEnd = OriginalEnd, stats=stats,
                         NegativeType=NegativeType, TotalNegatives=TotalNegatives,
-                        Samples=Samples, ExportType=ExportType)
+                        Samples=Samples, ExportType=ExportType, Consolidate=Consolidate)
   }
 
   if (ExportType == "data.frame"){
@@ -893,7 +894,7 @@ FillIterate <- function(x, data){
 Genesis <- function(x, ff, minimalfcscutoff, AggregateName,
                     Brightness, outpath=NULL, OriginalStart, OriginalEnd,
                     stats = "median", NegativeType="default", TotalNegatives=500,
-                    Samples=NULL, ExportType){
+                    Samples=NULL, ExportType, Consolidate){
 
   # Replicate the Original FCS Parameters
   FlowFrameTest <- ff[[1, returnType = "flowFrame"]]

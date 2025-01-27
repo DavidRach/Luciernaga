@@ -37,7 +37,8 @@ Luciernaga_QC(
   NegativeType = "default",
   TotalNegatives = 500,
   outpath,
-  inverse.transform = FALSE
+  inverse.transform = FALSE,
+  Consolidate = NULL
 )
 }
 \arguments{
@@ -116,6 +117,8 @@ for specified autofluorescence.}
 
 \item{inverse.transform}{Passed to flowWorkspace, if data has been transformed and wish to return to
 raw values, set to TRUE.}
+
+\item{Consolidate}{Default NULL, alternative Cluster character string to partly match to consolidate fcs_export}
 }
 \value{
 Additional information to be added
