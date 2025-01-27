@@ -92,6 +92,58 @@ AppQCParse <- function(MainFolder, x){
 
 }
 
+#' Internal for Dashboard, plots User Usage for respective instruments all time
+#' 
+#' @param data The Data derrived from AppParse filtered for SitFlushes
+#' @param TheInstrument Instrument designation in the Instrument column, example "5L"
+#' 
+#' @importFrom dplyr filter
+#' @importFrom lubridate wday
+#' @importFrom lubridate hour
+#' @importFrom dplyr group_by
+#' @importFrom dplyr summarise
+#' @importFrom ggplot2 ggplot
+#' @importFrom ggplot2 aes
+#' @importFrom ggplot2 labs
+#' @importFrom ggplot2 geom_col
+#' @importFrom ggplot2 facet_grid
+#' @importFrom ggplot2 theme_bw
+#' @importFrom ggplot2 scale_x_continuous
+#' @importFrom ggplot2 theme
+#' @importFrom ggplot2 element_text
+#' 
+#' @return A ggplot2 object
+#' 
+#' @noRd
+UsagePlot <- function(data, TheInstrument){
+  data <- data |> filter(Instrument %in% TheInstrument)
+  
+  data$DayOfWeek <- wday(data$DateTime, label = TRUE, abbr = TRUE)
+  data$DayOfWeek <- factor(data$DayOfWeek,
+   levels = c("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"))
+
+  data$Hour <- hour(data$DateTime)
+
+  dataByHourDay <- data |>
+  group_by(DayOfWeek, Hour) |>
+  summarise(count = n(), .groups = "drop")
+
+  TheTitle <- paste0("Aurora ", TheInstrument, " All Time Usage")
+
+  plot <- ggplot(dataByHourDay, aes(x = Hour, y = count)) +
+    geom_col(fill = "black") + 
+    labs(title = TheTitle,
+        x = "Hour of Day",
+        y = "Sit Flushes") +
+    facet_grid(DayOfWeek ~ ., scales = "free_y") +
+    theme_bw() +
+    scale_x_continuous(breaks = 0:23) +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1),
+    strip.text.y = element_text(angle = 0)) 
+
+  return(plot)
+}
+
 #' Dashboard Internal, updates instrument tracking CSV from DailyQC
 #'
 #' @param MainFolder The file.path to the Main Folder
