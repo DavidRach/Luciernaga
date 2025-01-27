@@ -22,6 +22,127 @@ utils::globalVariables(c("%rCV", ".", ".data", "AdjustedY", "AggregateName",
                          "tab_options", "tags", "value", "x", "xlim", "yhat",
                          "ylim", "pData<-", "parameters<-"))
 
+#' Dashboard Internal, updates archive ApplicationLog.csv from Setup
+#'
+#' @param MainFolder The file.path to the Main Folder
+#' @param x The Cytometer Folder Name
+#'
+#' @importFrom purrr map
+#' @importFrom dplyr bind_rows
+#' @importFrom dplyr mutate
+#' @importFrom dplyr across
+#' @importFrom tidyselect starts_with
+#' @importFrom utils read.csv
+#' @importFrom lubridate ymd_hms
+#' @importFrom generics setdiff
+#' @importFrom dplyr arrange
+#' @importFrom dplyr desc
+#' @importFrom utils write.csv
+#'
+#' @return Updated tracking data CSV in the Archive Folder
+#' @noRd
+AppQCParse <- function(MainFolder, x){
+
+  Folder <- file.path(MainFolder, x)
+  DailyQCFiles <- list.files(Folder, pattern="Application",
+                                full.names = TRUE)
+
+  if (!length(DailyQCFiles)==0){
+
+    if (length(DailyQCFiles)>=1){
+
+      Parsed <- map(.x=DailyQCFiles, .f=Luciernaga:::ApplicationLogParse) %>% bind_rows()
+      Parsed <- Parsed[grepl("cmd: SitFlush: Begin", Parsed$Command), ]
+      Parsed <- Parsed %>% arrange(desc(DateTime))
+
+    } else {stop("Two csv files in the folder found!")}
+
+    TheArchive <- file.path(Folder, "Archive")
+    ArchivedDataFile <- list.files(TheArchive, pattern="Application",
+                                   full.names = TRUE)
+
+    if (!length(ArchivedDataFile)==0){
+
+      if(length(ArchivedDataFile)==1){
+        ArchivedData <- read.csv(ArchivedDataFile[1], check.names=FALSE)
+      } else {message("Two csv files in the folder found!")}
+
+      # Troubleshooting
+      if (!ncol(ArchivedData) == ncol(Parsed)){
+        stop("Mismatched Number of Columns")
+        }
+
+      ArchivedData$DateTime <- lubridate::ymd_hms(ArchivedData$DateTime)
+      ArchivedData <- ArchivedData |> arrange(desc(DateTime))
+      NewData <- generics::setdiff(Parsed, ArchivedData)
+      UpdatedData <- rbind(NewData, ArchivedData)
+
+      file.remove(ArchivedDataFile)
+
+    } else {UpdatedData <- Parsed}
+
+    file.remove(DailyQCFiles)
+
+    UpdatedData <- UpdatedData %>% arrange(desc(DateTime))
+
+    name <- paste0("ApplicationData", x, ".csv")
+    StorageLocation <- file.path(TheArchive, name)
+    write.csv(UpdatedData, StorageLocation, row.names=FALSE)
+  } else {message("No DailyQCFiles files to update with in ", x)}
+
+}
+
+#' Internal for Dashboard, plots User Usage for respective instruments all time
+#' 
+#' @param data The Data derrived from AppParse filtered for SitFlushes
+#' @param TheInstrument Instrument designation in the Instrument column, example "5L"
+#' 
+#' @importFrom dplyr filter
+#' @importFrom lubridate wday
+#' @importFrom lubridate hour
+#' @importFrom dplyr group_by
+#' @importFrom dplyr summarise
+#' @importFrom ggplot2 ggplot
+#' @importFrom ggplot2 aes
+#' @importFrom ggplot2 labs
+#' @importFrom ggplot2 geom_col
+#' @importFrom ggplot2 facet_grid
+#' @importFrom ggplot2 theme_bw
+#' @importFrom ggplot2 scale_x_continuous
+#' @importFrom ggplot2 theme
+#' @importFrom ggplot2 element_text
+#' 
+#' @return A ggplot2 object
+#' 
+#' @noRd
+UsagePlot <- function(data, TheInstrument){
+  data <- data |> filter(Instrument %in% TheInstrument)
+  
+  data$DayOfWeek <- wday(data$DateTime, label = TRUE, abbr = TRUE)
+  data$DayOfWeek <- factor(data$DayOfWeek,
+   levels = c("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"))
+
+  data$Hour <- hour(data$DateTime)
+
+  dataByHourDay <- data |>
+  group_by(DayOfWeek, Hour) |>
+  summarise(count = n(), .groups = "drop")
+
+  TheTitle <- paste0("Aurora ", TheInstrument, " All Time Usage")
+
+  plot <- ggplot(dataByHourDay, aes(x = Hour, y = count)) +
+    geom_col(fill = "black") + 
+    labs(title = TheTitle,
+        x = "Hour of Day",
+        y = "Sit Flushes") +
+    facet_grid(DayOfWeek ~ ., scales = "free_y") +
+    theme_bw() +
+    scale_x_continuous(breaks = 0:23) +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1),
+    strip.text.y = element_text(angle = 0)) 
+
+  return(plot)
+}
 
 #' Dashboard Internal, updates instrument tracking CSV from DailyQC
 #'
@@ -321,6 +442,105 @@ ScalePriority <- function(colors){
                           grepl("-H", colors) * -1,
                           grepl("-W", colors) * -1)]
   return(Ordered)
+}
+
+#' Dashboard Internal, processes to did parameter pass in past week
+#'
+#' @param x The data.frame output from LevyJennings or QCBeads Parse
+#'
+#' @importFrom dplyr mutate
+#' @importFrom dplyr relocate
+#' @importFrom dplyr pull
+#' @importFrom purrr map
+#' @importFrom dplyr bind_rows
+#'
+#' @return Data frame of passing status for respective parameters
+#' @noRd
+ShinyQCSummary <- function(x, Instrument){
+
+  Intermediate <- x %>% mutate(Date=as.Date(DateTime)) %>%
+    relocate(Date, .before=1)
+
+  Dates <- Intermediate %>% pull(Date) %>% unique()
+
+  Data <- map(.x=Dates, .f=ShinyQCSummaryParser, Intermediate=Intermediate) %>%
+    bind_rows()
+
+  Data <- Data %>% mutate(Instrument=Instrument) %>%
+    relocate(Instrument, .after="Date")
+
+  return(Data)
+}
+
+#' Dashboard Internal, processes to did parameter pass in past week
+#'
+#' @param x The iterated date
+#' @param Intermediate The original instrument data
+#'
+#' @importFrom dplyr filter
+#' @importFrom dplyr select
+#' @importFrom lubridate weeks
+#' @importFrom tidyselect starts_with
+#' @importFrom tidyselect contains
+#' @importFrom tidyselect all_of
+#' @importFrom tidyr pivot_longer
+#' @importFrom dplyr left_join
+#' @importFrom dplyr pull
+#' @importFrom purrr map
+#' @importFrom dplyr bind_rows
+#'
+#' @return Data frame of passing status for respective parameters
+#' @noRd
+ShinyQCSummaryParser <- function(x, Intermediate){
+  Date <- x
+
+  x <- Intermediate %>% filter(Date %in% x)
+
+  if (nrow(x) > 1){
+    #Data <- x %>% filter(DateTime > WindowOfInterest)
+    Data <- x %>% slice(1)
+  } else {Data <- x}
+
+  Flags <- Data %>% select(starts_with("Flag"))
+  colnames(Flags) <- gsub("Flag-", "", colnames(Flags))
+  Gains <- Flags %>% select(contains("Gain"))
+  TheGains <- colnames(Gains)
+  rCV <- Flags %>% select(contains("rCV"))
+  TherCV <- colnames(rCV)
+
+  TheGainData <- Data %>% select(all_of(c("DateTime", TheGains)))
+  colnames(Gains) <- gsub("-Gain", "", fixed=TRUE, colnames(Gains))
+  colnames(TheGainData) <- gsub("-Gain", "", fixed=TRUE, colnames(TheGainData))
+
+  TheGainData <- TheGainData %>%
+    pivot_longer(!DateTime, names_to = "Detector", values_to = "Gain")
+
+  Gains <- Gains %>% mutate(DateTime=Data$DateTime) %>% relocate(DateTime, .before=1)
+
+  Gains <- Gains %>%
+    pivot_longer(!DateTime, names_to = "Detector", values_to = "Gain_Logical")
+
+  TherCVData <- Data %>% select(all_of(c("DateTime", TherCV)))
+  colnames(rCV) <- gsub("-% rCV", "", fixed=TRUE, colnames(rCV))
+  colnames(TherCVData) <- gsub("-% rCV", "", fixed=TRUE, colnames(TherCVData))
+
+  TherCVData <- TherCVData %>% pivot_longer(!DateTime, names_to = "Detector", values_to = "rCV")
+
+  rCV <- rCV %>% mutate(DateTime=Data$DateTime) %>% relocate(DateTime, .before=1)
+
+  rCV <- rCV %>% pivot_longer(!DateTime, names_to = "Detector", values_to = "rCV_Logical")
+
+  Tidy <- TheGainData %>%
+    left_join(Gains, by = c("Detector", "DateTime")) %>%
+    left_join(TherCVData, by = c("Detector", "DateTime")) %>%
+    left_join(rCV, by = c("Detector", "DateTime"))
+
+  TheDetectors <- Tidy %>% pull(Detector) %>% unique()
+
+  Summary <- map(.x=TheDetectors, .f=QCSummaryCheck, data=Tidy) %>% bind_rows()
+
+  Summary <- Summary %>% mutate(Date=Date) %>% relocate(Date, .before=1)
+  return(Summary)
 }
 
 
