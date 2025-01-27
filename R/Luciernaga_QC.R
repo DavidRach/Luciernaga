@@ -131,9 +131,9 @@ Luciernaga_QC <- function(x, subsets, sample.name, removestrings=NULL, Verbose =
     name <- paste(first, second, sep="_")
   } else {name <- keyword(x, sample.name)}
 
-  Type <- Typing(name=name, unmixingcontroltype=unmixingcontroltype,
+  Type <- Luciernaga:::Typing(name=name, unmixingcontroltype=unmixingcontroltype,
                  Unstained=Unstained)
-  AggregateName <- NameForSample(x=x, sample.name=sample.name,
+  AggregateName <- Luciernaga:::NameForSample(x=x, sample.name=sample.name,
                                  removestrings=removestrings)
 
   if (is.null(experiment) && is.null(experiment.name) && SignatureReturnNow==FALSE){
@@ -141,7 +141,7 @@ Luciernaga_QC <- function(x, subsets, sample.name, removestrings=NULL, Verbose =
             consider adding one or the other.")
             }
 
-  Experiment <- NameForSample(x=x, sample.name=sample.name,
+  Experiment <- Luciernaga:::NameForSample(x=x, sample.name=sample.name,
     removestrings=removestrings, experiment = experiment,
     experiment.name = experiment.name, returnType = "experiment")
 
@@ -150,12 +150,12 @@ Luciernaga_QC <- function(x, subsets, sample.name, removestrings=NULL, Verbose =
             consider adding one or the other.")
     }
 
-  Condition <- NameForSample(x=x, sample.name=sample.name,
+  Condition <- Luciernaga:::NameForSample(x=x, sample.name=sample.name,
     removestrings=removestrings, condition=condition,
     condition.name = condition.name, returnType = "condition")
 
   InternalCleanupList <- c(".fcs", "Cells", "Beads", " ", "_", "-", ".", "(", ")")
-  name <- NameCleanUp(name, InternalCleanupList)
+  name <- Luciernaga:::NameCleanUp(name, InternalCleanupList)
 
   if (Unstained == TRUE) {
     if(!str_detect(name, "stained")){name <- paste0(name, "_Unstained")}
@@ -901,8 +901,17 @@ Genesis <- function(x, ff, minimalfcscutoff, AggregateName,
   original_p <- parameters(FlowFrameTest)
   original_d <- keyword(FlowFrameTest)
 
+  if(!is.null(Consolidate)){
+    Testing <- x |> dplyr::filter(str_detect(Cluster, Consolidate))
+    Testing$Cluster <- Consolidate
+    Testing$Cluster <- factor(Testing$Cluster)
+    x <- Testing
+  } else {
+    x$Cluster <- factor(x$Cluster)
+  }
+
   # Figure out what clusters to split from the file.
-  x$Cluster <- factor(x$Cluster)
+
   ZZZ <- data.frame(table(x$Cluster))
   ZZZ <- ZZZ %>% arrange(desc(Freq))
   colnames(ZZZ)[1] <- "Cluster"
@@ -912,7 +921,7 @@ Genesis <- function(x, ff, minimalfcscutoff, AggregateName,
 
   Data <- x
 
-  TheBrightness <- map(.x=fcs_clusters, .f=InternalGenesis, Data=Data,
+  TheBrightness <- map(.x=fcs_clusters, .f=Luciernaga:::InternalGenesis, Data=Data,
     AggregateName=AggregateName, outpath=outpath, OriginalStart=OriginalStart,
     OriginalEnd=OriginalEnd, stats=stats, NegativeType=NegativeType,
     TotalNegatives=TotalNegatives, Samples=Samples, ExportType=ExportType,
