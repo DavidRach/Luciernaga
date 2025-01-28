@@ -902,10 +902,27 @@ Genesis <- function(x, ff, minimalfcscutoff, AggregateName,
   original_d <- keyword(FlowFrameTest)
 
   if(!is.null(Consolidate)){
-    Testing <- x |> dplyr::filter(str_detect(Cluster, Consolidate))
-    Testing$Cluster <- Consolidate
-    Testing$Cluster <- factor(Testing$Cluster)
-    x <- Testing
+
+    ConsolidatePaa <- function(x, data){
+      Testing <- data |> dplyr::filter(str_detect(Cluster, x))
+      x <- gsub("^", "", fixed=TRUE, x)
+      x <- gsub("|", "and", fixed=TRUE, x)
+      Testing$Cluster <- x
+      Testing$Cluster <- factor(Testing$Cluster)
+      return(Testing)
+    }
+
+    if (length(Consolidate) > 1){
+      data <- x
+       TheConsolidated <- map(.x=Consolidate, data=data, .f=ConsolidatePaa) %>%
+         bind_rows()
+       x <- TheConsolidated
+    } else {
+      data <- x
+      TheConsolidated <- ConsolidatePaa(x=Consolidate, data=data)
+      x <- TheConsolidated 
+    }
+    x$Cluster <- factor(x$Cluster)
   } else {
     x$Cluster <- factor(x$Cluster)
   }
