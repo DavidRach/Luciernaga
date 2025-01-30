@@ -42,8 +42,12 @@ QC_Retrieval <- function(x, sample.name){
   TIME <- keyword(x)$`$BTIM`
   TIME <- hms(TIME)
   CYT <- keyword(x)$`$CYT`
+  if(is.null(CYT)){CYTN <- "Unknown"}
   CYTSN <- keyword(x)$`$CYTSN`
+  if(is.null(CYTSN)){CYTSN <- keyword(x)$`CYTNUM`}
+  if(is.null(CYTSN)){CYTSN <- "Unknown"}
   OP <- keyword(x)$`$OP`
+  if(is.null(OP)){OP <- "Unknown"}
 
   PN_Names1 <- TheColumnNames[grepl("^\\$P[0-9]{1}N$", TheColumnNames)]
   PN_Names2 <- TheColumnNames[grepl("^\\$P[0-9]{2}N$", TheColumnNames)]
@@ -53,27 +57,34 @@ QC_Retrieval <- function(x, sample.name){
   PN_Names <- PN_Names[-1] # Remove Time
   PV_Gains <- c(PV_Gains1, PV_Gains2)
 
-  ParameterRows <- map2(.x=PN_Names, .y=PV_Gains, .f=RetrievalMerge,
+  ParameterRows <- map2(.x=PN_Names, .y=PV_Gains, .f=Luciernaga:::RetrievalMerge,
                         TheData=KeywordsDF) %>% bind_cols()
 
   Laser_Name <- TheColumnNames[grepl("^\\LASER[0-9]{1}NAME$", TheColumnNames)]
   Laser_Delay <- TheColumnNames[grepl("^\\LASER[0-9]{1}DELAY$", TheColumnNames)]
   Laser_ASF <- TheColumnNames[grepl("^\\LASER[0-9]{1}ASF$", TheColumnNames)]
 
-  LaserDelayRows <- map2(.x=Laser_Name, .y=Laser_Delay, .f=RetrievalMerge,
+  LaserDelayRows <- map2(.x=Laser_Name, .y=Laser_Delay, .f=Luciernaga:::RetrievalMerge,
                          TheData=KeywordsDF) %>% bind_cols()
   colnames(LaserDelayRows) <- paste0(colnames(LaserDelayRows), "_LaserDelay")
-  LaserASFRows <- map2(.x=Laser_Name, .y=Laser_ASF, .f=RetrievalMerge,
+  LaserASFRows <- map2(.x=Laser_Name, .y=Laser_ASF, .f=Luciernaga:::RetrievalMerge,
                        TheData=KeywordsDF) %>% bind_cols()
   colnames(LaserASFRows) <- paste0(colnames(LaserASFRows), "_AreaScalingFactor")
 
   ParameterRows <- ParameterRows %>% mutate(across(everything(), as.numeric))
   colnames(ParameterRows) <- paste0(colnames(ParameterRows), "_Gain")
   LaserDelayRows <- LaserDelayRows %>% mutate(across(everything(), as.numeric))
+  if (ncol(LaserDelayRows) == 0) {LaserDelayRows <- NULL}
   LaserASFRows <- LaserASFRows %>% mutate(across(everything(), as.numeric))
+  if (ncol(LaserASFRows) == 0) {LaserASFRows <- NULL}
 
-  RecoveredQC <- cbind(SAMPLE, DATE, TIME, CYT, CYTSN, OP, ParameterRows,
-                       LaserDelayRows, LaserASFRows)
+  if(is.null(SAMPLE)){stop("sample.name keyword not recognized")}
+
+  RecoveredQC <- cbind(SAMPLE, DATE, TIME, CYT, CYTSN, OP, ParameterRows)
+
+  if(!is.null(LaserDelayRows)){RecoveredQC <- cbind(RecoveredQC, LaserDelayRows)}
+
+  if(!is.null(LaserASFRows)){RecoveredQC <- cbind(RecoveredQC, LaserASFRows)}
 
   return(RecoveredQC)
 }
