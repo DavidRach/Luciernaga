@@ -217,3 +217,78 @@ ColumnNaming <- function(x){
     return(x)
   }
 
+#' Currently grabs Gain Information Held Parent Level of BD Diva .xml file
+#' Poised to expand to grab from specimen_name tube_name for individualized tube level
+#' 
+#' @param x A .xml file from BD Diva Software
+#' 
+#' @importFrom xml2 read_xml
+#' @importFrom xml2 xml_children
+#' @importFrom xml2 xml_name
+#' @importFrom xml2 xml_text
+#' @importFrom xml2 xml_find_all
+#' @importFrom lubridate ymd_hms
+#' @importFrom purrr map
+#' @importFrom dplyr bind_rows
+#' @importFrom tidyr pivot_wider
+#' 
+#' @return A data.frame row containing the parsed data
+#' 
+#' @noRd
+DivaXMLParse <- function(x){
+
+    Parsed <- read_xml(x)
+    Landing <- xml_children(Parsed)
+    Experiment <- Landing[xml_name(Landing) == "experiment"][[1]]
+    Experiment_child <- xml_children(Experiment)
+    Info <- Experiment_child[xml_name(Experiment_child ) == "date"][[1]]
+    Date <- xml_text(Info)
+    Date <- ymd_hms(Date)
+    Info <- Experiment_child[xml_name(Experiment_child ) == "owner_name"][[1]]
+    Owner <- xml_text(Info)
+    
+    # Failed to filter by xml_node, selecting by position, REVISE
+    Keywords <- Experiment_child[xml_name(Experiment_child ) == "keywords"][[1]]
+    Keywords_child <- xml_children(Keywords)
+    CytometerConfig <- Keywords_child[[3]]
+    CytometerConfig_child <- xml_children(CytometerConfig)
+    Nozzle <- CytometerConfig_child[xml_name(CytometerConfig_child) == "value"]
+    Nozzle <- xml_text(Nozzle)
+    
+    Instrument <- Experiment_child[xml_name(Experiment_child ) == "instrument_settings"][[1]]
+    TheFluors <- xml_find_all(Instrument, ".//parameter[not(contains(@name, '-H') or contains(@name, '-W'))]")
+    
+    FluorophoreGains <- map(.x=TheFluors, .f=DivaParseInternal) |> 
+       bind_rows()
+    FluorophoreGains <- FluorophoreGains |> 
+        pivot_wider(names_from = "Fluorophore", values_from = "Gain")
+    
+    Dataset <- cbind(Date, Owner, Nozzle, FluorophoreGains)
+    
+    # REVISE: Discovered .fcs files were indeed present in the folder, so no need to further process. 
+    # Note, .xml file proceed to specimen_name, identify tubename, and process for all the above individually
+    # as the current structure keeps QC for entire month in a single xml.
+    
+    return(Dataset)
+    }
+    
+#' Internal for DivaParse, iterates on parameters for Fluorophore
+#' 
+#' @param x The iterated xml_node for each fluorophore being parsed
+#' @importFrom xml2 xml_children
+#' @importFrom xml2 xml_name
+#' @importFrom xml2 xml_text
+#' 
+#' @return The iterated data.frame row of Fluorophore and Gain
+#' @noRd
+DivaParseInternal <- function(x){
+    TheData <- xml_children(x)
+    TheFluor <- TheData[xml_name(TheData) == "fl"]
+    Fluorophore <- xml_text(TheFluor)
+    Gain <- TheData[xml_name(TheData) == "voltage"]
+    Gain <- xml_text(Gain)
+    Data <- data.frame(cbind(Fluorophore, Gain))
+    Data$Gain <- as.numeric(Data$Gain)
+    return(Data)
+    }
+
