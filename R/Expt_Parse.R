@@ -217,78 +217,163 @@ ColumnNaming <- function(x){
     return(x)
   }
 
-#' Currently grabs Gain Information Held Parent Level of BD Diva .xml file
-#' Poised to expand to grab from specimen_name tube_name for individualized tube level
+#' Takes a BD Diva .xml file and returns data.frame Gain and Laser settings
+#' for all fcs files contained within the experiment. 
 #' 
 #' @param x A .xml file from BD Diva Software
 #' 
 #' @importFrom xml2 read_xml
 #' @importFrom xml2 xml_children
-#' @importFrom xml2 xml_name
-#' @importFrom xml2 xml_text
 #' @importFrom xml2 xml_find_all
-#' @importFrom lubridate ymd_hms
 #' @importFrom purrr map
 #' @importFrom dplyr bind_rows
-#' @importFrom tidyr pivot_wider
 #' 
 #' @return A data.frame row containing the parsed data
 #' 
 #' @noRd
 DivaXMLParse <- function(x){
+  Parsed <- read_xml(x)
+  Landing <- xml_children(Parsed)
+  Experiment <- Landing[xml_name(Landing) == "experiment"][[1]]
+  Individual <- xml_find_all(Experiment, ".//specimen[@name]")
+  Tubes <- xml_find_all(Individual, ".//tube[@name]")
 
-    Parsed <- read_xml(x)
-    Landing <- xml_children(Parsed)
-    Experiment <- Landing[xml_name(Landing) == "experiment"][[1]]
-    Experiment_child <- xml_children(Experiment)
-    Info <- Experiment_child[xml_name(Experiment_child ) == "date"][[1]]
-    Date <- xml_text(Info)
-    Date <- ymd_hms(Date)
-    Info <- Experiment_child[xml_name(Experiment_child ) == "owner_name"][[1]]
-    Owner <- xml_text(Info)
-    
-    # Failed to filter by xml_node, selecting by position, REVISE
-    Keywords <- Experiment_child[xml_name(Experiment_child ) == "keywords"][[1]]
-    Keywords_child <- xml_children(Keywords)
-    CytometerConfig <- Keywords_child[[3]]
-    CytometerConfig_child <- xml_children(CytometerConfig)
-    Nozzle <- CytometerConfig_child[xml_name(CytometerConfig_child) == "value"]
-    Nozzle <- xml_text(Nozzle)
-    
-    Instrument <- Experiment_child[xml_name(Experiment_child ) == "instrument_settings"][[1]]
-    TheFluors <- xml_find_all(Instrument, ".//parameter[not(contains(@name, '-H') or contains(@name, '-W'))]")
-    
-    FluorophoreGains <- map(.x=TheFluors, .f=DivaParseInternal) |> 
-       bind_rows()
-    FluorophoreGains <- FluorophoreGains |> 
-        pivot_wider(names_from = "Fluorophore", values_from = "Gain")
-    
-    Dataset <- cbind(Date, Owner, Nozzle, FluorophoreGains)
-    
-    # REVISE: Discovered .fcs files were indeed present in the folder, so no need to further process. 
-    # Note, .xml file proceed to specimen_name, identify tubename, and process for all the above individually
-    # as the current structure keeps QC for entire month in a single xml.
-    
-    return(Dataset)
-    }
-    
-#' Internal for DivaParse, iterates on parameters for Fluorophore
+  Data <- map(.x=Tubes, .f=TubeIterate) |> bind_rows()
+
+return(Data)
+}
+
+#' Internal for DivaXMLParse, operates on iterated tubes to parse the
+#' needed information
 #' 
-#' @param x The iterated xml_node for each fluorophore being parsed
+#' @param x An iterated xml_node corresponding to the tube
+#' 
+#' @importFrom xml2 xml_children
+#' @importFrom xml2 xml_name
+#' @importFrom lubridate ymd_hms
+#' @importFrom xml2 xml_text
+#' @importFrom xml2 xml_find_all
+#' @importFrom xml2 xml_attr
+#' @importFrom purrr map2
+#' @importFrom dplyr bind_rows
+#' @importFrom tidyr pivot_wider
+#' @importFrom dplyr select
+#' 
+#' @return A data.frame row containing the parsed data
+#' 
+#' @noRd
+TubeIterate <- function(x){
+
+  Landing <- xml_children(x)
+  Date <- Landing[xml_name(Landing) == "date"]
+  Date <- xml_text(Date)
+  Date <- ymd_hms(Date)
+
+  FileName <- Landing[xml_name(Landing) == "data_filename"]
+  FileName <- xml_text(FileName)
+
+  Instrument <- Landing[xml_name(Landing) == "data_instrument_name"]
+  Instrument <- xml_text(Instrument)
+
+  InstrumentSN <- Landing[xml_name(Landing) == "data_instrument_serial_number"]
+  InstrumentSN <- xml_text(InstrumentSN)
+
+  FSC_Area_Scaling <- Landing[xml_name(Landing) == "fsc_area_scaling"]
+  FSC_Area_Scaling <- xml_text(FSC_Area_Scaling)
+
+  User <- Landing[xml_name(Landing) == "record_user"]
+  User <- xml_text(User)
+
+  Keywords <- Landing[xml_name(Landing) == "keywords"][[1]]
+  Keywords_child <- xml_children(Keywords)
+  CytometerConfig <- xml_find_all(Keywords, ".//keyword[@name='CYTOMETER CONFIG NAME']")
+  CytometerConfig_child <- xml_children(CytometerConfig)
+  Nozzle <- CytometerConfig_child[xml_name(CytometerConfig_child) == "value"]
+  Nozzle <- xml_text(Nozzle)
+
+  InstrumentSettings <- Landing[xml_name(Landing) == "instrument_settings"][[1]]
+  TheFluors <- xml_find_all(InstrumentSettings, ".//parameter[@name]")
+  Fluorophores <- xml_attr(TheFluors, "name")
+
+  FluorophoreGains <- map2(.x=TheFluors, .y=Fluorophores, .f=DivaParseInternal) |> 
+     bind_rows()
+
+  FluorophoreGains <- FluorophoreGains |> 
+      pivot_wider(names_from = "Fluorophore", values_from = "Gain")
+
+  TheLasers <- Landing[xml_name(Landing) == "lasers"][[1]]
+  TheLaser_child <- xml_children(TheLasers)
+  Laser <- xml_attr(TheLaser_child, "name")
+
+  Lasers <- map2(.x=TheLaser_child, .y=Laser, .f=DivaLaserParseInternal)|> bind_rows()
+  Lasers$Delay <- as.numeric(Lasers$Delay)
+  Lasers$AreaScaling <- as.numeric(Lasers$AreaScaling)
+
+  LaserDelays <- Lasers |> select(Laser, Delay) |> pivot_wider(names_from = "Laser", values_from = "Delay")
+  colnames(LaserDelays) <- paste0(colnames(LaserDelays), "-Laser Delay")
+
+  LaserASF <- Lasers |> select(Laser, AreaScaling) |> pivot_wider(names_from = "Laser", values_from = "AreaScaling")
+  colnames(LaserASF ) <- paste0(colnames(LaserASF ), "-Area Scaling Factor")
+
+  Dataset <- cbind(Date, User, FileName, Instrument, InstrumentSN, Nozzle, FluorophoreGains, LaserDelays, LaserASF)
+  
+  return(Dataset)
+  }
+
+
+#' Internal for TubeIterate, returns the iterated laser information
+#' 
+#' @param x The iterrated xml_node with the laser information
+#' @param y The name of the laser being iterrated on
+#' 
 #' @importFrom xml2 xml_children
 #' @importFrom xml2 xml_name
 #' @importFrom xml2 xml_text
 #' 
+#' @return A data.frame row containing the parsed data
+#' 
+#' @noRd
+DivaLaserParseInternal <- function(x, y){
+    Laser <- y
+    InternalLanding <- xml_children(x)
+
+    Delay <- InternalLanding[xml_name(InternalLanding) == "delay"]
+    Delay <- xml_text(Delay)
+
+    AreaScaling <- InternalLanding[xml_name(InternalLanding) == "area_scaling"]
+    AreaScaling <- xml_text(AreaScaling)
+
+    Data <- data.frame(cbind(Laser, Delay, AreaScaling))
+    return(Data)
+}
+
+    
+#' Internal for TubeIterate, returns Gains and Metadata for the tube
+#' 
+#' @param x The iterated xml_node for fluorophore being parsed
+#' @param y The name of the iterated fluorophore
+#' @importFrom xml2 xml_children
+#' @importFrom xml2 xml_name
+#' @importFrom xml2 xml_text
+#' @importFrom dplyr mutate
+#' 
 #' @return The iterated data.frame row of Fluorophore and Gain
 #' @noRd
-DivaParseInternal <- function(x){
-    TheData <- xml_children(x)
-    TheFluor <- TheData[xml_name(TheData) == "fl"]
-    Fluorophore <- xml_text(TheFluor)
-    Gain <- TheData[xml_name(TheData) == "voltage"]
-    Gain <- xml_text(Gain)
-    Data <- data.frame(cbind(Fluorophore, Gain))
-    Data$Gain <- as.numeric(Data$Gain)
-    return(Data)
-    }
+DivaParseInternal <- function(x, y){
+  TheData <- xml_children(x)
+  Fluorophore <- y
+  Gain <- TheData[xml_name(TheData) == "voltage"]
+  Gain <- xml_text(Gain)
+
+  if (length(Gain) == 0){
+      Data <- data.frame(Fluorophore)
+      Data <- Data |> mutate(Gain="0")
+  } else {
+  Data <- data.frame(cbind(Fluorophore, Gain))
+  }
+
+  Data$Gain <- as.numeric(Data$Gain)
+  
+  return(Data)
+  }
 
