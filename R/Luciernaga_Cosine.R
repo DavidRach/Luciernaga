@@ -63,7 +63,7 @@
 #'
 #' Plot <- Luciernaga_Cosine(data=FinalData, returntype="plot")
 #'
-Luciernaga_Cosine <- function(data, returntype="plot"){
+Luciernaga_Cosine <- function(data, returntype="plot", rearrange=TRUE){
 
     Names <- data %>% select(!where(is.numeric))
     if (ncol(Names) > 1){stop("Please use single column for names")}
@@ -78,7 +78,10 @@ Luciernaga_Cosine <- function(data, returntype="plot"){
     data <- as.matrix(data)
     CosineMatrix <- cosine(NumericsT)
     CosineMatrix <- round(CosineMatrix, 2)
+  
+    if (rearrange==TRUE){
     Reordered <- ReorderedCosine(CosineMatrix)
+    } else {Reordered <- CosineMatrix}
     MeltedCosine <- melt(Reordered)
 
     #Generate a Red to Blue Heatmap

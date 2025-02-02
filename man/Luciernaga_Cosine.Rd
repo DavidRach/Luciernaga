@@ -4,7 +4,7 @@
 \alias{Luciernaga_Cosine}
 \title{Generates cosine comparison from a data.frame of fluorescent signatures}
 \usage{
-Luciernaga_Cosine(data, returntype = "plot")
+Luciernaga_Cosine(data, returntype = "plot", rearrange = TRUE)
 }
 \arguments{
 \item{data}{A data.frame with a single name column and rest numeric columns}
