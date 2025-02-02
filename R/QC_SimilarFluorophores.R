@@ -14,7 +14,7 @@
 #' @importFrom tidyr pivot_wider
 #' @importFrom dplyr ungroup
 #' @importFrom dplyr bind_rows
-#' @importFrom dplyr select_if
+#' @importFrom tidyselect where
 #' @importFrom lsa cosine
 #' @importFrom tibble rownames_to_column
 #' @importFrom tidyselect starts_with
@@ -30,37 +30,64 @@
 
 QC_SimilarFluorophores <- function(TheFluorophore, NumberDetectors, NumberHits, returnPlots=FALSE) {
 
-  ReferenceData <- InstrumentReferences(NumberDetectors=NumberDetectors)
+  ReferenceData <- Luciernaga:::InstrumentReferences(NumberDetectors=NumberDetectors)
+  #nrow(ReferenceData)
+  #ReferenceData %>% pull(Fluorophore) %>% unique()
+  #ReferenceData1 <- ReferenceData |> unique()
+  #nrow(ReferenceData1)
+  #ReferenceData1 %>% pull(Fluorophore) %>% unique()
 
   if (returnPlots == TRUE){ReferenceData1 <- ReferenceData}
 
-  ReferenceData <- ReferenceData %>% select(-Instrument) %>%
-    group_by(Fluorophore) %>% pivot_wider(
-      names_from = Detector, values_from = AdjustedY) %>% ungroup()
+  ReferenceData <- ReferenceData |> select(-Instrument) |>
+    group_by(Fluorophore) |> pivot_wider(
+      names_from = Detector, values_from = AdjustedY) |> ungroup()
+  
+  #RowNAs <- ReferenceData[rowSums(is.na(ReferenceData)) > 0, ]
+  #nrow(RowNAs)
 
-  TheAvailableFluors <- ReferenceData %>% select(Fluorophore) %>% pull()
+  #CleanNAs <- ReferenceData[rowSums(is.na(ReferenceData)) == 0, ]
+  #nrow(CleanNAs)
+  #ncol(CleanNAs)-1
+  #View(CleanNAs)
+
+  TheAvailableFluors <- ReferenceData |> pull(Fluorophore)
   if (!TheFluorophore %in% TheAvailableFluors) {stop("Fluorophore not found")}
 
   CombinedView <- ReferenceData
-  Names <- CombinedView %>% select(Fluorophore) %>% pull()
-  Numbers <- CombinedView %>% select_if(is.numeric)
+  Names <- CombinedView |> pull(Fluorophore)
+  #SanitizedNames <- Luciernaga::NameCleanUp(Names, removestrings = c(",", "-", " ", "."))
+
+  Numbers <- CombinedView %>% select(where(is.numeric))
+  #zero_columns <- colSums(Numbers) == 0
+  #zero_rows <- rowSums(Numbers) == 0
+  #print(which(zero_columns))
+  #print(which(zero_rows))
+  
   NumericsT <- t(Numbers)
   rownames(NumericsT) <- NULL
   colnames(NumericsT) <- Names
+  #colnames(NumericsT) <- SanitizedNames
 
-  CosineMatrix <- cosine(NumericsT)
+  #zero_columns <- colSums(NumericsT) == 0
+  #zero_rows <- rowSums(NumericsT) == 0
+  #print(which(zero_columns))
+  #print(which(zero_rows))
+
+  CosineMatrix <- lsa::cosine(NumericsT)
   CosineMatrix <- round(CosineMatrix, 2)
+  
   CosineFrame <- data.frame(CosineMatrix, check.names = FALSE)
 
-  CosineFrame <- CosineFrame %>% select(all_of(TheFluorophore))
+  CosineFrame <- CosineFrame |> select(all_of(TheFluorophore))
   TheData <- rownames_to_column(CosineFrame, var="Fluorophore")
-  TheID <- TheData %>% select(all_of(TheFluorophore)) %>% colnames()
+  TheID <- TheData |> select(all_of(TheFluorophore)) |> colnames()
 
-  TheHits <- TheData %>% filter(!Fluorophore %in% TheID) %>%
-    arrange(desc(.data[[TheID]])) %>% slice_head(n=NumberHits)
+  TheHits <- TheData |> filter(!Fluorophore %in% TheID) |>
+    arrange(desc(.data[[TheID]])) |> slice_head(n=NumberHits)
 
   if (returnPlots==TRUE){
-    TheseFluorophores <- TheHits %>% pull(Fluorophore)
+    TheseFluorophores <- TheHits |> pull(Fluorophore)
 
     ThePlot <- SimilarFluorPlots(TheseFluorophores=TheseFluorophores,
                                  TheFluorophore=TheFluorophore, data=ReferenceData1)

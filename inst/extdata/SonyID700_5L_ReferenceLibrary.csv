@@ -146,8 +146,6 @@
 "SonyID700_5L","Alexa Fluor 350","637-33",0
 "SonyID700_5L","Alexa Fluor 350","637-34",0
 "SonyID700_5L","Alexa Fluor 350","637-35",0.0011
-"SonyID700_5L","0. Alexa Fluor 350","x",NA
-"SonyID700_5L","0. Alexa Fluor 350","x",NA
 "SonyID700_5L","Alexa Fluor 488","355-1",6.35e-05
 "SonyID700_5L","Alexa Fluor 488","355-2",0.000592003
 "SonyID700_5L","Alexa Fluor 488","355-3",0.000406509
@@ -1030,8 +1028,6 @@
 "SonyID700_5L","AmCyan","637-33",0.0028
 "SonyID700_5L","AmCyan","637-34",0
 "SonyID700_5L","AmCyan","637-35",1e-04
-"SonyID700_5L","0. AmCyan","x",NA
-"SonyID700_5L","0. AmCyan","x",NA
 "SonyID700_5L","APC","355-1",0.000163451
 "SonyID700_5L","APC","355-2",0.000494225
 "SonyID700_5L","APC","355-3",0.000553196
@@ -5295,8 +5291,6 @@
 "SonyID700_5L","Live/Dead Fix Blue","637-33",0
 "SonyID700_5L","Live/Dead Fix Blue","637-34",0
 "SonyID700_5L","Live/Dead Fix Blue","637-35",0
-"SonyID700_5L","0. Live/Dead Fix Blue","x",NA
-"SonyID700_5L","0. Live/Dead Fix Blue","x",NA
 "SonyID700_5L","MagDot 580","355-1",0.0041
 "SonyID700_5L","MagDot 580","355-2",0.01576
 "SonyID700_5L","MagDot 580","355-3",0.01218
@@ -6032,8 +6026,6 @@
 "SonyID700_5L","NovaFluor Yellow 730","637-33",0.0534
 "SonyID700_5L","NovaFluor Yellow 730","637-34",0.0379
 "SonyID700_5L","NovaFluor Yellow 730","637-35",0.0277
-"SonyID700_5L","0. NovaFluor Yellow 730","x",NA
-"SonyID700_5L","0. NovaFluor Yellow 730","x",NA
 "SonyID700_5L","Pacific Blue","355-1",3.52e-05
 "SonyID700_5L","Pacific Blue","355-2",0.01824407
 "SonyID700_5L","Pacific Blue","355-3",0.03344611
@@ -6769,8 +6761,6 @@
 "SonyID700_5L","PE-Alexa 700","637-33",0.0124
 "SonyID700_5L","PE-Alexa 700","637-34",0.0087
 "SonyID700_5L","PE-Alexa 700","637-35",0.0062
-"SonyID700_5L","0. PE-Alexa 700","x",NA
-"SonyID700_5L","0. PE-Alexa 700","x",NA
 "SonyID700_5L","PE-CF594","355-1",0
 "SonyID700_5L","PE-CF594","355-2",0
 "SonyID700_5L","PE-CF594","355-3",0
@@ -8388,8 +8378,6 @@
 "SonyID700_5L","PerCP-Fire 806","637-33",0.0895
 "SonyID700_5L","PerCP-Fire 806","637-34",0.0639
 "SonyID700_5L","PerCP-Fire 806","637-35",0.044
-"SonyID700_5L","0. PerCP-Fire 806","x",NA
-"SonyID700_5L","0. PerCP-Fire 806","x",NA
 "SonyID700_5L","PerCP-Vio700","355-1",0.0021
 "SonyID700_5L","PerCP-Vio700","355-2",0.0022
 "SonyID700_5L","PerCP-Vio700","355-3",0.002
@@ -8537,8 +8525,6 @@
 "SonyID700_5L","PerCP-Vio700","637-33",0.0372
 "SonyID700_5L","PerCP-Vio700","637-34",0.0267
 "SonyID700_5L","PerCP-Vio700","637-35",0.0203
-"SonyID700_5L","0. PerCP-Vio700","x",NA
-"SonyID700_5L","0. PerCP-Vio700","x",NA
 "SonyID700_5L","Qdot 605","355-1",0.000105
 "SonyID700_5L","Qdot 605","355-2",9.8e-05
 "SonyID700_5L","Qdot 605","355-3",7.9e-05
@@ -8833,8 +8819,6 @@
 "SonyID700_5L","Qdot 625","637-33",0
 "SonyID700_5L","Qdot 625","637-34",0
 "SonyID700_5L","Qdot 625","637-35",4e-04
-"SonyID700_5L","0. Qdot 625","x",NA
-"SonyID700_5L","0. Qdot 625","x",NA
 "SonyID700_5L","Qdot 655","355-1",8.3e-05
 "SonyID700_5L","Qdot 655","355-2",7e-05
 "SonyID700_5L","Qdot 655","355-3",6.1e-05
@@ -9570,8 +9554,6 @@
 "SonyID700_5L","RealBlue 613","637-33",0
 "SonyID700_5L","RealBlue 613","637-34",0
 "SonyID700_5L","RealBlue 613","637-35",0
-"SonyID700_5L","0. RealBlue 613","x",NA
-"SonyID700_5L","0. RealBlue 613","x",NA
 "SonyID700_5L","RealBlue 705","355-1",2e-04
 "SonyID700_5L","RealBlue 705","355-2",3e-04
 "SonyID700_5L","RealBlue 705","355-3",2e-04
@@ -9719,8 +9701,6 @@
 "SonyID700_5L","RealBlue 705","637-33",0.0121
 "SonyID700_5L","RealBlue 705","637-34",0.0083
 "SonyID700_5L","RealBlue 705","637-35",0.0062
-"SonyID700_5L","0. RealBlue 705","x",NA
-"SonyID700_5L","0. RealBlue 705","x",NA
 "SonyID700_5L","RealBlue 744","355-1",2e-04
 "SonyID700_5L","RealBlue 744","355-2",2e-04
 "SonyID700_5L","RealBlue 744","355-3",2e-04
@@ -9868,8 +9848,6 @@
 "SonyID700_5L","RealBlue 744","637-33",0.0115
 "SonyID700_5L","RealBlue 744","637-34",0.0088
 "SonyID700_5L","RealBlue 744","637-35",0.0068
-"SonyID700_5L","0. RealBlue 744","x",NA
-"SonyID700_5L","0. RealBlue 744","x",NA
 "SonyID700_5L","RealBlue 780","355-1",0
 "SonyID700_5L","RealBlue 780","355-2",7.5e-05
 "SonyID700_5L","RealBlue 780","355-3",0
@@ -10164,8 +10142,6 @@
 "SonyID700_5L","Red 718","637-33",0.1578
 "SonyID700_5L","Red 718","637-34",0.11
 "SonyID700_5L","Red 718","637-35",0.0817
-"SonyID700_5L","0. Red 718","x",NA
-"SonyID700_5L","0. Red 718","x",NA
 "SonyID700_5L","Spark Blue 515","355-1",0
 "SonyID700_5L","Spark Blue 515","355-2",0
 "SonyID700_5L","Spark Blue 515","355-3",0
@@ -10313,8 +10289,6 @@
 "SonyID700_5L","Spark Blue 515","637-33",0
 "SonyID700_5L","Spark Blue 515","637-34",0
 "SonyID700_5L","Spark Blue 515","637-35",0
-"SonyID700_5L","0. Spark Blue 515","x",NA
-"SonyID700_5L","0. Spark Blue 515","x",NA
 "SonyID700_5L","Spark Blue 550","355-1",0
 "SonyID700_5L","Spark Blue 550","355-2",0
 "SonyID700_5L","Spark Blue 550","355-3",0
@@ -11050,8 +11024,6 @@
 "SonyID700_5L","Spark UV 387","637-33",0
 "SonyID700_5L","Spark UV 387","637-34",0
 "SonyID700_5L","Spark UV 387","637-35",0
-"SonyID700_5L","0. Spark UV 387","x",NA
-"SonyID700_5L","0. Spark UV 387","x",NA
 "SonyID700_5L","Spark Violet 423","355-1",0.000407405
 "SonyID700_5L","Spark Violet 423","355-2",0.08339269
 "SonyID700_5L","Spark Violet 423","355-3",0.03800535
@@ -11346,8 +11318,6 @@
 "SonyID700_5L","Spark Violet 500","637-33",0
 "SonyID700_5L","Spark Violet 500","637-34",0
 "SonyID700_5L","Spark Violet 500","637-35",0
-"SonyID700_5L","0. Spark Violet 500","x",NA
-"SonyID700_5L","0. Spark Violet 500","x",NA
 "SonyID700_5L","Spark Violet 538","355-1",4.64e-05
 "SonyID700_5L","Spark Violet 538","355-2",0.001110084
 "SonyID700_5L","Spark Violet 538","355-3",0.001687487
@@ -13700,8 +13670,6 @@
 "SonyID700_5L","StarBright UltraViolet 795","637-33",0.1127
 "SonyID700_5L","StarBright UltraViolet 795","637-34",0.0837
 "SonyID700_5L","StarBright UltraViolet 795","637-35",0.0659
-"SonyID700_5L","0. StarBright UltraViolet 795","x",NA
-"SonyID700_5L","0. StarBright UltraViolet 795","x",NA
 "SonyID700_5L","StarBright Violet 570","355-1",1e-04
 "SonyID700_5L","StarBright Violet 570","355-2",0.0014
 "SonyID700_5L","StarBright Violet 570","355-3",0.0025
@@ -13849,8 +13817,6 @@
 "SonyID700_5L","StarBright Violet 570","637-33",0
 "SonyID700_5L","StarBright Violet 570","637-34",0
 "SonyID700_5L","StarBright Violet 570","637-35",0
-"SonyID700_5L","0. StarBright Violet 570","x",NA
-"SonyID700_5L","0. StarBright Violet 570","x",NA
 "SonyID700_5L","StarBright Yellow 575","355-1",0.001208
 "SonyID700_5L","StarBright Yellow 575","355-2",0.000188
 "SonyID700_5L","StarBright Yellow 575","355-3",5.7e-05
@@ -15027,8 +14993,6 @@
 "SonyID700_5L","Zombie B550","637-33",1e-04
 "SonyID700_5L","Zombie B550","637-34",0
 "SonyID700_5L","Zombie B550","637-35",1e-04
-"SonyID700_5L","0. Zombie B550","x",NA
-"SonyID700_5L","0. Zombie B550","x",NA
 "SonyID700_5L","Zombie NIR","355-1",0
 "SonyID700_5L","Zombie NIR","355-2",0
 "SonyID700_5L","Zombie NIR","355-3",0
@@ -15323,8 +15287,6 @@
 "SonyID700_5L","Zombie R685","637-33",0.0515
 "SonyID700_5L","Zombie R685","637-34",0.0401
 "SonyID700_5L","Zombie R685","637-35",0.0299
-"SonyID700_5L","0. Zombie R685","x",NA
-"SonyID700_5L","0. Zombie R685","x",NA
 "SonyID700_5L","Zombie R718","355-1",0.0053
 "SonyID700_5L","Zombie R718","355-2",0.0044
 "SonyID700_5L","Zombie R718","355-3",0.0031
@@ -15472,8 +15434,6 @@
 "SonyID700_5L","Zombie R718","637-33",0.1667
 "SonyID700_5L","Zombie R718","637-34",0.1242
 "SonyID700_5L","Zombie R718","637-35",0.0831
-"SonyID700_5L","0. Zombie R718","x",NA
-"SonyID700_5L","0. Zombie R718","x",NA
 "SonyID700_5L","Zombie YG581","355-1",3e-04
 "SonyID700_5L","Zombie YG581","355-2",0
 "SonyID700_5L","Zombie YG581","355-3",0
@@ -15621,5 +15581,3 @@
 "SonyID700_5L","Zombie YG581","637-33",0
 "SonyID700_5L","Zombie YG581","637-34",0
 "SonyID700_5L","Zombie YG581","637-35",0
-"SonyID700_5L","0. Zombie YG581","x",NA
-"SonyID700_5L","0. Zombie YG581","x",NA

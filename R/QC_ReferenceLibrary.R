@@ -4,9 +4,9 @@
 #' @param NumberDetectors The number of detectors the instrument contains.
 #' For Cytek Instruments 5L = 64, 4L_UV = 54, 4L_YG = 48, 3L=38, 2L_VB=30,
 #' 2L_BR=22, 1L=14
-#' For BD S8=78, S6=48_S, A5=48_A
-#' For Sony ID7000 7L=187, 6L_IR=182, 6L_DUV=182, 5L=148, 4L=113, 3L=87
-#' For ThermoFisher BigFoot 7L_532-594=52, 7L_488-561=55, 6L_785=51, 6L_445=52
+#' For BD S8=78, S6="48_S", A5="48_A"
+#' For Sony ID7000 7L=184, 6L_DUV="182_DUV", 5L=147, 4L=112, 3L=86
+#' For ThermoFisher BigFoot 7L_488-561=55, 7L_532-594="52_7L", 6L_445="52_6L", 6L_785=51 
 #' @param returnPlots Whether to return signature plot as well. Default FALSE.
 #' @param ListOverride Default FALSE
 #'
