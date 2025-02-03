@@ -8,11 +8,11 @@
 #' For Sony ID7000 7L=184, 6L_DUV="182_DUV", 5L=147, 4L=112, 3L=86
 #' For ThermoFisher BigFoot 7L_488-561=55, 7L_532-594="52_7L", 6L_445="52_6L", 6L_785=51 
 #' @param returnPlots Whether to return signature plot as well. Default FALSE.
-#' @param ListOverride Default FALSE
 #'
 #' @importFrom dplyr select
 #' @importFrom dplyr filter
 #' @importFrom stringr str_detect
+#' @importFrom dplyr n
 #'
 #' @return A dataframe column containing matching Fluorophores from your querry
 #' @export
@@ -20,25 +20,51 @@
 #' @examples
 #' QC_ReferenceLibrary(FluorNameContains = "FITC", NumberDetectors=64)
 QC_ReferenceLibrary <- function(FluorNameContains, NumberDetectors,
-                                returnPlots=FALSE, ListOverride=FALSE){
-  ReferenceData <- InstrumentReferences(NumberDetectors=NumberDetectors)
-  if (returnPlots == TRUE){ReferenceData1 <- ReferenceData}
+                                returnPlots=FALSE){
+  
+  if (!length(NumberDetectors) == 1){
+    ReferenceData <- map(.x=NumberDetectors, .f=Luciernaga:::InstrumentReferences) |>
+      bind_rows()
 
+    # Pre-filtering for intersecting fluorophores across instruments
+    GroupLength <- length(NumberDetectors)
+    Intermediate <- ReferenceData |> group_by(Instrument) |> 
+      select(Instrument, Fluorophore) |> unique() |> ungroup()
+    These <- Intermediate |> group_by(Fluorophore) |>
+      mutate(Count = dplyr::n()) |> ungroup() |> 
+      filter(Count == GroupLength) |> pull(Fluorophore) |> unique()
+    ReferenceData <- ReferenceData |> filter(Fluorophore %in% These) 
+  } else {ReferenceData <- InstrumentReferences(NumberDetectors=NumberDetectors)}
 
-  TheList <- ReferenceData %>% select(Fluorophore) %>% unique()
-  rownames(TheList) <- NULL
+  # Identifying matches
+  TheList <- ReferenceData |> select(Fluorophore) |> unique()
+  rownames(TheList) <- NULL    
 
-  if (ListOverride == FALSE){
-  Subset <- TheList %>% filter(str_detect(Fluorophore, FluorNameContains))
-  } else {Subset <- TheList %>% dplyr::filter(
-    Fluorophore %in% FluorNameContains)}
+  if (length(FluorNameContains) == 1){
+  Subset <- TheList |> filter(str_detect(Fluorophore, FluorNameContains))
+  } else {Subset <- TheList |> 
+    filter(str_detect(Fluorophore, paste(FluorNameContains, collapse = "|")))}
 
-  if (returnPlots==TRUE){
-    TheseFluorophores <- Subset %>% pull(Fluorophore)
+  # Plotting if requested
+  if (returnPlots==FALSE){
+    return(Subset)
+  } else {
+    TheseFluorophores <- Subset |> pull(Fluorophore)
+    if (!length(NumberDetectors) == 1){
+      Instruments <- ReferenceData |> pull(Instrument) |> unique()
 
-    ThePlot <- SimilarFluorPlots(TheseFluorophores=TheseFluorophores,
-                                 TheFluorophore=NULL, data=ReferenceData1)
+      SmallWrapper <- function(x, data, TheseFluorophores){
+        Internal <- data |> filter(Instrument %in% x)
+        ThePlot <- Luciernaga:::SimilarFluorPlots(TheseFluorophores=TheseFluorophores,
+          TheFluorophore=NULL, data=Internal)
+      }
+      ThePlot <- map(.x=Instruments, .f=SmallWrapper, data=ReferenceData, 
+      TheseFluorophores=TheseFluorophores)  
+    } else {
+      ThePlot <- Luciernaga:::SimilarFluorPlots(TheseFluorophores=TheseFluorophores,
+                                   TheFluorophore=NULL, data=ReferenceData)  
+    }
     ReturnThese <- list(Subset, ThePlot)
     return(ReturnThese)
-  } else {return(Subset)}
+  } 
 }
