@@ -20,14 +20,23 @@
 #' 
 #' @return A data.frame or in the future a plot object
 #' 
+#' @examples
+#' 
+#' library(dplyr)
+#' library(tidyr)
+#' library(purrr)
+#' 
+#' Data <- InstrumentComparison(Instruments=c(64, 54), MainFluorophore="FITC",
+#'  returnType="data")
+#' 
 #' @noRd
 InstrumentComparison <- function(Instruments, MainFluorophore, returnType){
 
-  Values <- map(.x=Instruments, .f=InstrumentNameCheck)
+  Values <- map(.x=Instruments, .f=Luciernaga:::InstrumentNameCheck)
   Hmm <- unlist(Values)
-  TheFluorophores <- map(.x=Hmm, .f=InstrumentReturn)
+  TheFluorophores <- map(.x=Hmm, .f=Luciernaga:::InstrumentReturn)
   Shared <- Reduce(intersect, TheFluorophores)
-  Dataset <- map(.x=Hmm, .f=InstrumentData, fluorophores=Shared) |> bind_rows()
+  Dataset <- map(.x=Hmm, .f=Luciernaga:::InstrumentData, fluorophores=Shared) |> bind_rows()
   #Dataset |> pull(Instrument) |> unique()
   
   if (!MainFluorophore %in% Shared){
@@ -38,7 +47,10 @@ InstrumentComparison <- function(Instruments, MainFluorophore, returnType){
       OrderReference <-Hmm[1]
   } else {OrderReference <- 64} #Remember exception if not found 5L
   
-  ReferenceData <- InstrumentReferences(NumberDetectors=OrderReference)
+  ReferenceData <- Luciernaga:::InstrumentReferences(NumberDetectors=OrderReference)
+  ReferenceLevels <- ReferenceData |> filter(Fluorophore %in% MainFluorophore) |> pull(Detector)
+  ReferenceData$Detector <- factor(ReferenceData$Detector, levels=ReferenceLevels)
+
   TheReferenceList <- ReferenceData |> filter(Fluorophore %in% Shared)
   Shared_Rearranged <- TheReferenceList |> group_by(Fluorophore) |>
       arrange(desc(AdjustedY)) |> slice(1) |> select(Fluorophore, Detector) |>
@@ -75,11 +87,13 @@ InstrumentNameCheck <- function(x){
   if (is.character(x)){
           if (grepl("\\d", x) && grepl("[A-Za-z]", x)){
               #message("Handle both")
+              TheY <- x
           } else if (grepl("\\d", x)){
               #message("Converting numeric")
               TheY <- as.numeric(x)
           } else if (grepl("[A-Za-z]", x)){
               #message("Handle no letters")
+              TheY <- x
           } else {stop("Instrument list item not character or numeric")}
       } else if (is.numeric(x)){
           #message("Numeric")
