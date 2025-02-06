@@ -101,7 +101,7 @@ QC_Plots <- function(x, FailedFlag, MeasurementType=NULL, Metadata = NULL,
   if (strict == TRUE){
     Regular <- x %>% select(all_of(MeasurementType))
     EquivalentFlags <- paste0("Flag-", colnames(Regular))
-    if (!plotType == "comparison"){
+    if (!plotType == "comparison" && FailedFlag == TRUE){
     Flagged <- x %>% select(all_of(EquivalentFlags))
     ReorderedData <- cbind(Regular, Flagged)
     } else {ReorderedData <- Regular}
@@ -201,12 +201,20 @@ LevyJennings <- function(x, FailedFlag, xValue, TheData, Metadata,
 
   if (str_detect(yValue, "^UV\\d{1,2}-[A-Za-z]+(_Gain)?$")){
     mycolor <- "purple"
+  } else if (str_detect(yValue, "^V\\d{1,3}-[A-Za-z]")){
+    mycolor <- "violet"
   } else if (str_detect(yValue, "^V\\d{1,2}-[A-Za-z]+(_Gain)?$")){
     mycolor <- "violet"
+  } else if (str_detect(yValue, "^B\\d{1,3}-[A-Za-z]")){
+    mycolor <- "blue"
   } else if (str_detect(yValue, "^B\\d{1,2}-[A-Za-z]+(_Gain)?$")){
     mycolor <- "blue"
+  } else if (str_detect(yValue, "^Y\\d{1,3}-[A-Za-z]")){
+    mycolor <- "darkgreen"
   } else if (str_detect(yValue, "^YG\\d{1,2}-[A-Za-z]+(_Gain)?$")){
     mycolor <- "darkgreen"
+  } else if (str_detect(yValue, "^R\\d{1,3}-[A-Za-z]")){
+    mycolor <- "darkred"
   } else if (str_detect(yValue, "^R\\d{1,2}-[A-Za-z]+(_Gain)?$")){
     mycolor <- "darkred"
   } else if (str_detect(yValue, "^Change_UV\\d{1,2}(-[A-Za-z% ]+)?$")){

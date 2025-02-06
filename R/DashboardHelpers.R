@@ -368,6 +368,158 @@ QCBeadParse <- function(x, MainFolder){
     } else {message("No fcs files to update with in ", x)}
 }
 
+#' Dashboard Internal, updates Gain/MFI tracking for Holistic Data CSV
+#'
+#' @param x The cytometer folder name
+#' @param MainFolder The file.path to main folder
+#'
+#' @importFrom flowWorkspace load_cytoset_from_fcs
+#' @importFrom purrr map
+#' @importFrom dplyr bind_rows
+#' @importFrom dplyr mutate
+#' @importFrom dplyr relocate
+#' @importFrom dplyr arrange
+#' @importFrom dplyr desc
+#' @importFrom utils read.csv
+#' @importFrom lubridate ymd_hms
+#' @importFrom lubridate ymd
+#' @importFrom lubridate hms
+#' @importFrom dplyr anti_join
+#' @importFrom utils write.csv
+#'
+#' @return Updated MFI tracking CSV
+#' @noRd
+HolisticQCParse <- function(x, MainFolder){
+  Folder <- file.path(MainFolder, x)
+  FCS_Files <- list.files(Folder, pattern="fcs", full.names=TRUE)
+
+  if(!length(FCS_Files) == 0){
+
+    #QCBeads <- FCS_Files[grep("Before|After", FCS_Files)]
+    The_CS <- load_cytoset_from_fcs(files=FCS_Files,
+                                            transformation=FALSE, truncate_max_range = FALSE)
+
+    Parsed <- map(.x=The_CS, .f=QC_GainMonitoring,
+                       sample.name = "$DATE", stats="median") %>% bind_rows()
+
+    Parsed <- Parsed %>% mutate(DateTime = DATE+TIME) %>%
+      relocate(DateTime, .before=DATE)
+
+    Parsed <- Parsed %>% arrange(desc(DateTime))
+
+    ArchiveFolder <- file.path(Folder, "Archive")
+    ArchiveCSV <- list.files(ArchiveFolder, pattern="Holistic", full.names=TRUE)
+
+    if (!length(ArchiveCSV) == 0){
+
+    if (!length(ArchiveCSV) > 1){
+
+      ArchiveData <- read.csv(ArchiveCSV, check.names=FALSE)
+      ArchiveData$DateTime <- lubridate::ymd_hms(ArchiveData$DateTime)
+      ArchiveData$DATE <- lubridate::ymd(ArchiveData$DATE)
+      ArchiveData$TIME <- lubridate::hms(ArchiveData$TIME)
+
+      if (!ncol(Parsed) == ncol(ArchiveData)){
+        stop("Mismatched Number of Columns")
+      }
+
+      NewData <- Parsed %>%
+        anti_join(ArchiveData, by = c("DATE", "TIME"))
+
+      UpdatedData <- rbind(NewData, ArchiveData)
+
+      file.remove(ArchiveCSV)
+
+    } else {stop("Two Holistic csv files in the archive folder!")}
+
+    } else {UpdatedData <- Parsed}
+
+    UpdatedData <- UpdatedData %>% arrange(desc(DateTime))
+
+    file.remove(FCS_Files)
+    name <- paste0("HolisticData", x, ".csv")
+    StorageLocation <- file.path(ArchiveFolder, name)
+    write.csv(UpdatedData, StorageLocation, row.names=FALSE)
+
+    } else {message("No fcs files to update with in ", x)}
+}
+
+#' Dashboard Internal, updates MFI tracking CSV
+#'
+#' @param x The cytometer folder name
+#' @param MainFolder The file.path to main folder
+#'
+#' @importFrom flowWorkspace load_cytoset_from_fcs
+#' @importFrom purrr map
+#' @importFrom dplyr bind_rows
+#' @importFrom dplyr mutate
+#' @importFrom dplyr relocate
+#' @importFrom dplyr arrange
+#' @importFrom dplyr desc
+#' @importFrom utils read.csv
+#' @importFrom lubridate ymd_hms
+#' @importFrom lubridate ymd
+#' @importFrom lubridate hms
+#' @importFrom dplyr anti_join
+#' @importFrom utils write.csv
+#'
+#' @return Updated MFI tracking CSV
+#' @noRd
+QCBeadParse <- function(x, MainFolder){
+  Folder <- file.path(MainFolder, x)
+  FCS_Files <- list.files(Folder, pattern="fcs", full.names=TRUE)
+
+  if(!length(FCS_Files) == 0){
+
+    QCBeads <- FCS_Files[grep("Before|After", FCS_Files)]
+    BeforeAfter_CS <- load_cytoset_from_fcs(files=QCBeads,
+                                            transformation=FALSE, truncate_max_range = FALSE)
+
+    BeforeAfter <- map(.x=BeforeAfter_CS, .f=QC_GainMonitoring,
+                       sample.name = "TUBENAME", stats="median") %>% bind_rows()
+
+    BeforeAfter <- BeforeAfter %>% mutate(DateTime = DATE+TIME) %>%
+      relocate(DateTime, .before=DATE)
+
+    BeforeAfter <- BeforeAfter %>% arrange(desc(DateTime))
+
+    ArchiveFolder <- file.path(Folder, "Archive")
+    ArchiveCSV <- list.files(ArchiveFolder, pattern="Bead", full.names=TRUE)
+
+    if (!length(ArchiveCSV) == 0){
+
+    if (!length(ArchiveCSV) > 1){
+
+      ArchiveData <- read.csv(ArchiveCSV, check.names=FALSE)
+      ArchiveData$DateTime <- lubridate::ymd_hms(ArchiveData$DateTime)
+      ArchiveData$DATE <- lubridate::ymd(ArchiveData$DATE)
+      ArchiveData$TIME <- lubridate::hms(ArchiveData$TIME)
+
+      if (!ncol(BeforeAfter) == ncol(ArchiveData)){
+        stop("Mismatched Number of Columns")
+      }
+
+      NewData <- BeforeAfter %>%
+        anti_join(ArchiveData, by = c("DATE", "TIME"))
+
+      UpdatedData <- rbind(NewData, ArchiveData)
+
+      file.remove(ArchiveCSV)
+
+    } else {stop("Two BeadData csv files in the archive folder!")}
+
+    } else {UpdatedData <- BeforeAfter}
+
+    UpdatedData <- UpdatedData %>% arrange(desc(DateTime))
+
+    file.remove(FCS_Files)
+    name <- paste0("BeadData", x, ".csv")
+    StorageLocation <- file.path(ArchiveFolder, name)
+    write.csv(UpdatedData, StorageLocation, row.names=FALSE)
+
+    } else {message("No fcs files to update with in ", x)}
+}
+
 #' Dashboard Internal, loads updated data
 #'
 #' @param x The Cytometer Folder Name
@@ -409,6 +561,15 @@ CurrentData <- function(x, MainFolder, type){
     } else {Data$DateTime <- lubridate::mdy_hm(Data$DateTime)}
   }
 
+  if (type == "Both"){
+    BothData <- list.files(ArchiveLocation, pattern="Holistic",
+                           full.names=TRUE)
+    Data <- read.csv(BothData, check.names=FALSE)
+    Data$DateTime <- lubridate::ymd_hms(Data$DateTime)
+    Data$DATE <- lubridate::ymd(Data$DATE)
+    Data$TIME <- lubridate::hms(Data$TIME)
+  }
+
   Data <- Data %>% arrange(desc(DateTime))
   return(Data)
 }
@@ -425,6 +586,7 @@ ColorPriority <- function(colors){
                           grepl("^Violet", colors) * -1,
                           grepl("^Blue", colors) * -1,
                           grepl("^Yellow", colors) * -1,
+                          grepl("^yellow", colors) * -1,
                           grepl("^Red", colors) * -1)]
   return(Ordered)
 }
