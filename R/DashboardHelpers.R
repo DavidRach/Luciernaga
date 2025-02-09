@@ -400,12 +400,12 @@ HolisticQCParse <- function(x, MainFolder){
                                             transformation=FALSE, truncate_max_range = FALSE)
 
     Parsed <- map(.x=The_CS, .f=QC_GainMonitoring,
-                       sample.name = "$DATE", stats="median") %>% bind_rows()
+                       sample.name = "$DATE", stats="median") |> bind_rows()
 
-    Parsed <- Parsed %>% mutate(DateTime = DATE+TIME) %>%
+    Parsed <- Parsed |> mutate(DateTime = DATE+TIME) |>
       relocate(DateTime, .before=DATE)
 
-    Parsed <- Parsed %>% arrange(desc(DateTime))
+    Parsed <- Parsed |> arrange(desc(DateTime))
 
     ArchiveFolder <- file.path(Folder, "Archive")
     ArchiveCSV <- list.files(ArchiveFolder, pattern="Holistic", full.names=TRUE)
@@ -420,13 +420,13 @@ HolisticQCParse <- function(x, MainFolder){
       ArchiveData$TIME <- lubridate::hms(ArchiveData$TIME)
 
       if (!ncol(Parsed) == ncol(ArchiveData)){
-        stop("Mismatched Number of Columns")
+        message("Mismatched Number of Columns")
       }
 
       NewData <- Parsed %>%
         anti_join(ArchiveData, by = c("DATE", "TIME"))
 
-      UpdatedData <- rbind(NewData, ArchiveData)
+      UpdatedData <- bind_rows(NewData, ArchiveData)
 
       file.remove(ArchiveCSV)
 

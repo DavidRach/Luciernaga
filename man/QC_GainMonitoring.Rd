@@ -5,7 +5,13 @@
 \title{Takes Before After QC .fcs files of QC beads run on assay settings, returns the gains and average
 measurement in a data.frame to allow for plotting to assess stability over time.}
 \usage{
-QC_GainMonitoring(x, sample.name, stats)
+QC_GainMonitoring(
+  x,
+  sample.name,
+  stats,
+  subsets = NULL,
+  inverse.transform = FALSE
+)
 }
 \arguments{
 \item{x}{A CytoSet (when mapped) or an individual cytoset, example (x=MyCytoSet[[1]])}
@@ -13,6 +19,10 @@ QC_GainMonitoring(x, sample.name, stats)
 \item{sample.name}{The keyword value that distinguishes individual .fcs files}
 
 \item{stats}{Whether to summarize the MFIs by "mean" or "median"}
+
+\item{subsets}{When provided with a GatingSet, selects this subset to provide the Cytoset}
+
+\item{inverse.transform}{Default is FALSE.}
 }
 \value{
 A data.frame row
