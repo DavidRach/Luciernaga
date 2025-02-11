@@ -27,7 +27,7 @@ test_that("Utility_GatingPlots returns a patchwork object", {
                                         gtFile = MyGates,
                                         DesiredGates = NULL,
                                         outpath = StorageLocation,
-                                        export = FALSE)
+                                        returnType = "patchwork")
 
   # Did it return a patchwork object?
   expect_true(inherits(IndividualPlot[[1]], "patchwork"))

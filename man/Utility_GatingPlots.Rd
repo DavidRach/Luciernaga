@@ -9,16 +9,19 @@ Utility_GatingPlots(
   sample.name,
   removestrings,
   subset = "root",
-  gtFile,
+  gtFile = NULL,
   DesiredGates = NULL,
   outpath = NULL,
-  export = TRUE,
+  returnType,
   bins = 270,
   therows = 2,
   thecolumns = 2,
   width = 7,
   height = 9,
   clearance = 0.2,
+  optionalX = NULL,
+  optionalY = NULL,
+  optionalGate = NULL,
   ...
 )
 }
@@ -39,8 +42,7 @@ Desired <- c("nonDebris, "lymphocytes")}
 
 \item{outpath}{Location to store the generated .pdf file}
 
-\item{export}{Whether to return as a .pdf file or as individual patchwork ggplot
-objects.}
+\item{returnType}{Whether to return "pdf", "patchwork" or "plots".}
 
 \item{bins}{Argument to geom_hex for number of bins to visualize the plotted
 data density.}
@@ -54,6 +56,10 @@ data density.}
 \item{height}{Desired page height}
 
 \item{clearance}{A buffer area around the plot edge}
+
+\item{optionalX}{When gtFile is NULL, provides x-axis argument for the subset gated population}
+
+\item{optionalY}{When gtFile is NULL, provides y-axis argument for the subset gated population}
 
 \item{...}{Additional Arguments to NameForSample to derive filename.}
 }
@@ -87,6 +93,6 @@ StorageLocation <- file.path("C:", "Users", "JohnDoe", "Desktop")
 IndividualPlot <- Utility_GatingPlots(x=MyGatingSet[[1]],
   sample.name = "GUID",removestrings = removestrings,
   gtFile = MyGates, DesiredGates = NULL,
-  outpath = StorageLocation, export = FALSE)
+  outpath = StorageLocation, returnType = "patchwork")
 
 }

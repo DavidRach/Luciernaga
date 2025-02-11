@@ -11,13 +11,14 @@
 #' @param gtFile The data.table imported .csv file containing the gating template.
 #' @param DesiredGates A vector of gates that you want plotted, for example
 #' Desired <- c("nonDebris, "lymphocytes")
-#' @param export Whether to return as a .pdf file or as individual patchwork ggplot
-#' objects.
+#' @param returnType Whether to return "pdf", "patchwork" or "plots".
 #' @param thecolumns Number of desired columns for the .pdf file
 #' @param therows Number of desired rows for the .pdf file
 #' @param width Desired page width
 #' @param height Desired page height
 #' @param outpath Location to store the generated .pdf file
+#' @param optionalX When gtFile is NULL, provides x-axis argument for the subset gated population
+#' @param optionalY When gtFile is NULL, provides y-axis argument for the subset gated population
 #' @param ... Additional Arguments to NameForSample to derive filename.
 #'
 #' @importFrom flowWorkspace keyword
@@ -54,49 +55,59 @@
 #' IndividualPlot <- Utility_GatingPlots(x=MyGatingSet[[1]],
 #'   sample.name = "GUID",removestrings = removestrings,
 #'   gtFile = MyGates, DesiredGates = NULL,
-#'   outpath = StorageLocation, export = FALSE)
+#'   outpath = StorageLocation, returnType = "patchwork")
 #'
-Utility_GatingPlots <- function(x, sample.name, removestrings, subset="root", gtFile,
-  DesiredGates = NULL, outpath = NULL, export = TRUE, bins=270, therows=2, thecolumns=2,
-  width=7, height=9, clearance=0.2, ...){
+Utility_GatingPlots <- function(x, sample.name, removestrings, subset="root", gtFile=NULL,
+  DesiredGates = NULL, outpath = NULL, returnType, bins=270, therows=2, thecolumns=2,
+  width=7, height=9, clearance=0.2, optionalX=NULL, optionalY=NULL, optionalGate=NULL, ...){
 
   # Setting up individual file name
   if (is.null(outpath)){outpath <- getwd()}
 
-  AggregateName <- NameForSample(x=x, sample.name=sample.name,
+  AggregateName <- Luciernaga:::NameForSample(x=x, sample.name=sample.name,
                                  removestrings=removestrings, ...)
+  #AggregateName <- Luciernaga:::NameForSample(x=x, sample.name=sample.name, removestrings=removestrings)
 
   # Pulling Gating Information
-  TheXYZgates <- gtFile %>% pull(alias)
+  if(!is.null(gtFile)){
+  TheXYZgates <- gtFile |> pull(alias)
+  } else {message("No gating reference file provided, returning provided arguments")
+    TheXYZgates <- NULL}
 
   # Desired Gate
-  if(!is.null(DesiredGates)){TheXYZgates <- intersect(DesiredGates, TheXYZgates)}
+  if(!is.null(TheXYZgates) && !is.null(DesiredGates)){TheXYZgates <- intersect(DesiredGates, TheXYZgates)}
 
   # Pulling Gating Set Data
-  ff <- gs_pop_get_data(x, subset)
-  df <- exprs(ff[[1]])
-  TheDF <- data.frame(df, check.names = FALSE)
-  x2 <- x
 
   #Plot Generation
-  CompiledPlots <- map(.x = TheXYZgates, .f = GatePlot, data=x2, TheDF = TheDF,
-                       gtFile = gtFile, bins=bins, clearance=clearance)
-  # CompiledPlots <- map(.x = TheXYZgates, .f = GatePlot, data=x2,
-  #gtFile = gtFile)
+  if(!is.null(TheXYZgates)){
+    ff <- gs_pop_get_data(x, subset)
+    df <- exprs(ff[[1]])
+    TheDF <- data.frame(df, check.names = FALSE)
+    x2 <- x
 
-  if (export == TRUE){
+    CompiledPlots <- map(.x = TheXYZgates, .f = GatePlot, data=x2, TheDF = TheDF,
+                        gtFile = gtFile, bins=bins, clearance=clearance)
+  } else {
+    CompiledPlots <- Utility_IterativeGating(x=x, subset=subset,
+     xValue=optionalX, yValue=optionalY, gate=optionalGate, sample.name=sample.name,
+    removestrings=removestrings, bins=bins)
+  } 
+
+  if (returnType == "pdf"){
     AssembledPlots <- Utility_Patchwork(x=CompiledPlots, filename=AggregateName,
                                         outfolder=outpath, returntype = "pdf",
                                         therows=therows, thecolumns=thecolumns,
                                         width = width, height = height)
-  } else if (export == FALSE){
+  } else if (returnType == "patchwork"){
     AssembledPlots <- Utility_Patchwork(x=CompiledPlots, filename=AggregateName,
                                         outfolder=outpath, returntype = "patchwork",
                                         therows=therows, thecolumns=thecolumns,
-                                        width = width, height = height)}
+                                        width = width, height = height)
+  } else if (returnType == "plots"){AssembledPlots <- CompiledPlots}
 
   return(AssembledPlots)
-}
+  }
 
 #' Generates called plots from Utility_GatingPlots
 #'

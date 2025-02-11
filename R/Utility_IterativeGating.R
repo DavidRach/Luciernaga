@@ -82,7 +82,15 @@ Utility_IterativeGating <- function(x, subset, gate, xValue, yValue, sample.name
 InternalIterator <- function(x, gs, subset, gate, xValue, yValue, sample.name,
                              removestrings, bins){
   theGSsubset <- subset(gs, name == x)
-  name <- keyword(theGSsubset, sample.name)
+
+  if (length(sample.name) == 2){
+    first <- sample.name[[1]]
+    second <- sample.name[[2]]
+    first <- keyword(theGSsubset, first)
+    second <- keyword(theGSsubset, second)
+    name <- paste(first, second, sep="_")
+  } else {name <- keyword(theGSsubset, sample.name)}
+
   name <- NameCleanUp(name, removestrings)
 
   if(!is.null(gate)){
