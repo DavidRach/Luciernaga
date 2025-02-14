@@ -12,7 +12,7 @@ Luciernaga_GroupHeatmap(
 )
 }
 \arguments{
-\item{reports}{A list of Luciernaga_QC report data objects}
+\item{reports}{A data.frame or a list of Luciernaga_QC report data objects}
 
 \item{nameColumn}{The name of the column that differentiates between the reports}
 

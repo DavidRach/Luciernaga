@@ -278,7 +278,7 @@ Luciernaga_QC <- function(x, subsets, sample.name, removestrings=NULL, Verbose =
   TheSCData$Fluorophore <- gsub("-A", "", TheSCData$Fluorophore)
   TroubleChannels <- TheSCData %>% pull(Fluorophore)
 
-  results <- map(.x=TroubleChannels, .f=TroubleChannelExclusion,
+  results <- map(.x=TroubleChannels, .f=Luciernaga:::TroubleChannelExclusion,
                  TheSCData=TheSCData, MainDetector=MainDetector,
                  AFChannels=AFChannels) %>% set_names(TroubleChannels)
 

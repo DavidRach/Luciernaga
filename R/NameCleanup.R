@@ -66,7 +66,7 @@ NameForSample <- function(x, sample.name, removestrings, experiment.name = NULL,
 
   if (exists("experiment.name")){
     if(!is.null(experiment.name)){experiment <- keyword(x, experiment.name)
-    experiment <- pull(experiment)
+    experiment <- experiment[[1]]
     } else if (is.null(experiment.name)) {Internal <- "A"}
   }
 
@@ -77,7 +77,7 @@ NameForSample <- function(x, sample.name, removestrings, experiment.name = NULL,
 
   if (exists("condition.name")){
     if(!is.null(condition.name)){condition <- keyword(x, condition.name)
-    condition <- pull(condition)
+    condition <- condition[[1]]
     } else if (is.null(condition.name)) {Internal <- "A"}
   }
 

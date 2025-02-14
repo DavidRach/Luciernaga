@@ -19,6 +19,7 @@
 #' @param outpath Location to store the generated .pdf file
 #' @param optionalX When gtFile is NULL, provides x-axis argument for the subset gated population
 #' @param optionalY When gtFile is NULL, provides y-axis argument for the subset gated population
+#' @param optionalGate Default NULL, if using optional arguments and correct X and Y, the gate arg
 #' @param ... Additional Arguments to NameForSample to derive filename.
 #'
 #' @importFrom flowWorkspace keyword

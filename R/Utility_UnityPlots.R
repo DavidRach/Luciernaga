@@ -10,9 +10,10 @@
 #' @param clearance A value of clearance multiplied to the margin
 #' @param bins How many bins to class the cells into
 #' @param gatelines Whether to plot the reference lines
-#' @param reference A data.frame containing references
+#' @param reference Reference for the gate cutoff lines
 #' @param returntype Whether to return "pdf", "patchwork" or "plots"
 #' @param outpath The desired location to send the assembled pdf to
+#' @param filename Default NULL, provide name to set the filename.
 #'
 #' @importFrom Biobase pData
 #' @importFrom purrr map
@@ -69,7 +70,13 @@
 #'
 Utility_UnityPlot <- function(x, y, GatingSet, marginsubset, gatesubset,
   sample.name, removestrings, clearance, bins, gatelines, reference, returntype,
-  outpath){
+  outpath, filename=NULL){
+  
+  if (!is.null(reference)){
+      if (is.data.frame(reference)){reference <- reference
+      } else {reference <- read.csv(file=reference, check.names = FALSE)
+      }
+  }  
 
   TheX <- x
   TheY <- y
@@ -79,6 +86,8 @@ Utility_UnityPlot <- function(x, y, GatingSet, marginsubset, gatesubset,
       gatesubset=gatesubset, sample.name=sample.name, removestrings=removestrings,
       clearance=clearance, bins=bins, gatelines=gatelines, reference=reference)
 
+ if (!is.null(filename)){AggregateName <- FileName} 
+  
  if (returntype == "plots"){
    return(Plots)
  }

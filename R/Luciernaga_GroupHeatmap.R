@@ -1,6 +1,6 @@
 #' A group version of the heatmap option from Luciernaga_Plots
 #'
-#' @param reports A list of Luciernaga_QC report data objects
+#' @param reports A data.frame or a list of Luciernaga_QC report data objects
 #' @param nameColumn The name of the column that differentiates between the reports
 #' @param cutoff Proportion of cells that at least 1 report needs to exceed for retention.
 #' @param returntype Either "plot" or underlying "data"
@@ -61,8 +61,11 @@
 Luciernaga_GroupHeatmap <- function(reports, nameColumn, cutoff=0.01, returntype="plot"){
   #nameColumn <- "Experiment"
   Columns <- c(nameColumn, "Cluster", "Count")
-  Processed <- map(.x=reports, .f=ReportProcess,
+
+  if (!is.data.frame(reports)){
+  Processed <- map(.x=reports, .f=Luciernaga:::ReportProcess,
                    columns=Columns) %>% bind_rows()
+  } else {Processed <- Luciernaga:::ReportProcess(x=reports, columns=Columns)}
 
   TheCounts <- Processed %>% group_by(.data[[nameColumn]]) %>%
     summarize(TotalCells = sum(Count, na.rm = TRUE), .groups = 'drop')
@@ -78,7 +81,7 @@ Luciernaga_GroupHeatmap <- function(reports, nameColumn, cutoff=0.01, returntype
   Values <- TheData %>% group_by(.data[[nameColumn]], Cluster) %>%
     mutate(cutoff = Ratio > cutoff) #Set as cutoff value
 
-  Clusters <- map(.x=TheClusters, .f=ClusterAbundance, data=Values)
+  Clusters <- map(.x=TheClusters, .f=Luciernaga:::ClusterAbundance, data=Values)
   Clusters <- Filter(Negate(is.null), Clusters)
   Clusters <- unlist(Clusters)
   ExcludedClusters <- setdiff(TheClusters, Clusters)
@@ -97,12 +100,12 @@ Luciernaga_GroupHeatmap <- function(reports, nameColumn, cutoff=0.01, returntype
 
   if (returntype == "plot"){
 
-    plot <- StackedReportHeatmap(data=UpdatedDataset, nameColumn=nameColumn)
+    plot <- Luciernaga:::StackedReportHeatmap(data=UpdatedDataset, nameColumn=nameColumn)
 
     return(plot)
 
   } else {return(UpdatedDataset)}
-}
+  }
 
 
 #' Internal for StackedReport

@@ -61,6 +61,8 @@ data density.}
 
 \item{optionalY}{When gtFile is NULL, provides y-axis argument for the subset gated population}
 
+\item{optionalGate}{Default NULL, if using optional arguments and correct X and Y, the gate arg}
+
 \item{...}{Additional Arguments to NameForSample to derive filename.}
 }
 \value{

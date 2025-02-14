@@ -17,7 +17,8 @@ Utility_UnityPlot(
   gatelines,
   reference,
   returntype,
-  outpath
+  outpath,
+  filename = NULL
 )
 }
 \arguments{
@@ -41,11 +42,13 @@ Utility_UnityPlot(
 
 \item{gatelines}{Whether to plot the reference lines}
 
-\item{reference}{A data.frame containing references}
+\item{reference}{Reference for the gate cutoff lines}
 
 \item{returntype}{Whether to return "pdf", "patchwork" or "plots"}
 
 \item{outpath}{The desired location to send the assembled pdf to}
+
+\item{filename}{Default NULL, provide name to set the filename.}
 }
 \value{
 The ggplots for all the specimens, as well as the optional .pdf

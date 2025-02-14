@@ -25,6 +25,7 @@
 #' @param reference Reference for the gate cutoff lines
 #' @param width Desired page width for a pdf, default is 9 inches.
 #' @param height Desired page height for a pdf, default is 7 inches
+#' @param filename Default NULL, provide name to set the filename. 
 #'
 #' @importFrom flowWorkspace keyword
 #' @importFrom flowWorkspace gs_pop_get_data
@@ -76,9 +77,13 @@
 Utility_NbyNPlots <- function(x, sample.name, removestrings, experiment = NULL,
   experiment.name = NULL, condition = NULL, condition.name = NULL, marginsubset,
   gatesubset, ycolumn, bins, clearance, gatelines, reference = NULL, outpath, returntype,
-  width = 9, height = 7) {
-  #ycolumn <- ycolumn
-  #x <- x
+  width = 9, height = 7, filename = NULL) {
+
+  if (!is.null(reference)){
+    if (is.data.frame(reference)){reference <- reference
+    } else {reference <- read.csv(file=reference, check.names = FALSE)
+    }
+  }
 
   name <- keyword(x, sample.name)
 
@@ -113,6 +118,8 @@ Utility_NbyNPlots <- function(x, sample.name, removestrings, experiment = NULL,
       yValue = ycolumn, columnlist = DFNames, TheDF = TheDF, gatelines = gatelines,
       reference = reference, clearance = clearance, bins = bins)
   }
+
+  if (!is.null(filename)){AggregateName <- filename}
 
 
   if (returntype == "pdf"){

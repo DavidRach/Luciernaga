@@ -22,7 +22,8 @@ Utility_NbyNPlots(
   outpath,
   returntype,
   width = 9,
-  height = 7
+  height = 7,
+  filename = NULL
 )
 }
 \arguments{
@@ -68,6 +69,8 @@ main population but exclude outliers.}
 \item{width}{Desired page width for a pdf, default is 9 inches.}
 
 \item{height}{Desired page height for a pdf, default is 7 inches}
+
+\item{filename}{Default NULL, provide name to set the filename.}
 }
 \value{
 A value to be determined later
