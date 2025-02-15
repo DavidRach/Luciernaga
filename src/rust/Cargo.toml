@@ -1,0 +1,12 @@
+[package]
+name = 'Luciernaga'
+version = '0.99.2'
+edition = '2021'
+
+[lib]
+crate-type = [ 'staticlib' ]
+name = 'Luciernaga'
+
+[dependencies]
+extendr-api = {version = '*', features=["ndarray"]}
+nnls = "0.3.0"
