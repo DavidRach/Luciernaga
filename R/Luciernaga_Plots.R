@@ -86,13 +86,16 @@
 Luciernaga_Plots <- function(data, RetainedType, CellPopRatio, outfolder, filename,
                              LinePlots=TRUE, CosinePlots=TRUE,
                              StackedBarPlots=TRUE, HeatmapPlots=TRUE,
-                             returntype = "patchwork", reference,
+                             returntype = "patchwork", reference=NULL,
                              thecolumns=2, therows=2, width=9, height=7){
 
-  if (!is.data.frame(reference)){reference <- read.csv(reference, check.names=FALSE)}
+  if(!is.null(reference)){
 
+  if (!is.data.frame(reference)){reference <- read.csv(reference, check.names=FALSE)}
+  
   PreferredOrder <- reference %>% pull(Fluorophore)
   PreferredOrder <- gsub("-A", "", PreferredOrder)
+  } else {PreferredOrder <- NULL}
 
   #################################################
   # Filtered by CellPopRatio, and creating other  #
@@ -132,14 +135,16 @@ Luciernaga_Plots <- function(data, RetainedType, CellPopRatio, outfolder, filena
 
   Items <- data.frame(table(data$Sample)) %>% pull(Var1) %>% as.character(.)
 
+  if (!is.null(PreferredOrder)){
   if (all(Items %in% PreferredOrder)){
     Items <- PreferredOrder
   } else {message("names not matching, no reorderring according to panel order")}
+  }
 
   #x <- Items[1]
   #data <- Replaced
 
-  ThePlots <- map(.x=Items, .f=InternalReport, data=Replaced,
+  ThePlots <- map(.x=Items, .f=Luciernaga:::InternalReport, data=Replaced,
                   FirstDetectorColumn=FirstDetectorColumn,
                   LastDetectorColumn=LastDetectorColumn,
                   RetainedType=RetainedType, CellPopRatio=CellPopRatio,
@@ -164,7 +169,7 @@ Luciernaga_Plots <- function(data, RetainedType, CellPopRatio, outfolder, filena
     return(ThePlots)
   }
 
-}
+  }
 
 
 

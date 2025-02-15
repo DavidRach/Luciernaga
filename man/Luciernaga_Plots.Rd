@@ -15,7 +15,7 @@ Luciernaga_Plots(
   StackedBarPlots = TRUE,
   HeatmapPlots = TRUE,
   returntype = "patchwork",
-  reference,
+  reference = NULL,
   thecolumns = 2,
   therows = 2,
   width = 9,
