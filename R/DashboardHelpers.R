@@ -372,6 +372,8 @@ QCBeadParse <- function(x, MainFolder){
 #'
 #' @param x The cytometer folder name
 #' @param MainFolder The file.path to main folder
+#' @param Template Default NULL, a file.path to an openCyto gating template want to apply fist.
+#' @param subsets Default NULL, a GatingHierarchy subset to retrieve information from. 
 #'
 #' @importFrom flowWorkspace load_cytoset_from_fcs
 #' @importFrom purrr map
@@ -386,21 +388,36 @@ QCBeadParse <- function(x, MainFolder){
 #' @importFrom lubridate hms
 #' @importFrom dplyr anti_join
 #' @importFrom utils write.csv
+#' @importFrom flowWorkspace GatingSet
+#' @importFrom openCyto gatingTemplate
+#' @importFrom openCyto gt_gating
+#' @importFrom data.table fread
+#' @importFrom Biobase exprs
 #'
 #' @return Updated MFI tracking CSV
 #' @noRd
-HolisticQCParse <- function(x, MainFolder){
+HolisticQCParse <- function(x, MainFolder, Template=NULL, subsets=NULL){
   Folder <- file.path(MainFolder, x)
   FCS_Files <- list.files(Folder, pattern="fcs", full.names=TRUE)
 
   if(!length(FCS_Files) == 0){
 
-    #QCBeads <- FCS_Files[grep("Before|After", FCS_Files)]
     The_CS <- load_cytoset_from_fcs(files=FCS_Files,
-                                            transformation=FALSE, truncate_max_range = FALSE)
+      transformation=FALSE, truncate_max_range = FALSE)
 
+    if (is.null(Template)){
     Parsed <- map(.x=The_CS, .f=QC_GainMonitoring,
                        sample.name = "$DATE", stats="median") |> bind_rows()
+    } else {
+      Gating <- data.table::fread(Template)
+      MyGatingSet <- GatingSet(The_CS)
+      MyGatingTemplate <- gatingTemplate(Gating)
+      gt_gating(MyGatingTemplate, MyGatingSet)
+
+    Parsed <- map(.x=MyGatingSet, .f=QC_GainMonitoring, subsets=subsets,
+        sample.name = "$DATE", stats="median") |> bind_rows()
+      
+    }
 
     Parsed <- Parsed |> mutate(DateTime = DATE+TIME) |>
       relocate(DateTime, .before=DATE)

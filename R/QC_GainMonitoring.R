@@ -7,11 +7,12 @@
 #' @param subsets When provided with a GatingSet, selects this subset to provide the Cytoset
 #' @param inverse.transform Default is FALSE. 
 #'
-#' @importFrom flowCore exprs
+#' @importFrom Biobase exprs
 #' @importFrom dplyr select
 #' @importFrom stringr str_detect
 #' @importFrom dplyr mutate
 #' @importFrom dplyr relocate
+#' @importFrom flowWorkspace gs_pop_get_data
 #'
 #' @return A data.frame row
 #' @export
