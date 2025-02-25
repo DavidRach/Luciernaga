@@ -64,21 +64,24 @@ Luciernaga_GroupHeatmap <- function(reports, nameColumn, cutoff=0.01, returntype
 
   if (!is.data.frame(reports)){
   Processed <- map(.x=reports, .f=Luciernaga:::ReportProcess,
-                   columns=Columns) %>% bind_rows()
+                   columns=Columns) |> bind_rows()
   } else {Processed <- Luciernaga:::ReportProcess(x=reports, columns=Columns)}
+  #nrow(Processed)
+  
+  Processed <- Processed |> unique()
 
-  TheCounts <- Processed %>% group_by(.data[[nameColumn]]) %>%
+  TheCounts <- Processed |> group_by(.data[[nameColumn]]) |>
     summarize(TotalCells = sum(Count, na.rm = TRUE), .groups = 'drop')
 
-  Processed <- Processed %>% left_join(TheCounts, by = c(
+  Processed <- Processed |> left_join(TheCounts, by = c(
     nameColumn))
 
-  TheData <- Processed %>% mutate(Ratio = round(Count/TotalCells, 3)) %>%
-    relocate(Ratio, .after=Count) %>% select(-TotalCells)
+  TheData <- Processed |> mutate(Ratio = round(Count/TotalCells, 3)) |>
+    relocate(Ratio, .after=Count) |> select(-TotalCells)
 
-  TheClusters <- TheData %>% pull(Cluster) %>% unique()
+  TheClusters <- TheData |> pull(Cluster) |> unique()
 
-  Values <- TheData %>% group_by(.data[[nameColumn]], Cluster) %>%
+  Values <- TheData |> group_by(.data[[nameColumn]], Cluster) |>
     mutate(cutoff = Ratio > cutoff) #Set as cutoff value
 
   Clusters <- map(.x=TheClusters, .f=Luciernaga:::ClusterAbundance, data=Values)
@@ -86,15 +89,15 @@ Luciernaga_GroupHeatmap <- function(reports, nameColumn, cutoff=0.01, returntype
   Clusters <- unlist(Clusters)
   ExcludedClusters <- setdiff(TheClusters, Clusters)
 
-  FilteredData <- TheData %>% filter(Cluster %in% Clusters)
+  FilteredData <- TheData |> filter(Cluster %in% Clusters)
 
-  OtherData <- FilteredData %>% group_by(.data[[nameColumn]]) %>%
+  OtherData <- FilteredData |> group_by(.data[[nameColumn]]) |>
     summarize(LostRatio = 1 - sum(Ratio, na.rm = TRUE), .groups = 'drop')
 
-  Other <- TheCounts %>% left_join(OtherData, by = nameColumn) %>%
-  mutate(Count = round(TotalCells*LostRatio, 0)) %>% select(-TotalCells) %>%
-  relocate(Count, .before=LostRatio) %>% rename(Ratio=LostRatio) %>%
-    mutate(Cluster="Other") %>% relocate(Cluster, .before="Count")
+  Other <- TheCounts |> left_join(OtherData, by = nameColumn) |>
+  mutate(Count = round(TotalCells*LostRatio, 0)) |> select(-TotalCells) |>
+  relocate(Count, .before=LostRatio) |> rename(Ratio=LostRatio) |>
+    mutate(Cluster="Other") |> relocate(Cluster, .before="Count")
 
   UpdatedDataset <- bind_rows(FilteredData, Other)
 
@@ -149,8 +152,8 @@ StackedReportHeatmap <- function(data, nameColumn){
 ClusterAbundance <- function(x, data){
   #x <- TheClusters[1]
 
-  Subset <- data %>% dplyr::filter(Cluster %in% x)
-  TheValues <- Subset %>% pull(cutoff) %>% unique()
+  Subset <- data |> dplyr::filter(Cluster %in% x)
+  TheValues <- Subset |> pull(cutoff) |> unique()
 
   if(length(TheValues) == 1 && TheValues== TRUE){Value <- x
   } else if(length(TheValues) == 2 && any(TheValues==TRUE)){Value <- x

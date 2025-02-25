@@ -12,7 +12,9 @@ Luciernaga_SignatureExternalUnstained(
   Multiple = FALSE,
   GateTemplatePath,
   removestrings = ".fcs",
-  AFOverlap
+  AFOverlap,
+  controlType,
+  subsets
 )
 }
 \arguments{
@@ -29,6 +31,10 @@ Luciernaga_SignatureExternalUnstained(
 \item{removestrings}{Default is ".fcs", removes from name}
 
 \item{AFOverlap}{File.path to LuciernagaQC AFOverlap .csv to handle exceptions.}
+
+\item{controlType}{Either "beads" or "cells" (selects respective external AF protocol)}
+
+\item{subsets}{The desired openCyto gating population to extract signature from}
 }
 \value{
 A data.frame and a list of patchwork plots
