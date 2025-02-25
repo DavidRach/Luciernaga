@@ -30,7 +30,7 @@ Luciernaga_SignatureExternalUnstained <- function(x, UnstainedList, FluorophoreL
     
     Iterated <- map(.x = x, .f = function(date) {
 
-      result <- ControlWrapper(date, UnstainedList = UnstainedBeads, FluorophoreList = Beads,
+      result <- ControlWrapper(date, UnstainedList = UnstainedList, FluorophoreList = FluorophoreList,
                             Multiple = Multiple, GateTemplatePath = GateTemplatePath,
                             AFOverlap = AFOverlap, controlType=controlType, subsets=subsets)
       p()
