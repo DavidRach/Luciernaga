@@ -1,12 +1,18 @@
 #' Visualizes the Signature for given row in an averaged signature data.frame.
 #'
 #' @param x Name in the Sample column you want to filter for
-#' @param data A data.frame object from QC_LibraryParse containing Fluorophore name column and numeric detector columns.
+#' @param columname Default is Sample, specifies column name from which x is filtered from 
+#' @param data A data.frame object from QC_LibraryParse containing Fluorophore name column 
+#' and numeric detector columns.
 #' @param Normalize Whether to normalize the data based on peak detector value, default is TRUE
+#' @param TheFormat Default wider for detectors in columns, specify longer if providing detectors as rows
+#' @param detectorcolumn Default NULL, when TheFormat="longer" specify detector column name
+#' @param valuecolumn Default NULL, when TheFormat="longer" specify value column name
 #'
 #' @importFrom dplyr filter
 #' @importFrom dplyr slice
 #' @importFrom dplyr mutate
+#' @importFrom dplyr rename
 #' @importFrom dplyr pull
 #' @importFrom dplyr select
 #' @importFrom tidyselect where
@@ -56,53 +62,60 @@
 #'
 #' Plot <- QC_ViewSignature(x="TestSignature", data=TheData, Normalize=TRUE)
 #'
-QC_ViewSignature <- function(x, data, Normalize = TRUE) {
+QC_ViewSignature <- function(x, columnname="Sample", data, Normalize = TRUE,
+ TheFormat="wider", detectorcolumn=NULL, valuecolumn=NULL) {
 
-  StartingData <- data %>% filter(Sample %in% x)
+  if (TheFormat=="wider"){
+  StartingData <- data |> filter(.data[[columnname]] %in% x)
 
-  CharacterLength <- StartingData %>% select(!where(is.numeric)) %>% length()
-
-  if (CharacterLength == 0){stop("Please add a column Fluorophore with a name")}
-
+  CharacterLength <- StartingData |> select(!where(is.numeric)) |> length()
+  if (CharacterLength == 0){
+    stop("Please add a non-numeric column, and provide its columnname")}
   if (CharacterLength > 1){message("Combining character columns")
-    Identity <- StartingData %>% select(!where(is.numeric)) %>%
+    Identity <- StartingData |> select(!where(is.numeric)) |>
       paste0(collapse = "_")
     Identity <- data.frame(Fluorophore=Identity)
-    Identity <- Identity %>% mutate(Fluorophore=paste0("ID_", Fluorophore))
-  } else {colnames(StartingData)[1] <- "Fluorophore"
-  Identity <- StartingData %>% select(Fluorophore)
-  Identity <- Identity %>% mutate(Fluorophore=paste0("ID_", Fluorophore))
+    Identity <- Identity |> rename("Fluorophore"=1)
+    Identity <- Identity |> mutate(Fluorophore=paste0("ID_", Fluorophore))
+  } else {
+    Identity <- StartingData |> select(!where(is.numeric)) |> rename("Fluorophore"=1)
+    Identity <- Identity |> mutate(Fluorophore=paste0("ID_", Fluorophore))
   }
 
-  DetectorCols <- StartingData %>% select(where(is.numeric))
+  DetectorCols <- StartingData |> select(where(is.numeric))
 
   if (Normalize == TRUE){
     if (any(DetectorCols > 1)){
-
       message("Normalizing Data for Signature Comparison")
-
       n <- DetectorCols
-
       n[n < 0] <- 0
       A <- do.call(pmax, n)
       Normalized <- n/A
-
       DetectorCols <- Normalized
     }
   }
-
+    
   WhoseThis <- cbind(Identity, DetectorCols)
-
   TotalDetectors <- length(DetectorCols)
-
-  WhoseThis1 <- WhoseThis %>%
+  TheseFluorophores <- WhoseThis |> pull(Fluorophore)
+    
+  WhoseThis1 <- WhoseThis |>
     pivot_longer(cols= where(is.numeric), names_to = "Detector",
                  values_to = "AdjustedY")
-
-  TheseFluorophores <- WhoseThis %>% pull(Fluorophore)
+    
+  } else {
+    StartingData <- data |> filter(.data[[columnname]] %in% x)
+    StartingData <- StartingData |> rename(Fluorophore=columnname)
+    StartingData <- StartingData |> mutate(Fluorophore=paste0("ID_", Fluorophore))
+    TheseFluorophores <- StartingData |> pull(Fluorophore) |> unique()
+    StartingData <- StartingData |> rename(Detector=detectorcolumn)
+    StartingData <- StartingData |> rename(AdjustedY=valuecolumn)
+    WhoseThis1 <- StartingData
+  
+  } 
 
   ThePlot <- SimilarFluorPlots(TheseFluorophores=TheseFluorophores,
                                  TheFluorophore=NULL, data=WhoseThis1)
 
   return(ThePlot)
-}
+  }

@@ -4,14 +4,31 @@
 \alias{QC_ViewSignature}
 \title{Visualizes the Signature for given row in an averaged signature data.frame.}
 \usage{
-QC_ViewSignature(x, data, Normalize = TRUE)
+QC_ViewSignature(
+  x,
+  columnname = "Sample",
+  data,
+  Normalize = TRUE,
+  TheFormat = "wider",
+  detectorcolumn = NULL,
+  valuecolumn = NULL
+)
 }
 \arguments{
 \item{x}{Name in the Sample column you want to filter for}
 
-\item{data}{A data.frame object from QC_LibraryParse containing Fluorophore name column and numeric detector columns.}
+\item{data}{A data.frame object from QC_LibraryParse containing Fluorophore name column 
+and numeric detector columns.}
 
 \item{Normalize}{Whether to normalize the data based on peak detector value, default is TRUE}
+
+\item{TheFormat}{Default wider for detectors in columns, specify longer if providing detectors as rows}
+
+\item{detectorcolumn}{Default NULL, when TheFormat="longer" specify detector column name}
+
+\item{valuecolumn}{Default NULL, when TheFormat="longer" specify value column name}
+
+\item{columname}{Default is Sample, specifies column name from which x is filtered from}
 }
 \value{
 A dataframe of similar fluorophores

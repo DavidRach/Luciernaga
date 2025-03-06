@@ -1,6 +1,7 @@
 #' Querries reference signatures and returns most similar fluorophores by cosine similarity.
 #'
 #' @param x Name in the Sample column you want to filter for
+#' @param columnname Designating column to filter the x argument from
 #' @param data A data.frame object from QC_LibraryParse containing Fluorophore name column and numeric detector columns.
 #' @param NumberHits Number of most similar fluorophores by cosine.
 #' @param returnPlots Whether to return signature plots, default is set to FALSE.
@@ -38,9 +39,9 @@
 #'
 #' Results <- QC_WhatsThis(x=TheFluorophore, data=Data, NumberHits = 10, returnPlots=FALSE)
 
-QC_WhatsThis <- function(x, data, NumberHits, returnPlots=FALSE) {
+QC_WhatsThis <- function(x, columnname="Sample", data, NumberHits, returnPlots=FALSE) {
 
-  StartingData <- data %>% filter(Sample %in% x)
+  StartingData <- data |> filter(.data[[columnname]] %in% x)
 
   if(nrow(StartingData) > 1){message("Selecting the first row for comparisons")
                              StartingData <- StartingData %>% slice(1)}
