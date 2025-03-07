@@ -35,16 +35,25 @@ QC_FilePrep_DailyQC <- function(x){
   Initial <- ReadInfo[InitialIndex]
   String <- gsub("DailyQCReport_", "", Initial)
   Parts <- strsplit(String, "_")[[1]]
-  Instrument <- data.frame(Instrument = Parts[1])
-  Date <- data.frame(Date = Parts[2])
-  Date$Date <- lubridate::ymd(Date$Date)
-  Time <- data.frame(Time = Parts[3])
+
+  if (length(Parts) == 3){
+    Instrument <- data.frame(Instrument = Parts[1])
+    Date <- data.frame(Date = Parts[2])
+    Date$Date <- lubridate::ymd(Date$Date)
+    Time <- data.frame(Time = Parts[3])
+  } else if (length(Parts) == 2){
+      Instrument <- "Unknown"
+      Date <- data.frame(Date = Parts[1])
+      Date$Date <- lubridate::ymd(Date$Date)
+      Time <- data.frame(Time = Parts[2])
+  } else {stop("File Format for ", x, " not recognized")}
+  
   Time$Time <- sub("(\\d{2})(\\d{2})(\\d{2})", "\\1:\\2:\\3", Time$Time)
   Time$Time <- lubridate::hms(Time$Time)
   Intro <- cbind(Date, Time, Instrument)
-  Intro <- Intro %>%
-    mutate(DateTime=Date+Time) %>%
-    relocate(DateTime, .before=1) %>%
+  Intro <- Intro |>
+    mutate(DateTime=Date+Time) |>
+    relocate(DateTime, .before=1) |>
     select(-Date, -Time)
 
   # Detector Section
@@ -137,12 +146,17 @@ QC_FilePrep_DailyQC <- function(x){
   }
 
   TemperatureIndex <- grep("^Temperature", LaserSegment)
-  Temperature <- LaserSegment[TemperatureIndex]
-  Temperature <- strsplit(Temperature, ",")[[1]]
-  Temperature <- data.frame(Temperature=Temperature[[2]])
-  Temperature$Temperature <- as.numeric(Temperature$Temperature)
-  Temperature <- Temperature %>%
-    mutate(across(everything(), ~ FALSE, .names = "Flag-{.col}"))
+
+  if (length(TemperatureIndex) > 0){
+    Temperature <- LaserSegment[TemperatureIndex]
+    Temperature <- strsplit(Temperature, ",")[[1]]
+    Temperature <- data.frame(Temperature=Temperature[[2]])
+    Temperature$Temperature <- as.numeric(Temperature$Temperature)
+    Temperature <- Temperature %>%
+      mutate(across(everything(), ~ FALSE, .names = "Flag-{.col}"))
+  } else {
+    Temperature <- data.frame(Temperature=0, `Flag-Temperature`=FALSE, check.names = FALSE)
+  }
 
   if (length(FSCIndex) == 2){
   LaserFrame <- LaserSegment[2:(FSCIndex[1]-1)]
