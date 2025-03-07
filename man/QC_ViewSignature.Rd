@@ -63,7 +63,7 @@ TheDataValues <- exprs(PopulationInterest[[1]])
 TheDataValues <- data.frame(TheDataValues, check.names=FALSE)
 Signature <- AveragedSignature(TheDataValues, stats="median")
 TheData <- Signature[,-grep("Time|FS|SC|SS|Original|W$|H$", names(Signature))]
-TheData <- TheData \%>\% mutate(Sample="TestSignature") \%>\%
+TheData <- TheData |> mutate(Sample="TestSignature") |>
  relocate(Sample, .before=1)
 
 Plot <- QC_ViewSignature(x="TestSignature", data=TheData, Normalize=TRUE)

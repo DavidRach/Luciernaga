@@ -4,7 +4,18 @@
 \alias{QC_WhatsThis}
 \title{Querries reference signatures and returns most similar fluorophores by cosine similarity.}
 \usage{
-QC_WhatsThis(x, columnname = "Sample", data, NumberHits, returnPlots = FALSE)
+QC_WhatsThis(
+  x,
+  columnname = "Sample",
+  data,
+  NumberHits,
+  NumberDetectors = NULL,
+  Normalize = TRUE,
+  returnPlots = FALSE,
+  TheFormat = "wider",
+  detectorcolumn = NULL,
+  valuecolumn = NULL
+)
 }
 \arguments{
 \item{x}{Name in the Sample column you want to filter for}
@@ -15,10 +26,20 @@ QC_WhatsThis(x, columnname = "Sample", data, NumberHits, returnPlots = FALSE)
 
 \item{NumberHits}{Number of most similar fluorophores by cosine.}
 
+\item{NumberDetectors}{Default NULL, estimated from number of numeric columns in passed data.}
+
+\item{Normalize}{Default TRUE, needed for ReferenceLibrary comparison.}
+
 \item{returnPlots}{Whether to return signature plots, default is set to FALSE.}
+
+\item{TheFormat}{Default wider for detectors in columns, specify longer if providing detectors as rows}
+
+\item{detectorcolumn}{Default NULL, when TheFormat="longer" specify detector column name}
+
+\item{valuecolumn}{Default NULL, when TheFormat="longer" specify value column name}
 }
 \value{
-A dataframe of similar fluorophores
+A dataframe of similar fluorophores or a ggplot2 object
 }
 \description{
 Querries reference signatures and returns most similar fluorophores by cosine similarity.
@@ -29,10 +50,8 @@ Folder_Location <- system.file("extdata", package = "Luciernaga")
 XML_Pattern <- ".XML$"
 XML_Files <- list.files(path = Folder_Location, pattern = XML_Pattern,
                         full.names = TRUE, recursive = FALSE)
-LibraryData <- QC_LibraryParse(XML_Files[2], returntype="dataframe", references=FALSE)
-Data <- LibraryData \%>\% select(-Sample, -Creator, -Date) \%>\%
- rename(Sample=Fluorochrome)
-TheFluorophore <- Data \%>\% pull(Sample)
+Data <- QC_LibraryParse(XML_Files[2], returntype="data", references=FALSE)
+TheFluorophore <- Data |> pull(Sample)
 
-Results <- QC_WhatsThis(x=TheFluorophore, data=Data, NumberHits = 10, returnPlots=FALSE)
+Results <- QC_WhatsThis(x=TheFluorophore, columnname="Sample", data=Data, NumberHits = 10, returnPlots=FALSE)
 }

@@ -10,22 +10,12 @@
 #' @param valuecolumn Default NULL, when TheFormat="longer" specify value column name
 #'
 #' @importFrom dplyr filter
-#' @importFrom dplyr slice
-#' @importFrom dplyr mutate
-#' @importFrom dplyr rename
-#' @importFrom dplyr pull
 #' @importFrom dplyr select
 #' @importFrom tidyselect where
-#' @importFrom dplyr group_by
-#' @importFrom tidyr pivot_wider
+#' @importFrom dplyr rename
+#' @importFrom dplyr mutate
+#' @importFrom dplyr pull
 #' @importFrom tidyr pivot_longer
-#' @importFrom dplyr ungroup
-#' @importFrom dplyr bind_rows
-#' @importFrom lsa cosine
-#' @importFrom tibble rownames_to_column
-#' @importFrom tidyselect starts_with
-#' @importFrom dplyr arrange
-#' @importFrom dplyr slice_head
 #'
 #' @returns A dataframe of similar fluorophores
 #' @export
@@ -57,7 +47,7 @@
 #' TheDataValues <- data.frame(TheDataValues, check.names=FALSE)
 #' Signature <- AveragedSignature(TheDataValues, stats="median")
 #' TheData <- Signature[,-grep("Time|FS|SC|SS|Original|W$|H$", names(Signature))]
-#' TheData <- TheData %>% mutate(Sample="TestSignature") %>%
+#' TheData <- TheData |> mutate(Sample="TestSignature") |>
 #'  relocate(Sample, .before=1)
 #'
 #' Plot <- QC_ViewSignature(x="TestSignature", data=TheData, Normalize=TRUE)

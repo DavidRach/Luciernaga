@@ -56,9 +56,9 @@ QC_LibraryParse <- function(x, returntype, references=TRUE, myfactor="Fluorophor
   if (returntype == "data"){
    return(Data)
   } else if (returntype == "plots"){
-    plot <- LibraryPlot(x=Data, references=references, myfactor=myfactor)
+    plot <- LibraryPlot(x=Data, references=references, myfactor=myfactor, namefactor=namefactor)
     return(plot)
-  }
+  } else {return(Data)}
 }
 
 
