@@ -102,6 +102,9 @@ AppQCParse <- function(MainFolder, x){
 #' @importFrom lubridate hour
 #' @importFrom dplyr group_by
 #' @importFrom dplyr summarise
+#' @importFrom dplyr arrange
+#' @importFrom dplyr desc
+#' @importFrom dplyr pull
 #' @importFrom ggplot2 ggplot
 #' @importFrom ggplot2 aes
 #' @importFrom ggplot2 labs
@@ -127,6 +130,11 @@ UsagePlot <- function(data, TheInstrument){
   dataByHourDay <- data |>
   group_by(DayOfWeek, Hour) |>
   summarise(count = n(), .groups = "drop")
+  
+  MaxCount <- dataByHourDay |> arrange(desc(count)) |>
+    slice(1) |> pull(count)
+  MaxCount <- MaxCount*1.05
+  MaxCount <- round(MaxCount, 0)
 
   TheTitle <- paste0("Aurora ", TheInstrument, " All Time Usage")
 
@@ -137,7 +145,7 @@ UsagePlot <- function(data, TheInstrument){
         y = "Sit Flushes") +
     facet_grid(DayOfWeek ~ ., scales = "free_y") +
     theme_bw() +
-    scale_x_continuous(breaks = 0:23) +
+    scale_x_continuous(breaks = 0:23) + lims(y=c(NA, MaxCount)) +
     theme(axis.text.x = element_text(angle = 45, hjust = 1),
     strip.text.y = element_text(angle = 0)) 
 
@@ -330,6 +338,11 @@ QCBeadParse <- function(x, MainFolder){
   if(!length(FCS_Files) == 0){
 
     QCBeads <- FCS_Files[grep("Before|After", FCS_Files)]
+
+    if (length(QCBeads) == 0){
+      message("No Before After detected in names")
+      QCBeads <- FCS_Files
+    }
 
     BeforeAfter_CS <- tryCatch({
       load_cytoset_from_fcs(files = QCBeads, transformation = FALSE, truncate_max_range = FALSE)
