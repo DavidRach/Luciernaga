@@ -19,6 +19,7 @@ Encoding: UTF-8
 LazyData: FALSE
 URL: https://davidrach.github.io/Luciernaga/
 BugReports: https://github.com/DavidRach/Luciernaga/issues
+SystemRequirements: Cargo (rustc package manager)
 RoxygenNote: 7.3.2
 Imports: 
     Biobase,
