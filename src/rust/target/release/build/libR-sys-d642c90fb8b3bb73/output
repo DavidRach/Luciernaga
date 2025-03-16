@@ -1,0 +1,11 @@
+cargo:rustc-env=R_HOME=/usr/lib/R
+cargo:r_home=/usr/lib/R
+cargo:rustc-link-search=/usr/lib/R/lib
+cargo:rustc-link-lib=dylib=R
+cargo:rerun-if-changed=build.rs
+cargo:rerun-if-changed=wrapper.h
+cargo:r_version_major=4
+cargo:r_version_minor=4
+cargo:r_version_patch=3
+cargo:r_version_devel=false
+cargo:rerun-if-changed=bindings/bindings-linux-x86_64-R4.4.rs
