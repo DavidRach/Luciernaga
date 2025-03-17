@@ -8,6 +8,7 @@
 #' @importFrom dplyr desc
 #' @importFrom dplyr slice
 #' @importFrom dplyr select
+#' @importFrom tidyselect all_of
 #' @importFrom ggplot2 ggplot
 #' @importFrom ggplot2 aes 
 #' @importFrom ggplot2 geom_line
@@ -15,8 +16,8 @@
 #' @importFrom ggplot2 labs
 #' @importFrom ggplot2 theme_bw
 #' @importFrom ggplot2 theme
-#' @importFrom ggplot2 scale_color_brewer
-#' @importFrom ggplot2 scale_fill_brewer
+#' @importFrom viridis scale_color_viridis
+#' @importFrom viridis scale_fill_viridis
 #' 
 #' @return A ggplot2 object
 #' 
@@ -34,14 +35,14 @@ Luciernaga_BrigtnessOverTime <- function(data){
   Detector <- Peaks |> slice(1) |> pull(Detector)
   Detector <- paste0(Detector, "-A")
 
-  TheData <- data |> select(Cluster, Experiment, .data[[Detector]])
+  TheData <- data |> select(Cluster, Experiment, all_of(Detector))
 
   Plot <- ggplot(TheData, aes(x = Experiment, y = .data[[Detector]],
    group = Cluster, color = Cluster, fill = Cluster)) + geom_line(linewidth = 1) + 
   geom_point(shape = 21, size = 3, stroke = 0.5) + labs(title = NULL, x = NULL, 
     y = paste0("MFI: ", Detector)) + theme_bw() + theme(
       axis.text.x = element_text(angle = 50, hjust = 1)) +
-  scale_color_brewer(palette = "Set1") + scale_fill_brewer(palette = "Set1")
+        scale_color_viridis(discrete = TRUE) + scale_fill_viridis(discrete = TRUE)
 
   return(Plot)
 }
