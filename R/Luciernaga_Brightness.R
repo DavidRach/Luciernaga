@@ -30,8 +30,6 @@
 Luciernaga_Brightness <- function(x, data, Downsample=TRUE, subsample = NULL,
                                   reference, clearance=0.02, Scaled = TRUE){
     TheFluorophore <- x
-
-
     TheData <- data %>% filter(Sample %in% x)
     TheTable <- data.frame(table(TheData$Cluster), check.names = FALSE)
     colnames(TheTable)[1] <- "Cluster"
