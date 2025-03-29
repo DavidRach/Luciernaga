@@ -4,7 +4,7 @@
 \alias{RCVfromFCS}
 \title{Calculate the RCV value for each marker for a specified GatingSet subset}
 \usage{
-RCVfromFCS(x, subset, sample.name)
+RCVfromFCS(x, subset, sample.name, experiment.name, condition.name)
 }
 \arguments{
 \item{x}{The Gating Set object being iterated}

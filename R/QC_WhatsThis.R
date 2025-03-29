@@ -87,7 +87,7 @@ QC_WhatsThis <- function(x, columnname="Sample", data, NumberHits, NumberDetecto
   } else {NumberDetectors <- NumberDetectors}
 
 
-  ReferenceData <- InstrumentReferences(NumberDetectors=NumberDetectors)
+  ReferenceData <- Luciernaga:::InstrumentReferences(NumberDetectors=NumberDetectors)
 
   # Longer-format
   if (returnPlots == TRUE){
@@ -126,7 +126,7 @@ QC_WhatsThis <- function(x, columnname="Sample", data, NumberHits, NumberDetecto
   if (returnPlots==TRUE){
     TheseFluorophores <- TheHits |> pull(Fluorophore)
     TheFluorophore <- TheID
-    ThePlot <- SimilarFluorPlots(TheseFluorophores=TheseFluorophores,
+    ThePlot <- Luciernaga:::SimilarFluorPlots(TheseFluorophores=TheseFluorophores,
                                  TheFluorophore=TheFluorophore, data=ReferenceData1)
     ReturnThese <- list(TheHits, ThePlot)
     return(ReturnThese)

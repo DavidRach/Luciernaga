@@ -125,6 +125,8 @@ SimilarFluorPlots <- function(TheseFluorophores, TheFluorophore, data){
 
       TheData <- data %>% filter(Fluorophore %in% These) %>%
         rename(value=AdjustedY)
+  
+      TheData$Detector <- gsub("-A", "", TheData$Detector)
 
       Iterations <- TheData %>% filter(Fluorophore %in% These[[1]]) %>% nrow()
 
