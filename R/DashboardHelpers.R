@@ -781,49 +781,49 @@ VisualQCSummary <- function(x){
   WindowOfInterest <- Sys.time() - weeks(1)
 
   if (nrow(x) > 1){
-  Data <- x %>% filter(DateTime > WindowOfInterest)
+  Data <- x |> filter(DateTime > WindowOfInterest)
 
-  if(nrow(Data) == 0){Data <- x %>% slice(1)}
+  if(nrow(Data) == 0){Data <- x |> slice(1)}
 
   } else {Data <- x}
 
-  Flags <- Data %>% select(starts_with("Flag"))
+  Flags <- Data |> select(starts_with("Flag"))
   colnames(Flags) <- gsub("Flag-", "", colnames(Flags))
-  Gains <- Flags %>% select(contains("Gain"))
+  Gains <- Flags |> select(contains("Gain"))
   TheGains <- colnames(Gains)
-  rCV <- Flags %>% select(contains("rCV"))
+  rCV <- Flags |> select(contains("rCV"))
   TherCV <- colnames(rCV)
 
-  TheGainData <- Data %>% select(all_of(c("DateTime", TheGains)))
+  TheGainData <- Data |> select(all_of(c("DateTime", TheGains)))
   colnames(Gains) <- gsub("-Gain", "", fixed=TRUE, colnames(Gains))
   colnames(TheGainData) <- gsub("-Gain", "", fixed=TRUE, colnames(TheGainData))
 
-  TheGainData <- TheGainData %>%
+  TheGainData <- TheGainData |>
     pivot_longer(!DateTime, names_to = "Detector", values_to = "Gain")
 
-  Gains <- Gains %>% mutate(DateTime=Data$DateTime) %>% relocate(DateTime, .before=1)
+  Gains <- Gains |> mutate(DateTime=Data$DateTime) |> relocate(DateTime, .before=1)
 
-  Gains <- Gains %>%
+  Gains <- Gains |>
     pivot_longer(!DateTime, names_to = "Detector", values_to = "Gain_Logical")
 
-  TherCVData <- Data %>% select(all_of(c("DateTime", TherCV)))
+  TherCVData <- Data |> select(all_of(c("DateTime", TherCV)))
   colnames(rCV) <- gsub("-% rCV", "", fixed=TRUE, colnames(rCV))
   colnames(TherCVData) <- gsub("-% rCV", "", fixed=TRUE, colnames(TherCVData))
 
-  TherCVData <- TherCVData %>% pivot_longer(!DateTime, names_to = "Detector", values_to = "rCV")
+  TherCVData <- TherCVData |> pivot_longer(!DateTime, names_to = "Detector", values_to = "rCV")
 
-  rCV <- rCV %>% mutate(DateTime=Data$DateTime) %>% relocate(DateTime, .before=1)
+  rCV <- rCV |> mutate(DateTime=Data$DateTime) |> relocate(DateTime, .before=1)
 
-  rCV <- rCV %>% pivot_longer(!DateTime, names_to = "Detector", values_to = "rCV_Logical")
+  rCV <- rCV |> pivot_longer(!DateTime, names_to = "Detector", values_to = "rCV_Logical")
 
-  Tidy <- TheGainData %>%
-    left_join(Gains, by = c("Detector", "DateTime")) %>%
-    left_join(TherCVData, by = c("Detector", "DateTime")) %>%
+  Tidy <- TheGainData |>
+    left_join(Gains, by = c("Detector", "DateTime")) |>
+    left_join(TherCVData, by = c("Detector", "DateTime")) |>
     left_join(rCV, by = c("Detector", "DateTime"))
 
-  TheDetectors <- Tidy %>% pull(Detector) %>% unique()
+  TheDetectors <- Tidy |> pull(Detector) |> unique()
 
-  Summary <- map(.x=TheDetectors, .f=QCSummaryCheck, data=Tidy) %>% bind_rows()
+  Summary <- map(.x=TheDetectors, .f=QCSummaryCheck, data=Tidy) |> bind_rows()
   return(Summary)
 }
 
@@ -839,21 +839,26 @@ VisualQCSummary <- function(x){
 #' @return The color-coded summary
 #' @noRd
 QCSummaryCheck <- function(x, data){
-  Subset <- data %>% dplyr::filter(Detector %in% x)
+  Subset <- data |> dplyr::filter(Detector %in% x)
+
+  GainValue <- Subset |> slice(1) |> pull(Gain)
 
   if (any(Subset$Gain_Logical == TRUE)){
-    Followup <- Subset %>% slice(1) %>% pull(Gain_Logical)
-    if (Followup == TRUE){GainValue <- "Red"
-    } else {GainValue <- "Yellow"}
-  } else {GainValue <- "Green"}
+    Followup <- Subset |> slice(1) |> pull(Gain_Logical)
+    if (Followup == TRUE){GainStatus <- "Red"
+    } else {GainStatus <- "Yellow"}
+  } else {GainStatus <- "Green"}
+
+  rCVValue <- Subset |> slice(1) |> pull(rCV) |> round(2)
 
   if (any(Subset$rCV_Logical == TRUE)){
-    Followup <- Subset %>% slice(1) %>% pull(rCV_Logical)
-    if (Followup == TRUE){rCVValue <- "Red"
-    } else {rCVValue <- "Yellow"}
-  } else {rCVValue <- "Green"}
+    Followup <- Subset |> slice(1) |> pull(rCV_Logical)
+    if (Followup == TRUE){rCVStatus <- "Red"
+    } else {rCVStatus <- "Yellow"}
+  } else {rCVStatus <- "Green"}
 
-  Summary <- data.frame(Detector=x, Gain=GainValue, rCV=rCVValue)
+  Summary <- data.frame(Detector=x, GainValue=GainValue, Gain=GainStatus,
+    rCVValue = rCVValue, rCV=rCVStatus)
   return(Summary)
 }
 
@@ -928,6 +933,7 @@ ColorCode <- function(x, data){
 #' @importFrom gt sub_values
 #' @importFrom gt opt_table_font
 #' @importFrom gt cols_align
+#' @importFrom gt tab_spanner
 #' @noRd
 SmallTable <- function(data){
 
@@ -956,7 +962,19 @@ SmallTable <- function(data){
       opt_table_font(font = "Montserrat") |>
       cols_align(align = "center")
 
-    Final <- Bolded
+    Final <- Bolded |> tab_spanner(
+      label = "Gain ",
+      columns = c(GainValue, Gain)
+    ) |> tab_spanner(
+      label = "%RCV ",
+      columns = c(rCVValue, rCV)
+    ) |> cols_label(
+      GainValue = "Value",
+      Gain = "Status"
+    ) |> cols_label(
+      rCVValue = "Value",
+      rCV = "Status"
+    )
 
   return(Final)
 }
