@@ -934,6 +934,7 @@ ColorCode <- function(x, data){
 #' @importFrom gt opt_table_font
 #' @importFrom gt cols_align
 #' @importFrom gt tab_spanner
+#' @importFrom gt cols_label
 #' @noRd
 SmallTable <- function(data){
 
@@ -1030,7 +1031,7 @@ QCHistory <- function(x, y){
 #' @return Individual instrument QC history summary
 #' @noRd
 AcrossTime <- function(x, y){
-  WindowOfInterest <- Sys.time() - months(6)
+  WindowOfInterest <- Sys.time() - months(24)
   data <- y
   data <- data %>% dplyr::filter(DateTime >= WindowOfInterest)
   TheDates <- data %>% pull(DateTime) %>% unique()
