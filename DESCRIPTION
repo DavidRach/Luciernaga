@@ -38,6 +38,7 @@ Imports:
     methods,
     patchwork,
     plotly,
+    progressr,
     purrr,
     reshape2,
     rlang,
