@@ -22,6 +22,63 @@ utils::globalVariables(c("%rCV", ".", ".data", "AdjustedY", "AggregateName",
                          "tab_options", "tags", "value", "x", "xlim", "yhat",
                          "ylim", "pData<-", "parameters<-"))
 
+#' Small Internal Function
+#' 
+#' @param data Something
+#' @param x Something
+#' @param type Something
+#' 
+#' @importFrom dplyr select
+#' @importFrom tidyselect all_of
+#' @importFrom dplyr slice
+#' @importFrom dplyr pull
+#' 
+#' @return Some value
+#' 
+#' @noRd
+CurrentStatus <- function(data, x, type){
+  Status <- data |> select(all_of(x)) |> na.omit() |>
+    slice(1)|> pull()
+  return(Status)
+}
+
+
+#' Small Internal Function
+#' 
+#' @param x Something
+#' 
+#' @importFrom dplyr case_when
+#' 
+#' @return Something
+#' 
+#' @noRd                       
+InstrumentText <- function(x) {
+  dplyr::case_when(
+    x == "Green" ~ "Pass",
+    x == "Yellow" ~ "Caution",
+    x == "Orange" ~ "Caution",
+    x == "Red" ~ "Fail",
+    TRUE ~ NA_character_)
+}
+
+#' Small Internal Function
+#' 
+#' @param x Something
+#' 
+#' @importFrom dplyr case_when
+#' 
+#' @return Something
+#' 
+#' @noRd
+InstrumentColor <- function(x) {
+  dplyr::case_when(
+    x == "Green" ~ "success",
+    x == "Yellow" ~ "caution",
+    x == "Orange" ~ "warning",
+    x == "Red" ~ "danger",
+    TRUE ~ NA_character_)
+}
+
 #' Dashboard Internal, updates archive ApplicationLog.csv from Setup
 #'
 #' @param MainFolder The file.path to the Main Folder
