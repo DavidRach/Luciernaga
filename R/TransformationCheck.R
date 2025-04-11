@@ -26,8 +26,8 @@
 TransformationCheck <- function(x, thesecolumns=NULL, 
   TransformationChoice="flowjo_biexp", channelRange=256,
   maxValue=1000000, pos=4.5, neg=1, widthBasis=-500, Multiple=FALSE, 
-  returnType, optionalY="BUV805-A", optionalX="BUV496-A",
-  optionalOutpath=NULL, optionalBins=100){
+  returnType="NxN", optionalY="BUV805-A", optionalX="BUV496-A",
+  optionalOutpath=NULL, optionalBins=100, optionalName=NULL){
 
   if (class(x) == "character"){
   MyCytoSet <- load_cytoset_from_fcs(x, transformation=FALSE,
@@ -45,11 +45,13 @@ TransformationCheck <- function(x, thesecolumns=NULL,
 
   if (Multiple==FALSE){
       Returns <- map(.x=InternalGS, .f=InternalTransformation, TransformationChoice=TransformationChoice, channelRange=channelRange,
-      maxValue=maxValue, pos=pos, neg=neg, widthBasis=widthBasis)
+      maxValue=maxValue, pos=pos, neg=neg, widthBasis=widthBasis,
+      KeptMarkers=KeptMarkers)
       Flag <- FALSE
   } else {
       Returns <- InternalTransformation(x=InternalGS, TransformationChoice=TransformationChoice, channelRange=channelRange,
-      maxValue=maxValue, pos=pos, neg=neg, widthBasis=widthBasis)
+      maxValue=maxValue, pos=pos, neg=neg, widthBasis=widthBasis,
+      KeptMarkers=KeptMarkers)
       Flag <- TRUE
   }
 
@@ -61,22 +63,34 @@ TransformationCheck <- function(x, thesecolumns=NULL,
       message("Option Unity plot selected for returnType")
       if (Flag == TRUE){
         message("Returning Individual Plot")
+          
+        if (is.null(optionalOutpath)){
+            outpath <- getwd()
+        } else {outpath <- optionalOutpath}
+          
         Plot <- Utility_GatingPlots(x=Returns[1],
              sample.name=c("GROUPNAME", "TUBENAME"),
              removestrings=".fcs",
              subset="root", gtFile=NULL,
-             DesiredGates=NULL, outpath = NULL,
-             returnType="plots", therows=1, thecolumns=1,
-             optionalY=optionalY, optionalX=optionalX)
+             DesiredGates=NULL, outpath = outpath,
+             returnType="pdf", therows=1, thecolumns=1,
+             optionalY=optionalY, optionalX=optionalX,
+             fileame=optionalName)
         return(Plot)
       } else {message("Returning Multiple Plots")
+        
+        if (is.null(optionalOutpath)){
+            outpath <- getwd()
+        } else {outpath <- optionalOutpath}
+          
          Plots <- map(.x=Returns, .f=Utility_GatingPlots,
             sample.name=c("GROUPNAME", "TUBENAME"),
             removestrings=".fcs",
             subset="root", gtFile=NULL,
-            DesiredGates=NULL, outpath = NULL,
-            returnType="plots", therows=1, thecolumns=1,
-            optionalY=optionalY, optionalX=optionalX)
+            DesiredGates=NULL, outpath = outpath,
+            returnType="pdf", therows=1, thecolumns=1,
+            optionalY=optionalY, optionalX=optionalX,
+            filename=optionalName)
          return(Plots)
       }
   } else if (returnType == "NxN"){
@@ -91,7 +105,7 @@ TransformationCheck <- function(x, thesecolumns=NULL,
             gatesubset = "root", ycolumn = optionalY,
             bins = optionalBins, clearance = 0.2, gatelines = FALSE,
             reference = NULL, outpath = outpath,
-            returntype="pdf")
+            returntype="pdf", filename=optionalName)
         return(Plot)
     } else {
     message("Option NxN plot selected, returning single plot") 
@@ -104,7 +118,7 @@ TransformationCheck <- function(x, thesecolumns=NULL,
         gatesubset = "root", ycolumn = optionalY,
         bins = optionalBins, clearance = 0.2, gatelines = FALSE,
         reference = NULL, outpath = outpath,
-        returntype="pdf")
+        returntype="pdf", filename=optionalName)
     return(Plot)
     }
 
@@ -123,6 +137,7 @@ TransformationCheck <- function(x, thesecolumns=NULL,
 #' @param pos Argument
 #' @param neg Argument
 #' @param widthBasis Argument
+#' @param KeptMarkers Columns to include
 #' 
 #' @importFrom flowWorkspace flowjo_biexp_trans
 #' @importFrom flowWorkspace transformerList
@@ -130,7 +145,7 @@ TransformationCheck <- function(x, thesecolumns=NULL,
 #' 
 #' @noRd
 InternalTransformation <- function(x, TransformationChoice, channelRange,
-  maxValue, pos, neg, widthBasis){
+  maxValue, pos, neg, widthBasis, KeptMarkers){
 
   if (TransformationChoice == "flowjo_biexp"){
       MyTransform <- flowjo_biexp_trans(channelRange = channelRange,

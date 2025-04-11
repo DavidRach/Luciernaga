@@ -17,6 +17,7 @@
 #' @param width Desired page width
 #' @param height Desired page height
 #' @param outpath Location to store the generated .pdf file
+#' @param filename Default NULL, overrides name
 #' @param optionalX When gtFile is NULL, provides x-axis argument for the subset gated population
 #' @param optionalY When gtFile is NULL, provides y-axis argument for the subset gated population
 #' @param optionalGate Default NULL, if using optional arguments and correct X and Y, the gate arg
@@ -56,10 +57,11 @@
 #' IndividualPlot <- Utility_GatingPlots(x=MyGatingSet[[1]],
 #'   sample.name = "GUID",removestrings = removestrings,
 #'   gtFile = MyGates, DesiredGates = NULL,
-#'   outpath = StorageLocation, returnType = "patchwork")
+#'   outpath = StorageLocation, filename=NULL, 
+#'   returnType = "patchwork")
 #'
 Utility_GatingPlots <- function(x, sample.name, removestrings, subset="root", gtFile=NULL,
-  DesiredGates = NULL, outpath = NULL, returnType, bins=270, therows=2, thecolumns=2,
+  DesiredGates = NULL, outpath = NULL, filename=NULL, returnType, bins=270, therows=2, thecolumns=2,
   width=7, height=9, clearance=0.2, optionalX=NULL, optionalY=NULL, optionalGate=NULL, ...){
 
   # Setting up individual file name
@@ -94,6 +96,8 @@ Utility_GatingPlots <- function(x, sample.name, removestrings, subset="root", gt
      xValue=optionalX, yValue=optionalY, gate=optionalGate, sample.name=sample.name,
     removestrings=removestrings, bins=bins)
   } 
+
+  if (!is.null(filename)){AggregateName <- filename}
 
   if (returnType == "pdf"){
     AssembledPlots <- Utility_Patchwork(x=CompiledPlots, filename=AggregateName,

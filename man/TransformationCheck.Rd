@@ -14,11 +14,12 @@ TransformationCheck(
   neg = 1,
   widthBasis = -500,
   Multiple = FALSE,
-  returnType,
+  returnType = "NxN",
   optionalY = "BUV805-A",
   optionalX = "BUV496-A",
   optionalOutpath = NULL,
-  optionalBins = 100
+  optionalBins = 100,
+  optionalName = NULL
 )
 }
 \arguments{
