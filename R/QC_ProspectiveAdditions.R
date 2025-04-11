@@ -160,7 +160,7 @@ InternalComparison <- function(x, TheList, ReferenceData, TheCutoff, TheDetector
   TheCandidateValues <- CosineMatrix %>% select(all_of(x))
   HighOverlaps <- TheCandidateValues %>% filter(!!sym(x) >= TheCutoff)
   HighOverlaps <- length(HighOverlaps)
-  RankValue <- round(kappa(TheMatrix),2)
+  RankValue <- round(kappa(TheMatrix, exact=TRUE),2)
   Fluorophore <- x
 
   Prelim <- cbind(Fluorophore, TheDetector, HighOverlaps, RankValue)
