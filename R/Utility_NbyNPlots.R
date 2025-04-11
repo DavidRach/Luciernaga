@@ -85,7 +85,7 @@ Utility_NbyNPlots <- function(x, sample.name, removestrings, experiment = NULL,
     }
   }
 
-  name <- keyword(x, sample.name)
+  #name <- keyword(x, sample.name)
 
   AggregateName <- NameForSample(x=x, sample.name=sample.name, removestrings=removestrings,
                                  experiment=experiment, experiment.name=experiment.name,
