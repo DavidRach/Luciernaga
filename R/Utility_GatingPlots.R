@@ -60,25 +60,28 @@
 #'   outpath = StorageLocation, filename=NULL, 
 #'   returnType = "patchwork")
 #'
-Utility_GatingPlots <- function(x, sample.name, removestrings, subset="root", gtFile=NULL,
-  DesiredGates = NULL, outpath = NULL, filename=NULL, returnType, bins=270, therows=2, thecolumns=2,
-  width=7, height=9, clearance=0.2, optionalX=NULL, optionalY=NULL, optionalGate=NULL, ...){
+Utility_GatingPlots <- function(x, sample.name, removestrings,
+  subset="root", gtFile=NULL, DesiredGates = NULL, outpath = NULL,
+  filename=NULL, returnType, bins=270, therows=2, thecolumns=2,
+  width=7, height=9, clearance=0.2, optionalX=NULL, optionalY=NULL,
+  optionalGate=NULL, ...){
 
   # Setting up individual file name
   if (is.null(outpath)){outpath <- getwd()}
 
   AggregateName <- Luciernaga:::NameForSample(x=x, sample.name=sample.name,
                                  removestrings=removestrings, ...)
-  #AggregateName <- Luciernaga:::NameForSample(x=x, sample.name=sample.name, removestrings=removestrings)
 
   # Pulling Gating Information
   if(!is.null(gtFile)){
   TheXYZgates <- gtFile |> pull(alias)
-  } else {message("No gating reference file provided, returning provided arguments")
+  } else {
+    message("No gating reference file provided, returning provided arguments")
     TheXYZgates <- NULL}
 
   # Desired Gate
-  if(!is.null(TheXYZgates) && !is.null(DesiredGates)){TheXYZgates <- intersect(DesiredGates, TheXYZgates)}
+  if(!is.null(TheXYZgates) && !is.null(DesiredGates)){
+    TheXYZgates <- intersect(DesiredGates, TheXYZgates)}
 
   # Pulling Gating Set Data
 
@@ -112,7 +115,7 @@ Utility_GatingPlots <- function(x, sample.name, removestrings, subset="root", gt
   } else if (returnType == "plots"){AssembledPlots <- CompiledPlots}
 
   return(AssembledPlots)
-  }
+}
 
 #' Generates called plots from Utility_GatingPlots
 #'
@@ -139,10 +142,10 @@ Utility_GatingPlots <- function(x, sample.name, removestrings, subset="root", gt
 GatePlot <- function(x, data, TheDF, gtFile, bins=270, clearance = 0.2){
     i <- x
     gtFile <- data.frame(gtFile, check.names = FALSE)
-    RowData <- gtFile %>% filter(alias %in% i)
-    theSubset <- RowData %>% pull(parent)
-    theGate <- RowData %>% pull(alias)
-    theParameters <- RowData %>% pull(dims) %>% str_split(",", simplify = TRUE)
+    RowData <- gtFile |> filter(alias %in% i)
+    theSubset <- RowData |> pull(parent)
+    theGate <- RowData |> pull(alias)
+    theParameters <- RowData |> pull(dims) |> str_split(",", simplify = TRUE)
 
     theParameters <- gsub("^\\s+|\\s+$", "", theParameters)
 
@@ -157,14 +160,14 @@ GatePlot <- function(x, data, TheDF, gtFile, bins=270, clearance = 0.2){
 
   #Please Note, All the Below Are Raw Values With No Transforms Yet Applied.
 
-  if (!grepl("FSC|SSC", xValue)) {ExprsData <- TheDF %>%
-    select(all_of(xValue)) %>% pull()
+  if (!grepl("FSC|SSC", xValue)) {ExprsData <- TheDF |>
+    select(all_of(xValue)) |> pull()
   theXmin <- ExprsData %>% quantile(., 0.001)
   theXmax <- ExprsData %>% quantile(., 0.999)
   theXmin <- theXmin - abs((clearance*theXmin))
   theXmax <- theXmax + (clearance*theXmax)}
-  if (!grepl("FSC|SSC", yValue)) {ExprsData <- TheDF %>%
-    select(all_of(yValue)) %>% pull()
+  if (!grepl("FSC|SSC", yValue)) {ExprsData <- TheDF |>
+    select(all_of(yValue)) |> pull()
   theYmin <- ExprsData %>% quantile(., 0.001)
   theYmax <- ExprsData %>% quantile(., 0.999)
   theYmin <- theYmin - abs((clearance*theYmin))

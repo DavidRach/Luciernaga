@@ -93,16 +93,16 @@ DescriptionGenesis <- function(x){
                          DELAY=c('-40.875', '-20.65', '0', '19.2', '38.975'),
                          NAME=c("YellowGreen", "Violet",
                                      "Blue", "Red", "UV"))
- LaserData_subset <- LaserData %>% dplyr::filter(LaserOrder %in% Lasers) %>%
-   mutate(LaserNumber=row_number()) %>% relocate(LaserNumber, .before=ASF)
- Lasers <- LaserData_subset %>% pull(LaserOrder)
+ LaserData_subset <- LaserData |> filter(LaserOrder %in% Lasers) |>
+   mutate(LaserNumber=row_number()) |> relocate(LaserNumber, .before=ASF)
+ Lasers <- LaserData_subset |> pull(LaserOrder)
  AllLasers <- map(.x=Lasers, .f=LaserList, data=LaserData_subset)
  AllLasers <- flatten(AllLasers)
  #View(AllLasers)
 
- DisplaySetup <- ParameterAdjust %>% select(name)
- DisplaySetup <- DisplaySetup %>% mutate(Display="LOG")
- DisplaySetup <- DisplaySetup %>% mutate(
+ DisplaySetup <- ParameterAdjust |> select(name)
+ DisplaySetup <- DisplaySetup |> mutate(Display="LOG")
+ DisplaySetup <- DisplaySetup |> mutate(
    Display = case_when(name == "Time" ~ 'LIN', TRUE ~ Display),
    Display = case_when(name == "FSC-A" ~ 'LIN', TRUE ~ Display),
    Display = case_when(name == "FSC-H" ~ 'LIN', TRUE ~ Display),
@@ -287,16 +287,16 @@ SplitThemUp <- function(TheIntegers, RangeStart, RangeSize) {
 #'
 #' @noRd
 LaserList <- function(x, data){
-  Subset <- data %>% dplyr::filter(LaserOrder %in% x)
-  Number <- Subset %>% pull(LaserNumber)
+  Subset <- data |> filter(LaserOrder %in% x)
+  Number <- Subset |> pull(LaserNumber)
 
   LaserASF <- paste0("LASER", Number, "ASF")
   LaserDelay <- paste0("LASER", Number, "DELAY")
   LaserName <- paste0("LASER", Number, "NAME")
 
-  LaserASFVal <- Subset %>% pull(ASF)
-  LaserDelayVal <- Subset %>% pull(DELAY)
-  LaserNameVal <- Subset %>% pull(NAME)
+  LaserASFVal <- Subset |> pull(ASF)
+  LaserDelayVal <- Subset |> pull(DELAY)
+  LaserNameVal <- Subset |> pull(NAME)
 
   LaserList <- list(
     LaserASF = LaserASFVal,

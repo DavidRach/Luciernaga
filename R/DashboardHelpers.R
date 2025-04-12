@@ -242,7 +242,17 @@ DailyQCParse <- function(MainFolder, x){
       Parsed <- Parsed |> mutate(across(starts_with("Flag"), ~ as.logical(.)))
 
     } else {stop("Two csv files in the folder found!")}
+    
+    # New Integration # Verify that it adds correctly
+      ShinyData <- ShinyQCSummary(x=Parsed, Instrument=x)
+      HistoricalPath <- file.path(MainFolder, "HistoricalData.csv")
+      HistoricalData <- read.csv(HistoricalPath, check.names=FALSE)
+      if (ncol(ShinyData) == ncol(HistoricalData)){
+        TheShiniestData <- bind_rows(ShinyData, HistoricalData)
+        write.csv(TheShiniestData, HistoricalPath, row.names = FALSE)
+      } else {stop("Shiny Historical Data Conflicting Column Numbers")}
 
+    # Regular Order
     TheArchive <- file.path(Folder, "Archive")
     ArchivedDataFile <- list.files(TheArchive, pattern="Archived",
                                    full.names = TRUE)
@@ -1041,7 +1051,8 @@ SmallTable <- function(data){
 #'
 #' @param x A vector of instrument names
 #' @param y A list of LevyJenningParse updated data objects
-#'
+#' @param timewindow The number  desired months
+#' 
 #' @importFrom purrr map2
 #' @importFrom dplyr bind_rows
 #' @importFrom dplyr mutate
@@ -1054,31 +1065,118 @@ SmallTable <- function(data){
 #'
 #' @return Data ready for gt coloring
 #' @noRd
-QCHistory <- function(x, y){
+QCHistory <- function(x, y, timewindow=24){
   InstrumentLength <- length(y)
 
-  if (InstrumentLength > 1){TheInstrumentLength <- 2}
+  if (InstrumentLength > 1){TheInstrumentLength <- 2
+  } else {TheInstrumentLength <- 1}
 
-  TheDataset <- map2(.x=x, .f=AcrossTime, .y=y) %>% bind_rows()
+  TheDataset <- map2(.x=x, .f=AcrossTime, .y=y) |> bind_rows()
 
-  TheDates <- TheDataset %>% group_by(DateTime) %>%
-    dplyr::mutate(TheInstrumentCount = n()) %>%
-    dplyr::filter(TheInstrumentCount >= TheInstrumentLength) %>% pull(DateTime)
+  TheDates <- TheDataset |> group_by(DateTime) |>
+    mutate(TheInstrumentCount = n()) |>
+    filter(TheInstrumentCount >= TheInstrumentLength) |> pull(DateTime)
 
-  Assembled <- TheDataset %>% dplyr::filter(DateTime %in% TheDates)
+  Assembled <- TheDataset |> filter(DateTime %in% TheDates)
 
-  Assembled <- Assembled %>% group_by(DateTime, Instrument) %>% slice(1) %>% ungroup()
+  Assembled <- Assembled |> group_by(DateTime, Instrument) |> slice(1) |> ungroup()
 
-  Figure <- Assembled %>% group_by(Instrument) %>%
+  Figure <- Assembled |> group_by(Instrument) |>
     pivot_wider(names_from = DateTime, values_from = QCStatus)
 
   return(Figure)
+}
+
+#' Dashboard Internal, summarizes x months QC data for all instruments
+#'
+#' @param x A vector of instrument names
+#' @param y A list of LevyJenningParse updated data objects
+#' @param timewindow The number  desired months
+#' 
+#' @importFrom purrr map
+#' @importFrom dplyr bind_rows
+#' @importFrom dplyr group_by
+#' @importFrom dplyr mutate
+#' @importFrom dplyr filter
+#' @importFrom dplyr pull
+#' @importFrom dplyr slice
+#' @importFrom dplyr ungroup
+#' @importFrom tidyr pivot_wider
+#'
+#' @return Data ready for gt coloring
+#' @noRd
+QCHistoryArchive <- function(x, historydata, timewindow=24){
+  InstrumentLength <- length(x)
+
+  if (InstrumentLength > 1){TheInstrumentLength <- 2
+  } else {TheInstrumentLength <- 2}
+
+  TheDataset <- map(.x=x, data=historydata,
+     .f=InternalColorCodeStatus) |> bind_rows()
+
+  TheDates <- TheDataset |> group_by(DateTime) |>
+    mutate(TheInstrumentCount = n()) |>
+    filter(TheInstrumentCount >= TheInstrumentLength) |> pull(DateTime)
+
+  Assembled <- TheDataset |> filter(DateTime %in% TheDates)
+
+  Assembled <- Assembled |> group_by(DateTime, Instrument) |> slice(1) |> ungroup()
+
+  Figure <- Assembled |> group_by(Instrument) |>
+    pivot_wider(names_from = DateTime, values_from = QCStatus)
+
+  return(Figure)
+}
+
+#' Internal for QCHistoryArchive
+#' 
+#' @param x Something
+#' @param TheInstrument Something
+#' @param TheSubset Something
+#' 
+#' @importFrom dplyr filter
+#' @importFrom dplyr pull
+#' @importFrom purrr map
+#' @importFrom dplyr bind_rows
+#' 
+#' @return A value of some form
+#' 
+#' @noRd
+InternalColorCodeStatus <- function(x, data){
+  TheInstrument <- x
+  TheSubset <- data |> filter(Instrument %in% TheInstrument)
+  TheDates <- data |> pull(Date) |> unique()
+
+  TheInstrumentHistory <- map(.x=TheDates, .f=InternalColorDateFilter,
+     TheInstrument=TheInstrument, TheSubset=TheSubset) |> bind_rows()
+  return(TheInstrumentHistory)
+}
+
+#' Internal for QCHistoryArchive
+#' 
+#' @param x Something
+#' @param TheInstrument Something
+#' @param TheSubset Something
+#' 
+#' @importFrom dplyr filter
+#' 
+#' @return A value of some form
+#' 
+#' @noRd
+InternalColorDateFilter <- function(x, TheInstrument, TheSubset){
+  DateTime <- as.Date(x)
+  TheDateSummary <- TheSubset |> filter(Date %in% DateTime)
+  InstrumentStatus <- ColorCodeStatus(x=TheInstrument, y=TheDateSummary)
+  Snapshot <- cbind(DateTime, InstrumentStatus)
+  Snapshot$DateTime <- as.Date(Snapshot$DateTime)
+  return(Snapshot)
 }
 
 #' Dashboard Internal, wrapper for individual instrument history
 #'
 #' @param x  The Instrument name
 #' @param y The Instrument data
+#' @param timewindow The number  desired months
 #'
 #' @importFrom dplyr filter
 #' @importFrom dplyr pull
@@ -1087,17 +1185,17 @@ QCHistory <- function(x, y){
 #'
 #' @return Individual instrument QC history summary
 #' @noRd
-AcrossTime <- function(x, y){
-  WindowOfInterest <- Sys.time() - months(24)
+AcrossTime <- function(x, y, timewindow){
+  WindowOfInterest <- Sys.time() - months(timewindow)
   data <- y
-  data <- data %>% dplyr::filter(DateTime >= WindowOfInterest)
-  TheDates <- data %>% pull(DateTime) %>% unique()
+  data <- data |> filter(DateTime >= WindowOfInterest)
+  TheDates <- data |> pull(DateTime) |> unique()
 
   Instrument <- x
 
   # x <- TheDates[1]
 
-  InstrumentHistory <- map(.x=TheDates, data=data, .f=DateMapper, Instrument=Instrument) %>% bind_rows()
+  InstrumentHistory <- map(.x=TheDates, data=data, .f=DateMapper, Instrument=Instrument) |> bind_rows()
   return(InstrumentHistory)
 }
 
@@ -1113,7 +1211,7 @@ AcrossTime <- function(x, y){
 #' @noRd
 DateMapper <- function(x, data, Instrument){
   DateTime <- x
-  TheDateData <- data %>% filter(DateTime %in% x)
+  TheDateData <- data |> dplyr::filter(DateTime %in% x)
   TheDateSummary <- VisualQCSummary(x=TheDateData)
   InstrumentStatus <- ColorCodeStatus(x=Instrument, y=TheDateSummary)
   Snapshot <- cbind(DateTime, InstrumentStatus)
