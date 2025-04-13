@@ -7,6 +7,7 @@
 #' @param subsets When provided with a GatingSet, selects this subset to provide the Cytoset
 #' @param inverse.transform Default is FALSE. 
 #'
+#' @importFrom flowWorkspace sampleNames
 #' @importFrom flowWorkspace gs_pop_get_data
 #' @importFrom Biobase exprs
 #' @importFrom purrr map
@@ -38,9 +39,20 @@ QC_GainMonitoring <- function(x, sample.name, stats, subsets=NULL,
 inverse.transform=FALSE){
 
   if (class(x) == "GatingHierarchy"){
+    SayTheName <- sampleNames(x)
+
     cs <- gs_pop_get_data(x, subsets, inverse.transform=inverse.transform)
-    x <- cs[[1]]
-  }
+
+    if (nrow(cs[[1]]) != 0){
+      x <- cs[[1]]
+    } else {
+      message("No cells retained in ", SayTheName, ", passing original .fcs file")
+      cs <- gs_pop_get_data(x, "root", inverse.transform=inverse.transform)
+      if (nrow(cs[[1]]) != 0){x <- cs[[1]]
+      } else {message("No cells present in ", SayTheName)}
+      }
+    }
+  
 
   Guts <- QC_Retrieval(x=x, sample.name=sample.name)
   Data <- data.frame(exprs(x), check.names=FALSE)

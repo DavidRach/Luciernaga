@@ -476,6 +476,7 @@ QCBeadParse <- function(x, MainFolder){
 #' @param MainFolder The file.path to main folder
 #' @param Template Default NULL, a file.path to an openCyto gating template want to apply fist.
 #' @param subsets Default NULL, a GatingHierarchy subset to retrieve information from. 
+#' @param FuckIt Default FALSE, when the user messed with settings so badly to cause a migraine. 
 #'
 #' @importFrom flowWorkspace load_cytoset_from_fcs
 #' @importFrom purrr map
@@ -498,14 +499,23 @@ QCBeadParse <- function(x, MainFolder){
 #'
 #' @return Updated MFI tracking CSV
 #' @noRd
-HolisticQCParse <- function(x, MainFolder, Template=NULL, subsets=NULL){
+HolisticQCParse <- function(x, MainFolder, Template=NULL, subsets=NULL, FuckIt=FALSE){
   Folder <- file.path(MainFolder, x)
   FCS_Files <- list.files(Folder, pattern="fcs", full.names=TRUE)
 
   if(!length(FCS_Files) == 0){
 
-    The_CS <- load_cytoset_from_fcs(files=FCS_Files,
-      transformation=FALSE, truncate_max_range = FALSE)
+    if (FuckIt == TRUE){
+    Screen <- CytosetScreen(files = FCS_Files)
+    MainList <- which.max(sapply(Screen, length))
+    Screen <- Screen[MainList][[1]]
+    The_CS <- load_cytoset_from_fcs(files = Screen,
+       transformation = FALSE, truncate_max_range = FALSE)
+    } else {
+      The_CS <- load_cytoset_from_fcs(
+        files = FCS_Files, transformation = FALSE,
+        truncate_max_range = FALSE)
+    }
 
     if (is.null(Template)){
     Parsed <- map(.x=The_CS, .f=QC_GainMonitoring,
@@ -560,7 +570,7 @@ HolisticQCParse <- function(x, MainFolder, Template=NULL, subsets=NULL){
     StorageLocation <- file.path(ArchiveFolder, name)
     write.csv(UpdatedData, StorageLocation, row.names=FALSE)
 
-    } else {message("No fcs files to update with in ", x)}
+  } else {message("No fcs files to update with in ", x)}
 }
 
 #' Dashboard Internal, updates MFI tracking CSV
