@@ -225,6 +225,7 @@ UsagePlot <- function(data, TheInstrument){
 #' @importFrom dplyr arrange
 #' @importFrom dplyr desc
 #' @importFrom utils write.csv
+#' @importFrom lubridate ymd
 #'
 #' @return Updated tracking data CSV in the Archive Folder
 #' @noRd
@@ -247,6 +248,7 @@ DailyQCParse <- function(MainFolder, x){
       ShinyData <- ShinyQCSummary(x=Parsed, Instrument=x)
       HistoricalPath <- file.path(MainFolder, "HistoricalData.csv")
       HistoricalData <- read.csv(HistoricalPath, check.names=FALSE)
+      HistoricalData$Date <- lubridate::ymd(HistoricalData$Date)
       if (ncol(ShinyData) == ncol(HistoricalData)){
         TheShiniestData <- bind_rows(ShinyData, HistoricalData)
         write.csv(TheShiniestData, HistoricalPath, row.names = FALSE)
@@ -524,6 +526,11 @@ HolisticQCParse <- function(x, MainFolder, Template=NULL, subsets=NULL, FuckIt=F
       Gating <- data.table::fread(Template)
       MyGatingSet <- GatingSet(The_CS)
       MyGatingTemplate <- gatingTemplate(Gating)
+
+      MyGatingSet <- GateCheck(gs=MyGatingSet, gatingtemplate = MyGatingTemplate)
+      
+      if (is.null(MyGatingSet)){return(MyGatingSet)}
+
       gt_gating(MyGatingTemplate, MyGatingSet)
 
     Parsed <- map(.x=MyGatingSet, .f=QC_GainMonitoring, subsets=subsets,
@@ -571,6 +578,30 @@ HolisticQCParse <- function(x, MainFolder, Template=NULL, subsets=NULL, FuckIt=F
     write.csv(UpdatedData, StorageLocation, row.names=FALSE)
 
   } else {message("No fcs files to update with in ", x)}
+}
+
+#' Similar to CytosetScreen, checks for mismatching cytoframes that throw inconvenient errors
+#' 
+#' @param gs A gating set object
+#' @param gatingtemplate The gating template object
+#' 
+#' @return Purified Gating Set or a NULL Value
+#' 
+#' @noRd
+GateCheck <- function(gs, gatingtemplate){
+  
+  Nodes <- gatingtemplate@nodes
+  FinalNode <- Nodes[length(Nodes)]
+  These <- Nodes[-1]
+  CheckThis <- paste(These, collapse="|")
+  ThisFluor <- gatingtemplate@edgeData@data[[CheckThis]]$gtMethod@dims
+
+  TheIndex <- any(colnames(gs) %in% ThisFluor)
+  Present <- gs[TheIndex]
+
+  if (length(Present) == 0){gs <- NULL
+  } else {gs <- Present}
+  return(gs)
 }
 
 #' Dashboard Internal, updates MFI tracking CSV
