@@ -2,6 +2,7 @@
 
 export(AveragedSignature)
 export(CytosetScreen)
+export(HolisticToArchived)
 export(Luciernaga_Brightness)
 export(Luciernaga_BrigtnessOverTime)
 export(Luciernaga_Cosine)
