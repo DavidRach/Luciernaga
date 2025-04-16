@@ -17,8 +17,10 @@
 #' @return Either a data.frame or writes to a .csv file
 #' 
 #' @noRd
-CytekDailyQC <- function(x, outpath=NULL, returnType){
-  ReadInfo <- readLines(x)
+CytekDailyQC <- function(x, outpath=NULL, returnType="data"){
+
+  if (length(x) > 1){ReadInfo <- x
+  } else {ReadInfo <- readLines(x)}
   index <- grep("^Laser Settings", ReadInfo)
   Final <- length(ReadInfo)
   InitialIndex <- grep("^DailyQC", ReadInfo)
@@ -137,7 +139,8 @@ NotCytekDailyQC <- function(x){
 #' @return An updated data.frame containing the necessary Flag columns for plotting
 #' 
 #' @export
-HolisticToArchived <- function(data, manufacturer="Cytek", baselinecutoffs, returnTemplate=FALSE, outpath=NULL, gainmultiplier=2){
+HolisticToArchived <- function(data, manufacturer="Cytek", baselinecutoffs,
+ returnTemplate=FALSE, outpath=NULL, gainmultiplier=2){
 
     Internal <- colnames(data)[str_detect(colnames(data), "-A")]
     RCVs <- Internal[str_detect(Internal, "rCV")]
@@ -153,13 +156,13 @@ HolisticToArchived <- function(data, manufacturer="Cytek", baselinecutoffs, retu
         }
     } else {Cutoffs <- Luciernaga:::NotCytekDailyQC(x=baselinecutoffs)}
   
-    Cutoffs <- Cutoffs |> mutate(GainBaseline=GainBaseline*gainmultiplier)
+    Cutoffs1 <- Cutoffs |> mutate(GainBaseline=GainBaseline*gainmultiplier)
   
-    TheRCVs <- map(.x=RCVs, .f=DerriveTheFlag, data=data, cutoffs=Cutoffs) |> bind_cols()
-    TheGains <- map(.x=Gains, .f=DerriveTheFlag, data=data, cutoffs=Cutoffs) |> bind_cols()
+    TheRCVs <- map(.x=RCVs, .f=DerriveTheFlag, data=data, cutoffs=Cutoffs1) |> bind_cols()
+    TheGains <- map(.x=Gains, .f=DerriveTheFlag, data=data, cutoffs=Cutoffs1) |> bind_cols()
     Assembled <- bind_cols(data, TheRCVs, TheGains)
     return(Assembled)
-  }
+}
   
 #' Internal for Holistic to Archived, screens vs cutoff value, filling Flag column
 #' 
@@ -188,7 +191,7 @@ DerriveTheFlag <- function(x, data, cutoffs){
     TheColumn <- gsub("-% rCV", "", gsub("_Gain", "", x))
     TheColumn <- gsub("-A", "", TheColumn)
     internaldata <- data |> dplyr::select(all_of(x))
-    internalcutoffs <- Cutoffs |> dplyr::filter(Detector %in% TheColumn)
+    internalcutoffs <- cutoffs |> dplyr::filter(Detector %in% TheColumn)
   
     if (nrow(internalcutoffs) == 1){
       if (Type == "Gain"){
