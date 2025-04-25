@@ -83,13 +83,15 @@ Utility_NbyNPlots <- function(x, sample.name, removestrings, experiment = NULL,
     if (is.data.frame(reference)){reference <- reference
     } else {reference <- read.csv(file=reference, check.names = FALSE)
     }
-  }
-
-  #name <- keyword(x, sample.name)
+  } 
 
   AggregateName <- NameForSample(x=x, sample.name=sample.name, removestrings=removestrings,
                                  experiment=experiment, experiment.name=experiment.name,
                                  condition=condition, condition.name=condition.name)
+  
+  if (length(sample.name) == 1){
+    name <- keyword(x, sample.name)
+  } else {name <- AggregateName}  
 
   StorageLocation <- file.path(outpath, AggregateName)
 

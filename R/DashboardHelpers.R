@@ -180,7 +180,7 @@ UsagePlot <- function(data, TheInstrument){
   
   data$DayOfWeek <- wday(data$DateTime, label = TRUE, abbr = TRUE)
   data$DayOfWeek <- factor(data$DayOfWeek,
-   levels = c("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"))
+   levels = c("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"))
 
   data$Hour <- hour(data$DateTime)
 
