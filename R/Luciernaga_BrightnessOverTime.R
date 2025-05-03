@@ -4,6 +4,7 @@
 #' @param columnname The columnname for Cluster, becomes the categorical defining lines and dots
 #' @param datename The column name for Experiment/Dates, becomes the x-axis
 #' @param Detector Default NULL, specify a detector, overrides the y-axis
+#' @param plotType Something
 #' 
 #' @importFrom stringr str_detect
 #' @importFrom dplyr pull

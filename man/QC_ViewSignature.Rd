@@ -17,6 +17,8 @@ QC_ViewSignature(
 \arguments{
 \item{x}{Name in the Sample column you want to filter for}
 
+\item{columnname}{Default is Sample, specifies column name from which x is filtered from}
+
 \item{data}{A data.frame object from QC_LibraryParse containing Fluorophore name column 
 and numeric detector columns.}
 
@@ -27,8 +29,6 @@ and numeric detector columns.}
 \item{detectorcolumn}{Default NULL, when TheFormat="longer" specify detector column name}
 
 \item{valuecolumn}{Default NULL, when TheFormat="longer" specify value column name}
-
-\item{columname}{Default is Sample, specifies column name from which x is filtered from}
 }
 \value{
 A dataframe of similar fluorophores

@@ -3,6 +3,8 @@
 #' @param x The Gating Set object being iterated
 #' @param subset The Gating Set subset for population of interest
 #' @param sample.name The keyword corresponding to the samples name
+#' @param experiment.name Something
+#' @param condition.name Something
 #' 
 #' @importFrom flowCore keyword
 #' @importFrom flowWorkspace gs_pop_get_data

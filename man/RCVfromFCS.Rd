@@ -12,6 +12,10 @@ RCVfromFCS(x, subset, sample.name, experiment.name, condition.name)
 \item{subset}{The Gating Set subset for population of interest}
 
 \item{sample.name}{The keyword corresponding to the samples name}
+
+\item{experiment.name}{Something}
+
+\item{condition.name}{Something}
 }
 \value{
 A data.frame row with the marker RCVs as a proportion.

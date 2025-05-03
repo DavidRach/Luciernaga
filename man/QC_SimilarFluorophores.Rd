@@ -17,6 +17,8 @@ QC_SimilarFluorophores(
 
 \item{NumberDetectors}{Number of detectors of the instrument}
 
+\item{returnSynonyms}{Something}
+
 \item{NumberHits}{Number of most similar fluorophores by cosine}
 
 \item{returnPlots}{Whether to also return signature plots, default is set FALSE}

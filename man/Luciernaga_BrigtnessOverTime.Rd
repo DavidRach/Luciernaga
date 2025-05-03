@@ -20,6 +20,8 @@ Luciernaga_BrigtnessOverTime(
 \item{datename}{The column name for Experiment/Dates, becomes the x-axis}
 
 \item{Detector}{Default NULL, specify a detector, overrides the y-axis}
+
+\item{plotType}{Something}
 }
 \value{
 A ggplot2 object

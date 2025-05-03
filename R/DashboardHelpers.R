@@ -32,7 +32,7 @@ utils::globalVariables(c("%rCV", ".", ".data", "AdjustedY", "AggregateName",
 #' @importFrom tidyselect all_of
 #' @importFrom dplyr slice
 #' @importFrom dplyr pull
-#' 
+#' @importFrom stats na.omit
 #' @return Some value
 #' 
 #' @noRd

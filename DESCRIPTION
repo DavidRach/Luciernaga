@@ -1,7 +1,7 @@
 Package: Luciernaga
 Type: Package
 Title: Tools for the evaluation of Spectral Flow Cytometry (SFC) unmixing controls 
-Version: 0.99.2
+Version: 0.99.3
 Authors@R: 
     person("David", "Rach", , "drach@som.umaryland.edu", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0003-2235-5585"))
@@ -23,6 +23,7 @@ RoxygenNote: 7.3.2
 Imports: 
     Biobase,
     BiocGenerics,
+    data.table,
     dplyr,
     figpatch,
     flowCore,
@@ -56,15 +57,13 @@ Imports:
     uwot,
     xml2,
     zoo
-Depends: R (>= 4.4.0)
+Depends: R (>= 4.5.0)
 Suggests: 
     BiocStyle,
-    data.table,
     CytoML,
     DataEditR,
     DT,
     knitr,
-    openCyto,
     RColorBrewer,
     rmarkdown,
     shiny,

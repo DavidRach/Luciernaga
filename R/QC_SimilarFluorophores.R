@@ -5,7 +5,8 @@
 #' @param NumberHits Number of most similar fluorophores by cosine
 #' @param returnSynonymns Returns only fluorophores > 0.98 cosine value, default FALSE
 #' @param returnPlots Whether to also return signature plots, default is set FALSE
-#'
+#' @param returnSynonyms Something
+#' 
 #' @importFrom dplyr filter
 #' @importFrom dplyr slice
 #' @importFrom dplyr mutate
@@ -29,8 +30,8 @@
 #' Results <- QC_SimilarFluorophores(TheFluorophore="Spark Blue 550",
 #'  NumberDetectors=64, returnSynonymns=FALSE, NumberHits = 10, returnPlots=FALSE)
 
-QC_SimilarFluorophores <- function(TheFluorophore, NumberDetectors, returnSynonyms=FALSE,
-  NumberHits=10, returnPlots=FALSE) {
+QC_SimilarFluorophores <- function(TheFluorophore, NumberDetectors,
+   returnSynonyms=FALSE, NumberHits=10, returnPlots=FALSE) {
 
   ReferenceData <- Luciernaga:::InstrumentReferences(NumberDetectors=NumberDetectors)
   #nrow(ReferenceData)

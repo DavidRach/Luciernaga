@@ -42,6 +42,16 @@ TransformationCheck(
 \item{Multiple}{Argument}
 
 \item{returnType}{Argument}
+
+\item{optionalY}{Something}
+
+\item{optionalX}{Something}
+
+\item{optionalOutpath}{Something}
+
+\item{optionalBins}{Something}
+
+\item{optionalName}{Something}
 }
 \value{
 A visualization to check transformation setting
