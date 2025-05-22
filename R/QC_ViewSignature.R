@@ -1,7 +1,7 @@
 #' Visualizes the Signature for given row in an averaged signature data.frame.
 #'
 #' @param x Name in the Sample column you want to filter for
-#' @param columname Default is Sample, specifies column name from which x is filtered from 
+#' @param columnname Default is Sample, specifies column name from which x is filtered from 
 #' @param data A data.frame object from QC_LibraryParse containing Fluorophore name column 
 #' and numeric detector columns.
 #' @param Normalize Whether to normalize the data based on peak detector value, default is TRUE

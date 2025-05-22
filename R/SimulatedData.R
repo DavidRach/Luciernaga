@@ -62,7 +62,7 @@ NoisyMatrix <- as.matrix(NoisyDataset)
 
 path <- system.file("extdata", package = "Luciernaga")
 files <- list.files(path=path, pattern="CD4_BUV805.*Cells", full.names=TRUE)
-CytoSet <- load_cytoset_from_fcs(files, truncate_max_range = FALSE, transform = FALSE)
+CytoSet <- load_cytoset_from_fcs(files, truncate_max_range = FALSE, transformation = FALSE)
 fr <- CytoSet[[1, returnType = "flowFrame"]]
 Parameter <- fr@parameters
 Parameter@data <- ParameterParam

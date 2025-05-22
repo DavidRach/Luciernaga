@@ -39,7 +39,7 @@ library(Luciernaga)
 ### Get Started
 
 Please check out our how-to [vignettes](https://davidrach.github.io/Luciernaga/articles/DataVisualization.html)
-to get started
+to get started.
 
 
 ### Found a bug? Report it!

@@ -10,6 +10,11 @@
 #' @param widthBasis Argument
 #' @param Multiple Argument
 #' @param returnType Argument
+#' @param optionalY Something
+#' @param optionalX Something
+#' @param optionalOutpath Something
+#' @param optionalBins Something
+#' @param optionalName Something
 #' 
 #' @importFrom flowWorkspace load_cytoset_from_fcs
 #' @importFrom flowWorkspace GatingSet

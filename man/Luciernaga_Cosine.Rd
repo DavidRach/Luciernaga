@@ -10,6 +10,8 @@ Luciernaga_Cosine(data, returntype = "plot", rearrange = TRUE)
 \item{data}{A data.frame with a single name column and rest numeric columns}
 
 \item{returntype}{Default returns "plot", alternatively "matrix" for underlying data}
+
+\item{rearrange}{Something}
 }
 \value{
 Either a ggplot or matrix object

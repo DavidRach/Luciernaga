@@ -2,7 +2,8 @@
 #'
 #' @param data A data.frame with a single name column and rest numeric columns
 #' @param returntype Default returns "plot", alternatively "matrix" for underlying data
-#'
+#' @param rearrange Something
+#' 
 #' @importFrom dplyr select
 #' @importFrom tidyselect where
 #' @importFrom lsa cosine

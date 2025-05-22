@@ -3,8 +3,10 @@
 #' @param TheFluorophore The name of the Fluorophore compare, see QC_ReferenceLibrary
 #' @param NumberDetectors Number of detectors of the instrument
 #' @param NumberHits Number of most similar fluorophores by cosine
+#' @param returnSynonymns Returns only fluorophores > 0.98 cosine value, default FALSE
 #' @param returnPlots Whether to also return signature plots, default is set FALSE
-#'
+#' @param returnSynonyms Something
+#' 
 #' @importFrom dplyr filter
 #' @importFrom dplyr slice
 #' @importFrom dplyr mutate
@@ -26,9 +28,10 @@
 #'
 #' @examples
 #' Results <- QC_SimilarFluorophores(TheFluorophore="Spark Blue 550",
-#'  NumberDetectors=64, NumberHits = 10, returnPlots=FALSE)
+#'  NumberDetectors=64, returnSynonymns=FALSE, NumberHits = 10, returnPlots=FALSE)
 
-QC_SimilarFluorophores <- function(TheFluorophore, NumberDetectors, NumberHits, returnPlots=FALSE) {
+QC_SimilarFluorophores <- function(TheFluorophore, NumberDetectors,
+   returnSynonyms=FALSE, NumberHits=10, returnPlots=FALSE) {
 
   ReferenceData <- Luciernaga:::InstrumentReferences(NumberDetectors=NumberDetectors)
   #nrow(ReferenceData)
@@ -83,8 +86,13 @@ QC_SimilarFluorophores <- function(TheFluorophore, NumberDetectors, NumberHits, 
   TheData <- rownames_to_column(CosineFrame, var="Fluorophore")
   TheID <- TheData |> select(all_of(TheFluorophore)) |> colnames()
 
+  if (returnSynonyms == FALSE){
   TheHits <- TheData |> filter(!Fluorophore %in% TheID) |>
     arrange(desc(.data[[TheID]])) |> slice_head(n=NumberHits)
+  } else {
+    TheHits <- TheData |> filter(!Fluorophore %in% TheID) |>
+    arrange(desc(.data[[TheID]])) |> filter(.data[[TheID]] > 0.98)
+  }
 
   if (returnPlots==TRUE){
     TheseFluorophores <- TheHits |> pull(Fluorophore)
@@ -94,7 +102,7 @@ QC_SimilarFluorophores <- function(TheFluorophore, NumberDetectors, NumberHits, 
     ReturnThese <- list(TheHits, ThePlot)
     return(ReturnThese)
   } else {return(TheHits)}
-}
+  }
 
 
 #' Internal for QC_SimilarFluorophores, returns plot of all similar fluorophores

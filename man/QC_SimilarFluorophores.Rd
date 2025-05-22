@@ -7,7 +7,8 @@
 QC_SimilarFluorophores(
   TheFluorophore,
   NumberDetectors,
-  NumberHits,
+  returnSynonyms = FALSE,
+  NumberHits = 10,
   returnPlots = FALSE
 )
 }
@@ -16,9 +17,13 @@ QC_SimilarFluorophores(
 
 \item{NumberDetectors}{Number of detectors of the instrument}
 
+\item{returnSynonyms}{Something}
+
 \item{NumberHits}{Number of most similar fluorophores by cosine}
 
 \item{returnPlots}{Whether to also return signature plots, default is set FALSE}
+
+\item{returnSynonymns}{Returns only fluorophores > 0.98 cosine value, default FALSE}
 }
 \value{
 A dataframe of similar fluorophores
@@ -28,5 +33,5 @@ Queries fluorophore and returns similar fluorophores.
 }
 \examples{
 Results <- QC_SimilarFluorophores(TheFluorophore="Spark Blue 550",
- NumberDetectors=64, NumberHits = 10, returnPlots=FALSE)
+ NumberDetectors=64, returnSynonymns=FALSE, NumberHits = 10, returnPlots=FALSE)
 }
