@@ -14,6 +14,7 @@
 #' @param returntype Whether to return "pdf", "patchwork" or "plots"
 #' @param outpath The desired location to send the assembled pdf to
 #' @param filename Default NULL, provide name to set the filename.
+#' @param cartesian Default TRUE, set to false to remove cartesian_coord centering
 #'
 #' @importFrom Biobase pData
 #' @importFrom purrr map
@@ -70,7 +71,7 @@
 #'
 Utility_UnityPlot <- function(x, y, GatingSet, marginsubset, gatesubset,
   sample.name, removestrings, clearance, bins, gatelines, reference, returntype,
-  outpath, filename=NULL){
+  outpath, filename=NULL, cartesian=TRUE){
   
   if (!is.null(reference)){
       if (is.data.frame(reference)){reference <- reference
@@ -84,9 +85,10 @@ Utility_UnityPlot <- function(x, y, GatingSet, marginsubset, gatesubset,
 
  Plots <- map(GatingSet, .f=Unity, TheX=TheX, TheY=TheY, marginsubset=marginsubset,
       gatesubset=gatesubset, sample.name=sample.name, removestrings=removestrings,
-      clearance=clearance, bins=bins, gatelines=gatelines, reference=reference)
+      clearance=clearance, bins=bins, gatelines=gatelines, reference=reference,
+      cartesian=cartesian)
 
- if (!is.null(filename)){AggregateName <- FileName} 
+ if (!is.null(filename)){FileName <- filename} 
   
  if (returntype == "plots"){
    return(Plots)
@@ -132,7 +134,7 @@ Utility_UnityPlot <- function(x, y, GatingSet, marginsubset, gatesubset,
 #'
 #' @noRd
 Unity <- function(x, TheY, TheX, marginsubset, gatesubset, sample.name, removestrings,
-                  clearance, bins, gatelines, reference){
+                  clearance, bins, gatelines, reference, cartesian=TRUE){
 
   name <- keyword(x, sample.name)
   name <- NameCleanUp(name = name, removestrings)
@@ -158,6 +160,8 @@ Unity <- function(x, TheY, TheX, marginsubset, gatesubset, sample.name, removest
   ff1 <- gs_pop_get_data(x, gatesubset)
 
   if (BiocGenerics::nrow(ff1) < 200) {
+
+    if (cartesian == TRUE){
     Plot <- as.ggplot(ggcyto(ff1, aes(x = .data[[TheX]], y = .data[[TheY]]),
      subset = "root") + geom_point(size = 2, alpha = 0.8) + coord_cartesian(
        xlim = c(theXmin, theXmax), ylim = c(theYmin, theYmax), default = TRUE) +
@@ -165,7 +169,18 @@ Unity <- function(x, TheY, TheX, marginsubset, gatesubset, sample.name, removest
      strip.text.x = element_blank(), panel.grid.major = element_line(
      linetype = "blank"), panel.grid.minor = element_line(linetype = "blank"),
      axis.title = element_text(size = 10, face = "bold"),legend.position = "none"))
-  } else {
+     } else {
+      Plot <- as.ggplot(ggcyto(ff1, aes(x = .data[[TheX]], y = .data[[TheY]]),
+     subset = "root") + geom_point(size = 2, alpha = 0.8) +
+       theme_bw() + labs(title = name) + theme(strip.background = element_blank(),
+     strip.text.x = element_blank(), panel.grid.major = element_line(
+     linetype = "blank"), panel.grid.minor = element_line(linetype = "blank"),
+     axis.title = element_text(size = 10, face = "bold"),legend.position = "none"))
+     }
+      
+    } else {
+    
+    if (cartesian == TRUE){
     Plot <- as.ggplot(ggcyto(ff1, aes(x = .data[[TheX]], y = .data[[TheY]]),
      subset = "root") + geom_hex(bins=bins) + coord_cartesian(
        xlim = c(theXmin, theXmax), ylim = c(theYmin, theYmax), default = TRUE) +
@@ -175,7 +190,17 @@ Unity <- function(x, TheY, TheX, marginsubset, gatesubset, sample.name, removest
      panel.grid.minor = element_line(linetype = "blank"),
      axis.title = element_text(size = 10, face = "bold"),
      legend.position = "none"))
-  }
+     } else {
+      Plot <- as.ggplot(ggcyto(ff1, aes(x = .data[[TheX]], y = .data[[TheY]]),
+     subset = "root") + geom_hex(bins=bins) +
+       theme_bw() + labs(title = name) +
+       theme(strip.background = element_blank(), strip.text.x = element_blank(),
+     panel.grid.major = element_line(linetype = "blank"),
+     panel.grid.minor = element_line(linetype = "blank"),
+     axis.title = element_text(size = 10, face = "bold"),
+     legend.position = "none"))
+     }
+    }
 
   if (gatelines == TRUE){Value <- reference %>% dplyr::filter(specimen %in% name) %>%
     select(all_of(TheX)) %>% pull(.)

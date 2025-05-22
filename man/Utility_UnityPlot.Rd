@@ -18,7 +18,8 @@ Utility_UnityPlot(
   reference,
   returntype,
   outpath,
-  filename = NULL
+  filename = NULL,
+  cartesian = TRUE
 )
 }
 \arguments{
@@ -49,6 +50,8 @@ Utility_UnityPlot(
 \item{outpath}{The desired location to send the assembled pdf to}
 
 \item{filename}{Default NULL, provide name to set the filename.}
+
+\item{cartesian}{Default TRUE, set to false to remove cartesian_coord centering}
 }
 \value{
 The ggplots for all the specimens, as well as the optional .pdf
