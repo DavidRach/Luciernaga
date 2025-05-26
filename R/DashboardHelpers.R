@@ -171,6 +171,7 @@ AppQCParse <- function(MainFolder, x){
 #' @importFrom ggplot2 scale_x_continuous
 #' @importFrom ggplot2 theme
 #' @importFrom ggplot2 element_text
+#' @importFrom ggplot2 lims
 #' 
 #' @return A ggplot2 object
 #' 
@@ -247,12 +248,17 @@ DailyQCParse <- function(MainFolder, x){
     # New Integration # Verify that it adds correctly
       ShinyData <- ShinyQCSummary(x=Parsed, Instrument=x)
       HistoricalPath <- file.path(MainFolder, "HistoricalData.csv")
+      History <- list.files(MainFolder, pattern="HistoricalData.csv", full.names=TRUE)
+    
+      if (length(History == 1)){
       HistoricalData <- read.csv(HistoricalPath, check.names=FALSE)
       HistoricalData$Date <- lubridate::ymd(HistoricalData$Date)
       if (ncol(ShinyData) == ncol(HistoricalData)){
         TheShiniestData <- bind_rows(ShinyData, HistoricalData)
         write.csv(TheShiniestData, HistoricalPath, row.names = FALSE)
       } else {stop("Shiny Historical Data Conflicting Column Numbers")}
+      } else {write.csv(ShinyData, HistoricalPath, row.names = FALSE)}
+      
 
     # Regular Order
     TheArchive <- file.path(Folder, "Archive")
@@ -1150,7 +1156,7 @@ QCHistoryArchive <- function(x, historydata, timewindow=24){
   InstrumentLength <- length(x)
 
   if (InstrumentLength > 1){TheInstrumentLength <- 2
-  } else {TheInstrumentLength <- 2}
+  } else {TheInstrumentLength <- 1}
 
   TheDataset <- map(.x=x, data=historydata,
      .f=InternalColorCodeStatus) |> bind_rows()
