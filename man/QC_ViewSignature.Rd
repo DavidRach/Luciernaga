@@ -11,7 +11,9 @@ QC_ViewSignature(
   Normalize = TRUE,
   TheFormat = "wider",
   detectorcolumn = NULL,
-  valuecolumn = NULL
+  valuecolumn = NULL,
+  legend = TRUE,
+  plotname = NULL
 )
 }
 \arguments{
@@ -29,6 +31,10 @@ and numeric detector columns.}
 \item{detectorcolumn}{Default NULL, when TheFormat="longer" specify detector column name}
 
 \item{valuecolumn}{Default NULL, when TheFormat="longer" specify value column name}
+
+\item{legend}{Default TRUE, alternately removes plot legend}
+
+\item{plotname}{Default NULL, alternately specifies the plot title}
 }
 \value{
 A dataframe of similar fluorophores

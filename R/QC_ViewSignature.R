@@ -8,6 +8,8 @@
 #' @param TheFormat Default wider for detectors in columns, specify longer if providing detectors as rows
 #' @param detectorcolumn Default NULL, when TheFormat="longer" specify detector column name
 #' @param valuecolumn Default NULL, when TheFormat="longer" specify value column name
+#' @param legend Default TRUE, alternately removes plot legend
+#' @param plotname Default NULL, alternately specifies the plot title
 #'
 #' @importFrom dplyr filter
 #' @importFrom dplyr select
@@ -53,7 +55,8 @@
 #' Plot <- QC_ViewSignature(x="TestSignature", data=TheData, Normalize=TRUE)
 #'
 QC_ViewSignature <- function(x, columnname="Sample", data, Normalize = TRUE,
- TheFormat="wider", detectorcolumn=NULL, valuecolumn=NULL) {
+ TheFormat="wider", detectorcolumn=NULL, valuecolumn=NULL,
+ legend=TRUE, plotname=NULL) {
 
   if (TheFormat=="wider"){
   StartingData <- data |> filter(.data[[columnname]] %in% x)
@@ -105,7 +108,8 @@ QC_ViewSignature <- function(x, columnname="Sample", data, Normalize = TRUE,
   } 
 
   ThePlot <- SimilarFluorPlots(TheseFluorophores=TheseFluorophores,
-                                 TheFluorophore=NULL, data=WhoseThis1)
+                                TheFluorophore=NULL, data=WhoseThis1,
+                                legend=legend, plotname=plotname)
 
   return(ThePlot)
   }

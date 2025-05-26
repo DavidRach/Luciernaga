@@ -110,7 +110,9 @@ QC_SimilarFluorophores <- function(TheFluorophore, NumberDetectors,
 #' @param TheseFluorophores The similar fluorophores identified by cosine
 #' @param TheFluorophore The one we were originally interested in
 #' @param data The reference data of fluorophore signatures
-#'
+#' @param legend Default TRUE, alternately removes plot legend
+#' @param plotname Default NULL, alternately specifies the plot title
+#' 
 #' @importFrom dplyr filter
 #' @importFrom dplyr rename
 #' @importFrom ggplot2 ggplot
@@ -127,7 +129,8 @@ QC_SimilarFluorophores <- function(TheFluorophore, NumberDetectors,
 #' @return An internal value
 #'
 #' @noRd
-SimilarFluorPlots <- function(TheseFluorophores, TheFluorophore, data){
+SimilarFluorPlots <- function(TheseFluorophores, TheFluorophore, data,
+  legend=TRUE, plotname=FALSE){
 
       These <- c(TheFluorophore, TheseFluorophores)
 
@@ -151,13 +154,32 @@ SimilarFluorPlots <- function(TheseFluorophores, TheFluorophore, data){
 
       TheData$Detector <- factor(TheData$Detector, levels=MyVector)
       TheData$Fluorophore <- factor(TheData$Fluorophore, levels=These)
-
-      ThePlot <- ggplot(TheData, aes(x=Detector, y=value, group=Fluorophore, color = Fluorophore)) +
-        geom_line() + theme_bw() + labs(title=paste0(TheFluorophore), x=NULL, y=YAxisLabel) +
-        geom_hline(yintercept = 1, linetype = "dashed", color = "red") +
-        theme(plot.title = element_text(size = 8), axis.text.x = element_text(size = 6, angle = 45),
-              panel.grid = element_blank(), axis.ticks.x = element_blank(), axis.title.y =  element_text(size=8)) +
+  
+      if (is.null(plotname)){TheTitle <- paste0(TheFluorophore)
+      } else {TheTitle <- plotname}
+  
+      if (legend == TRUE){
+        ThePlot <- ggplot(TheData, aes(x=Detector, y=value, group=Fluorophore,
+           color = Fluorophore)) + geom_line() + theme_bw() +
+          labs(title=TheTitle, x=NULL, y=YAxisLabel) + geom_hline(yintercept = 1,
+             linetype = "dashed", color = "red") +
+          theme(plot.title = element_text(size = 8),
+              axis.text.x = element_text(size = 6, angle = 45),
+              panel.grid = element_blank(), axis.ticks.x = element_blank(),
+              axis.title.y =  element_text(size=8)) +
         scale_x_discrete(breaks = unique(TheData$Detector)[c(TRUE, rep(FALSE, 4))])
-
+      } else {
+        ThePlot <- ggplot(TheData, aes(x=Detector, y=value, group=Fluorophore,
+          color = Fluorophore)) + geom_line() + theme_bw() +
+         labs(title=TheTitle, x=NULL, y=YAxisLabel) + geom_hline(yintercept = 1,
+            linetype = "dashed", color = "red") +
+         theme(legend.position = "none",
+             plot.title = element_text(size = 8),
+             axis.text.x = element_text(size = 6, angle = 45),
+             panel.grid = element_blank(), axis.ticks.x = element_blank(),
+             axis.title.y =  element_text(size=8)) +
+       scale_x_discrete(breaks = unique(TheData$Detector)[c(TRUE, rep(FALSE, 4))])
+      }
+  
       return(ThePlot)
 }
