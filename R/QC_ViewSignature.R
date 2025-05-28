@@ -23,6 +23,8 @@
 #'
 #' @importFrom dplyr filter
 #' @importFrom dplyr select
+#' @importFrom tidyselect everything
+#' @importFrom tidyr unite
 #' @importFrom tidyselect where
 #' @importFrom dplyr rename
 #' @importFrom dplyr mutate
@@ -68,6 +70,9 @@ QC_ViewSignature <- function(x, columnname="Sample", data, Normalize = TRUE,
  TheFormat="wider", detectorcolumn=NULL, valuecolumn=NULL,
  legend=TRUE, plotname=NULL, plotlinecolor=NULL) {
 
+  if (is.null(x)){x <- data |> dplyr::pull(columnname)
+  }
+
   if (TheFormat=="wider"){
   StartingData <- data |> filter(.data[[columnname]] %in% x)
 
@@ -76,7 +81,7 @@ QC_ViewSignature <- function(x, columnname="Sample", data, Normalize = TRUE,
     stop("Please add a non-numeric column, and provide its columnname")}
   if (CharacterLength > 1){message("Combining character columns")
     Identity <- StartingData |> select(!where(is.numeric)) |>
-      paste0(collapse = "_")
+      unite("combined", everything(), sep = "_") |> pull()
     Identity <- data.frame(Fluorophore=Identity)
     Identity <- Identity |> rename("Fluorophore"=1)
     Identity <- Identity |> mutate(Fluorophore=paste0("ID_", Fluorophore))

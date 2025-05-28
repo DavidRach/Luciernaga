@@ -7,7 +7,6 @@
 #' @param removestrings A list of values to remove from name
 #' @param subset A gating hierarchy level to sort cells at, expression values retrieved
 #' from these
-#' @param multiplier A number to scale the OLS coefficients by
 #' @param outpath The return folder for the .fcs files
 #' @param Verbose For troubleshooting name after removestrings
 #' @param PanelPath Location to a panel.csv containing correct order of fluorophores
@@ -28,9 +27,8 @@
 #' @export
 #'
 #' @examples NULL
-Luciernaga_Unmix <- function(x, controlData, sample.name, removestrings, Verbose, addon,
-                             subset="root", multiplier, outpath, PanelPath,
-                             returntype="fcs"){
+Luciernaga_Unmix <- function(x, controlData, sample.name, removestrings,
+   Verbose, addon, subset="root", outpath, PanelPath, returntype="fcs"){
 
   if (length(sample.name) == 2){
     first <- sample.name[[1]]
@@ -66,10 +64,20 @@ Luciernaga_Unmix <- function(x, controlData, sample.name, removestrings, Verbose
   CorrectColumnOrder <- Panel %>% pull(Fluorophore)
   CorrectColumnOrder <- gsub("-A$", "", CorrectColumnOrder)
 
+  if (any(controlData > 1)){
+    Metadata <- controlData |> select(!where(is.numeric))
+    Numerics <- controlData |> select(where(is.numeric))
+    n <- Numerics
+    n[n < 0] <- 0
+    A <- do.call(pmax, n)
+    Normalized <- n/A
+    controlData <- bind_cols(Metadata, Normalized)
+ }
+
   controlData$Fluorophore <- gsub("-A", "", controlData$Fluorophore)
 
-  NewControlData <- controlData %>% arrange(match(Fluorophore, CorrectColumnOrder))
-  Newest <- NewControlData %>% pull(Fluorophore)
+  NewControlData <- controlData |> arrange(match(Fluorophore, CorrectColumnOrder))
+  Newest <- NewControlData |> pull(Fluorophore)
 
   if (!identical(CorrectColumnOrder, Newest)){
     message(Newest)
@@ -77,18 +85,18 @@ Luciernaga_Unmix <- function(x, controlData, sample.name, removestrings, Verbose
   }
 
   TheControlData <- NewControlData[names(TheSampleData)]
-  NewNames <- NewControlData %>% select(Fluorophore)
+  NewNames <- NewControlData |> select(Fluorophore)
   NewNames$Fluorophore <- paste0(NewNames$Fluorophore, "-A")
-  NewNames <- NewNames %>% pull(Fluorophore)
-  Ligands <- NewControlData %>% pull(Ligand)
+  NewNames <- NewNames |> pull(Fluorophore)
+  Ligands <- NewControlData |> pull(Ligand)
 
   LeastSquares <- lsfit(x = t(TheControlData), y = t(TheSampleData), intercept = FALSE)
   UnmixedData <- t(LeastSquares$coefficients)
-  UnmixedData2 <- UnmixedData*multiplier
+  UnmixedData2 <- UnmixedData
 
   colnames(UnmixedData2) <- NewNames
   TheData <- cbind(StashedDF, UnmixedData2)
-  TheData <- TheData %>% select(-Backups)
+  TheData <- TheData |> select(-Backups)
   rownames(TheData) <- NULL
 
   new_fcs <- InternalUnmix(cs=cs, StashedDF=StashedDF, TheData=TheData,

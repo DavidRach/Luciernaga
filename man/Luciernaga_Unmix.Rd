@@ -12,7 +12,6 @@ Luciernaga_Unmix(
   Verbose,
   addon,
   subset = "root",
-  multiplier,
   outpath,
   PanelPath,
   returntype = "fcs"
@@ -33,8 +32,6 @@ Luciernaga_Unmix(
 
 \item{subset}{A gating hierarchy level to sort cells at, expression values retrieved
 from these}
-
-\item{multiplier}{A number to scale the OLS coefficients by}
 
 \item{outpath}{The return folder for the .fcs files}
 
