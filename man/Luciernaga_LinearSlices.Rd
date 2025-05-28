@@ -13,7 +13,12 @@ Luciernaga_LinearSlices(
   returntype,
   probsratio = 0.1,
   output,
-  desiredAF = NULL
+  desiredAF = NULL,
+  legend = TRUE,
+  droplowest = TRUE,
+  titlename = NULL,
+  returncutplot = FALSE,
+  titleplot = NULL
 )
 }
 \arguments{
@@ -36,6 +41,17 @@ Luciernaga_LinearSlices(
 \item{desiredAF}{Peak detector(ex. "V7-A") want to filter cells by before slicing, argument
 only used to override the main peak detector when a .fcs file has more than a single peak
 detector, default is set to NULL}
+
+\item{legend}{Returns the legend, default is TRUE.}
+
+\item{droplowest}{Removes lowest bin (percentile 0), default is TRUE}
+
+\item{titlename}{Default NULL, otherwise provide an alternate title.}
+
+\item{returncutplot}{Default FALSE, if true returns a histogram plot with locations
+where percentile slice occured.}
+
+\item{titleplot}{Default NULL, sets the returncutplot title}
 }
 \value{
 Either ggplots or the summarized data.frame object preceding

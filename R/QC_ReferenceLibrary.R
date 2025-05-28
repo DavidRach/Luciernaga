@@ -8,6 +8,7 @@
 #' For Sony ID7000 7L=184, 6L_DUV="182_DUV", 5L=147, 4L=112, 3L=86
 #' For ThermoFisher BigFoot 7L_488-561=55, 7L_532-594="52_7L", 6L_445="52_6L", 6L_785=51 
 #' @param returnPlots Whether to return signature plot as well. Default FALSE.
+#' @param plotlinecolor Default NULL, otherwise if single line provide desired color
 #'
 #' @importFrom dplyr select
 #' @importFrom dplyr filter
@@ -20,7 +21,7 @@
 #' @examples
 #' QC_ReferenceLibrary(FluorNameContains = "FITC", NumberDetectors=64)
 QC_ReferenceLibrary <- function(FluorNameContains, NumberDetectors,
-                                returnPlots=FALSE){
+                                returnPlots=FALSE, plotlinecolor=NULL){
   
   if (!length(NumberDetectors) == 1){
     ReferenceData <- map(.x=NumberDetectors, .f=Luciernaga:::InstrumentReferences) |>
@@ -56,13 +57,14 @@ QC_ReferenceLibrary <- function(FluorNameContains, NumberDetectors,
       SmallWrapper <- function(x, data, TheseFluorophores){
         Internal <- data |> filter(Instrument %in% x)
         ThePlot <- Luciernaga:::SimilarFluorPlots(TheseFluorophores=TheseFluorophores,
-          TheFluorophore=NULL, data=Internal)
+          TheFluorophore=NULL, data=Internal, plotlinecolor=plotlinecolor)
       }
       ThePlot <- map(.x=Instruments, .f=SmallWrapper, data=ReferenceData, 
       TheseFluorophores=TheseFluorophores)  
     } else {
       ThePlot <- Luciernaga:::SimilarFluorPlots(TheseFluorophores=TheseFluorophores,
-                                   TheFluorophore=NULL, data=ReferenceData)  
+                                   TheFluorophore=NULL, data=ReferenceData,
+                                   plotlinecolor=plotlinecolor)  
     }
     ReturnThese <- list(Subset, ThePlot)
     return(ReturnThese)

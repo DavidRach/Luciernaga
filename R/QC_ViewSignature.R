@@ -1,15 +1,25 @@
-#' Visualizes the Signature for given row in an averaged signature data.frame.
+#' Visualizes the Signature for given row in an averaged signature
+#'  data.frame.
 #'
 #' @param x Name in the Sample column you want to filter for
-#' @param columnname Default is Sample, specifies column name from which x is filtered from 
-#' @param data A data.frame object from QC_LibraryParse containing Fluorophore name column 
+#' @param columnname Default is Sample, specifies column name
+#'  from which x is filtered from 
+#' @param data A data.frame object from QC_LibraryParse containing
+#'  Fluorophore name column 
 #' and numeric detector columns.
-#' @param Normalize Whether to normalize the data based on peak detector value, default is TRUE
-#' @param TheFormat Default wider for detectors in columns, specify longer if providing detectors as rows
-#' @param detectorcolumn Default NULL, when TheFormat="longer" specify detector column name
-#' @param valuecolumn Default NULL, when TheFormat="longer" specify value column name
+#' @param Normalize Whether to normalize the data based on peak
+#'  detector value, default is TRUE
+#' @param TheFormat Default wider for detectors in columns, specify
+#'  longer if providing detectors as rows
+#' @param detectorcolumn Default NULL, when TheFormat="longer" specify
+#'  detector column name
+#' @param valuecolumn Default NULL, when TheFormat="longer" specify
+#'  value column name
 #' @param legend Default TRUE, alternately removes plot legend
-#' @param plotname Default NULL, alternately specifies the plot title
+#' @param plotname Default NULL, alternately specifies the plot
+#'  title
+#' @param plotlinecolor Default NULL, alternatively provide color
+#'  when only a single line
 #'
 #' @importFrom dplyr filter
 #' @importFrom dplyr select
@@ -56,7 +66,7 @@
 #'
 QC_ViewSignature <- function(x, columnname="Sample", data, Normalize = TRUE,
  TheFormat="wider", detectorcolumn=NULL, valuecolumn=NULL,
- legend=TRUE, plotname=NULL) {
+ legend=TRUE, plotname=NULL, plotlinecolor=NULL) {
 
   if (TheFormat=="wider"){
   StartingData <- data |> filter(.data[[columnname]] %in% x)
@@ -109,7 +119,8 @@ QC_ViewSignature <- function(x, columnname="Sample", data, Normalize = TRUE,
 
   ThePlot <- SimilarFluorPlots(TheseFluorophores=TheseFluorophores,
                                 TheFluorophore=NULL, data=WhoseThis1,
-                                legend=legend, plotname=plotname)
+                                legend=legend, plotname=plotname,
+                                plotlinecolor=plotlinecolor)
 
   return(ThePlot)
   }

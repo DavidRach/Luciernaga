@@ -10,6 +10,7 @@
 #' @param TheFormat Default wider for detectors in columns, specify longer if providing detectors as rows
 #' @param detectorcolumn Default NULL, when TheFormat="longer" specify detector column name
 #' @param valuecolumn Default NULL, when TheFormat="longer" specify value column name
+#' @param plotlinecolor Default NULL, otherwise if single line provide desired color
 #'
 #' @importFrom dplyr filter
 #' @importFrom dplyr slice
@@ -45,8 +46,10 @@
 #'
 #' Results <- QC_WhatsThis(x=TheFluorophore, columnname="Sample", data=Data, NumberHits = 10, returnPlots=FALSE)
 
-QC_WhatsThis <- function(x, columnname="Sample", data, NumberHits, NumberDetectors=NULL,
- Normalize=TRUE, returnPlots=FALSE, TheFormat="wider", detectorcolumn=NULL, valuecolumn=NULL) {
+QC_WhatsThis <- function(x, columnname="Sample", data, NumberHits,
+ NumberDetectors=NULL, Normalize=TRUE, returnPlots=FALSE,
+ TheFormat="wider", detectorcolumn=NULL, valuecolumn=NULL,
+ plotlinecolor=NULL) {
 
   StartingData <- data |> filter(.data[[columnname]] %in% x)
 
@@ -127,7 +130,8 @@ QC_WhatsThis <- function(x, columnname="Sample", data, NumberHits, NumberDetecto
     TheseFluorophores <- TheHits |> pull(Fluorophore)
     TheFluorophore <- TheID
     ThePlot <- Luciernaga:::SimilarFluorPlots(TheseFluorophores=TheseFluorophores,
-                                 TheFluorophore=TheFluorophore, data=ReferenceData1)
+                                 TheFluorophore=TheFluorophore, data=ReferenceData1,
+                                 plotlinecolor=plotlinecolor)
     ReturnThese <- list(TheHits, ThePlot)
     return(ReturnThese)
   } else {return(TheHits)}

@@ -359,6 +359,7 @@ head(TheDataValues, 5)
 TotalLymphocytes <- nrow(TheDataValues)
 TotalLymphocytes
 ```
+
 `AveragedSignature()` is the `Luciernaga` function that takes these data outputs and for each detector summarizes them for a given statistic given in the stats argument. The main ones used are "median" and "mean".
 
 ```{r}
@@ -407,6 +408,7 @@ AFOverlap <- list.files(path=FileLocation, pattern=pattern,
 AFOverlap_CSV <- read.csv(AFOverlap, check.names = FALSE)
 AFOverlap_CSV
 ```
+
 As you can see from the above example, we provide for Fluorophore "Unstained" the location of the peak detectors that autofluorescence (both the main autofluorescence (UV7-A, V7-A) and rarer variants (V5-A, V7-A, V8-A)) can be found on. If the rarer variants are unknown, list the main Autofluorescent detector in your system and add the exceptions to the .csv file as you encounter them in actual practice. 
 
 The second component are individual fluorophores that overlap with the mentioned Unstained detectors. You can add/remove to this list, the crucial part is to retain the Unstained row.

@@ -9,7 +9,8 @@ QC_SimilarFluorophores(
   NumberDetectors,
   returnSynonyms = FALSE,
   NumberHits = 10,
-  returnPlots = FALSE
+  returnPlots = FALSE,
+  plotlinecolor = NULL
 )
 }
 \arguments{
@@ -22,6 +23,8 @@ QC_SimilarFluorophores(
 \item{NumberHits}{Number of most similar fluorophores by cosine}
 
 \item{returnPlots}{Whether to also return signature plots, default is set FALSE}
+
+\item{plotlinecolor}{Default NULL, otherwise if single line provide desired color}
 
 \item{returnSynonymns}{Returns only fluorophores > 0.98 cosine value, default FALSE}
 }
