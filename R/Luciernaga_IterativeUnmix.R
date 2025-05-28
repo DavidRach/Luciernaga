@@ -36,7 +36,7 @@
 #' @examples NULL
 Luciernaga_IterativeUnmixing <- function(IterativePath, IterativeSampleName,
    Iterativeremovestrings, fluorophore.name, PanelCuts=NULL, stats="median",
-   samplecolumn, controlData, FullStainedGS, sample.name, removestrings,
+   samplecolumn="Sample", controlData, FullStainedGS, sample.name, removestrings,
    subset="root", returnType="fcs", outpath=outpath, PanelPath){
    
    if (!is.data.frame(IterativePath)){
@@ -52,20 +52,20 @@ Luciernaga_IterativeUnmixing <- function(IterativePath, IterativeSampleName,
       controlData <- read.csv(controlData, check.names=FALSE)
    }
 
-   if (any(controlData > 1)){
+   if (any(controlData |> select(where(is.numeric)) > 1)){
       Metadata <- controlData |> select(!where(is.numeric))
       Numerics <- controlData |> select(where(is.numeric))
       n <- Numerics
       n[n < 0] <- 0
       A <- do.call(pmax, n)
       Normalized <- n/A
-      controlData <- bind_cols(Metadata, Normalized)
-   }
+      controlData1 <- bind_cols(Metadata, Normalized)
+   } else {controlData1 <- controlData}
 
    These <- Dataset |> pull(Sample)
 
    Stash <- map(.x=These, .f=IterativeUnmixingInternal,
-      Iteration=Dataset, samplecolumn=samplecolumn, controlData=controlData,
+      Iteration=Dataset, samplecolumn=samplecolumn, controlData=controlData1,
       FullStainedGS=FullStainedGS, sample.name=sample.name,
       removestrings=removestrings, subset=subset, returnType=returnType,
       outpath=outpath, PanelPath=PanelPath)
@@ -106,7 +106,7 @@ IterativeUnmixingInternal <- function(x, Iteration, samplecolumn,
    returnType, outpath, PanelPath){
 
    RowInterest <- Iteration |> filter(.data[[samplecolumn]] %in% x)
-   TheFluorophore <- Iteration |> pull(Fluorophore)
+   TheFluorophore <- RowInterest |> pull(Fluorophore)
    Assemble <- RowInterest |> select(where(is.numeric))
    Index <- which(controlData$Fluorophore %in% TheFluorophore)
    Metadata <- controlData[Index,] |> select(!where(is.numeric))
@@ -116,9 +116,10 @@ IterativeUnmixingInternal <- function(x, Iteration, samplecolumn,
    TheAddOn <- paste0("_", TheFluorophore, "_", x, "_Unmixed")
 
    UnmixSuccess <- map(.x=FullStainedGS, .f=Luciernaga_Unmix,
-      controlData=controlData, sample.name=TheSampleName, 
+      controlData=controlData, sample.name=sample.name, 
       addon=TheAddOn, subset=subset, removestrings=removestrings,
-      outpath=outpath, PanelPath=PanelPath, Verbose=FALSE)
+      outpath=outpath, PanelPath=PanelPath, Verbose=FALSE,
+      returnType=returnType)
    
    return(UnmixSuccess)
 }

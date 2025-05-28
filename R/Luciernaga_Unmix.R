@@ -10,7 +10,7 @@
 #' @param outpath The return folder for the .fcs files
 #' @param Verbose For troubleshooting name after removestrings
 #' @param PanelPath Location to a panel.csv containing correct order of fluorophores
-#' @param returntype Whether to return "fcs" or "flowframe"
+#' @param returnType Whether to return "fcs" or "flowframe"
 #'
 #' @importFrom flowCore keyword
 #' @importFrom flowWorkspace gs_pop_get_data
@@ -28,7 +28,7 @@
 #'
 #' @examples NULL
 Luciernaga_Unmix <- function(x, controlData, sample.name, removestrings,
-   Verbose, addon, subset="root", outpath, PanelPath, returntype="fcs"){
+   Verbose, addon, subset="root", outpath, PanelPath, returnType="fcs"){
 
   if (length(sample.name) == 2){
     first <- sample.name[[1]]
@@ -50,7 +50,7 @@ Luciernaga_Unmix <- function(x, controlData, sample.name, removestrings,
   OriginalColumns <- data.frame(OriginalColumns, check.names = FALSE)
   OriginalColumnsIndex <- OriginalColumns %>% mutate(IndexLocation = 1:nrow(.))
 
-  Backups <- Data %>% mutate(Backups = 1:nrow(Data)) %>% select(Backups)
+  Backups <- Data |> mutate(Backups = 1:nrow(Data)) |> select(Backups)
 
   StashedDF <- Data[,grep("Time|FS|SC|SS|Original|W$|H$", names(Data))]
   StashedDF <- cbind(Backups, StashedDF)
@@ -61,10 +61,10 @@ Luciernaga_Unmix <- function(x, controlData, sample.name, removestrings,
   if (!is.data.frame(PanelPath)){Panel <- read.csv(PanelPath, check.names=FALSE)
   } else {Panel <- PanelPath}
 
-  CorrectColumnOrder <- Panel %>% pull(Fluorophore)
+  CorrectColumnOrder <- Panel |>  pull(Fluorophore)
   CorrectColumnOrder <- gsub("-A$", "", CorrectColumnOrder)
 
-  if (any(controlData > 1)){
+  if (any(controlData |> select(where(is.numeric)) > 1)){
     Metadata <- controlData |> select(!where(is.numeric))
     Numerics <- controlData |> select(where(is.numeric))
     n <- Numerics
@@ -114,7 +114,7 @@ Luciernaga_Unmix <- function(x, controlData, sample.name, removestrings,
 
   fileSpot <- file.path(outpath, AssembledName)
 
-  if (returntype == "fcs") {write.FCS(new_fcs, filename = fileSpot, delimiter="#")
+  if (returnType == "fcs") {write.FCS(new_fcs, filename = fileSpot, delimiter="#")
   } else {return(new_fcs)}
 }
 

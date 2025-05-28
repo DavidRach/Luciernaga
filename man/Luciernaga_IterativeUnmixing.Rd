@@ -12,7 +12,7 @@ Luciernaga_IterativeUnmixing(
   fluorophore.name,
   PanelCuts = NULL,
   stats = "median",
-  samplecolumn,
+  samplecolumn = "Sample",
   controlData,
   FullStainedGS,
   sample.name,
