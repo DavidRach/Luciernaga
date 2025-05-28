@@ -157,7 +157,7 @@ Luciernaga_LinearSlices <- function(x, subset, sample.name, removestrings, stats
                       breaks = c(-Inf, percentiles),
                       labels = seq(0, 100, by = probslabel), include.lowest = TRUE))
   
-  if (returncutplots == TRUE){
+  if (returncutplot == TRUE){
     breaks <- percentiles |> unname()
     Rectangles <- data.frame(xmin = breaks[-length(breaks)],
     xmax = breaks[-1], fill_group = factor(1:(length(breaks)-1))) |> 
