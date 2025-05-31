@@ -15,7 +15,7 @@ Luciernaga_FolderBrightness(
   normalize = FALSE,
   detector,
   returnType = "data",
-  maxtick = 1e+06,
+  maxtik = 1e+06,
   legend = "right"
 )
 }
@@ -43,7 +43,7 @@ sets the x-axis}
 \item{returnType}{Default data, providing plot returns a 
 Luciernaga_Brightness plot}
 
-\item{maxtick}{Default 1e6, for plot return}
+\item{maxtik}{Default 1e6, for plot return}
 
 \item{legend}{Default is right, set to none to remove.}
 }

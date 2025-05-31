@@ -13,7 +13,7 @@
 #' sets the x-axis
 #' @param returnType Default data, providing plot returns a 
 #' Luciernaga_Brightness plot
-#' @param maxtick Default 1e6, for plot return
+#' @param maxtik Default 1e6, for plot return
 #' @param legend Default is right, set to none to remove.
 #' 
 #' @importFrom flowWorkspace load_cytoset_from_fcs
@@ -31,7 +31,7 @@
 Luciernaga_FolderBrightness <- function(FolderPath, sample.name,
   StringRemoval=NULL, fluorophore.name, Verbose=FALSE,
    stats="median", PanelCuts=NULL, normalize=FALSE, detector,
-  returnType = "data", maxtick=1e6, legend="right"){
+  returnType = "data", maxtik=1e6, legend="right"){
 
   TheFCSFiles <- list.files(path=FolderPath, pattern="fcs",
    full.names=TRUE) 
