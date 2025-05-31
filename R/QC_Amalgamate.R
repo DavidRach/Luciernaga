@@ -17,6 +17,7 @@
 #' @importFrom rlang sym
 #' @importFrom dplyr select
 #' @importFrom tidyselect all_of
+#' @importFrom tidyselect where
 #' @importFrom dplyr summarize
 #' @importFrom dplyr across
 #' @importFrom dplyr everything
@@ -24,6 +25,7 @@
 #' @importFrom dplyr relocate
 #' @importFrom dplyr all_of
 #' @importFrom dplyr bind_rows
+#' @importFrom dplyr bind_cols
 #' @importFrom tidyr pivot_longer
 #' @importFrom ggplot2 ggplot
 #' @importFrom ggplot2 aes
@@ -45,17 +47,32 @@
 #' 
 #' A <- 2+2
 #' 
-QC_Amalgamate <- function(data, samplecolumn="Percentiles",
+QC_Amalgamate <- function(data, samplecolumn="Percentiles", normalize=FALSE,
  countcolumn="Count", returnType="plot", titlename=NULL, linecolor="red", legend=TRUE){
 
 Combined <- data |> tidyr::uncount(weights = !!sym(countcolumn), .remove = TRUE) |> 
      select(-all_of(samplecolumn)) |> summarize(across(everything(), median))  |>
      mutate(!!samplecolumn := "Average") |> relocate(all_of(samplecolumn), .before = 1)
 
-ComparisonTable <- bind_rows(data, Combined)
+ComparisonTable <- bind_rows(data, Combined)   
+     
 Numerics <- sapply(ComparisonTable, is.numeric)
 ComparisonTable[Numerics] <- lapply(ComparisonTable[Numerics], round, digits = 3)
 ComparisonTable <- ComparisonTable |> select(-all_of(countcolumn))
+     
+if (normalize == TRUE){
+     if (any(ComparisonTable |> select(where(is.numeric)) > 1)){
+      Metadata <- ComparisonTable |> select(!where(is.numeric))
+      Numerics <- ComparisonTable |> select(where(is.numeric))
+      n <- Numerics
+      n[n < 0] <- 0
+      A <- do.call(pmax, n)
+      Normalized <- n/A
+      ComparisonTable <- bind_cols(Metadata, Normalized)
+     }
+}
+     
+colnames(ComparisonTable) <- gsub("Comp-", "", colnames(ComparisonTable))
 
 if (returnType == "data"){return(ComparisonTable)
 } else{
@@ -75,7 +92,12 @@ if (returnType == "data"){return(ComparisonTable)
      if (legend == TRUE){LegendPosition <- "right"
      } else {LegendPosition <- "none"}
 
-     Expression <- "Normalized Values"
+     Melted[[samplecolumn]] <- factor(Melted[[samplecolumn]],
+          levels = c(setdiff(unique(Melted[[samplecolumn]]), "Average"), "Average"))
+
+     if (normalize == TRUE){Expression <- "Normalized MFI"
+     } else {Expression <- "MFI"}
+     
 
      plot <- ggplot(Melted, aes(x = Detector, y = value, group = .data[[samplecolumn]],
                color = .data[[samplecolumn]])) + geom_line() +
@@ -88,7 +110,7 @@ if (returnType == "data"){return(ComparisonTable)
                axis.text.x = element_text(size = 5,
                angle = 45, hjust = 1), panel.grid.major = element_blank(),
                panel.grid.minor = element_blank())
-     }
+}
 
      return(plot)
 }

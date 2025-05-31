@@ -63,7 +63,7 @@ MagesCauldron <- function(panelfluors, unstained, returnType="plot", savePlot=FA
    values_from="AdjustedY")
   colnames(TheUnstained) <- gsub("-A", "", gsub("-H", "", colnames(TheUnstained)))
   Data <- bind_rows(Data, TheUnstained)
-  TheseFluorophores <- c(TheseFluorophores, "Unstained")
+  TheseFluorophores <- c(TheseFluorophores, paste0("Unstained", seq_len(nrow(unstained))))
   Data$Fluorophore <- factor(Data$Fluorophore, levels=TheseFluorophores)
   Data <- Data |> arrange(desc(Fluorophore))
   Data <- Data |> arrange(Fluorophore)

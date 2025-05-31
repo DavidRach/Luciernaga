@@ -38,7 +38,8 @@ Luciernaga_FolderSignatures <- function(FolderPath, sample.name,
   Returns <- map(.x=Selected_GS, .f=FolderSignatureIterator,
     sample.name=sample.name, StringRemoval=StringRemoval,
     fluorophore.name=fluorophore.name, Verbose=Verbose,
-    stats=stats, PanelCuts=PanelCuts, normalize=normalize) |> bind_rows()
+    stats=stats, PanelCuts=PanelCuts, normalize=normalize,
+    returnType="Signatures") |> bind_rows()
 
   return(Returns)
 }
@@ -62,7 +63,7 @@ Luciernaga_FolderSignatures <- function(FolderPath, sample.name,
 #' 
 #' @noRd
 FolderSignatureIterator <- function(x, sample.name, StringRemoval,
-  fluorophore.name, Verbose, stats, PanelCuts, normalize){
+  fluorophore.name, Verbose, stats, PanelCuts, normalize, returnType){
   
   if (length(sample.name) == 2){
     first <- sample.name[[1]]
@@ -136,6 +137,7 @@ FolderSignatureIterator <- function(x, sample.name, StringRemoval,
   ValuesInterest <- TheColumns |>
     filter(.data[[TheDetector]]  >= LowerBoundMFI & .data[[TheDetector]] <= UpperBoundMFI)
 
+  if (returnType == "Signatures"){
   if (normalize == TRUE){
     Samples <- AveragedSignature(x=ValuesInterest, stats=stats,
       normalize = TRUE)
@@ -148,4 +150,9 @@ FolderSignatureIterator <- function(x, sample.name, StringRemoval,
      Sample=sampleName, check.names=FALSE)
   Data <- bind_cols(Metadata, Samples)
   return(Data)
-}
+  } else {
+    Dataset <- ValuesInterest |> mutate(Fluorophore = fluorophore.name) |>
+      mutate(Sample=sampleName) |> relocate(Fluorophore, Sample, .before=1)
+    
+    return(Dataset)}
+  }

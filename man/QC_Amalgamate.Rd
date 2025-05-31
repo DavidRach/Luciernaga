@@ -9,6 +9,7 @@ or a plot showing how different the average signature is from the individual one
 QC_Amalgamate(
   data,
   samplecolumn = "Percentiles",
+  normalize = FALSE,
   countcolumn = "Count",
   returnType = "plot",
   titlename = NULL,

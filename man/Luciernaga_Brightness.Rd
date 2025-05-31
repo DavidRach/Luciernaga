@@ -15,22 +15,29 @@ Luciernaga_Brightness(
 )
 }
 \arguments{
-\item{x}{A passed Fluorophore name corresponding to those found in the data.}
+\item{x}{A passed Fluorophore name corresponding to those found
+in the data.}
 
-\item{data}{A data.frame containing the Luciernaga_FCSToReport raw MFI values.}
+\item{data}{A data.frame containing the Luciernaga_FCSToReport
+raw MFI values.}
 
-\item{Downsample}{Whether to Downsample, default is set to TRUE to not overly
+\item{Downsample}{Whether to Downsample, default is set to TRUE
+ to not overly
 affect the y-axis}
 
-\item{subsample}{If desired, a certain number of cells to take from each cluster.
-Default is NULL, selecting the number of cells found in the smallest cluster.}
+\item{subsample}{If desired, a certain number of cells to take 
+from each cluster.
+Default is NULL, selecting the number of cells found in the 
+smallest cluster.}
 
-\item{reference}{A .csv path or data.frame containing Fluorophore and Detector info.}
+\item{reference}{A .csv path or data.frame containing Fluorophore
+and Detector info.}
 
-\item{clearance}{A buffer area multiplier to xmin and xmax when Scaled equals False}
+\item{clearance}{A buffer area multiplier to xmin and xmax when
+Scaled equals False}
 
-\item{Scaled}{Default is set to TRUE, returning logicle transformed MFI. FALSE
-returns raw MFI.}
+\item{Scaled}{Default is set to TRUE, returning logicle 
+transformed MFI. FALSE returns raw MFI.}
 }
 \value{
 ggplot objects for each fluorophore containing the various clusters

@@ -1,15 +1,22 @@
 #' Visualize MFI of raw .fcs files to evaluate single color controls.
 #'
-#' @param x A passed Fluorophore name corresponding to those found in the data.
-#' @param data A data.frame containing the Luciernaga_FCSToReport raw MFI values.
-#' @param Downsample Whether to Downsample, default is set to TRUE to not overly
+#' @param x A passed Fluorophore name corresponding to those found
+#'  in the data.
+#' @param data A data.frame containing the Luciernaga_FCSToReport
+#'  raw MFI values.
+#' @param Downsample Whether to Downsample, default is set to TRUE
+#'  to not overly
 #' affect the y-axis
-#' @param subsample If desired, a certain number of cells to take from each cluster.
-#' Default is NULL, selecting the number of cells found in the smallest cluster.
-#' @param reference A .csv path or data.frame containing Fluorophore and Detector info.
-#' @param clearance A buffer area multiplier to xmin and xmax when Scaled equals False
-#' @param Scaled Default is set to TRUE, returning logicle transformed MFI. FALSE
-#' returns raw MFI.
+#' @param subsample If desired, a certain number of cells to take 
+#' from each cluster.
+#' Default is NULL, selecting the number of cells found in the 
+#' smallest cluster.
+#' @param reference A .csv path or data.frame containing Fluorophore
+#'  and Detector info.
+#' @param clearance A buffer area multiplier to xmin and xmax when
+#'  Scaled equals False
+#' @param Scaled Default is set to TRUE, returning logicle 
+#' transformed MFI. FALSE returns raw MFI.
 #'
 #' @importFrom dplyr filter
 #' @importFrom dplyr arrange
@@ -30,18 +37,18 @@
 Luciernaga_Brightness <- function(x, data, Downsample=TRUE, subsample = NULL,
                                   reference, clearance=0.02, Scaled = TRUE){
     TheFluorophore <- x
-    TheData <- data %>% filter(Sample %in% x)
+    TheData <- data |> filter(Sample %in% x)
     TheTable <- data.frame(table(TheData$Cluster), check.names = FALSE)
     colnames(TheTable)[1] <- "Cluster"
     colnames(TheTable)[2] <- "Count"
-    TheSlice <- TheTable %>% arrange(Count) %>% head(1) %>% pull(Count)
+    TheSlice <- TheTable |> arrange(Count) |> head(1) |> pull(Count)
 
     if (Downsample == TRUE) {
       if (is.null(subsample)){
-       TheData <- TheData %>% group_by(Cluster) %>%
-         slice_sample(n=TheSlice, replace = FALSE) %>% ungroup()
-      } else {TheData <- TheData %>% group_by(Cluster) %>%
-        slice_sample(n=subsample, replace = FALSE) %>% ungroup()
+       TheData <- TheData |> group_by(Cluster) |>
+         slice_sample(n=TheSlice, replace = FALSE) |> ungroup()
+      } else {TheData <- TheData |> group_by(Cluster) |>
+        slice_sample(n=subsample, replace = FALSE) |> ungroup()
       }
     }
 
@@ -51,10 +58,10 @@ Luciernaga_Brightness <- function(x, data, Downsample=TRUE, subsample = NULL,
     internalstrings <- c(" ", ".", "_", "-A")
     CSV$Fluorophore <- NameCleanUp(CSV$Fluorophore, removestrings=internalstrings)
     CSV$Detector <- NameCleanUp(CSV$Detector, removestrings=internalstrings)
-    TheDetector <- CSV %>% dplyr::filter(Fluorophore %in% TheFluorophore) %>%
+    TheDetector <- CSV %>% dplyr::filter(Fluorophore %in% TheFluorophore) |>
       pull(Detector)
 
-    Values <- TheData %>% select(all_of(TheDetector)) %>% as.matrix()
+    Values <- TheData |> select(all_of(TheDetector)) |> as.matrix()
     theXmin <- Values %>% quantile(., 0.01)
     theXmax <- Values %>% quantile(., 0.99)
     theXmin <- theXmin - abs((clearance*theXmin))
@@ -76,4 +83,5 @@ Luciernaga_Brightness <- function(x, data, Downsample=TRUE, subsample = NULL,
 
  return(plot)
 }
+
 
