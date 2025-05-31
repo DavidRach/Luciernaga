@@ -12,9 +12,48 @@ Luciernaga_FolderBrightness(
   Verbose = FALSE,
   stats = "median",
   PanelCuts = NULL,
-  normalize = TRUE
+  normalize = FALSE,
+  detector,
+  returnType = "data",
+  maxtick = 1e+06,
+  legend = "right"
 )
+}
+\arguments{
+\item{FolderPath}{Location where the Luciernaga_QC .fcs file
+outputs are stored}
+
+\item{sample.name}{Keyword in .fcs corresponding samples name}
+
+\item{StringRemoval}{Default NULL, remove these from the sample name}
+
+\item{fluorophore.name}{The name of the fluorophore}
+
+\item{Verbose}{Default FALSE}
+
+\item{stats}{Default is median}
+
+\item{PanelCuts}{Default is NULL}
+
+\item{normalize}{Default is FALSE, will scale to peak detector}
+
+\item{detector}{The detector corresponding to the fluorophore,
+sets the x-axis}
+
+\item{returnType}{Default data, providing plot returns a 
+Luciernaga_Brightness plot}
+
+\item{maxtick}{Default 1e6, for plot return}
+
+\item{legend}{Default is right, set to none to remove.}
+}
+\value{
+Either a data.frame of brightness values, or a plot
 }
 \description{
 Sister function to FolderSignature, returns a density plot of brightness
+}
+\examples{
+A <- 2+2
+
 }
