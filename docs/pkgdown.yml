@@ -1,0 +1,15 @@
+pandoc: '3.2'
+pkgdown: 2.1.1
+pkgdown_sha: ~
+articles:
+  DataVisualization: DataVisualization.html
+  DimensionalityVisualization: DimensionalityVisualization.html
+  FluorescenceSignatures: FluorescenceSignatures.html
+  FluorescentReports: FluorescentReports.html
+  QualityControl: QualityControl.html
+  Unmixing: Unmixing.html
+  Wetlab: Wetlab.html
+last_built: 2025-06-01T11:38Z
+urls:
+  reference: https://davidrach.github.io/Luciernaga/reference
+  article: https://davidrach.github.io/Luciernaga/articles
