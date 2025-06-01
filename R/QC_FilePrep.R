@@ -284,7 +284,8 @@ QC_FilePrep_LJTracking <- function(x, DailyQC){
     EndHere <- EndPosition
   }
 
-  TheFrames <- map2(.x=StartHere, .y=EndHere, ReadInfo=ReadInfo, .f=ParseThis)
+  TheFrames <- map2(.x=StartHere[3], .y=EndHere[3], ReadInfo=ReadInfo, .f=ParseThis)
+  #TheFrames <- map2(.x=StartHere, .y=EndHere, ReadInfo=ReadInfo, .f=ParseThis)
 
   Updated <- TheFrames
 
@@ -439,7 +440,9 @@ ParseThis <- function(x, y, ReadInfo){
   DetectorLength <- length(DetectorSegment)
   header <- strsplit(DetectorSegment[1], ",")[[1]]
   data <- strsplit(DetectorSegment, ",")
-  TheData <- do.call(rbind, lapply(data, function(x) as.data.frame(t(x), stringsAsFactors = FALSE)))
+  NotEmpty <- Filter(function(x) length(x) > 0 && !all(x == ""), data)
+  TheData <- do.call(rbind, lapply(NotEmpty, function(x) as.data.frame(t(x),
+   stringsAsFactors = FALSE)))
   colnames(TheData) <- header
   TheData <- TheData[-1,]
   cols_to_select <- which(str_detect(colnames(TheData), "Out of Range Flag"))

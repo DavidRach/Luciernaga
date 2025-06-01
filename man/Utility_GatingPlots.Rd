@@ -12,6 +12,7 @@ Utility_GatingPlots(
   gtFile = NULL,
   DesiredGates = NULL,
   outpath = NULL,
+  filename = NULL,
   returnType,
   bins = 270,
   therows = 2,
@@ -41,6 +42,8 @@ Utility_GatingPlots(
 Desired <- c("nonDebris, "lymphocytes")}
 
 \item{outpath}{Location to store the generated .pdf file}
+
+\item{filename}{Default NULL, overrides name}
 
 \item{returnType}{Whether to return "pdf", "patchwork" or "plots".}
 
@@ -95,6 +98,7 @@ StorageLocation <- file.path("C:", "Users", "JohnDoe", "Desktop")
 IndividualPlot <- Utility_GatingPlots(x=MyGatingSet[[1]],
   sample.name = "GUID",removestrings = removestrings,
   gtFile = MyGates, DesiredGates = NULL,
-  outpath = StorageLocation, returnType = "patchwork")
+  outpath = StorageLocation, filename=NULL, 
+  returnType = "patchwork")
 
 }

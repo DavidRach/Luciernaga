@@ -7,12 +7,16 @@
 #' @param subsets When provided with a GatingSet, selects this subset to provide the Cytoset
 #' @param inverse.transform Default is FALSE. 
 #'
+#' @importFrom flowWorkspace sampleNames
+#' @importFrom flowWorkspace gs_pop_get_data
 #' @importFrom Biobase exprs
+#' @importFrom purrr map
+#' @importFrom dplyr bind_cols
 #' @importFrom dplyr select
-#' @importFrom stringr str_detect
 #' @importFrom dplyr mutate
 #' @importFrom dplyr relocate
-#' @importFrom flowWorkspace gs_pop_get_data
+#' @importFrom stringr str_detect
+#' 
 #'
 #' @return A data.frame row
 #' @export
@@ -35,21 +39,40 @@ QC_GainMonitoring <- function(x, sample.name, stats, subsets=NULL,
 inverse.transform=FALSE){
 
   if (class(x) == "GatingHierarchy"){
+    SayTheName <- sampleNames(x)
+
     cs <- gs_pop_get_data(x, subsets, inverse.transform=inverse.transform)
-    x <- cs[[1]]
-  }
+
+    if (nrow(cs[[1]]) != 0){
+      x <- cs[[1]]
+    } else {
+      message("No cells retained in ", SayTheName, ", passing original .fcs file")
+      cs <- gs_pop_get_data(x, "root", inverse.transform=inverse.transform)
+      if (nrow(cs[[1]]) != 0){x <- cs[[1]]
+      } else {message("No cells present in ", SayTheName)}
+      }
+    }
+  
 
   Guts <- QC_Retrieval(x=x, sample.name=sample.name)
   Data <- data.frame(exprs(x), check.names=FALSE)
+
+  These <- colnames(Data)
+  These <- These[These != "Time"]
+  TheRCVs <- map(.x=These, .f=InternalRCV, data=Data) |>
+        bind_cols()
+  TheRCVs <- round(TheRCVs*100, 2)
+  colnames(TheRCVs) <- paste0(colnames(TheRCVs), "-% rCV")
+
   Data <- AveragedSignature(Data, stats)
-  Data <- Data %>% select(-Time)
-  Bound <- cbind(Guts, Data)
+  Data <- Data |> select(-Time)
+  Bound <- cbind(Guts, TheRCVs, Data)
   Bound[["SAMPLE"]] <- NameCleanUp(Bound[["SAMPLE"]], removestrings = ".fcs")
   Bound[["SAMPLE"]] <- NameCleanUp(Bound[["SAMPLE"]], removestrings = ".fcs")
   if (str_detect(Bound[["SAMPLE"]], "efore")){
-    Bound <- Bound %>% mutate(Timepoint = "Before") %>% relocate(Timepoint, .after=TIME)
+    Bound <- Bound |> mutate(Timepoint = "Before") |> relocate(Timepoint, .after=TIME)
   } else if (str_detect(Bound[["SAMPLE"]], "fter")){
-    Bound <- Bound %>% mutate(Timepoint = "After") %>% relocate(Timepoint, .after=TIME)
-  } else {Bound <- Bound %>% mutate(Timepoint = "Unknown") %>% relocate(Timepoint, .after=TIME)}
+    Bound <- Bound |> mutate(Timepoint = "After") |> relocate(Timepoint, .after=TIME)
+  } else {Bound <- Bound |> mutate(Timepoint = "Unknown") |> relocate(Timepoint, .after=TIME)}
   return(Bound)
 }

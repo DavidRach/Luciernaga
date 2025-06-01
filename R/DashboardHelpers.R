@@ -22,6 +22,63 @@ utils::globalVariables(c("%rCV", ".", ".data", "AdjustedY", "AggregateName",
                          "tab_options", "tags", "value", "x", "xlim", "yhat",
                          "ylim", "pData<-", "parameters<-"))
 
+#' Small Internal Function
+#' 
+#' @param data Something
+#' @param x Something
+#' @param type Something
+#' 
+#' @importFrom dplyr select
+#' @importFrom tidyselect all_of
+#' @importFrom dplyr slice
+#' @importFrom dplyr pull
+#' @importFrom stats na.omit
+#' @return Some value
+#' 
+#' @noRd
+CurrentStatus <- function(data, x, type){
+  Status <- data |> select(all_of(x)) |> na.omit() |>
+    slice(1)|> pull()
+  return(Status)
+}
+
+
+#' Small Internal Function
+#' 
+#' @param x Something
+#' 
+#' @importFrom dplyr case_when
+#' 
+#' @return Something
+#' 
+#' @noRd                       
+InstrumentText <- function(x) {
+  dplyr::case_when(
+    x == "Green" ~ "Pass",
+    x == "Yellow" ~ "Caution",
+    x == "Orange" ~ "Caution",
+    x == "Red" ~ "Fail",
+    TRUE ~ NA_character_)
+}
+
+#' Small Internal Function
+#' 
+#' @param x Something
+#' 
+#' @importFrom dplyr case_when
+#' 
+#' @return Something
+#' 
+#' @noRd
+InstrumentColor <- function(x) {
+  dplyr::case_when(
+    x == "Green" ~ "success",
+    x == "Yellow" ~ "caution",
+    x == "Orange" ~ "warning",
+    x == "Red" ~ "danger",
+    TRUE ~ NA_character_)
+}
+
 #' Dashboard Internal, updates archive ApplicationLog.csv from Setup
 #'
 #' @param MainFolder The file.path to the Main Folder
@@ -92,10 +149,16 @@ AppQCParse <- function(MainFolder, x){
 
 }
 
-#' Internal for Dashboard, plots User Usage for respective instruments all time
+#' Internal for Dashboard, takes processed ApplicationLog from Cytek Aurora
+#' instruments and generates a UserUsage plot for respective instrument. 
 #' 
 #' @param data The Data derrived from AppParse filtered for SitFlushes
 #' @param TheInstrument Instrument designation in the Instrument column, example "5L"
+#' @param returnType Default "ByHour", alternatively "ByFifteen"
+#' @param desiredfill Default black, accepts specification for other color
+#'  "lightgray" etc
+#' @param textsizey Yaxis text size
+#' @param textsizex Xaxis text size
 #' 
 #' @importFrom dplyr filter
 #' @importFrom lubridate wday
@@ -114,17 +177,23 @@ AppQCParse <- function(MainFolder, x){
 #' @importFrom ggplot2 scale_x_continuous
 #' @importFrom ggplot2 theme
 #' @importFrom ggplot2 element_text
+#' @importFrom ggplot2 lims
+#' @importFrom lubridate floor_date
+#' @importFrom dplyr slice
+#' @importFrom lubridate hm
 #' 
 #' @return A ggplot2 object
 #' 
 #' @noRd
-UsagePlot <- function(data, TheInstrument){
+UsagePlot <- function(data, TheInstrument, returnType="ByHour",
+ desiredfill="black", textsizey=10, textsizex=10){
   data <- data |> filter(Instrument %in% TheInstrument)
   
   data$DayOfWeek <- wday(data$DateTime, label = TRUE, abbr = TRUE)
   data$DayOfWeek <- factor(data$DayOfWeek,
-   levels = c("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"))
+   levels = c("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"))
 
+  if (returnType == "ByHour"){
   data$Hour <- hour(data$DateTime)
 
   dataByHourDay <- data |>
@@ -136,19 +205,48 @@ UsagePlot <- function(data, TheInstrument){
   MaxCount <- MaxCount*1.05
   MaxCount <- round(MaxCount, 0)
 
-  TheTitle <- paste0("Aurora ", TheInstrument, " All Time Usage")
+  #TheTitle <- paste0("Aurora ", TheInstrument, " All Time Usage")
 
   plot <- ggplot(dataByHourDay, aes(x = Hour, y = count)) +
-    geom_col(fill = "black") + 
-    labs(title = TheTitle,
+    geom_col(fill = desiredfill) + 
+    labs(title = NULL,
         x = "Hour of Day",
         y = "Sit Flushes") +
     facet_grid(DayOfWeek ~ ., scales = "free_y") +
     theme_bw() +
     scale_x_continuous(breaks = 0:23) + lims(y=c(NA, MaxCount)) +
-    theme(axis.text.x = element_text(angle = 45, hjust = 1),
-    strip.text.y = element_text(angle = 0)) 
+    theme(axis.text.x = element_text(angle = 45, hjust = 1, size = textsizex),
+    axis.text.y = element_text(size = textsizey),
+    strip.text.y = element_text(angle = 0))
+  } else {
+    data$TimeBin <- floor_date(data$DateTime, "15 minutes")
+    data$HourMinute <- format(data$TimeBin, "%H:%M")
 
+    dataBy15MinDay <- data |>
+      group_by(DayOfWeek, HourMinute) |>
+      summarise(count = n(), .groups = "drop")
+      
+    MaxCount <- dataBy15MinDay |> arrange(desc(count)) |>
+        slice(1) |> pull(count)
+    MaxCount <- MaxCount*1.05
+    MaxCount <- round(MaxCount, 0)
+
+    #TheTitle <- paste0("Aurora ", TheInstrument, " All Time Usage")
+
+    dataBy15MinDay$TimeNum <- as.numeric(hm(dataBy15MinDay$HourMinute))/3600
+
+    plot <- ggplot(dataBy15MinDay, aes(x = TimeNum, y = count)) +
+    geom_col(fill = desiredfill, width = 0.25) + 
+    labs(title = NULL, x = NULL, y = NULL) +
+    facet_grid(DayOfWeek ~ ., scales = "free_y") +
+    theme_bw() +
+    scale_x_continuous(breaks = seq(0, 23.75, by = 1),  
+                       labels = function(x) sprintf("%02d:%02d", floor(x), (x-floor(x))*60)) +
+    lims(y=c(NA, MaxCount)) +
+    theme(axis.text.x = element_text(angle = 35, hjust = 1, size = textsizex),
+    axis.text.y = element_text(size = textsizey),
+    strip.text.y = element_text(angle = 0))
+  }
   return(plot)
 }
 
@@ -168,6 +266,7 @@ UsagePlot <- function(data, TheInstrument){
 #' @importFrom dplyr arrange
 #' @importFrom dplyr desc
 #' @importFrom utils write.csv
+#' @importFrom lubridate ymd
 #'
 #' @return Updated tracking data CSV in the Archive Folder
 #' @noRd
@@ -185,7 +284,23 @@ DailyQCParse <- function(MainFolder, x){
       Parsed <- Parsed |> mutate(across(starts_with("Flag"), ~ as.logical(.)))
 
     } else {stop("Two csv files in the folder found!")}
+    
+    # New Integration # Verify that it adds correctly
+      ShinyData <- ShinyQCSummary(x=Parsed, Instrument=x)
+      HistoricalPath <- file.path(MainFolder, "HistoricalData.csv")
+      History <- list.files(MainFolder, pattern="HistoricalData.csv", full.names=TRUE)
+    
+      if (length(History == 1)){
+      HistoricalData <- read.csv(HistoricalPath, check.names=FALSE)
+      HistoricalData$Date <- lubridate::ymd(HistoricalData$Date)
+      if (ncol(ShinyData) == ncol(HistoricalData)){
+        TheShiniestData <- bind_rows(ShinyData, HistoricalData)
+        write.csv(TheShiniestData, HistoricalPath, row.names = FALSE)
+      } else {stop("Shiny Historical Data Conflicting Column Numbers")}
+      } else {write.csv(ShinyData, HistoricalPath, row.names = FALSE)}
+      
 
+    # Regular Order
     TheArchive <- file.path(Folder, "Archive")
     ArchivedDataFile <- list.files(TheArchive, pattern="Archived",
                                    full.names = TRUE)
@@ -409,6 +524,7 @@ QCBeadParse <- function(x, MainFolder){
 #' @param MainFolder The file.path to main folder
 #' @param Template Default NULL, a file.path to an openCyto gating template want to apply fist.
 #' @param subsets Default NULL, a GatingHierarchy subset to retrieve information from. 
+#' @param FuckIt Default FALSE, when the user messed with settings so badly to cause a migraine. 
 #'
 #' @importFrom flowWorkspace load_cytoset_from_fcs
 #' @importFrom purrr map
@@ -431,14 +547,23 @@ QCBeadParse <- function(x, MainFolder){
 #'
 #' @return Updated MFI tracking CSV
 #' @noRd
-HolisticQCParse <- function(x, MainFolder, Template=NULL, subsets=NULL){
+HolisticQCParse <- function(x, MainFolder, Template=NULL, subsets=NULL, FuckIt=FALSE){
   Folder <- file.path(MainFolder, x)
   FCS_Files <- list.files(Folder, pattern="fcs", full.names=TRUE)
 
   if(!length(FCS_Files) == 0){
 
-    The_CS <- load_cytoset_from_fcs(files=FCS_Files,
-      transformation=FALSE, truncate_max_range = FALSE)
+    if (FuckIt == TRUE){
+    Screen <- CytosetScreen(files = FCS_Files)
+    MainList <- which.max(sapply(Screen, length))
+    Screen <- Screen[MainList][[1]]
+    The_CS <- load_cytoset_from_fcs(files = Screen,
+       transformation = FALSE, truncate_max_range = FALSE)
+    } else {
+      The_CS <- load_cytoset_from_fcs(
+        files = FCS_Files, transformation = FALSE,
+        truncate_max_range = FALSE)
+    }
 
     if (is.null(Template)){
     Parsed <- map(.x=The_CS, .f=QC_GainMonitoring,
@@ -447,6 +572,11 @@ HolisticQCParse <- function(x, MainFolder, Template=NULL, subsets=NULL){
       Gating <- data.table::fread(Template)
       MyGatingSet <- GatingSet(The_CS)
       MyGatingTemplate <- gatingTemplate(Gating)
+
+      MyGatingSet <- GateCheck(gs=MyGatingSet, gatingtemplate = MyGatingTemplate)
+      
+      if (is.null(MyGatingSet)){return(MyGatingSet)}
+
       gt_gating(MyGatingTemplate, MyGatingSet)
 
     Parsed <- map(.x=MyGatingSet, .f=QC_GainMonitoring, subsets=subsets,
@@ -493,7 +623,31 @@ HolisticQCParse <- function(x, MainFolder, Template=NULL, subsets=NULL){
     StorageLocation <- file.path(ArchiveFolder, name)
     write.csv(UpdatedData, StorageLocation, row.names=FALSE)
 
-    } else {message("No fcs files to update with in ", x)}
+  } else {message("No fcs files to update with in ", x)}
+}
+
+#' Similar to CytosetScreen, checks for mismatching cytoframes that throw inconvenient errors
+#' 
+#' @param gs A gating set object
+#' @param gatingtemplate The gating template object
+#' 
+#' @return Purified Gating Set or a NULL Value
+#' 
+#' @noRd
+GateCheck <- function(gs, gatingtemplate){
+  
+  Nodes <- gatingtemplate@nodes
+  FinalNode <- Nodes[length(Nodes)]
+  These <- Nodes[-1]
+  CheckThis <- paste(These, collapse="|")
+  ThisFluor <- gatingtemplate@edgeData@data[[CheckThis]]$gtMethod@dims
+
+  TheIndex <- any(colnames(gs) %in% ThisFluor)
+  Present <- gs[TheIndex]
+
+  if (length(Present) == 0){gs <- NULL
+  } else {gs <- Present}
+  return(gs)
 }
 
 #' Dashboard Internal, updates MFI tracking CSV
@@ -781,49 +935,49 @@ VisualQCSummary <- function(x){
   WindowOfInterest <- Sys.time() - weeks(1)
 
   if (nrow(x) > 1){
-  Data <- x %>% filter(DateTime > WindowOfInterest)
+  Data <- x |> filter(DateTime > WindowOfInterest)
 
-  if(nrow(Data) == 0){Data <- x %>% slice(1)}
+  if(nrow(Data) == 0){Data <- x |> slice(1)}
 
   } else {Data <- x}
 
-  Flags <- Data %>% select(starts_with("Flag"))
+  Flags <- Data |> select(starts_with("Flag"))
   colnames(Flags) <- gsub("Flag-", "", colnames(Flags))
-  Gains <- Flags %>% select(contains("Gain"))
+  Gains <- Flags |> select(contains("Gain"))
   TheGains <- colnames(Gains)
-  rCV <- Flags %>% select(contains("rCV"))
+  rCV <- Flags |> select(contains("rCV"))
   TherCV <- colnames(rCV)
 
-  TheGainData <- Data %>% select(all_of(c("DateTime", TheGains)))
+  TheGainData <- Data |> select(all_of(c("DateTime", TheGains)))
   colnames(Gains) <- gsub("-Gain", "", fixed=TRUE, colnames(Gains))
   colnames(TheGainData) <- gsub("-Gain", "", fixed=TRUE, colnames(TheGainData))
 
-  TheGainData <- TheGainData %>%
+  TheGainData <- TheGainData |>
     pivot_longer(!DateTime, names_to = "Detector", values_to = "Gain")
 
-  Gains <- Gains %>% mutate(DateTime=Data$DateTime) %>% relocate(DateTime, .before=1)
+  Gains <- Gains |> mutate(DateTime=Data$DateTime) |> relocate(DateTime, .before=1)
 
-  Gains <- Gains %>%
+  Gains <- Gains |>
     pivot_longer(!DateTime, names_to = "Detector", values_to = "Gain_Logical")
 
-  TherCVData <- Data %>% select(all_of(c("DateTime", TherCV)))
+  TherCVData <- Data |> select(all_of(c("DateTime", TherCV)))
   colnames(rCV) <- gsub("-% rCV", "", fixed=TRUE, colnames(rCV))
   colnames(TherCVData) <- gsub("-% rCV", "", fixed=TRUE, colnames(TherCVData))
 
-  TherCVData <- TherCVData %>% pivot_longer(!DateTime, names_to = "Detector", values_to = "rCV")
+  TherCVData <- TherCVData |> pivot_longer(!DateTime, names_to = "Detector", values_to = "rCV")
 
-  rCV <- rCV %>% mutate(DateTime=Data$DateTime) %>% relocate(DateTime, .before=1)
+  rCV <- rCV |> mutate(DateTime=Data$DateTime) |> relocate(DateTime, .before=1)
 
-  rCV <- rCV %>% pivot_longer(!DateTime, names_to = "Detector", values_to = "rCV_Logical")
+  rCV <- rCV |> pivot_longer(!DateTime, names_to = "Detector", values_to = "rCV_Logical")
 
-  Tidy <- TheGainData %>%
-    left_join(Gains, by = c("Detector", "DateTime")) %>%
-    left_join(TherCVData, by = c("Detector", "DateTime")) %>%
+  Tidy <- TheGainData |>
+    left_join(Gains, by = c("Detector", "DateTime")) |>
+    left_join(TherCVData, by = c("Detector", "DateTime")) |>
     left_join(rCV, by = c("Detector", "DateTime"))
 
-  TheDetectors <- Tidy %>% pull(Detector) %>% unique()
+  TheDetectors <- Tidy |> pull(Detector) |> unique()
 
-  Summary <- map(.x=TheDetectors, .f=QCSummaryCheck, data=Tidy) %>% bind_rows()
+  Summary <- map(.x=TheDetectors, .f=QCSummaryCheck, data=Tidy) |> bind_rows()
   return(Summary)
 }
 
@@ -839,21 +993,26 @@ VisualQCSummary <- function(x){
 #' @return The color-coded summary
 #' @noRd
 QCSummaryCheck <- function(x, data){
-  Subset <- data %>% dplyr::filter(Detector %in% x)
+  Subset <- data |> dplyr::filter(Detector %in% x)
+
+  GainValue <- Subset |> slice(1) |> pull(Gain)
 
   if (any(Subset$Gain_Logical == TRUE)){
-    Followup <- Subset %>% slice(1) %>% pull(Gain_Logical)
-    if (Followup == TRUE){GainValue <- "Red"
-    } else {GainValue <- "Yellow"}
-  } else {GainValue <- "Green"}
+    Followup <- Subset |> slice(1) |> pull(Gain_Logical)
+    if (Followup == TRUE){GainStatus <- "Red"
+    } else {GainStatus <- "Yellow"}
+  } else {GainStatus <- "Green"}
+
+  rCVValue <- Subset |> slice(1) |> pull(rCV) |> round(2)
 
   if (any(Subset$rCV_Logical == TRUE)){
-    Followup <- Subset %>% slice(1) %>% pull(rCV_Logical)
-    if (Followup == TRUE){rCVValue <- "Red"
-    } else {rCVValue <- "Yellow"}
-  } else {rCVValue <- "Green"}
+    Followup <- Subset |> slice(1) |> pull(rCV_Logical)
+    if (Followup == TRUE){rCVStatus <- "Red"
+    } else {rCVStatus <- "Yellow"}
+  } else {rCVStatus <- "Green"}
 
-  Summary <- data.frame(Detector=x, Gain=GainValue, rCV=rCVValue)
+  Summary <- data.frame(Detector=x, GainValue=GainValue, Gain=GainStatus,
+    rCVValue = rCVValue, rCV=rCVStatus)
   return(Summary)
 }
 
@@ -928,6 +1087,8 @@ ColorCode <- function(x, data){
 #' @importFrom gt sub_values
 #' @importFrom gt opt_table_font
 #' @importFrom gt cols_align
+#' @importFrom gt tab_spanner
+#' @importFrom gt cols_label
 #' @noRd
 SmallTable <- function(data){
 
@@ -956,7 +1117,19 @@ SmallTable <- function(data){
       opt_table_font(font = "Montserrat") |>
       cols_align(align = "center")
 
-    Final <- Bolded
+    Final <- Bolded |> tab_spanner(
+      label = "Gain ",
+      columns = c(GainValue, Gain)
+    ) |> tab_spanner(
+      label = "%RCV ",
+      columns = c(rCVValue, rCV)
+    ) |> cols_label(
+      GainValue = "Value",
+      Gain = "Status"
+    ) |> cols_label(
+      rCVValue = "Value",
+      rCV = "Status"
+    )
 
   return(Final)
 }
@@ -965,7 +1138,8 @@ SmallTable <- function(data){
 #'
 #' @param x A vector of instrument names
 #' @param y A list of LevyJenningParse updated data objects
-#'
+#' @param timewindow The number  desired months
+#' 
 #' @importFrom purrr map2
 #' @importFrom dplyr bind_rows
 #' @importFrom dplyr mutate
@@ -978,31 +1152,118 @@ SmallTable <- function(data){
 #'
 #' @return Data ready for gt coloring
 #' @noRd
-QCHistory <- function(x, y){
+QCHistory <- function(x, y, timewindow=24){
   InstrumentLength <- length(y)
 
-  if (InstrumentLength > 1){TheInstrumentLength <- 2}
+  if (InstrumentLength > 1){TheInstrumentLength <- 2
+  } else {TheInstrumentLength <- 1}
 
-  TheDataset <- map2(.x=x, .f=AcrossTime, .y=y) %>% bind_rows()
+  TheDataset <- map2(.x=x, .f=AcrossTime, .y=y) |> bind_rows()
 
-  TheDates <- TheDataset %>% group_by(DateTime) %>%
-    dplyr::mutate(TheInstrumentCount = n()) %>%
-    dplyr::filter(TheInstrumentCount >= TheInstrumentLength) %>% pull(DateTime)
+  TheDates <- TheDataset |> group_by(DateTime) |>
+    mutate(TheInstrumentCount = n()) |>
+    filter(TheInstrumentCount >= TheInstrumentLength) |> pull(DateTime)
 
-  Assembled <- TheDataset %>% dplyr::filter(DateTime %in% TheDates)
+  Assembled <- TheDataset |> filter(DateTime %in% TheDates)
 
-  Assembled <- Assembled %>% group_by(DateTime, Instrument) %>% slice(1) %>% ungroup()
+  Assembled <- Assembled |> group_by(DateTime, Instrument) |> slice(1) |> ungroup()
 
-  Figure <- Assembled %>% group_by(Instrument) %>%
+  Figure <- Assembled |> group_by(Instrument) |>
     pivot_wider(names_from = DateTime, values_from = QCStatus)
 
   return(Figure)
+}
+
+#' Dashboard Internal, summarizes x months QC data for all instruments
+#'
+#' @param x A vector of instrument names
+#' @param y A list of LevyJenningParse updated data objects
+#' @param timewindow The number  desired months
+#' 
+#' @importFrom purrr map
+#' @importFrom dplyr bind_rows
+#' @importFrom dplyr group_by
+#' @importFrom dplyr mutate
+#' @importFrom dplyr filter
+#' @importFrom dplyr pull
+#' @importFrom dplyr slice
+#' @importFrom dplyr ungroup
+#' @importFrom tidyr pivot_wider
+#'
+#' @return Data ready for gt coloring
+#' @noRd
+QCHistoryArchive <- function(x, historydata, timewindow=24){
+  InstrumentLength <- length(x)
+
+  if (InstrumentLength > 1){TheInstrumentLength <- 2
+  } else {TheInstrumentLength <- 1}
+
+  TheDataset <- map(.x=x, data=historydata,
+     .f=InternalColorCodeStatus) |> bind_rows()
+
+  TheDates <- TheDataset |> group_by(DateTime) |>
+    mutate(TheInstrumentCount = n()) |>
+    filter(TheInstrumentCount >= TheInstrumentLength) |> pull(DateTime)
+
+  Assembled <- TheDataset |> filter(DateTime %in% TheDates)
+
+  Assembled <- Assembled |> group_by(DateTime, Instrument) |> slice(1) |> ungroup()
+
+  Figure <- Assembled |> group_by(Instrument) |>
+    pivot_wider(names_from = DateTime, values_from = QCStatus)
+
+  return(Figure)
+}
+
+#' Internal for QCHistoryArchive
+#' 
+#' @param x Something
+#' @param TheInstrument Something
+#' @param TheSubset Something
+#' 
+#' @importFrom dplyr filter
+#' @importFrom dplyr pull
+#' @importFrom purrr map
+#' @importFrom dplyr bind_rows
+#' 
+#' @return A value of some form
+#' 
+#' @noRd
+InternalColorCodeStatus <- function(x, data){
+  TheInstrument <- x
+  TheSubset <- data |> filter(Instrument %in% TheInstrument)
+  TheDates <- data |> pull(Date) |> unique()
+
+  TheInstrumentHistory <- map(.x=TheDates, .f=InternalColorDateFilter,
+     TheInstrument=TheInstrument, TheSubset=TheSubset) |> bind_rows()
+  return(TheInstrumentHistory)
+}
+
+#' Internal for QCHistoryArchive
+#' 
+#' @param x Something
+#' @param TheInstrument Something
+#' @param TheSubset Something
+#' 
+#' @importFrom dplyr filter
+#' 
+#' @return A value of some form
+#' 
+#' @noRd
+InternalColorDateFilter <- function(x, TheInstrument, TheSubset){
+  DateTime <- as.Date(x)
+  TheDateSummary <- TheSubset |> filter(Date %in% DateTime)
+  InstrumentStatus <- ColorCodeStatus(x=TheInstrument, y=TheDateSummary)
+  Snapshot <- cbind(DateTime, InstrumentStatus)
+  Snapshot$DateTime <- as.Date(Snapshot$DateTime)
+  return(Snapshot)
 }
 
 #' Dashboard Internal, wrapper for individual instrument history
 #'
 #' @param x  The Instrument name
 #' @param y The Instrument data
+#' @param timewindow The number  desired months
 #'
 #' @importFrom dplyr filter
 #' @importFrom dplyr pull
@@ -1011,17 +1272,17 @@ QCHistory <- function(x, y){
 #'
 #' @return Individual instrument QC history summary
 #' @noRd
-AcrossTime <- function(x, y){
-  WindowOfInterest <- Sys.time() - months(6)
+AcrossTime <- function(x, y, timewindow){
+  WindowOfInterest <- Sys.time() - months(timewindow)
   data <- y
-  data <- data %>% dplyr::filter(DateTime >= WindowOfInterest)
-  TheDates <- data %>% pull(DateTime) %>% unique()
+  data <- data |> filter(DateTime >= WindowOfInterest)
+  TheDates <- data |> pull(DateTime) |> unique()
 
   Instrument <- x
 
   # x <- TheDates[1]
 
-  InstrumentHistory <- map(.x=TheDates, data=data, .f=DateMapper, Instrument=Instrument) %>% bind_rows()
+  InstrumentHistory <- map(.x=TheDates, data=data, .f=DateMapper, Instrument=Instrument) |> bind_rows()
   return(InstrumentHistory)
 }
 
@@ -1037,7 +1298,7 @@ AcrossTime <- function(x, y){
 #' @noRd
 DateMapper <- function(x, data, Instrument){
   DateTime <- x
-  TheDateData <- data %>% filter(DateTime %in% x)
+  TheDateData <- data |> dplyr::filter(DateTime %in% x)
   TheDateSummary <- VisualQCSummary(x=TheDateData)
   InstrumentStatus <- ColorCodeStatus(x=Instrument, y=TheDateSummary)
   Snapshot <- cbind(DateTime, InstrumentStatus)

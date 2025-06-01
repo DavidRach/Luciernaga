@@ -3,8 +3,11 @@
 #' @param TheFluorophore The name of the Fluorophore compare, see QC_ReferenceLibrary
 #' @param NumberDetectors Number of detectors of the instrument
 #' @param NumberHits Number of most similar fluorophores by cosine
+#' @param returnSynonymns Returns only fluorophores > 0.98 cosine value, default FALSE
 #' @param returnPlots Whether to also return signature plots, default is set FALSE
-#'
+#' @param returnSynonyms Something
+#' @param plotlinecolor Default NULL, otherwise if single line provide desired color
+#' 
 #' @importFrom dplyr filter
 #' @importFrom dplyr slice
 #' @importFrom dplyr mutate
@@ -26,9 +29,10 @@
 #'
 #' @examples
 #' Results <- QC_SimilarFluorophores(TheFluorophore="Spark Blue 550",
-#'  NumberDetectors=64, NumberHits = 10, returnPlots=FALSE)
+#'  NumberDetectors=64, returnSynonymns=FALSE, NumberHits = 10, returnPlots=FALSE)
 
-QC_SimilarFluorophores <- function(TheFluorophore, NumberDetectors, NumberHits, returnPlots=FALSE) {
+QC_SimilarFluorophores <- function(TheFluorophore, NumberDetectors,
+   returnSynonyms=FALSE, NumberHits=10, returnPlots=FALSE, plotlinecolor=NULL) {
 
   ReferenceData <- Luciernaga:::InstrumentReferences(NumberDetectors=NumberDetectors)
   #nrow(ReferenceData)
@@ -83,18 +87,24 @@ QC_SimilarFluorophores <- function(TheFluorophore, NumberDetectors, NumberHits, 
   TheData <- rownames_to_column(CosineFrame, var="Fluorophore")
   TheID <- TheData |> select(all_of(TheFluorophore)) |> colnames()
 
+  if (returnSynonyms == FALSE){
   TheHits <- TheData |> filter(!Fluorophore %in% TheID) |>
     arrange(desc(.data[[TheID]])) |> slice_head(n=NumberHits)
+  } else {
+    TheHits <- TheData |> filter(!Fluorophore %in% TheID) |>
+    arrange(desc(.data[[TheID]])) |> filter(.data[[TheID]] > 0.98)
+  }
 
   if (returnPlots==TRUE){
     TheseFluorophores <- TheHits |> pull(Fluorophore)
 
     ThePlot <- SimilarFluorPlots(TheseFluorophores=TheseFluorophores,
-                                 TheFluorophore=TheFluorophore, data=ReferenceData1)
+                                 TheFluorophore=TheFluorophore, data=ReferenceData1,
+                                 plotlinecolor=plotlinecolor)
     ReturnThese <- list(TheHits, ThePlot)
     return(ReturnThese)
   } else {return(TheHits)}
-}
+  }
 
 
 #' Internal for QC_SimilarFluorophores, returns plot of all similar fluorophores
@@ -102,7 +112,10 @@ QC_SimilarFluorophores <- function(TheFluorophore, NumberDetectors, NumberHits, 
 #' @param TheseFluorophores The similar fluorophores identified by cosine
 #' @param TheFluorophore The one we were originally interested in
 #' @param data The reference data of fluorophore signatures
-#'
+#' @param legend Default TRUE, alternately removes plot legend
+#' @param plotname Default NULL, alternately specifies the plot title
+#' @param plotlinecolor Expects NULL, otherwise if single line provide desired color
+#' 
 #' @importFrom dplyr filter
 #' @importFrom dplyr rename
 #' @importFrom ggplot2 ggplot
@@ -119,12 +132,15 @@ QC_SimilarFluorophores <- function(TheFluorophore, NumberDetectors, NumberHits, 
 #' @return An internal value
 #'
 #' @noRd
-SimilarFluorPlots <- function(TheseFluorophores, TheFluorophore, data){
+SimilarFluorPlots <- function(TheseFluorophores, TheFluorophore, data,
+  legend=TRUE, plotname=FALSE, plotlinecolor){
 
       These <- c(TheFluorophore, TheseFluorophores)
 
       TheData <- data %>% filter(Fluorophore %in% These) %>%
         rename(value=AdjustedY)
+  
+      TheData$Detector <- gsub("-A", "", TheData$Detector)
 
       Iterations <- TheData %>% filter(Fluorophore %in% These[[1]]) %>% nrow()
 
@@ -141,13 +157,36 @@ SimilarFluorPlots <- function(TheseFluorophores, TheFluorophore, data){
 
       TheData$Detector <- factor(TheData$Detector, levels=MyVector)
       TheData$Fluorophore <- factor(TheData$Fluorophore, levels=These)
-
-      ThePlot <- ggplot(TheData, aes(x=Detector, y=value, group=Fluorophore, color = Fluorophore)) +
-        geom_line() + theme_bw() + labs(title=paste0(TheFluorophore), x=NULL, y=YAxisLabel) +
-        geom_hline(yintercept = 1, linetype = "dashed", color = "red") +
-        theme(plot.title = element_text(size = 8), axis.text.x = element_text(size = 6, angle = 45),
-              panel.grid = element_blank(), axis.ticks.x = element_blank(), axis.title.y =  element_text(size=8)) +
+  
+      if (is.null(plotname)){TheTitle <- paste0(TheFluorophore)
+      } else {TheTitle <- plotname}
+  
+      if (legend == TRUE){LegendLocation <- "right"
+      } else {LegendLocation <- "none"}
+  
+      if (!is.null(plotlinecolor)){
+        ThePlot <- ggplot(TheData, aes(x=Detector, y=value, group=Fluorophore)) +
+          geom_line(color = plotlinecolor) + theme_bw() +
+         labs(title=TheTitle, x=NULL, y=YAxisLabel) + geom_hline(yintercept = 1,
+            linetype = "dashed", color = "red") +
+         theme(plot.title = element_text(size = 8),
+             legend.position = LegendLocation,
+             axis.text.x = element_text(size = 6, angle = 45),
+             panel.grid = element_blank(), axis.ticks.x = element_blank(),
+             axis.title.y =  element_text(size=8)) +
+       scale_x_discrete(breaks = unique(TheData$Detector)[c(TRUE, rep(FALSE, 4))])
+      } else {
+        ThePlot <- ggplot(TheData, aes(x=Detector, y=value, group=Fluorophore,
+           color = Fluorophore)) + geom_line() + theme_bw() +
+          labs(title=TheTitle, x=NULL, y=YAxisLabel) + geom_hline(yintercept = 1,
+             linetype = "dashed", color = "red") +
+          theme(plot.title = element_text(size = 8),
+              legend.position = LegendLocation,
+              axis.text.x = element_text(size = 6, angle = 45),
+              panel.grid = element_blank(), axis.ticks.x = element_blank(),
+              axis.title.y =  element_text(size=8)) +
         scale_x_discrete(breaks = unique(TheData$Detector)[c(TRUE, rep(FALSE, 4))])
-
+        } 
+  
       return(ThePlot)
 }

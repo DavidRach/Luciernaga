@@ -75,7 +75,7 @@ File_Location <- system.file("extdata", package = "Luciernaga")
 FCS_Pattern <- ".fcs$"
 FCS_Files <- list.files(path = File_Location, pattern = FCS_Pattern,
                         full.names = TRUE, recursive = FALSE)
-head(FCS_Files[10:30], 20)
+head(FCS_Files[10:30], 5)
 ```
 
 ```{r}
@@ -371,13 +371,14 @@ Sample_UMAPPlot <-  Utility_ThirdColorPlots(x=NewGatingSet[[1]], subset = "root"
 
 Sample_UMAPPlot
 ```
+
 ## Utility_PaCMAP
 
-Unlike the other dimensionality visualization algorithms that are implemented in R, both PaCMAP and PHATE are primarily implemented in Python. Utilizing `basilisk` package, we implement method to facilitate the plot generation isolated within the Luciernaga environment. 
+Unlike the other dimensionality visualization algorithms that are implemented in R, both PaCMAP and PHATE are primarily implemented in Python. Utilizing `basilisk` package, we implement method to facilitate the plot generation isolated within the Luciernaga environment. To do this, you would need to install either the devel or WithPython branches when downloading from GitHub. 
 
 Repeating similar steps as with the tSNE and UMAP examples above for both raw and unmixed data:
 
-```{r}
+```{r, eval=FALSE}
 Markers <- colnames(MyCytoSet)
 KeptMarkers <- Markers[-grep("Time|FS|SC|SS|Original|-W$|-H$|AF", Markers)]
 KeptMarkers
@@ -407,7 +408,7 @@ PaCMAPPlot
 ```
 
 
-```{r}
+```{r, eval=FALSE}
 Markers <- colnames(UnmixedCytoSet)
 KeptMarkers <- Markers[-grep("Time|FS|SC|SS|Original|-W$|-H$|AF", Markers)]
 SubsetMarkers <- c("BUV496-A", "BUV805-A", "Pacific Blue-A", "BV711-A",
@@ -443,7 +444,7 @@ Sample_PaCMAPPlot
 
 And similarly for PHATE, with downsampling for brevity:
 
-```{r}
+```{r, eval=FALSE}
 Markers <- colnames(MyCytoSet)
 KeptMarkers <- Markers[-grep("Time|FS|SC|SS|Original|-W$|-H$|AF", Markers)]
 KeptMarkers
@@ -474,7 +475,7 @@ PhatePlot
 ```
 
 
-```{r}
+```{r, eval=FALSE}
 Markers <- colnames(UnmixedCytoSet)
 KeptMarkers <- Markers[-grep("Time|FS|SC|SS|Original|-W$|-H$|AF", Markers)]
 SubsetMarkers <- c("BUV496-A", "BUV805-A", "Pacific Blue-A", "BV711-A",

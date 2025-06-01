@@ -411,7 +411,7 @@ StainingIndexApproximation <- function(x, NumberDetectors){
   Matrix <- ReferenceData %>% filter(Fluorophore %in% KeptMarkers) %>%
     select(-Instrument) %>% pivot_wider(., names_from="Detector", values_from="AdjustedY") %>%
     select(-Fluorophore) %>% as.matrix()
-  kappa <- round(kappa(Matrix), 2)
+  kappa <- round(kappa(Matrix, exact=TRUE), 2)
 
   MatrixN <- length(KeptMarkers)
   MatrixMarkers <- paste(KeptMarkers, collapse = "_")

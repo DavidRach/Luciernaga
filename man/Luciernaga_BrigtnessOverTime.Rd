@@ -4,10 +4,24 @@
 \alias{Luciernaga_BrigtnessOverTime}
 \title{Visualizes Cluster MFI over time, uses Luciernaga_QC output}
 \usage{
-Luciernaga_BrigtnessOverTime(data)
+Luciernaga_BrigtnessOverTime(
+  data,
+  columnname = "Cluster",
+  datename = "Experiment",
+  Detector = NULL,
+  plotType = "line"
+)
 }
 \arguments{
 \item{data}{The LuciernagaQC data.frame style output with raw detector values.}
+
+\item{columnname}{The columnname for Cluster, becomes the categorical defining lines and dots}
+
+\item{datename}{The column name for Experiment/Dates, becomes the x-axis}
+
+\item{Detector}{Default NULL, specify a detector, overrides the y-axis}
+
+\item{plotType}{Something}
 }
 \value{
 A ggplot2 object

@@ -114,7 +114,7 @@ FCS_Files <- list.files(path = File_Location, pattern = FCS_Pattern,
 ```
 
 ```{r}
-head(FCS_Files[20:30], 10)
+head(FCS_Files[20:30], 5)
 ```
 
 
@@ -143,7 +143,7 @@ CellSingleColors <- FCS_Files[grep("Cells", FCS_Files)]
 ```
 
 ```{r}
-head(CellSingleColors, 10)
+head(CellSingleColors, 5)
 ```
 
 ## Creating a GatingSet
@@ -191,13 +191,16 @@ StorageLocation <- file.path("C:", "Users", "JohnDoe", "Desktop")
 IndividualPlot <- Utility_GatingPlots(x=MyGatingSet[[2]], sample.name = "GUID",
                                       removestrings = removestrings,
                                       gtFile = MyGates, DesiredGates = NULL,
-                                      outpath = StorageLocation, export = FALSE)
+                                      outpath = StorageLocation,
+                                      returnType="patchwork")
   
 IteratedPlots <- map(.x = MyGatingSet[1:3], .f = Utility_GatingPlots,
                      sample.name = "GUID", removestrings = removestrings,
                      gtFile = MyGates, DesiredGates = NULL,
-                     outpath = StorageLocation, export = FALSE)
+                     outpath = StorageLocation, returnType="patchwork")
+```
 
+```{r, echo=FALSE}
 IndividualPlot
 ```
 
@@ -222,7 +225,9 @@ AllSpecimens <- Utility_IterativeGating(x=MyGatingSet[1:3], sample.name = "GUID"
                                         removestrings = removestrings,
                                         subset = "nonDebris", gate = "lymphocytes",
                                         xValue = "FSC-A", yValue = "SSC-A", bins = 270)
+```
 
+```{r, echo=FALSE}
 SingleSpecimen
 ```
 
@@ -294,8 +299,11 @@ UnmixedIndividualPlot <- Utility_GatingPlots(x=UnmixedGatingSet[[2]],
                                              gtFile = UnmixedGates,
                                              DesiredGates = NULL,
                                              outpath = StorageLocation,
-                                             export = FALSE)
+                                             returnType="patchwork")
 
+```
+
+```{r, echo=FALSE}
 UnmixedIndividualPlot
 ```
 # Visualizing Data 
@@ -328,7 +336,9 @@ MultipleNxN <- map(.x = UnmixedGatingSet[1:2], .f = Utility_NbyNPlots,
                    ycolumn = "Spark Blue 550-A", bins = 70, clearance = 0.2,
                    gatelines = FALSE, reference = NULL,
                    outpath = StorageLocation, returntype="patchwork")
+```
 
+```{r, echo=FALSE}
 IndividualNxN[1]
 ```
 
@@ -378,7 +388,9 @@ OverlaidNxNPlots <- Utility_ParallelNbyNPlots(x=UnmixedGatingSet[1],
                                               reference = NULL, 
                                               outpath = StorageLocation,
                                               pdf = FALSE)
+```
 
+```{r, echo=FALSE}
 OverlaidNxNPlots[1]
 ```
 
@@ -421,7 +433,9 @@ SingleUnityPlot <- Utility_UnityPlot(x="Spark Blue 550-A", y="BUV805-A",
                                      gatesubset="live", gatelines=FALSE,
                                      reference=NULL, returntype="patchwork",
                                      outpath=StorageLocation)
+```
 
+```{r}
 SingleUnityPlot
 ```
 
@@ -438,7 +452,9 @@ MultipleUnityPlots <- map(.x=KeptMarkers[c(1:6, 8:10)], .f=Utility_UnityPlot,
                           removestrings=removestrings, marginsubset="lymphocytes",
                           gatesubset="live", gatelines=FALSE, reference=NULL,
                           returntype="patchwork", outpath=StorageLocation)
+```
 
+```{r, echo=FALSE}
 MultipleUnityPlots[1:2]
 ```
 

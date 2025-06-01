@@ -14,7 +14,8 @@ QC_WhatsThis(
   returnPlots = FALSE,
   TheFormat = "wider",
   detectorcolumn = NULL,
-  valuecolumn = NULL
+  valuecolumn = NULL,
+  plotlinecolor = NULL
 )
 }
 \arguments{
@@ -37,6 +38,8 @@ QC_WhatsThis(
 \item{detectorcolumn}{Default NULL, when TheFormat="longer" specify detector column name}
 
 \item{valuecolumn}{Default NULL, when TheFormat="longer" specify value column name}
+
+\item{plotlinecolor}{Default NULL, otherwise if single line provide desired color}
 }
 \value{
 A dataframe of similar fluorophores or a ggplot2 object

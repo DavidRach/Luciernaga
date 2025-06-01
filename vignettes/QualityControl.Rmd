@@ -86,6 +86,7 @@ QCBeads <- QC_WhatsThis(x="QCBeads", data=Data, NumberHits=0, returnPlots=TRUE)
 
 QCBeads[[2]]
 ```
+
 Using the QC beads, the gains for instrument detectors and power to individual lasers are adjusted to maintain a stable MFI across time. These adjustments are available to individual users as part of a QC report, with the underlying data available under the Levy-Jennings tracking tab, with the option to download as a .csv file. Unfortunately, it is not in  a "tidy" data format, limiting our ability for easy exploratory data analysis. We provide a couple functions to convert the .csv output into a "tidy" format and visualize the data contained within. 
 
 The first step is to indicate where the saved .csv file containing the Levy-Jennings tracking data from the cytometer is stored. On a local computer, the code to do this would look similar to the following:
@@ -98,18 +99,21 @@ For this vignette, we will use one of these Levy-Jennings Tracking .csvs from a 
 
 ```{r}
 File_Location <- system.file("extdata", package = "Luciernaga")
-CSV_Pattern <- ".CSV$"
-CSV_Files <- list.files(path=File_Location, pattern=CSV_Pattern,
-                        full.names=TRUE)
+CSV_Pattern <- "LJTrackingData.CSV$"
+CSV_Files <- list.files(path=File_Location, pattern=CSV_Pattern,full.names=TRUE)
 CSV_Files
+
+DailyQCPattern <- "^DailyQC"
+DailyQC <- list.files(path=File_Location, pattern=DailyQCPattern,full.names=TRUE)
+DailyQC
 ```
 
-## QC_FilePrep
+## QC_FilePrep_LJTracking
 
 Since this .CSV file is not in a tidy format, `read.csv()` or similar functions will struggle to import correctly. Our function, `QC_FilePrep()` reads in each row individually as text, and then follows up on the pre-processing into a "tidy" format. 
 
-```{r, message=FALSE, warning=FALSE}
-TidyData <- QC_FilePrep(CSV_Files, TrackChange = FALSE)
+```{r}
+TidyData <- QC_FilePrep_LJTracking(x=CSV_Files, DailyQC=DailyQC)
 gt(head(TidyData, 5))
 ```
 
@@ -117,8 +121,8 @@ Individual rows are the individual QC reports, with the columns being the differ
 
 Additionally, setting `QC_FilePrep()` TrackChange to TRUE will generate a similar output to that of the QC report showing Change from the previous QC report which can provide additional information for instrument monitoring. 
 
-```{r, message=FALSE, warning=FALSE}
-TidyData_Track <- QC_FilePrep(CSV_Files, TrackChange = TRUE)
+```{r, eval=FALSE}
+TidyData_Track <- QC_FilePrep_LJTracking(CSV_Files, DailyQC=DailyQC)
 gt(head(TidyData_Track, 3))
 ```
 

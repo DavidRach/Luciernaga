@@ -2,7 +2,8 @@
 % Please edit documentation in R/QC_ViewSignature.R
 \name{QC_ViewSignature}
 \alias{QC_ViewSignature}
-\title{Visualizes the Signature for given row in an averaged signature data.frame.}
+\title{Visualizes the Signature for given row in an averaged signature
+ data.frame.}
 \usage{
 QC_ViewSignature(
   x,
@@ -11,30 +12,48 @@ QC_ViewSignature(
   Normalize = TRUE,
   TheFormat = "wider",
   detectorcolumn = NULL,
-  valuecolumn = NULL
+  valuecolumn = NULL,
+  legend = TRUE,
+  plotname = NULL,
+  plotlinecolor = NULL
 )
 }
 \arguments{
 \item{x}{Name in the Sample column you want to filter for}
 
-\item{data}{A data.frame object from QC_LibraryParse containing Fluorophore name column 
+\item{columnname}{Default is Sample, specifies column name
+from which x is filtered from}
+
+\item{data}{A data.frame object from QC_LibraryParse containing
+ Fluorophore name column 
 and numeric detector columns.}
 
-\item{Normalize}{Whether to normalize the data based on peak detector value, default is TRUE}
+\item{Normalize}{Whether to normalize the data based on peak
+detector value, default is TRUE}
 
-\item{TheFormat}{Default wider for detectors in columns, specify longer if providing detectors as rows}
+\item{TheFormat}{Default wider for detectors in columns, specify
+longer if providing detectors as rows}
 
-\item{detectorcolumn}{Default NULL, when TheFormat="longer" specify detector column name}
+\item{detectorcolumn}{Default NULL, when TheFormat="longer" specify
+detector column name}
 
-\item{valuecolumn}{Default NULL, when TheFormat="longer" specify value column name}
+\item{valuecolumn}{Default NULL, when TheFormat="longer" specify
+value column name}
 
-\item{columname}{Default is Sample, specifies column name from which x is filtered from}
+\item{legend}{Default TRUE, alternately removes plot legend}
+
+\item{plotname}{Default NULL, alternately specifies the plot
+title}
+
+\item{plotlinecolor}{Default NULL, alternatively provide color
+when only a single line}
 }
 \value{
 A dataframe of similar fluorophores
 }
 \description{
-Visualizes the Signature for given row in an averaged signature data.frame.
+Visualizes the Signature for given row in an averaged signature
+ data.frame.
 }
 \examples{
 

@@ -12,10 +12,9 @@ Luciernaga_Unmix(
   Verbose,
   addon,
   subset = "root",
-  multiplier,
   outpath,
   PanelPath,
-  returntype = "fcs"
+  returnType = "fcs"
 )
 }
 \arguments{
@@ -34,13 +33,11 @@ Luciernaga_Unmix(
 \item{subset}{A gating hierarchy level to sort cells at, expression values retrieved
 from these}
 
-\item{multiplier}{A number to scale the OLS coefficients by}
-
 \item{outpath}{The return folder for the .fcs files}
 
 \item{PanelPath}{Location to a panel.csv containing correct order of fluorophores}
 
-\item{returntype}{Whether to return "fcs" or "flowframe"}
+\item{returnType}{Whether to return "fcs" or "flowframe"}
 }
 \value{
 A new .fcs file with the new columns appended

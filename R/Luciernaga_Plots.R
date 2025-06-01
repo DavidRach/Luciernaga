@@ -215,6 +215,7 @@ Luciernaga_Plots <- function(data, RetainedType, CellPopRatio, outfolder, filena
 #' @importFrom ggplot2 theme
 #' @importFrom ggplot2 element_blank
 #' @importFrom ggplot2 element_text
+#' @importFrom ggplot2 ylim
 #'
 #' @return An internal value
 #'
