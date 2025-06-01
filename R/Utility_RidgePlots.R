@@ -67,7 +67,10 @@ Utility_RidgePlots <- function(gs, subset, TheX=NULL, TheY, TheFill, inverse.tra
                                outpath, returntype, therows=2,
                                thecolumns=1, width=7, height=9, filename){
 
-  cs <- gs_pop_get_data(gs, subset, inverse.transform = inverse.transform)
+  if (class(gs) == "GatingHierarchy"){
+    cs <- gs_pop_get_data(gs, subset, inverse.transform = inverse.transform)
+  } else {cs <- gs}
+
   markers <- colnames(cs)
   DFNames <- markers[-grep("Time|FS|SC|SS|Original|-W$|-H$|AF", markers)]
 
