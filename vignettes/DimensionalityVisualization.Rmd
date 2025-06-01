@@ -15,9 +15,10 @@ vignette: |
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
-
+knitr::opts_chunk$set(eval = FALSE)
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
+  eval = FALSE, 
   collapse = TRUE,
   comment = "#>"
 )
