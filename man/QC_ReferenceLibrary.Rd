@@ -8,7 +8,10 @@ QC_ReferenceLibrary(
   FluorNameContains,
   NumberDetectors,
   returnPlots = FALSE,
-  plotlinecolor = NULL
+  plotlinecolor = NULL,
+  legend = TRUE,
+  plotname = NULL,
+  exact = FALSE
 )
 }
 \arguments{
@@ -24,6 +27,10 @@ For ThermoFisher BigFoot 7L_488-561=55, 7L_532-594="52_7L", 6L_445="52_6L", 6L_7
 \item{returnPlots}{Whether to return signature plot as well. Default FALSE.}
 
 \item{plotlinecolor}{Default NULL, otherwise if single line provide desired color}
+
+\item{plotname}{Default NULL, alternatively specify a title.}
+
+\item{exact}{Default FALSE, else returns exact fluorophore name match.}
 }
 \value{
 A dataframe column containing matching Fluorophores from your querry

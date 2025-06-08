@@ -9,7 +9,9 @@
 #' For ThermoFisher BigFoot 7L_488-561=55, 7L_532-594="52_7L", 6L_445="52_6L", 6L_785=51 
 #' @param returnPlots Whether to return signature plot as well. Default FALSE.
 #' @param plotlinecolor Default NULL, otherwise if single line provide desired color
-#'
+#' @param plotname Default NULL, alternatively specify a title.
+#' @param exact Default FALSE, else returns exact fluorophore name match. 
+#' 
 #' @importFrom dplyr select
 #' @importFrom dplyr filter
 #' @importFrom stringr str_detect
@@ -21,7 +23,8 @@
 #' @examples
 #' QC_ReferenceLibrary(FluorNameContains = "FITC", NumberDetectors=64)
 QC_ReferenceLibrary <- function(FluorNameContains, NumberDetectors,
-                                returnPlots=FALSE, plotlinecolor=NULL){
+                                returnPlots=FALSE, plotlinecolor=NULL,
+                                legend=TRUE, plotname=NULL, exact=FALSE){
   
   if (!length(NumberDetectors) == 1){
     ReferenceData <- map(.x=NumberDetectors, .f=Luciernaga:::InstrumentReferences) |>
@@ -41,10 +44,18 @@ QC_ReferenceLibrary <- function(FluorNameContains, NumberDetectors,
   TheList <- ReferenceData |> select(Fluorophore) |> unique()
   rownames(TheList) <- NULL    
 
+  if (exact == FALSE){
   if (length(FluorNameContains) == 1){
   Subset <- TheList |> filter(str_detect(Fluorophore, FluorNameContains))
   } else {Subset <- TheList |> 
     filter(str_detect(Fluorophore, paste(FluorNameContains, collapse = "|")))}
+  } else {
+    if (length(FluorNameContains) == 1){
+      Subset <- TheList |> filter(str_detect(Fluorophore, FluorNameContains))
+      } else {Subset <- TheList |> 
+        dplyr::filter(Fluorophore %in% FluorNameContains)
+    }
+  }
 
   # Plotting if requested
   if (returnPlots==FALSE){
@@ -57,16 +68,18 @@ QC_ReferenceLibrary <- function(FluorNameContains, NumberDetectors,
       SmallWrapper <- function(x, data, TheseFluorophores){
         Internal <- data |> filter(Instrument %in% x)
         ThePlot <- Luciernaga:::SimilarFluorPlots(TheseFluorophores=TheseFluorophores,
-          TheFluorophore=NULL, data=Internal, plotlinecolor=plotlinecolor)
+          TheFluorophore=NULL, data=Internal, plotlinecolor=plotlinecolor,
+          legend=legend, plotname=plotname)
       }
       ThePlot <- map(.x=Instruments, .f=SmallWrapper, data=ReferenceData, 
       TheseFluorophores=TheseFluorophores)  
     } else {
       ThePlot <- Luciernaga:::SimilarFluorPlots(TheseFluorophores=TheseFluorophores,
                                    TheFluorophore=NULL, data=ReferenceData,
-                                   plotlinecolor=plotlinecolor)  
+                                   plotlinecolor=plotlinecolor, legend=legend,
+                                   plotname=plotname)  
     }
     ReturnThese <- list(Subset, ThePlot)
     return(ReturnThese)
   } 
-}
+  }
