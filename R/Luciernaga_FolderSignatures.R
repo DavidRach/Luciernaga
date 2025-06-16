@@ -6,13 +6,14 @@
 #' @param sample.name The keyword where the identifying sample name can be found
 #' @param StringRemoval Default NULL, provide to remove items from sample.name
 #' based on values found on the keyword
-#' @param fluorophore.name Specify the name of the fluorophore
+#' @param fluorophore.name Specify the name of the fluorophore, alternatively NULL
 #' @param Verbose Default FALSE, provides info as it goes
 #' @param stats Whether to use median or mean
 #' @param PanelCuts Default NULL, provide a c(0.5,1) argument to specify 
 #' the brightness percentiles to retrieve signature from for the individual files
 #' @param normalize Default TRUE, whether to return normalized or
 #' raw averaged MFI signatures
+#' @param returnType Default is "Signatures"
 #' 
 #' @importFrom flowWorkspace load_cytoset_from_fcs
 #' @importFrom flowWorkspace GatingSet
@@ -27,10 +28,15 @@
 #' A <- 2 + 2
 Luciernaga_FolderSignatures <- function(FolderPath, sample.name,
    StringRemoval=NULL, fluorophore.name, Verbose=FALSE,
-    stats="median", PanelCuts=NULL, normalize=TRUE){
+    stats="median", PanelCuts=NULL, normalize=TRUE, returnType="Signatures"){
+  
+  if (length(FolderPath > 1)){
+    TheFCSFiles <- FolderPath
+  } else {
+    TheFCSFiles <- list.files(path=FolderPath, pattern="fcs",
+    full.names=TRUE) 
+  }
 
-  TheFCSFiles <- list.files(path=FolderPath, pattern="fcs",
-   full.names=TRUE) 
   Selected_CS <- load_cytoset_from_fcs(TheFCSFiles,
      truncate_max_range = FALSE, transformation = FALSE)
   Selected_GS <- GatingSet(Selected_CS)
@@ -39,7 +45,7 @@ Luciernaga_FolderSignatures <- function(FolderPath, sample.name,
     sample.name=sample.name, StringRemoval=StringRemoval,
     fluorophore.name=fluorophore.name, Verbose=Verbose,
     stats=stats, PanelCuts=PanelCuts, normalize=normalize,
-    returnType="Signatures") |> bind_rows()
+    returnType=returnType) |> bind_rows()
 
   return(Returns)
 }
@@ -64,6 +70,13 @@ Luciernaga_FolderSignatures <- function(FolderPath, sample.name,
 #' @noRd
 FolderSignatureIterator <- function(x, sample.name, StringRemoval,
   fluorophore.name, Verbose, stats, PanelCuts, normalize, returnType){
+  
+  if (is.null(fluorophore.name)){
+    FluorophoreName <- keyword(x, "TUBENAME")
+    DefaultStrings <- c("DR_", " (Cells)")
+    AbbreviatedFluorophore <- NameCleanUp(FluorophoreName, removestrings=DefaultStrings)
+    fluorophore.name <- sub("^[^ ]+ ", "", AbbreviatedFluorophore)
+  }
   
   if (length(sample.name) == 2){
     first <- sample.name[[1]]
@@ -155,4 +168,4 @@ FolderSignatureIterator <- function(x, sample.name, StringRemoval,
       mutate(Sample=sampleName) |> relocate(Fluorophore, Sample, .before=1)
     
     return(Dataset)}
-  }
+}

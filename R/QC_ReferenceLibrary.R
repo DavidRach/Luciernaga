@@ -11,11 +11,22 @@
 #' @param plotlinecolor Default NULL, otherwise if single line provide desired color
 #' @param plotname Default NULL, alternatively specify a title.
 #' @param exact Default FALSE, else returns exact fluorophore name match. 
+#' @param unstained Default NULL, alternatively provide corresponding unstained signature
 #' 
+#' @importFrom purrr map
+#' @importFrom dplyr bind_rows
+#' @importFrom dplyr group_by
 #' @importFrom dplyr select
+#' @importFrom dplyr mutate
+#' @importFrom dplyr ungroup
 #' @importFrom dplyr filter
+#' @importFrom dplyr pull
 #' @importFrom stringr str_detect
+#' @importFrom dplyr arrange
+#' @importFrom dplyr desc
+#' @importFrom dplyr slice
 #' @importFrom dplyr n
+#' @importFrom stringr str_extract
 #'
 #' @return A dataframe column containing matching Fluorophores from your querry
 #' @export
@@ -24,7 +35,8 @@
 #' QC_ReferenceLibrary(FluorNameContains = "FITC", NumberDetectors=64)
 QC_ReferenceLibrary <- function(FluorNameContains, NumberDetectors,
                                 returnPlots=FALSE, plotlinecolor=NULL,
-                                legend=TRUE, plotname=NULL, exact=FALSE){
+                                legend=TRUE, plotname=NULL, exact=FALSE,
+                                unstained=NULL){
   
   if (!length(NumberDetectors) == 1){
     ReferenceData <- map(.x=NumberDetectors, .f=Luciernaga:::InstrumentReferences) |>
@@ -57,6 +69,20 @@ QC_ReferenceLibrary <- function(FluorNameContains, NumberDetectors,
     }
   }
 
+  TheseFluors <- Subset |> pull(Fluorophore)
+  Locations <- ReferenceData |> filter(Fluorophore %in% TheseFluors) |>
+    group_by(Fluorophore) |> arrange(desc(AdjustedY)) |> slice(1) |> ungroup()
+  Order <- c("UV", "V", "B", "YG", "R")
+  Sequence <- Locations |> mutate(
+    prefix = str_extract(Detector, "^[A-Z]+"),
+    num = as.numeric(str_extract(Detector, "\\d+")),
+    group_order = match(prefix, Order)
+  ) |> arrange(group_order, num) |> pull(Fluorophore)
+
+  Subset$Fluorophore <- factor(Subset$Fluorophore, levels=Sequence)
+  Subset <- Subset |> arrange(Fluorophore)
+
+
   # Plotting if requested
   if (returnPlots==FALSE){
     return(Subset)
@@ -64,22 +90,28 @@ QC_ReferenceLibrary <- function(FluorNameContains, NumberDetectors,
     TheseFluorophores <- Subset |> pull(Fluorophore)
     if (!length(NumberDetectors) == 1){
       Instruments <- ReferenceData |> pull(Instrument) |> unique()
-
-      SmallWrapper <- function(x, data, TheseFluorophores){
-        Internal <- data |> filter(Instrument %in% x)
-        ThePlot <- Luciernaga:::SimilarFluorPlots(TheseFluorophores=TheseFluorophores,
-          TheFluorophore=NULL, data=Internal, plotlinecolor=plotlinecolor,
-          legend=legend, plotname=plotname)
-      }
       ThePlot <- map(.x=Instruments, .f=SmallWrapper, data=ReferenceData, 
-      TheseFluorophores=TheseFluorophores)  
+      TheseFluorophores=TheseFluorophores, unstained=unstained)  
     } else {
       ThePlot <- Luciernaga:::SimilarFluorPlots(TheseFluorophores=TheseFluorophores,
                                    TheFluorophore=NULL, data=ReferenceData,
                                    plotlinecolor=plotlinecolor, legend=legend,
-                                   plotname=plotname)  
+                                   plotname=plotname, unstained=unstained)  
     }
     ReturnThese <- list(Subset, ThePlot)
     return(ReturnThese)
   } 
+}
+
+
+#' Internal for QC_ReferenceLibrary
+#' 
+#' @importFrom dplyr filter
+#' 
+#' @noRd
+SmallWrapper <- function(x, data, TheseFluorophores, unstained){
+    Internal <- data |> filter(Instrument %in% x)
+    ThePlot <- SimilarFluorPlots(TheseFluorophores=TheseFluorophores,
+      TheFluorophore=NULL, data=Internal, plotlinecolor=plotlinecolor,
+      legend=legend, plotname=plotname, unstained=unstained)
   }

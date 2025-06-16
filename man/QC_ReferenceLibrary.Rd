@@ -11,7 +11,8 @@ QC_ReferenceLibrary(
   plotlinecolor = NULL,
   legend = TRUE,
   plotname = NULL,
-  exact = FALSE
+  exact = FALSE,
+  unstained = NULL
 )
 }
 \arguments{
@@ -31,6 +32,8 @@ For ThermoFisher BigFoot 7L_488-561=55, 7L_532-594="52_7L", 6L_445="52_6L", 6L_7
 \item{plotname}{Default NULL, alternatively specify a title.}
 
 \item{exact}{Default FALSE, else returns exact fluorophore name match.}
+
+\item{unstained}{Default NULL, alternatively provide corresponding unstained signature}
 }
 \value{
 A dataframe column containing matching Fluorophores from your querry

@@ -14,7 +14,8 @@ Luciernaga_FolderSignatures(
   Verbose = FALSE,
   stats = "median",
   PanelCuts = NULL,
-  normalize = TRUE
+  normalize = TRUE,
+  returnType = "Signatures"
 )
 }
 \arguments{
@@ -25,7 +26,7 @@ Luciernaga_FolderSignatures(
 \item{StringRemoval}{Default NULL, provide to remove items from sample.name
 based on values found on the keyword}
 
-\item{fluorophore.name}{Specify the name of the fluorophore}
+\item{fluorophore.name}{Specify the name of the fluorophore, alternatively NULL}
 
 \item{Verbose}{Default FALSE, provides info as it goes}
 
@@ -36,6 +37,8 @@ the brightness percentiles to retrieve signature from for the individual files}
 
 \item{normalize}{Default TRUE, whether to return normalized or
 raw averaged MFI signatures}
+
+\item{returnType}{Default is "Signatures"}
 }
 \value{
 A data.frame of the corresponding averaged signatures per file

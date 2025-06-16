@@ -27,6 +27,7 @@
 #' @importFrom utils head 
 #' @importFrom dplyr pull
 #' @importFrom dplyr group_by
+#' @importFrom dplyr slice
 #' @importFrom dplyr slice_sample
 #' @importFrom dplyr ungroup
 #' @importFrom utils read.csv
@@ -59,7 +60,7 @@ Luciernaga_Brightness <- function(fluorophore.name, data,
     TheTable <- data.frame(table(TheData[[cluster.column]]), check.names = FALSE)
     colnames(TheTable)[1] <- "Cluster"
     colnames(TheTable)[2] <- "Count"
-    TheSlice <- TheTable |> arrange(Count) |> head(1) |> pull(Count)
+    TheSlice <- TheTable |> arrange(Count) |> slice(1) |> pull(Count)
 
     if (downsample == TRUE) {
       if (is.null(subsample)){
@@ -82,24 +83,31 @@ Luciernaga_Brightness <- function(fluorophore.name, data,
       pull(Detector)
     }
 
-    Values <- TheData |> select(where(is.numeric)) |> as.matrix()
-    theXmin <- Values %>% quantile(., 0.01)
-    theXmax <- Values %>% quantile(., 0.99)
+    Values <- TheData |> select(TheDetector) |> as.matrix()
+    theXmin <- Values %>% quantile(., 0.00)
+    theXmax <- Values %>% quantile(., 1.00)
     theXmin <- theXmin - abs((clearance*theXmin))
     theXmax <- theXmax + (clearance*theXmax)
 
     if (Scaled == TRUE){
-      if (maxtik == 1e6){
-        custom_breaks <- c(1e3, 1e4, 1e5, 1e6)
-        HighEnd <- 1e6
-      } else {custom_breaks <- c(1e3, 1e4, 1e5, maxtik)
-      HighEnd <- maxtik
-      }
-      
+      if (theXmax > 1000000){custom_breaks <- c(1e3, 1e4, 1e5, 1e6, 1e7, 1e8)
+      } else if (theXmax > 100000){custom_breaks <- c(1e3, 1e4, 1e5, 1e6, 1e7)
+      } else if (theXmax > 10000){custom_breaks <- c(1e3, 1e4, 1e5, 1e6)
+      } else {custom_breaks <- c(1e3, 1e4, 1e5)}
+
+      if (theXmin < -100000){lower_breaks <- c(-1e6, -1e5, -1e4, -1e3, 0.1)
+      } else if (theXmin < -10000){lower_breaks <- c(-1e5, -1e4, -1e3, 0.1)
+      } else if (theXmin < -1000){lower_breaks <- c(-1e4, -1e3, 0.1)
+      } else if (theXmin < 0){lower_breaks <- c(-1e3, 0.1)
+      } else {lower_breaks <- c(1)}
+
+      custom_breaks <- c(lower_breaks, custom_breaks)
+      HighEnd <- tail(custom_breaks, 1)
+      LowEnd <- head(custom_breaks, 1)     
 
       plot <- ggplot(TheData, aes(x=.data[[TheDetector]],
          fill=.data[[cluster.column]])) + geom_density(alpha=0.5) +
-          scale_x_log10(limits = c(1e3, HighEnd), breaks = custom_breaks, 
+          scale_x_log10(limits = c(LowEnd, HighEnd), breaks = custom_breaks, 
         labels = scales:::trans_format("log10", scales::math_format(10^.x)))  +
         labs(title=TheFluorophore, x=TheDetector, y="Frequency") + theme_bw() +
         theme(axis.title.x=element_text(face="plain"), axis.title.y=element_text(

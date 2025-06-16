@@ -32,9 +32,14 @@ Luciernaga_FolderBrightness <- function(FolderPath, sample.name,
   StringRemoval=NULL, fluorophore.name, Verbose=FALSE,
    stats="median", PanelCuts=NULL, normalize=FALSE, detector,
   returnType = "data", maxtik=1e6, legend="right"){
-
-  TheFCSFiles <- list.files(path=FolderPath, pattern="fcs",
-   full.names=TRUE) 
+  
+  if (length(FolderPath > 1)){
+    TheFCSFiles <- FolderPath
+    } else {
+      TheFCSFiles <- list.files(path=FolderPath, pattern="fcs",
+      full.names=TRUE) 
+    }  
+  
   Selected_CS <- load_cytoset_from_fcs(TheFCSFiles,
      truncate_max_range = FALSE, transformation = FALSE)
   Selected_GS <- GatingSet(Selected_CS)
