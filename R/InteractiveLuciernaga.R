@@ -255,7 +255,7 @@ GenerateInteractives <- function(x, outpath=NULL, filename=NULL){
   )
   
   Assembled <- paste0(filename, ".html")
-  StorageLocation <- file.path(outpath, StorageLocation)
+  StorageLocation <- file.path(outpath, Assembled)
   
   # Save to an HTML file
   save_html(html_content, file = StorageLocation )
