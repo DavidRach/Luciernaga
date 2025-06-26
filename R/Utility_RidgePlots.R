@@ -70,7 +70,7 @@ Utility_RidgePlots <- function(gs, subset, TheX=NULL, TheY, TheFill, inverse.tra
   if (inherits(gs, "flowSet")){
     cs <- gs
   } else {cs <- gs_pop_get_data(gs, subset, inverse.transform = inverse.transform)}
-
+  
   markers <- colnames(cs)
   DFNames <- markers[-grep("Time|FS|SC|SS|Original|-W$|-H$|AF", markers)]
 

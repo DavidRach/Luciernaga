@@ -137,8 +137,8 @@ Selected_GS <- GatingSet(Selected_CS)
 removestrings=c("DR_", ".fcs")
 
 SCs <- map(.x=Selected_GS[1], .f=Luciernaga_SingleColors,
- sample.name="TUBENAME", removestrings=removestrings, subset="root",
-  PanelCuts=ThePanelCuts, stats="median", Verbose=TRUE, SignatureView=TRUE,
-   returntype = "plots")
+ sample.name="TUBENAME", removestrings=removestrings,
+ subset="root", PanelCuts=ThePanelCuts, stats="median",
+ Verbose=TRUE, SignatureView=TRUE, returntype = "plots")
 
 }

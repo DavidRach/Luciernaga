@@ -4,6 +4,7 @@
 #' @param nameColumn The name of the column that differentiates between the reports
 #' @param cutoff Proportion of cells that at least 1 report needs to exceed for retention.
 #' @param returntype Either "plot" or underlying "data"
+#' @param legend Default is "right", use "none" to remove
 #'
 #' @importFrom purrr map
 #' @importFrom dplyr bind_rows
@@ -58,7 +59,8 @@
 #' plot <- Luciernaga_GroupHeatmap(reports=reports, nameColumn="Sample",
 #'  cutoff=0.02, returntype = "plot")
 #'
-Luciernaga_GroupHeatmap <- function(reports, nameColumn, cutoff=0.01, returntype="plot"){
+Luciernaga_GroupHeatmap <- function(reports, nameColumn, cutoff=0.01,
+   returntype="plot", legend="right"){
   #nameColumn <- "Experiment"
   Columns <- c(nameColumn, "Cluster", "Count")
 
@@ -103,7 +105,8 @@ Luciernaga_GroupHeatmap <- function(reports, nameColumn, cutoff=0.01, returntype
 
   if (returntype == "plot"){
 
-    plot <- Luciernaga:::StackedReportHeatmap(data=UpdatedDataset, nameColumn=nameColumn)
+    plot <- Luciernaga:::StackedReportHeatmap(data=UpdatedDataset,
+       nameColumn=nameColumn, legend=legend)
 
     return(plot)
 
@@ -114,6 +117,7 @@ Luciernaga_GroupHeatmap <- function(reports, nameColumn, cutoff=0.01, returntype
 #' Internal for StackedReport
 #'
 #' @param data The data intermediate of Stacked Report
+#' @param legend Default is "right", use "none"
 #'
 #' @importFrom ggplot2 ggplot
 #' @importFrom ggplot2 aes
@@ -128,13 +132,14 @@ Luciernaga_GroupHeatmap <- function(reports, nameColumn, cutoff=0.01, returntype
 #' @importFrom ggplot2 coord_fixed
 #'
 #' @noRd
-StackedReportHeatmap <- function(data, nameColumn){
+StackedReportHeatmap <- function(data, nameColumn, legend){
   data$Ratio <- round(data$Ratio, 2)
 
   plot <- ggplot(data, aes(x=.data[[nameColumn]], y = Cluster, fill = Ratio)) +
     geom_tile() + geom_text(aes(label = Ratio)) + theme_bw() +
-    scale_fill_gradient(name = "Ratio", low = "#FFFFFF", high = "#FF0000", limits = c(0, NA)) +
-    theme(plot.title = element_text(hjust = 0.5), panel.grid.minor = element_line(
+    scale_fill_gradient(name = "Ratio", low = "#FFFFFF", high = "#FF0000",
+   limits = c(0, NA)) + theme(legend.position = legend,
+   plot.title = element_text(hjust = 0.5), panel.grid.minor = element_line(
       linetype = "blank"), axis.title = element_text(size = 10), axis.title.y = element_blank(),
       axis.title.x = element_blank(), axis.line = element_blank(), axis.ticks = element_blank(),
       axis.text.x = element_text(angle = 40, hjust = 1), legend.key.size = unit(0.4, "cm"))  +

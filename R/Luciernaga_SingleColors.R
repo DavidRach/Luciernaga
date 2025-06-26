@@ -126,12 +126,13 @@
 #' removestrings=c("DR_", ".fcs")
 #'
 #' SCs <- map(.x=Selected_GS[1], .f=Luciernaga_SingleColors,
-#'  sample.name="TUBENAME", removestrings=removestrings, subset="root",
-#'   PanelCuts=ThePanelCuts, stats="median", Verbose=TRUE, SignatureView=TRUE,
-#'    returntype = "plots")
+#'  sample.name="TUBENAME", removestrings=removestrings,
+#'  subset="root", PanelCuts=ThePanelCuts, stats="median",
+#'  Verbose=TRUE, SignatureView=TRUE, returntype = "plots")
 #'
-Luciernaga_SingleColors <- function(x, sample.name, removestrings, subset, PanelCuts,
-                                    stats, SignatureView, Verbose=FALSE, returntype="data"){
+Luciernaga_SingleColors <- function(x, sample.name, removestrings,
+   subset, PanelCuts, stats, SignatureView, Verbose=FALSE,
+   returntype="data"){
 
   if (length(sample.name) == 2){
     first <- sample.name[[1]]
@@ -183,7 +184,7 @@ Luciernaga_SingleColors <- function(x, sample.name, removestrings, subset, Panel
   PeakDetectorCounts <- data.frame(Fluors = names(Counts), Counts = Counts)
   rownames(PeakDetectorCounts) <- NULL
   cutoff <- startingcells*0.0075
-  Detectors <- PeakDetectorCounts %>% filter(Counts > cutoff) %>%
+  Detectors <- PeakDetectorCounts |> filter(Counts > cutoff) |>
     arrange(desc(Counts))
   TheDetector <- Detectors[1,1]
 
@@ -196,18 +197,22 @@ Luciernaga_SingleColors <- function(x, sample.name, removestrings, subset, Panel
 
   TheInfo <- PanelCuts %>% dplyr::filter(Fluorophore %in% TheFluorophores)
 
-  if(base::nrow(TheInfo) > 1){stop("More than two rows retrieved when selecting Fluorophore")}
+  if(base::nrow(TheInfo) > 1){
+    stop("More than two rows retrieved when selecting Fluorophore")
+  }
 
   LowerBound <- TheInfo %>% select(From) %>% pull()
   UpperBound <- TheInfo %>% select(To) %>% pull()
 
   if (!(LowerBound >= 0 & LowerBound <= 1)) {
-    message("From should be between 0 and 1, proceeding to divide by 100 on assumption it was a percentage")
+    message("From should be between 0 and 1, proceeding to divide by
+     100 on assumption it was a percentage")
     LowerBound <- LowerBound / 100
   }
 
   if (!(UpperBound >= 0 & UpperBound <= 1)) {
-    message("To should be between 0 and 1, proceeding to divide by 100 on assumption it was a percentage")
+    message("To should be between 0 and 1, proceeding to divide by
+     100 on assumption it was a percentage")
     UpperBound <- UpperBound / 100
   }
 
@@ -222,7 +227,8 @@ Luciernaga_SingleColors <- function(x, sample.name, removestrings, subset, Panel
   Samples <- AveragedSignature(x=ValuesInterest, stats=stats)
 
 
-  Data <- cbind(TheFluorophores, TheLigand, Samples) %>% rename(Fluorophore = TheFluorophores) %>%
+  Data <- cbind(TheFluorophores, TheLigand, Samples) |>
+    rename(Fluorophore = TheFluorophores) |>
     rename(Ligand = TheLigand)
 
   if (SignatureView == TRUE){
@@ -230,8 +236,8 @@ Luciernaga_SingleColors <- function(x, sample.name, removestrings, subset, Panel
     NData <- Samples
     NumberDetectors <- ncol(NData)
     ReferenceData <- InstrumentReferences(NumberDetectors)
-    ReferenceData <- ReferenceData %>% select(-Instrument) %>% rename(value=AdjustedY) %>%
-      dplyr::filter(Fluorophore %in%TheFluorophores)
+    ReferenceData <- ReferenceData |> select(-Instrument) |>
+      rename(value=AdjustedY) |> dplyr::filter(Fluorophore %in%TheFluorophores)
 
     NData[NData < 0] <- 0
     A <- do.call(pmax, NData)
@@ -239,31 +245,35 @@ Luciernaga_SingleColors <- function(x, sample.name, removestrings, subset, Panel
     Normalized <- round(Normalized, 1)
 
     thename <- paste(TheFluorophores, TheLigand, sep = " ")
-    ThePlotData <- Normalized %>% mutate(Fluorophore = thename) %>% relocate(Fluorophore, .before=1)
+    ThePlotData <- Normalized %>% mutate(Fluorophore = thename) |>
+      relocate(Fluorophore, .before=1)
     LineCols <- ncol(ThePlotData)
 
-    Melted <- ThePlotData %>% pivot_longer(cols=2:LineCols, names_to = "Detector", values_to = "value")
+    Melted <- ThePlotData |> pivot_longer(cols=2:LineCols,
+       names_to = "Detector", values_to = "value")
     Melted$Detector <- factor(Melted$Detector, levels = detector_order)
 
     Melted <- Melted %>% mutate(Type = "Provided")
 
     if (!nrow(ReferenceData) == 0){
 
-    ReferenceData <- ReferenceData %>% mutate(Type = "Reference")
-    NewDetectorNames <- Melted %>% pull(Detector)
-    ReferenceData <- ReferenceData %>% mutate(Detector=NewDetectorNames)
+    ReferenceData <- ReferenceData |> mutate(Type = "Reference")
+    NewDetectorNames <- Melted |> pull(Detector)
+    ReferenceData <- ReferenceData |> mutate(Detector=NewDetectorNames)
     ReferenceData$value <- round(ReferenceData$value, 2)
 
     Melted <- rbind(Melted, ReferenceData)
     }
 
     plot <- ggplot(Melted, aes(x = Detector, y = value, group = Type,
-            color = Type)) + geom_line(size=1) + theme_bw() +
+      color = Type)) + geom_line(size=1) + theme_bw() +
       labs(title = thename, x = "Detectors", y = "Normalized") +
-      theme(axis.title.x = element_text(face = "plain"), axis.title.y = element_text(face = "plain"),
-            axis.text.x = element_text(size = 5, angle = 45, hjust = 1),
-            panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
-            legend.position="none") + scale_color_manual(values = c("Provided" = "blue", "Reference" = "red"))
+      theme(axis.title.x = element_text(face = "plain"), 
+      axis.title.y = element_text(face = "plain"),
+      axis.text.x = element_text(size = 5, angle = 45, hjust = 1),
+      panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+      legend.position="none") +
+      scale_color_manual(values = c("Provided" = "blue", "Reference" = "red"))
   }
 
   if (SignatureView == TRUE & returntype == "plots"){

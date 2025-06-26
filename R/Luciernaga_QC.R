@@ -647,7 +647,7 @@ AveragedSignature <- function(x, stats, normalize=FALSE){
     x <- x/A
   }
 
-  Signature <- x %>% summarize_all(stats)
+  Signature <- x |> summarize_all(stats)
 
   if (normalize == TRUE){
   Signature <- round(Signature, 3)

@@ -2,62 +2,71 @@
 % Please edit documentation in R/Luciernaga_IterativeUnmix.R
 \name{Luciernaga_IterativeUnmixing}
 \alias{Luciernaga_IterativeUnmixing}
-\title{Iterates over single color variant .fcs files, passing the generated signature to unmix full-stain sample}
+\title{Iterates over single color variant .fcs files, passing the 
+generated signature to unmix full-stain sample}
 \usage{
 Luciernaga_IterativeUnmixing(
   IterativePath,
-  iterate_removestrings,
-  removestrings,
-  sample.name,
-  subset = "root",
-  PanelCuts,
-  stats,
-  Verbose,
-  SignatureView,
-  returntype = "data",
-  FullStainedGS,
+  IterativeSampleName,
+  Iterativeremovestrings,
+  fluorophore.name,
+  PanelCuts = NULL,
+  stats = "median",
+  samplecolumn = "Sample",
   controlData,
-  multiplier,
-  outpath,
+  FullStainedGS,
+  sample.name,
+  removestrings,
+  subset = "root",
+  returnType = "fcs",
+  outpath = outpath,
   PanelPath
 )
 }
 \arguments{
-\item{IterativePath}{File path to folder containing the variant single color .fcs files}
+\item{IterativePath}{File path to folder containing the variant
+single color .fcs files}
 
-\item{iterate_removestrings}{String values to remove from the variant .fcs files name}
+\item{PanelCuts}{A data.frame containing the cuts, 
+see Luciernaga_Unmixing.}
 
-\item{removestrings}{Regular string values to remove to match single color name in controlData}
+\item{stats}{Whether to use "median" or "mean" to derrive 
+average signatures}
+
+\item{controlData}{The Luciernaga_SingleColors output that will 
+be used in combination with the iterated variant}
+
+\item{FullStainedGS}{The GatingSet containing the full-stained 
+samples you want to see effect of unmixing on}
 
 \item{sample.name}{Keyword storage name}
 
-\item{subset}{What population to pass from GatingSet, default is root.}
+\item{removestrings}{Regular string values to remove to match 
+single color name in controlData}
 
-\item{PanelCuts}{A data.frame containing the cuts, see Luciernaga_Unmixing.}
+\item{subset}{What population to pass from GatingSet, default 
+is root.}
 
-\item{stats}{Whether to use "median" or "mean" to derrive average signatures}
+\item{outpath}{Desired storage location}
+
+\item{PanelPath}{Path to a reference panel for ordering of 
+column markers in unmixed file}
+
+\item{iterate_removestrings}{String values to remove from the 
+variant .fcs files name}
 
 \item{Verbose}{If TRUE returns steps}
 
 \item{SignatureView}{Whether to visualize the SCs}
 
-\item{returntype}{Default is set to "data" for iteration arguments}
-
-\item{FullStainedGS}{The GatingSet containing the full-stained samples you want to see effect of unmixing on}
-
-\item{controlData}{The Luciernaga_SingleColors output that will be used in combination with the iterated variant}
-
-\item{multiplier}{Default is 50000, amplifies the OLS output. Impacted by biexponential transformation}
-
-\item{outpath}{Desired storage location}
-
-\item{PanelPath}{Path to a reference panel for ordering of column markers in unmixed file}
+\item{returntype}{Default is set to "fcs" for iteration arguments}
 }
 \value{
 Iterated versions of the full-stained sample
 }
 \description{
-Iterates over single color variant .fcs files, passing the generated signature to unmix full-stain sample
+Iterates over single color variant .fcs files, passing the 
+generated signature to unmix full-stain sample
 }
 \examples{
 NULL

@@ -8,7 +8,8 @@ Luciernaga_GroupHeatmap(
   reports,
   nameColumn,
   cutoff = 0.01,
-  returntype = "plot"
+  returntype = "plot",
+  legend = "right"
 )
 }
 \arguments{
@@ -19,6 +20,8 @@ Luciernaga_GroupHeatmap(
 \item{cutoff}{Proportion of cells that at least 1 report needs to exceed for retention.}
 
 \item{returntype}{Either "plot" or underlying "data"}
+
+\item{legend}{Default is "right", use "none" to remove}
 }
 \value{
 Either a plot or underlying data

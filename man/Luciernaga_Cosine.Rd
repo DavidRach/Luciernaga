@@ -4,14 +4,33 @@
 \alias{Luciernaga_Cosine}
 \title{Generates cosine comparison from a data.frame of fluorescent signatures}
 \usage{
-Luciernaga_Cosine(data, returntype = "plot", rearrange = TRUE)
+Luciernaga_Cosine(
+  data,
+  returntype = "plot",
+  rearrange = TRUE,
+  colorlow = "lightblue",
+  colorhigh = "red",
+  limitlow = 0.4,
+  limithigh = 1,
+  legend = TRUE
+)
 }
 \arguments{
 \item{data}{A data.frame with a single name column and rest numeric columns}
 
-\item{returntype}{Default returns "plot", alternatively "matrix" for underlying data}
+\item{returntype}{Default returns "plot", alternatively "data" for underlying data}
 
-\item{rearrange}{Something}
+\item{rearrange}{Whether to rearrange the plot to group similar signatures}
+
+\item{colorlow}{Default "lightblue"}
+
+\item{colorhigh}{Default "orange"}
+
+\item{limitlow}{Default 0.4}
+
+\item{limithigh}{Default 1}
+
+\item{legend}{Default TRUE}
 }
 \value{
 Either a ggplot or matrix object
