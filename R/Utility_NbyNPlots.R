@@ -95,13 +95,23 @@ Utility_NbyNPlots <- function(x, sample.name, removestrings, experiment = NULL,
 
   StorageLocation <- file.path(outpath, AggregateName)
 
-  mff <- gs_pop_get_data(x, marginsubset)
-  df <- exprs(mff[[1]])
+  if (inherits(x, "flowFrame")){
+    message("flowFrame detected, using entire population without gating")
+    df <- exprs(x)
+  } else {
+    mff <- gs_pop_get_data(x, marginsubset)
+    df <- exprs(mff[[1]])
+  }
+
   TheDF <- data.frame(df, check.names = FALSE)
   DFNames <- colnames(TheDF[,-grep("Time|FS|SC|SS|Original|W$|H$", names(TheDF))])
   PlotNumber <- length(DFNames)
 
-  ff <- gs_pop_get_data(x, gatesubset)
+  if (inherits(x, "flowFrame")){
+    ff <- x
+  } else {
+    ff <- gs_pop_get_data(x, gatesubset)
+  }
 
   if (ycolumn == "ALL"){
 
@@ -141,7 +151,7 @@ Utility_NbyNPlots <- function(x, sample.name, removestrings, experiment = NULL,
 
   return(AssembledPlots)
 
-}
+  }
 
 #' Internal for Utility_NbyNPlots
 #' @importFrom flowWorkspace keyword

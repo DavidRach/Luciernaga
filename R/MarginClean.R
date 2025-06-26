@@ -106,8 +106,16 @@ MarginClean <- function(gs, desiredCols=NULL, subset="root", themin=NULL, themax
       }
   }
 
-  PullTheLever <- gatingTemplate(Data)
-  gt_gating(PullTheLever, gs)
+  #gs_add_gating_method_init()
+
+  if (Verbose == FALSE){
+  suppressMessages(PullTheLever <- gatingTemplate(Data))
+  suppressMessages(gt_gating(PullTheLever, gs))
+  } else {
+    PullTheLever <- gatingTemplate(Data)
+    gt_gating(PullTheLever, gs)
+  }
+  
 
   ExistingGates <- gs_get_pop_paths(gs, path="auto")
   FirstGate <- ExistingGates[2]
@@ -117,6 +125,7 @@ MarginClean <- function(gs, desiredCols=NULL, subset="root", themin=NULL, themax
   Dataset$Population <- basename(Dataset$Population)
   Dataset$Parent <- basename(Dataset$Parent)
   Dataset <- Dataset |> filter(Population %in% SortThese)
+
   if (Verbose==TRUE){print(Dataset)}
 
   if (returnPlots==TRUE){

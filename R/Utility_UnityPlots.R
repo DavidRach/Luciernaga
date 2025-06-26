@@ -83,6 +83,7 @@ Utility_UnityPlot <- function(x, y, GatingSet, marginsubset, gatesubset,
   TheY <- y
   FileName <- NameCleanUp(TheX, removestrings)
 
+  #x <- GatingSet[[1]]
  Plots <- map(GatingSet, .f=Unity, TheX=TheX, TheY=TheY, marginsubset=marginsubset,
       gatesubset=gatesubset, sample.name=sample.name, removestrings=removestrings,
       clearance=clearance, bins=bins, gatelines=gatelines, reference=reference,
@@ -138,26 +139,34 @@ Unity <- function(x, TheY, TheX, marginsubset, gatesubset, sample.name, removest
 
   name <- keyword(x, sample.name)
   name <- NameCleanUp(name = name, removestrings)
+  
+  if (inherits(x, "flowFrame")){
+    message("flowFrame detected, unable to use gatesubset, using root instead")
+    df <- exprs(x)
+  } else {
+    ff <- gs_pop_get_data(x, marginsubset)
+    df <- exprs(ff[[1]])
+  }
 
-  ff <- gs_pop_get_data(x, marginsubset)
-  df <- exprs(ff[[1]])
   TheDF <- data.frame(df, check.names = FALSE)
 
   if (!TheX == TheY) {
-    YExprsData <- TheDF %>% select(all_of(TheY)) %>% pull()
+    YExprsData <- TheDF |> select(all_of(TheY)) |> pull()
     theYmin <- YExprsData %>% quantile(., 0.001)
     theYmax <- YExprsData %>% quantile(., 0.999)
     theYmin <- theYmin - abs((clearance*theYmin))
     theYmax <- theYmax + (clearance*theYmax)
 
-    XExprsData <- TheDF %>% select(all_of(TheX)) %>% pull()
+    XExprsData <- TheDF |> select(all_of(TheX)) |> pull()
     theXmin <- XExprsData %>% quantile(., 0.001)
     theXmax <- XExprsData %>% quantile(., 0.999)
     theXmin <- theXmin - abs((clearance*theXmin))
     theXmax <- theXmax + (clearance*theXmax)
   } else (stop("TheX and TheY have the same value"))
 
-  ff1 <- gs_pop_get_data(x, gatesubset)
+  if (inherits(x, "flowFrame")){
+    ff1 <- x
+  } else {ff1 <- gs_pop_get_data(x, gatesubset)}
 
   if (BiocGenerics::nrow(ff1) < 200) {
 
