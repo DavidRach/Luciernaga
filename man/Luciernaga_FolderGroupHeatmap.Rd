@@ -8,7 +8,8 @@ Luciernaga_FolderGroupHeatmap(
   FolderPath,
   cutoff = 0.01,
   removeFollowing = NULL,
-  legend = "right"
+  legend = "right",
+  returnType = "data"
 )
 }
 \arguments{
@@ -19,6 +20,8 @@ Luciernaga_FolderGroupHeatmap(
 \item{removeFollowing}{Default NULL, string character start for removal via stringr::str_detect}
 
 \item{legend}{Default is "right", provide "none" to remove.}
+
+\item{returnType}{Default is "data", alternate is "count"}
 }
 \value{
 A GroupHeatmap plot

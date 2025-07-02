@@ -4,6 +4,7 @@
 #' @param cutoff Minimal ratio needed for showing, cells not making criteria rolled into other
 #' @param removeFollowing Default NULL, string character start for removal via stringr::str_detect
 #' @param legend Default is "right", provide "none" to remove.
+#' @param returnType Default is "data", alternate is "count"
 #' 
 #' @importFrom flowWorkspace load_cytoset_from_fcs
 #' @importFrom flowWorkspace GatingSet
@@ -22,7 +23,7 @@
 #' @examples
 #' A <- 2+2
 Luciernaga_FolderGroupHeatmap <- function(FolderPath, cutoff=0.01, removeFollowing=NULL, 
-  legend="right"){
+  legend="right", returnType="data"){
 
   if (length(FolderPath > 1)){
   TheFCSFiles <- FolderPath
@@ -54,12 +55,14 @@ Luciernaga_FolderGroupHeatmap <- function(FolderPath, cutoff=0.01, removeFollowi
            dplyr::filter(!stringr::str_detect(Metadata$Cluster, removeFollowing))
   }
 
+  if (returnType == "data"){
   Data <- Luciernaga_GroupHeatmap(reports=Metadata,
    nameColumn = "Date", cutoff=cutoff, legend=legend,
    returntype="plot")
-
-  return(Data)
-}
+  return(Data)  
+  } else {return(Metadata)
+  }
+  }
 
 #' Internal Luciernaga_FolderGroupHeatmap, parses GatingSet metadata
 #' 
