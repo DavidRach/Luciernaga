@@ -42,7 +42,8 @@ QC_Screen <- function(data, groupColumns, clusterColumn="Cluster",
         TheseDates <- filterDate
     }
     
-    plots <- map(.x=TheseDates, .f=QCPlot_Amalgamate, data=Filtered)
+    plots <- map(.x=TheseDates, .f=QCPlot_Amalgamate, data=Filtered,
+    normalize=normalize)
 
     if (returnType == "pdf"){
         Utility_Patchwork(x=plots, filename=filename, outfolder=outpath,
@@ -63,6 +64,7 @@ QC_Screen <- function(data, groupColumns, clusterColumn="Cluster",
 #' @param returnType Default is "plot"
 #' @param titlename Default is NULL, alternatively provided sets title
 #' @param legend Default is FALSE, when TRUE sets legend.position to "right"
+#' @param normalize Default is FALSE
 #' 
 #' @importFrom dplyr filter pull select summarize across relocate bind_rows
 #' bind_cols 
@@ -78,7 +80,7 @@ QC_Screen <- function(data, groupColumns, clusterColumn="Cluster",
 #' @noRd
 QCPlot_Amalgamate <- function(x, data, countcolumn="Count",
  samplecolumn="TheSample", linecolor="red", returnType="plot",
- titlename=NULL, legend=FALSE){
+ titlename=NULL, legend=FALSE, normalize){
 
     SmallPortion <- data |> filter(TheSample %in% x)
     if (is.null(titlename)){
@@ -134,7 +136,7 @@ QCPlot_Amalgamate <- function(x, data, countcolumn="Count",
      
 
     plot <- ggplot(Melted, aes(x = Detector, y = value, group = Cluster,
-               color = Cluster)) + geom_line(alpha=0.5, linewidth=0.5) +
+               color = Cluster)) + geom_line(alpha=0.5, size=0.2) +
                scale_color_manual(values = setNames(
                     ifelse(unique(Melted[["Cluster"]]) == "Average", linecolor, "gray"),
                     unique(Melted[["Cluster"]]))) +

@@ -23,7 +23,7 @@ Utility_GatingPlots(
   optionalX = NULL,
   optionalY = NULL,
   optionalGate = NULL,
-  ...
+  optionalName = NULL
 )
 }
 \arguments{
@@ -66,7 +66,7 @@ data density.}
 
 \item{optionalGate}{Default NULL, if using optional arguments and correct X and Y, the gate arg}
 
-\item{...}{Additional Arguments to NameForSample to derive filename.}
+\item{optionalName}{Default NULL, alternatively sets title for "plots"}
 }
 \value{
 Additional information to be added

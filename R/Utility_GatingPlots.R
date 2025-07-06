@@ -21,8 +21,8 @@
 #' @param optionalX When gtFile is NULL, provides x-axis argument for the subset gated population
 #' @param optionalY When gtFile is NULL, provides y-axis argument for the subset gated population
 #' @param optionalGate Default NULL, if using optional arguments and correct X and Y, the gate arg
-#' @param ... Additional Arguments to NameForSample to derive filename.
-#'
+#' @param optionalName Default NULL, alternatively sets title for "plots"
+#' 
 #' @importFrom flowWorkspace keyword
 #' @importFrom flowWorkspace gs_pop_get_data
 #' @importFrom flowCore exprs
@@ -64,13 +64,13 @@ Utility_GatingPlots <- function(x, sample.name, removestrings,
   subset="root", gtFile=NULL, DesiredGates = NULL, outpath = NULL,
   filename=NULL, returnType, bins=270, therows=2, thecolumns=2,
   width=7, height=9, clearance=0.2, optionalX=NULL, optionalY=NULL,
-  optionalGate=NULL, ...){
+  optionalGate=NULL, optionalName=NULL){
 
   # Setting up individual file name
   if (is.null(outpath)){outpath <- getwd()}
 
   AggregateName <- Luciernaga:::NameForSample(x=x, sample.name=sample.name,
-                                 removestrings=removestrings, ...)
+                                 removestrings=removestrings)
 
   # Pulling Gating Information
   if(!is.null(gtFile)){
@@ -87,14 +87,25 @@ Utility_GatingPlots <- function(x, sample.name, removestrings,
 
   #Plot Generation
   if(!is.null(TheXYZgates)){
+
+    if (!is.null(optionalName)){
+      if (length(optionalName) == 2){
+        first <- optionalName[[1]]
+        second <- optionalName[[2]]
+        first <- keyword(x, first)
+        second <- keyword(x, second)
+        name <- paste(first, second, sep="_")
+      } else {name <- keyword(x, optionalName)}
+    } else {name <- NULL}
+
     ff <- gs_pop_get_data(x, subset)
     df <- exprs(ff[[1]])
     TheDF <- data.frame(df, check.names = FALSE)
     x2 <- x
 
     CompiledPlots <- map(.x = TheXYZgates, .f = GatePlot, data=x2, TheDF = TheDF,
-                        gtFile = gtFile, bins=bins, clearance=clearance)
-  } else {
+                        gtFile = gtFile, bins=bins, clearance=clearance, name=name)
+    } else {
     CompiledPlots <- Utility_IterativeGating(x=x, subset=subset,
      xValue=optionalX, yValue=optionalY, gate=optionalGate, sample.name=sample.name,
     removestrings=removestrings, bins=bins)
@@ -126,6 +137,7 @@ Utility_GatingPlots <- function(x, sample.name, removestrings,
 #' @param bins Argument to geom_hex for number of bins to visualize the plotted
 #' data density.
 #' @param clearance A buffer area around the plot edge
+#' @param name Sets the title for the plot, default is NULL
 #'
 #' @importFrom dplyr filter
 #' @importFrom stringr str_split
@@ -139,7 +151,8 @@ Utility_GatingPlots <- function(x, sample.name, removestrings,
 #' @return A ggplot corresponding to the given inputs
 #'
 #' @noRd
-GatePlot <- function(x, data, TheDF, gtFile, bins=270, clearance = 0.2){
+GatePlot <- function(x, data, TheDF, gtFile, bins=270, clearance = 0.2,
+  name){
     i <- x
     gtFile <- data.frame(gtFile, check.names = FALSE)
     RowData <- gtFile |> filter(alias %in% i)
