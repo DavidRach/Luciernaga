@@ -83,13 +83,17 @@ MagesCauldron <- function(panelfluors, unstained, returnType="plot", savePlot=FA
   row.names(TheSQRT) <- TheseFluorophores
   Hotspots <- round(TheSQRT, 2)
 
-  if (returnType == "data"){
-       return(Hotspots)
-  }
-
   final_matrix <- Hotspots
   lower_tri <- final_matrix
   lower_tri[upper.tri(final_matrix)] <- NA  
+
+  if (returnType == "data"){
+      ReturnTri <- data.frame(lower_tri)
+      colnames(ReturnTri) <- row.names(ReturnTri)
+      ReturnTri <- ReturnTri |>
+        rownames_to_column("Fluorophore")
+      return(ReturnTri)
+  }
 
   Longer <- as.data.frame(lower_tri) |> rownames_to_column("row") |> 
     pivot_longer(cols = -row, names_to = "col_num", names_prefix = "V",
