@@ -3,6 +3,7 @@
 #' @param MyData The data.frame of raw .fcs exprs values
 #' @param These A list of columns corresponding to local maxima peaks
 #' @param DetectorName The brightest peak everything is normalized to.
+#' @param SkipMain Default FALSE, TRUE used by Luciernaga_SpotCheck
 #'
 #' @importFrom dplyr mutate
 #' @importFrom dplyr case_when
@@ -10,8 +11,12 @@
 #' @return An internal value
 #'
 #' @keywords internal
-LuciernagaClustering <- function(MyData, These, DetectorName){
+LuciernagaClustering <- function(MyData, These, DetectorName,
+  SkipMain=FALSE){
+  
+  if (SkipMain == FALSE){
   MyData$Cluster <- paste(DetectorName, "10-", sep = "_")
+  } else {MyData <- MyData |> mutate(Cluster=NULL)}
 
   if (length(These) > 15){stop(
     "Only currently set up to handle up to 16 fluorescence peaks per fluorophore")

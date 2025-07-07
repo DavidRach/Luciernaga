@@ -4,7 +4,7 @@
 \alias{LuciernagaClustering}
 \title{Internal for UnstainedSignatures And SingleStainSignatures}
 \usage{
-LuciernagaClustering(MyData, These, DetectorName)
+LuciernagaClustering(MyData, These, DetectorName, SkipMain = FALSE)
 }
 \arguments{
 \item{MyData}{The data.frame of raw .fcs exprs values}
@@ -12,6 +12,8 @@ LuciernagaClustering(MyData, These, DetectorName)
 \item{These}{A list of columns corresponding to local maxima peaks}
 
 \item{DetectorName}{The brightest peak everything is normalized to.}
+
+\item{SkipMain}{Default FALSE, TRUE used by Luciernaga_SpotCheck}
 }
 \value{
 An internal value

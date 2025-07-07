@@ -9,7 +9,8 @@ Luciernaga_GroupHeatmap(
   nameColumn,
   cutoff = 0.01,
   returntype = "plot",
-  legend = "right"
+  legend = "right",
+  transpose = FALSE
 )
 }
 \arguments{
@@ -22,6 +23,8 @@ Luciernaga_GroupHeatmap(
 \item{returntype}{Either "plot" or underlying "data"}
 
 \item{legend}{Default is "right", use "none" to remove}
+
+\item{transpose}{Default is FALSE, flips orientation}
 }
 \value{
 Either a plot or underlying data

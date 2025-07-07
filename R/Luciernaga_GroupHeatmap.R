@@ -5,17 +5,11 @@
 #' @param cutoff Proportion of cells that at least 1 report needs to exceed for retention.
 #' @param returntype Either "plot" or underlying "data"
 #' @param legend Default is "right", use "none" to remove
-#'
+#' @param transpose Default is FALSE, flips orientation
+#' 
 #' @importFrom purrr map
-#' @importFrom dplyr bind_rows
-#' @importFrom dplyr group_by
-#' @importFrom dplyr summarize
-#' @importFrom dplyr left_join
-#' @importFrom dplyr mutate
-#' @importFrom dplyr relocate
-#' @importFrom dplyr select
-#' @importFrom dplyr pull
-#' @importFrom dplyr rename
+#' @importFrom dplyr bind_rows group_by summarize left_join mutate
+#' relocate select pull rename
 #'
 #' @return Either a plot or underlying data
 #' @export
@@ -60,7 +54,7 @@
 #'  cutoff=0.02, returntype = "plot")
 #'
 Luciernaga_GroupHeatmap <- function(reports, nameColumn, cutoff=0.01,
-   returntype="plot", legend="right"){
+   returntype="plot", legend="right", transpose=FALSE){
   #nameColumn <- "Experiment"
   Columns <- c(nameColumn, "Cluster", "Count")
 
@@ -106,7 +100,7 @@ Luciernaga_GroupHeatmap <- function(reports, nameColumn, cutoff=0.01,
   if (returntype == "plot"){
 
     plot <- Luciernaga:::StackedReportHeatmap(data=UpdatedDataset,
-       nameColumn=nameColumn, legend=legend)
+       nameColumn=nameColumn, legend=legend, transpose=transpose)
 
     return(plot)
 
@@ -118,6 +112,7 @@ Luciernaga_GroupHeatmap <- function(reports, nameColumn, cutoff=0.01,
 #'
 #' @param data The data intermediate of Stacked Report
 #' @param legend Default is "right", use "none"
+#' @param transpose Default is FALSE, flips orientation
 #'
 #' @importFrom ggplot2 ggplot
 #' @importFrom ggplot2 aes
@@ -132,9 +127,10 @@ Luciernaga_GroupHeatmap <- function(reports, nameColumn, cutoff=0.01,
 #' @importFrom ggplot2 coord_fixed
 #'
 #' @noRd
-StackedReportHeatmap <- function(data, nameColumn, legend){
+StackedReportHeatmap <- function(data, nameColumn, legend, transpose){
   data$Ratio <- round(data$Ratio, 2)
 
+  if (transpose == FALSE){
   plot <- ggplot(data, aes(x=.data[[nameColumn]], y = Cluster, fill = Ratio)) +
     geom_tile() + geom_text(aes(label = Ratio)) + theme_bw() +
     scale_fill_gradient(name = "Ratio", low = "#FFFFFF", high = "#FF0000",
@@ -144,9 +140,20 @@ StackedReportHeatmap <- function(data, nameColumn, legend){
       axis.title.x = element_blank(), axis.line = element_blank(), axis.ticks = element_blank(),
       axis.text.x = element_text(angle = 40, hjust = 1), legend.key.size = unit(0.4, "cm"))  +
     coord_fixed(ratio = 1.1)
+   } else{
+    plot <- ggplot(data, aes(y=.data[[nameColumn]], x = Cluster, fill = Ratio)) +
+      geom_tile() + geom_text(aes(label = Ratio)) + theme_bw() +
+      scale_fill_gradient(name = "Ratio", low = "#FFFFFF", high = "#FF0000",
+     limits = c(0, NA)) + theme(legend.position = legend,
+     plot.title = element_text(hjust = 0.5), panel.grid.minor = element_line(
+        linetype = "blank"), axis.title = element_text(size = 10), axis.title.y = element_blank(),
+        axis.title.x = element_blank(), axis.line = element_blank(), axis.ticks = element_blank(),
+        axis.text.x = element_text(angle = 40, hjust = 1), legend.key.size = unit(0.4, "cm"))  +
+      coord_fixed(ratio = 1.1)
+   }
 
   return(plot)
-}
+  }
 
 #' Internal for Stacked Reports
 #'
