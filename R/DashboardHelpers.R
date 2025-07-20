@@ -432,30 +432,26 @@ LevyJenningsParse <- function(MainFolder, x, Maintainer=FALSE){
 #'
 #' @importFrom flowWorkspace load_cytoset_from_fcs
 #' @importFrom purrr map
-#' @importFrom dplyr bind_rows
-#' @importFrom dplyr mutate
-#' @importFrom dplyr relocate
-#' @importFrom dplyr arrange
-#' @importFrom dplyr desc
-#' @importFrom utils read.csv
-#' @importFrom lubridate ymd_hms
-#' @importFrom lubridate ymd
-#' @importFrom lubridate hms
-#' @importFrom dplyr anti_join
-#' @importFrom utils write.csv
+#' @importFrom dplyr bind_rows mutate relocate arrange desc anti_join
+#' @importFrom utils read.csv write.csv
+#' @importFrom lubridate ymd_hms ymd hms
 #'
 #' @return Updated MFI tracking CSV
 #' @noRd
-QCBeadParse <- function(x, MainFolder){
+QCBeadParse <- function(x, MainFolder, timepointType="double"){
   Folder <- file.path(MainFolder, x)
   FCS_Files <- list.files(Folder, pattern="fcs", full.names=TRUE)
 
   if(!length(FCS_Files) == 0){
 
+    if (timepointType == "double"){
     QCBeads <- FCS_Files[grep("Before|After", FCS_Files)]
+    } else {QCBeads <- FCS_Files}
 
     if (length(QCBeads) == 0){
-      message("No Before After detected in names")
+      if (timepointType == "double"){
+        message("No Before After detected in names")
+      } else {message("No FCS Files detected")}
       QCBeads <- FCS_Files
     }
 
@@ -473,13 +469,18 @@ QCBeadParse <- function(x, MainFolder){
       TheSave
     })
 
-    BeforeAfter <- map(.x=BeforeAfter_CS, .f=QC_GainMonitoring,
-                       sample.name = "TUBENAME", stats="median") %>% bind_rows()
+    if (timepointType == "double"){
+      BeforeAfter <- map(.x=BeforeAfter_CS, .f=QC_GainMonitoring,
+        sample.name = "TUBENAME", stats="median") |> bind_rows()
+    } else {
+      BeforeAfter <- map(.x=BeforeAfter_CS, .f=QC_GainMonitoring,
+        sample.name = "$DATE", stats="median") |> bind_rows()
+    }
 
-    BeforeAfter <- BeforeAfter %>% mutate(DateTime = DATE+TIME) %>%
+    BeforeAfter <- BeforeAfter |> mutate(DateTime = DATE+TIME) |>
       relocate(DateTime, .before=DATE)
 
-    BeforeAfter <- BeforeAfter %>% arrange(desc(DateTime))
+    BeforeAfter <- BeforeAfter |> arrange(desc(DateTime))
 
     ArchiveFolder <- file.path(Folder, "Archive")
     ArchiveCSV <- list.files(ArchiveFolder, pattern="Bead", full.names=TRUE)
@@ -489,15 +490,15 @@ QCBeadParse <- function(x, MainFolder){
     if (!length(ArchiveCSV) > 1){
 
       ArchiveData <- read.csv(ArchiveCSV, check.names=FALSE)
-      ArchiveData$DateTime <- lubridate::ymd_hms(ArchiveData$DateTime)
-      ArchiveData$DATE <- lubridate::ymd(ArchiveData$DATE)
-      ArchiveData$TIME <- lubridate::hms(ArchiveData$TIME)
+      ArchiveData$DateTime <- ymd_hms(ArchiveData$DateTime)
+      ArchiveData$DATE <- ymd(ArchiveData$DATE)
+      ArchiveData$TIME <- hms(ArchiveData$TIME)
 
       if (!ncol(BeforeAfter) == ncol(ArchiveData)){
         stop("Mismatched Number of Columns")
       }
 
-      NewData <- BeforeAfter %>%
+      NewData <- BeforeAfter |>
         anti_join(ArchiveData, by = c("DATE", "TIME"))
 
       UpdatedData <- rbind(NewData, ArchiveData)
@@ -508,7 +509,7 @@ QCBeadParse <- function(x, MainFolder){
 
     } else {UpdatedData <- BeforeAfter}
 
-    UpdatedData <- UpdatedData %>% arrange(desc(DateTime))
+    UpdatedData <- UpdatedData |> arrange(desc(DateTime))
 
     file.remove(FCS_Files)
     name <- paste0("BeadData", x, ".csv")
