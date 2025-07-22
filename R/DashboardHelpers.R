@@ -429,6 +429,7 @@ LevyJenningsParse <- function(MainFolder, x, Maintainer=FALSE){
 #'
 #' @param x The cytometer folder name
 #' @param MainFolder The file.path to main folder
+#' @param timepointType Whether single or double.
 #'
 #' @importFrom flowWorkspace load_cytoset_from_fcs
 #' @importFrom purrr map
