@@ -527,29 +527,23 @@ QCBeadParse <- function(x, MainFolder, timepointType="double"){
 #' @param Template Default NULL, a file.path to an openCyto gating template want to apply fist.
 #' @param subsets Default NULL, a GatingHierarchy subset to retrieve information from. 
 #' @param FuckIt Default FALSE, when the user messed with settings so badly to cause a migraine. 
+#' @param sample.name Default '$NAME', used for metadata. 
 #'
-#' @importFrom flowWorkspace load_cytoset_from_fcs
+#' @importFrom flowWorkspace load_cytoset_from_fcs GatingSet
 #' @importFrom purrr map
-#' @importFrom dplyr bind_rows
-#' @importFrom dplyr mutate
-#' @importFrom dplyr relocate
-#' @importFrom dplyr arrange
-#' @importFrom dplyr desc
-#' @importFrom utils read.csv
-#' @importFrom lubridate ymd_hms
-#' @importFrom lubridate ymd
-#' @importFrom lubridate hms
-#' @importFrom dplyr anti_join
-#' @importFrom utils write.csv
-#' @importFrom flowWorkspace GatingSet
-#' @importFrom openCyto gatingTemplate
-#' @importFrom openCyto gt_gating
+#' @importFrom dplyr bind_rows mutate relocate arrange desc anti_join
+#' @importFrom utils read.csv write.csv
+#' @importFrom lubridate ymd_hms ymd hms
+#' @importFrom openCyto gatingTemplate gt_gating
 #' @importFrom data.table fread
 #' @importFrom Biobase exprs
+#' @importFrom stringr str_c str_sub
 #'
 #' @return Updated MFI tracking CSV
 #' @noRd
-HolisticQCParse <- function(x, MainFolder, Template=NULL, subsets=NULL, FuckIt=FALSE){
+HolisticQCParse <- function(x, MainFolder, Template=NULL, subsets=NULL,
+   FuckIt=FALSE, sample.name="$DATE"){
+  
   Folder <- file.path(MainFolder, x)
   FCS_Files <- list.files(Folder, pattern="fcs", full.names=TRUE)
 
@@ -567,22 +561,40 @@ HolisticQCParse <- function(x, MainFolder, Template=NULL, subsets=NULL, FuckIt=F
         truncate_max_range = FALSE)
     }
 
+    DateFormat <- keyword(The_CS[[1]])$`$DATE`
+
+    if (sample.name == '$DATE' && DateFormat == "01-Jan-0001"){
+      sample.name <- "$FIL"
+    }
+
     if (is.null(Template)){
     Parsed <- map(.x=The_CS, .f=QC_GainMonitoring,
-                       sample.name = "$DATE", stats="median") |> bind_rows()
+                       sample.name = sample.name, stats="median") |> bind_rows()
     } else {
       Gating <- data.table::fread(Template)
       MyGatingSet <- GatingSet(The_CS)
       MyGatingTemplate <- gatingTemplate(Gating)
 
-      MyGatingSet <- GateCheck(gs=MyGatingSet, gatingtemplate = MyGatingTemplate)
+      MyGatingSet <- GateCheck(gs=MyGatingSet, gatingtemplate = MyGatingTemplate, 
+      subsets=subsets)
       
       if (is.null(MyGatingSet)){return(MyGatingSet)}
 
       gt_gating(MyGatingTemplate, MyGatingSet)
 
-    Parsed <- map(.x=MyGatingSet, .f=QC_GainMonitoring, subsets=subsets,
-        sample.name = "$DATE", stats="median") |> bind_rows()
+      Parsed <- map(.x=MyGatingSet, .f=QC_GainMonitoring, subsets=subsets,
+          sample.name = sample.name, stats="median") |> bind_rows()
+      
+      if (DateFormat == "01-Jan-0001"){
+        Parsed <- Parsed |> mutate(DATE = gsub("DailyQCDataSample_", "", SAMPLE))
+        Parsed <- Parsed |> mutate(TIME = sub("^[^_]*_", "", DATE))
+        Parsed <- Parsed |> mutate(DATE = sub("_.*", "", DATE))
+        Parsed$DATE <- ymd(Parsed$DATE)
+        Parsed <- Parsed |> mutate(TIME=str_c(str_sub(TIME, 1, 2), ":",
+                                              str_sub(TIME, 3, 4), ":",
+                                              str_sub(TIME, 5, 6)),
+                                            TIME=lubridate::hms(TIME))
+      }
       
     }
 
@@ -632,16 +644,28 @@ HolisticQCParse <- function(x, MainFolder, Template=NULL, subsets=NULL, FuckIt=F
 #' 
 #' @param gs A gating set object
 #' @param gatingtemplate The gating template object
+#' @param subsets Define what level to check
 #' 
 #' @return Purified Gating Set or a NULL Value
 #' 
 #' @noRd
-GateCheck <- function(gs, gatingtemplate){
+GateCheck <- function(gs, gatingtemplate, subsets=NULL){
   
   Nodes <- gatingtemplate@nodes
-  FinalNode <- Nodes[length(Nodes)]
-  These <- Nodes[-1]
-  CheckThis <- paste(These, collapse="|")
+  These <- Nodes
+  #FinalNode <- Nodes[length(Nodes)]
+
+  if (!is.null(subsets)){
+    TheMatch <- paste0("/", subsets)
+    Matching <- min(which(These %in% TheMatch))
+    These <- These[1:Matching]
+    if (length(These) == 1){CheckThis <- These
+    } else {CheckThis <- paste(These, collapse="|")}
+  } else {
+    These <- These[-1]
+    CheckThis <- paste(These, collapse="|")
+  }
+
   ThisFluor <- gatingtemplate@edgeData@data[[CheckThis]]$gtMethod@dims
 
   TheIndex <- any(colnames(gs) %in% ThisFluor)
