@@ -51,11 +51,20 @@ QC_Retrieval <- function(x, sample.name){
 
   PN_Names1 <- TheColumnNames[grepl("^\\$P[0-9]{1}N$", TheColumnNames)]
   PN_Names2 <- TheColumnNames[grepl("^\\$P[0-9]{2}N$", TheColumnNames)]
+  PN_Names3 <- TheColumnNames[grepl("^\\$P[0-9]{3}N$", TheColumnNames)]
   PV_Gains1 <- TheColumnNames[grepl("^\\$P[0-9]{1}V$", TheColumnNames)]
   PV_Gains2 <- TheColumnNames[grepl("^\\$P[0-9]{2}V$", TheColumnNames)]
-  PN_Names <- c(PN_Names1, PN_Names2)
+  PV_Gains3 <- TheColumnNames[grepl("^\\$P[0-9]{3}V$", TheColumnNames)]
+
+  if (length(PN_Names3) > 0){
+    PN_Names <- c(PN_Names1, PN_Names2, PN_Names3)
+  } else {  PN_Names <- c(PN_Names1, PN_Names2)}
   PN_Names <- PN_Names[-1] # Remove Time
-  PV_Gains <- c(PV_Gains1, PV_Gains2)
+
+  if (length(PV_Gains3) > 0){
+    PV_Gains <- c(PV_Gains1, PV_Gains2, PV_Gains3)
+  } else {PV_Gains <- c(PV_Gains1, PV_Gains2)}
+
 
   ParameterRows <- map2(.x=PN_Names, .y=PV_Gains, .f=Luciernaga:::RetrievalMerge,
                         TheData=KeywordsDF) %>% bind_cols()

@@ -564,8 +564,8 @@ HolisticQCParse <- function(x, MainFolder, Template=NULL, subsets=NULL,
     DateFormat <- keyword(The_CS[[1]])$`$DATE`
 
     if (sample.name == '$DATE' && DateFormat == "01-Jan-0001"){
-      sample.name <- "$FIL"
-    }
+      sample.name1 <- "$FIL"
+    } else {sample.name1 <- sample.name}
 
     if (is.null(Template)){
     Parsed <- map(.x=The_CS, .f=QC_GainMonitoring,
@@ -583,7 +583,7 @@ HolisticQCParse <- function(x, MainFolder, Template=NULL, subsets=NULL,
       gt_gating(MyGatingTemplate, MyGatingSet)
 
       Parsed <- map(.x=MyGatingSet, .f=QC_GainMonitoring, subsets=subsets,
-          sample.name = sample.name, stats="median") |> bind_rows()
+          sample.name = sample.name1, stats="median") |> bind_rows()
       
       if (DateFormat == "01-Jan-0001"){
         Parsed <- Parsed |> mutate(DATE = gsub("DailyQCDataSample_", "", SAMPLE))
