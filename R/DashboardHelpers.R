@@ -941,59 +941,69 @@ ShinyQCSummaryParser <- function(x, Intermediate){
 #' Dashboard Internal, processes to did parameter pass in past week
 #'
 #' @param x The data.frame output from LevyJennings or QCBeads Parse
+#' @param detectorType Default is "-A"
 #'
-#' @importFrom dplyr filter
-#' @importFrom dplyr select
+#' @importFrom dplyr filter select left_join pull bind_rows
 #' @importFrom lubridate weeks
-#' @importFrom tidyselect starts_with
-#' @importFrom tidyselect contains
-#' @importFrom tidyselect all_of
+#' @importFrom tidyselect starts_with contains all_of
 #' @importFrom tidyr pivot_longer
-#' @importFrom dplyr left_join
-#' @importFrom dplyr pull
 #' @importFrom purrr map
-#' @importFrom dplyr bind_rows
+#' @importFrom stringr str_detect
 #'
 #' @return Data frame of passing status for respective parameters
 #' @noRd
-VisualQCSummary <- function(x){
+VisualQCSummary <- function(x, detectorType="-A"){
 
   WindowOfInterest <- Sys.time() - weeks(1)
 
   if (nrow(x) > 1){
   Data <- x |> filter(DateTime > WindowOfInterest)
 
-  if(nrow(Data) == 0){Data <- x |> slice(1)}
+  if (nrow(Data) == 0){Data <- x |> slice(1)}
 
   } else {Data <- x}
 
-  Flags <- Data |> select(starts_with("Flag"))
-  colnames(Flags) <- gsub("Flag-", "", colnames(Flags))
-  Gains <- Flags |> select(contains("Gain"))
-  TheGains <- colnames(Gains)
-  rCV <- Flags |> select(contains("rCV"))
-  TherCV <- colnames(rCV)
+  if (any(stringr::str_detect(colnames(Data), "Flag"))){
+    Flags <- Data |> select(starts_with("Flag"))
+    colnames(Flags) <- gsub("Flag-", "", colnames(Flags))
+    Gains <- Flags |> select(contains("Gain"))
+    TheGains <- colnames(Gains)
+    rCV <- Flags |> select(contains("rCV"))
+    TherCV <- colnames(rCV)
+
+    colnames(Gains) <- gsub("-Gain", "", fixed=TRUE, colnames(Gains))
+    colnames(Gains) <- gsub("_Gain", "", fixed=TRUE, colnames(Gains))
+    colnames(rCV) <- gsub("-% rCV", "", fixed=TRUE, colnames(rCV))
+  } else {
+    Gains <- Data |> select(contains("Gain"))
+    TheGains <- colnames(Gains)
+    rCV <- Data |> select(contains("rCV"))
+    TherCV <- colnames(rCV) 
+
+    colnames(Gains) <- gsub("-Gain", "", fixed=TRUE, colnames(Gains))
+    colnames(Gains) <- gsub("_Gain", "", fixed=TRUE, colnames(Gains))
+    Gains[] <- "NA"
+
+    colnames(rCV) <- gsub("-% rCV", "", fixed=TRUE, colnames(rCV))
+    rCV[] <- "NA"
+  }
 
   TheGainData <- Data |> select(all_of(c("DateTime", TheGains)))
-  colnames(Gains) <- gsub("-Gain", "", fixed=TRUE, colnames(Gains))
+  colnames(TheGainData) <- gsub("_Gain", "", fixed=TRUE, colnames(TheGainData))
   colnames(TheGainData) <- gsub("-Gain", "", fixed=TRUE, colnames(TheGainData))
 
   TheGainData <- TheGainData |>
     pivot_longer(!DateTime, names_to = "Detector", values_to = "Gain")
 
   Gains <- Gains |> mutate(DateTime=Data$DateTime) |> relocate(DateTime, .before=1)
-
   Gains <- Gains |>
     pivot_longer(!DateTime, names_to = "Detector", values_to = "Gain_Logical")
 
   TherCVData <- Data |> select(all_of(c("DateTime", TherCV)))
-  colnames(rCV) <- gsub("-% rCV", "", fixed=TRUE, colnames(rCV))
   colnames(TherCVData) <- gsub("-% rCV", "", fixed=TRUE, colnames(TherCVData))
-
   TherCVData <- TherCVData |> pivot_longer(!DateTime, names_to = "Detector", values_to = "rCV")
 
   rCV <- rCV |> mutate(DateTime=Data$DateTime) |> relocate(DateTime, .before=1)
-
   rCV <- rCV |> pivot_longer(!DateTime, names_to = "Detector", values_to = "rCV_Logical")
 
   Tidy <- TheGainData |>
@@ -1002,6 +1012,7 @@ VisualQCSummary <- function(x){
     left_join(rCV, by = c("Detector", "DateTime"))
 
   TheDetectors <- Tidy |> pull(Detector) |> unique()
+  TheDetectors <- TheDetectors[str_detect(TheDetectors, detectorType)]
 
   Summary <- map(.x=TheDetectors, .f=QCSummaryCheck, data=Tidy) |> bind_rows()
   return(Summary)
@@ -1023,11 +1034,13 @@ QCSummaryCheck <- function(x, data){
 
   GainValue <- Subset |> slice(1) |> pull(Gain)
 
+  # When a FLAG is TRUE, then we have a problem. 
   if (any(Subset$Gain_Logical == TRUE)){
     Followup <- Subset |> slice(1) |> pull(Gain_Logical)
     if (Followup == TRUE){GainStatus <- "Red"
     } else {GainStatus <- "Yellow"}
-  } else {GainStatus <- "Green"}
+  } else if (any(Subset$Gain_Logical == FALSE)){GainStatus <- "Green"
+  } else {GainStatus <- "Gray"}
 
   rCVValue <- Subset |> slice(1) |> pull(rCV) |> round(2)
 
@@ -1035,7 +1048,8 @@ QCSummaryCheck <- function(x, data){
     Followup <- Subset |> slice(1) |> pull(rCV_Logical)
     if (Followup == TRUE){rCVStatus <- "Red"
     } else {rCVStatus <- "Yellow"}
-  } else {rCVStatus <- "Green"}
+  } else if (any(Subset$rCV_Logical == FALSE)){rCVStatus <- "Green"
+  } else {rCVStatus <- "Gray"}
 
   Summary <- data.frame(Detector=x, GainValue=GainValue, Gain=GainStatus,
     rCVValue = rCVValue, rCV=rCVStatus)
@@ -1128,6 +1142,7 @@ SmallTable <- function(data){
           x == "Orange" ~ "#FF6E00",
           x == "Yellow" ~ "#BA8E23",
           x == "Red" ~ "#C80815",
+          x == "Gray" ~ "#D3D3D3",
           TRUE ~ NA_character_
         )
       }
@@ -1137,7 +1152,8 @@ SmallTable <- function(data){
       sub_values(values= c("Green"), replacement = "Pass") |>
       sub_values(values= c("Orange"), replacement = "Warning") |>
       sub_values(values= c("Yellow"), replacement = "Caution") |>
-      sub_values(values= c("Red"), replacement = "Fail")
+      sub_values(values= c("Red"), replacement = "Fail") |>
+      sub_values(values= c("Gray"), replacement = "")
 
     Bolded <- Substituted |>
       opt_table_font(font = "Montserrat") |>
