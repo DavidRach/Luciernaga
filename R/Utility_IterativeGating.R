@@ -8,6 +8,7 @@
 #' @param sample.name Keyword under which the sample name is stored
 #' @param removestrings Character values to remove from the name
 #' @param bins Geo_hex bins for the dots
+#' @param plotname Default FALSE, adds name to title
 #'
 #' @importFrom Biobase pData
 #' @importFrom flowCore keyword
@@ -46,13 +47,13 @@
 #'   yValue = "SSC-A", bins = 270)
 #'
 Utility_IterativeGating <- function(x, subset, gate, xValue, yValue, sample.name,
-                                    removestrings, bins=270){
+                                    removestrings, bins=270, plotname=FALSE){
   gs <- x
   TheSpecimens <- pData(gs)$name
 
   ThePlots <- map(.x=TheSpecimens, .f=InternalIterator, gs=gs, subset=subset, gate=gate,
                   xValue=xValue, yValue=yValue, sample.name=sample.name,
-                  removestrings=removestrings, bins=bins)
+                  removestrings=removestrings, bins=bins, plotname=plotname)
 
   return(ThePlots)
 }
@@ -68,6 +69,7 @@ Utility_IterativeGating <- function(x, subset, gate, xValue, yValue, sample.name
 #' @param sample.name Keyword under which the sample name is stored
 #' @param removestrings Character values to remove from the name
 #' @param bins Geo_hex bins for the dots
+#' @param plotname Default FALSE, adds name to title
 #'
 #' @importFrom Biobase pData
 #' @importFrom flowCore keyword
@@ -80,7 +82,7 @@ Utility_IterativeGating <- function(x, subset, gate, xValue, yValue, sample.name
 #'
 #' @noRd
 InternalIterator <- function(x, gs, subset, gate, xValue, yValue, sample.name,
-                             removestrings, bins){
+                             removestrings, bins, plotname){
   theGSsubset <- subset(gs, name == x)
 
   if (length(sample.name) == 2){

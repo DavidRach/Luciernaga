@@ -23,7 +23,8 @@ Utility_GatingPlots(
   optionalX = NULL,
   optionalY = NULL,
   optionalGate = NULL,
-  optionalName = NULL
+  optionalName = NULL,
+  plotname = FALSE
 )
 }
 \arguments{

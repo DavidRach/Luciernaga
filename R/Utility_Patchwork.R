@@ -9,6 +9,7 @@
 #' @param height Desired page height
 #' @param returntype Whether to return "pdf" (to desired location) or "patchwork" (to R)
 #' @param NotListofList Internal default is True, don't touch.
+#' @param patches Whether NotListofList is patchwork objects
 #'
 #' @importFrom purrr map
 #' @importFrom patchwork wrap_plots
@@ -49,7 +50,7 @@
 #'   width = 7, height = 9, returntype="patchwork")
 #'
 Utility_Patchwork <- function(x, filename, outfolder, thecolumns=2, therows=3,
-  width = 7, height = 9, returntype="pdf", NotListofList = TRUE){
+  width = 7, height = 9, returntype="pdf", NotListofList = TRUE, patches=FALSE){
 
   if (NotListofList == TRUE){
   theList <- x
@@ -60,7 +61,13 @@ Utility_Patchwork <- function(x, filename, outfolder, thecolumns=2, therows=3,
 
   sublists <- split_list(theList, theoreticalitems)
   #length(sublists)
-  } else{sublists <- x}
+  } else{
+    sublists <- x
+
+    if (patches == TRUE){sublists <- flatten(sublists)}
+
+  }
+  
 
   if (returntype == "pdf"){
 

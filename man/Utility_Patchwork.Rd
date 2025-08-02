@@ -13,7 +13,8 @@ Utility_Patchwork(
   width = 7,
   height = 9,
   returntype = "pdf",
-  NotListofList = TRUE
+  NotListofList = TRUE,
+  patches = FALSE
 )
 }
 \arguments{
@@ -34,6 +35,8 @@ Utility_Patchwork(
 \item{returntype}{Whether to return "pdf" (to desired location) or "patchwork" (to R)}
 
 \item{NotListofList}{Internal default is True, don't touch.}
+
+\item{patches}{Whether NotListofList is patchwork objects}
 }
 \value{
 Some additional value to edit

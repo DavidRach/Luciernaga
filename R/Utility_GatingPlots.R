@@ -64,7 +64,9 @@ Utility_GatingPlots <- function(x, sample.name, removestrings,
   subset="root", gtFile=NULL, DesiredGates = NULL, outpath = NULL,
   filename=NULL, returnType, bins=270, therows=2, thecolumns=2,
   width=7, height=9, clearance=0.2, optionalX=NULL, optionalY=NULL,
-  optionalGate=NULL, optionalName=NULL){
+  optionalGate=NULL, optionalName=NULL, plotname=FALSE){
+  
+  if (plotname == TRUE){optionalName <- sample.name}
 
   # Setting up individual file name
   if (is.null(outpath)){outpath <- getwd()}
@@ -83,21 +85,19 @@ Utility_GatingPlots <- function(x, sample.name, removestrings,
   if(!is.null(TheXYZgates) && !is.null(DesiredGates)){
     TheXYZgates <- intersect(DesiredGates, TheXYZgates)}
 
-  # Pulling Gating Set Data
+  if (!is.null(optionalName)){
+    if (length(optionalName) == 2){
+      first <- optionalName[[1]]
+      second <- optionalName[[2]]
+      first <- keyword(x, first)
+      second <- keyword(x, second)
+      name <- paste(first, second, sep="_")
+    } else {name <- keyword(x, optionalName)}
+  } else {name <- NULL}
 
+  # Pulling Gating Set Data
   #Plot Generation
   if(!is.null(TheXYZgates)){
-
-    if (!is.null(optionalName)){
-      if (length(optionalName) == 2){
-        first <- optionalName[[1]]
-        second <- optionalName[[2]]
-        first <- keyword(x, first)
-        second <- keyword(x, second)
-        name <- paste(first, second, sep="_")
-      } else {name <- keyword(x, optionalName)}
-    } else {name <- NULL}
-
     ff <- gs_pop_get_data(x, subset)
     df <- exprs(ff[[1]])
     TheDF <- data.frame(df, check.names = FALSE)
@@ -108,7 +108,7 @@ Utility_GatingPlots <- function(x, sample.name, removestrings,
     } else {
     CompiledPlots <- Utility_IterativeGating(x=x, subset=subset,
      xValue=optionalX, yValue=optionalY, gate=optionalGate, sample.name=sample.name,
-    removestrings=removestrings, bins=bins)
+    removestrings=removestrings, bins=bins, plotname=plotname)
   } 
 
   if (!is.null(filename)){AggregateName <- filename}

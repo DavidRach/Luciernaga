@@ -12,7 +12,8 @@ Utility_IterativeGating(
   yValue,
   sample.name,
   removestrings,
-  bins = 270
+  bins = 270,
+  plotname = FALSE
 )
 }
 \arguments{
@@ -31,6 +32,8 @@ Utility_IterativeGating(
 \item{removestrings}{Character values to remove from the name}
 
 \item{bins}{Geo_hex bins for the dots}
+
+\item{plotname}{Default FALSE, adds name to title}
 }
 \value{
 A list of ggplot objects
