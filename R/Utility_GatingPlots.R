@@ -23,8 +23,7 @@
 #' @param optionalGate Default NULL, if using optional arguments and correct X and Y, the gate arg
 #' @param optionalName Default NULL, alternatively sets title for "plots"
 #' 
-#' @importFrom flowWorkspace keyword
-#' @importFrom flowWorkspace gs_pop_get_data
+#' @importFrom flowWorkspace keyword gs_pop_get_data
 #' @importFrom flowCore exprs
 #' @importFrom dplyr pull
 #' @importFrom purrr map
@@ -77,6 +76,11 @@ Utility_GatingPlots <- function(x, sample.name, removestrings,
   # Pulling Gating Information
   if(!is.null(gtFile)){
   TheXYZgates <- gtFile |> pull(alias)
+  if ("*" %in% TheXYZgates){
+    gtFile <- TemplateConverter(gtFile)
+    TheXYZgates <- gtFile |> pull(alias)
+  }
+    
   } else {
     message("No gating reference file provided, returning provided arguments")
     TheXYZgates <- NULL}
@@ -128,6 +132,44 @@ Utility_GatingPlots <- function(x, sample.name, removestrings,
   return(AssembledPlots)
 }
 
+#' Handles the plus-slash-minus verbiage to avoid crash out of the plots
+#' 
+#' @importFrom dplyr bind_rows slice add_row pull filter
+#' 
+#' @noRd
+TemplateConverter <- function(gtFile){
+  gtFile1 <- gtFile
+  Values <- gtFile1 |> pull(alias)
+  Indices <- which(Values == "*")
+
+  Expansions <- gtFile1 |> dplyr::filter(alias %in% "*") |> 
+    pull(dims)
+
+  for (i in seq_along(Indices)){
+    Values <- gtFile1 |> pull(alias)
+    Current <- which(Values == "*")[1]
+
+    Row <- gtFile1[Current,]
+    Differential <- Row[[1,4]]
+    Rows <- bind_rows(Row, Row)
+    Rows[1,1] <- paste0(Differential, "+")
+    Rows[2,1] <- paste0(Differential, "-")
+
+    gtFile1 <- gtFile1 |> slice(-Current) |>
+      add_row(Rows, .before = Current)
+  }
+
+  Parents <- gtFile1 |> pull(parent)
+
+  Expanded <- c(paste0(Expansions, "+"), paste0(Expansions, "-"))
+  Utilized <- Expanded[!Expanded %in% Parents]
+  Removal <- Utilized[-length(Utilized)]
+  gtFile1 <- gtFile1 |> filter(!alias %in% Removal)
+
+  return(gtFile1)
+}
+
+
 #' Generates called plots from Utility_GatingPlots
 #'
 #' @param x A specific gate, ex. "nonDebris"
@@ -139,14 +181,15 @@ Utility_GatingPlots <- function(x, sample.name, removestrings,
 #' @param clearance A buffer area around the plot edge
 #' @param name Sets the title for the plot, default is NULL
 #'
-#' @importFrom dplyr filter
+#' @importFrom dplyr filter pull select
 #' @importFrom stringr str_split
-#' @importFrom dplyr select
 #' @importFrom tidyselect all_of
-#' @importFrom ggcyto ggcyto
-#' @importFrom ggcyto as.ggplot
-#' @importFrom ggcyto geom_gate
-#' @importFrom ggplot2 ggplot
+#' @importFrom ggcyto ggcyto as.ggplot geom_gate
+#' @importFrom ggplot2 geom_hex theme_bw aes labs theme element_blank
+#' element_line element_text coord_cartesian
+#' @importFrom flowWorkspace gs_pop_get_data cytoframe_to_flowFrame
+#' @importFrom stats quantile
+
 #'
 #' @return A ggplot corresponding to the given inputs
 #'
@@ -158,14 +201,16 @@ GatePlot <- function(x, data, TheDF, gtFile, bins=270, clearance = 0.2,
     RowData <- gtFile |> filter(alias %in% i)
     theSubset <- RowData |> pull(parent)
     theGate <- RowData |> pull(alias)
-    theParameters <- RowData |> pull(dims) |> str_split(",", simplify = TRUE)
+    theParameters <- RowData |> pull(dims) |>
+      str_split(",", simplify = TRUE)
 
     theParameters <- gsub("^\\s+|\\s+$", "", theParameters)
 
     if(length(theParameters) == 2){xValue <- theParameters[[1]]
     yValue <- theParameters[[2]]
-    } else if (length(theParameters) == 1){xValue <- theParameters[[1]]
-    yValue <- "SSC-A" #or an alternate variable specify
+    } else if (length(theParameters) == 1){
+      xValue <- theParameters[[1]]
+      yValue <- "SSC-A" #or an alternate variable specify
     } else {message(
     "Plotting Parameters for Axis were not 1 or 2, please check the .csv file")
     }
@@ -173,18 +218,35 @@ GatePlot <- function(x, data, TheDF, gtFile, bins=270, clearance = 0.2,
 
   #Please Note, All the Below Are Raw Values With No Transforms Yet Applied.
 
-  if (!grepl("FSC|SSC", xValue)) {ExprsData <- TheDF |>
-    select(all_of(xValue)) |> pull()
+  if (!grepl("FSC|SSC", xValue)) {
+
+  if (!xValue %in% colnames(TheDF)){
+    internal_cs <- gs_pop_get_data(data)
+    ff <- cytoframe_to_flowFrame(internal_cs[[1]])
+    Workaround <- ff@parameters@data
+    xValue <- Workaround |> filter(desc %in% xValue) |> pull(name)
+  }
+    
+  ExprsData <- TheDF |> select(all_of(xValue)) |> pull()
   theXmin <- ExprsData %>% quantile(., 0.001)
   theXmax <- ExprsData %>% quantile(., 0.999)
   theXmin <- theXmin - abs((clearance*theXmin))
   theXmax <- theXmax + (clearance*theXmax)}
-  if (!grepl("FSC|SSC", yValue)) {ExprsData <- TheDF |>
-    select(all_of(yValue)) |> pull()
+
+  if (!grepl("FSC|SSC", yValue)) {
+  
+  if (!yValue %in% colnames(TheDF)){
+    internal_cs <- gs_pop_get_data(data)
+    ff <- cytoframe_to_flowFrame(internal_cs[[1]])
+    Workaround <- ff@parameters@data
+    yValue <- Workaround |> filter(desc %in% yValue) |> pull(name)
+  }
+
+  ExprsData <- TheDF |>select(all_of(yValue)) |> pull()
   theYmin <- ExprsData %>% quantile(., 0.001)
   theYmax <- ExprsData %>% quantile(., 0.999)
   theYmin <- theYmin - abs((clearance*theYmin))
-  theYmax <- theYmax + (clearance*theYmax)}
+    theYmax <- theYmax + (clearance*theYmax)}
 
   if (!exists("theYmax") || !exists("theXmax")){
     Plot <- as.ggplot(ggcyto(data, aes(x = .data[[xValue]], y = .data[[yValue]]),
