@@ -137,7 +137,14 @@ Utility_UnityPlot <- function(x, y, GatingSet, marginsubset, gatesubset,
 Unity <- function(x, TheY, TheX, marginsubset, gatesubset, sample.name, removestrings,
                   clearance, bins, gatelines, reference, cartesian=TRUE){
 
-  name <- keyword(x, sample.name)
+  if (length(sample.name) == 2){
+      first <- sample.name[[1]]
+      second <- sample.name[[2]]
+      first <- keyword(x, first)
+      second <- keyword(x, second)
+      name <- paste(first, second, sep="_")
+    } else {name <- keyword(x, sample.name)}
+  
   name <- NameCleanUp(name = name, removestrings)
   
   if (inherits(x, "flowFrame")){
