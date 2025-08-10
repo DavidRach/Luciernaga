@@ -5,7 +5,7 @@
 #' @param MaxMLperTube The Final Volume of the rest tube
 #' @param returntype Whether to return "data", "plot" or "both"
 #' @param outpath File path of location to store the table
-#' @param filename File name to store the table as
+#' @param filename File name to store the table as, ex
 #'
 #' @importFrom dplyr select
 #' @importFrom tidyselect any_of
