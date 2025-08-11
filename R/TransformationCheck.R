@@ -80,7 +80,7 @@ TransformationCheck <- function(x, thesecolumns=NULL,
              DesiredGates=NULL, outpath = outpath,
              returnType="pdf", therows=1, thecolumns=1,
              optionalY=optionalY, optionalX=optionalX,
-             fileame=optionalName)
+             filename=optionalName)
         return(Plot)
       } else {message("Returning Multiple Plots")
         
