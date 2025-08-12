@@ -12,7 +12,8 @@ AutofluoresceShop(
   template,
   GatePlots = TRUE,
   TheN = 3,
-  Display = "selection"
+  Display = "selection",
+  AFOverlap = NULL
 )
 }
 \arguments{
@@ -34,6 +35,8 @@ GatingSet files to verify gate placement worked as expected}
 
 \item{Display}{Default "selection" returns visual plots showing only TheN,
 alternatively "all" will show all signatures before filtering in the plots}
+
+\item{AFOverlap}{Default NULL, alternately a file.path to an AFOverlap .csv file}
 }
 \value{
 Selected .fcs tags to the Tags folder, visualized plot

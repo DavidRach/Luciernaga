@@ -11,6 +11,7 @@
 #' @param TheN Selects the number of signature variants per peak detector
 #' @param Display Default "selection" returns visual plots showing only TheN,
 #'  alternatively "all" will show all signatures before filtering in the plots
+#' @param AFOverlap Default NULL, alternately a file.path to an AFOverlap .csv file
 #' 
 #' @importFrom flowWorkspace load_cytoset_from_fcs GatingSet
 #' @importFrom openCyto gatingTemplate gt_gating
@@ -25,7 +26,7 @@
 #' @export 
 #' 
 AutofluoresceShop <- function(x, visualized, files, experimentdesignation="AB",
-template, GatePlots=TRUE, TheN=3, Display="selection"){
+template, GatePlots=TRUE, TheN=3, Display="selection", AFOverlap=NULL){
 
   Status <- x %in% visualized
   ExperimentName <- x
@@ -73,10 +74,12 @@ template, GatePlots=TRUE, TheN=3, Display="selection"){
   patches=TRUE)
   }
 
+  if (is.null(AFOverlap)){
   FileLocation <- system.file("extdata", package = "Luciernaga")
   pattern = "AutofluorescentOverlaps.csv"
   AFOverlap <- list.files(path=FileLocation, pattern=pattern,
                           full.names = TRUE)
+  } else {AFOverlap <- AFOverlap}
 
   Tags <- file.path(Autofluorescence, "Tags")
   if (!dir.exists(Tags)){dir.create(Tags)}
@@ -99,7 +102,13 @@ template, GatePlots=TRUE, TheN=3, Display="selection"){
   StorageLocation <- file.path(Autofluorescence, TheFileName)
 
   write.csv(Dataset, StorageLocation, row.names=FALSE)
-}
+
+  Today <- Sys.Date()
+  DataRow <- data.frame(Experiment=ExperimentName,
+     Date=Today)
+  
+  return(DataRow)
+  }
 
 
 #' Internal for AutofluorescenceShop, parses individual .fcs file from
