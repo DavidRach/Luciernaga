@@ -500,17 +500,18 @@ Luciernaga_QC <- function(x, subsets, sample.name, removestrings=NULL, Verbose =
                         OriginalEnd = OriginalEnd, stats=stats,
                         NegativeType=NegativeType, TotalNegatives=TotalNegatives,
                         Samples=Samples, ExportType=ExportType, Consolidate=Consolidate)
+    ExportType <- "data"
   }
 
   if (ExportType == "data.frame"){
-    FinalDataFrame <- Reintegrated %>% select(-Backups)
+    FinalDataFrame <- Reintegrated |> select(-Backups)
     return(FinalDataFrame)
   }
 
   if (ExportType == "data"){
-    ExportData <- RetainedDF %>% select(-Backups)
+    ExportData <- RetainedDF |> select(-Backups)
     TheData <- data.frame(table(ExportData$Cluster))
-    TheData <- TheData%>% dplyr::arrange(desc(Freq))
+    TheData <- TheData |> dplyr::arrange(desc(Freq))
     colnames(TheData)[1] <- "Cluster"
     colnames(TheData)[2] <- "Count"
     #Data
@@ -518,18 +519,19 @@ Luciernaga_QC <- function(x, subsets, sample.name, removestrings=NULL, Verbose =
     TheExperiment <- as.character(Experiment)
     TheCondition <- as.character(Condition)
 
-    TheData <- TheData %>% mutate(Sample=AggregateName)
-    TheData <- TheData %>% mutate(Experiment=TheExperiment)
-    TheData <- TheData %>% mutate(Condition=TheCondition)
-    TheData <- TheData %>% relocate(Sample, Experiment, Condition, .before=Cluster)
+    TheData <- TheData |> mutate(Sample=AggregateName)
+    TheData <- TheData |> mutate(Experiment=TheExperiment)
+    TheData <- TheData |> mutate(Condition=TheCondition)
+    TheData <- TheData |> relocate(Sample, Experiment,
+       Condition, .before=Cluster)
 
-    TheClusters <- TheData %>% pull(Cluster)
+    TheClusters <- TheData |> pull(Cluster)
 
-    TheSummary <- map(.x=TheClusters, .f=LuciernagaSmallReport, Data=ExportData,
-                  RetainedType=RetainedType, ColsN=ColsN,
-                  StartNormalizedMergedCol=StartNormalizedMergedCol,
-                  EndNormalizedMergedCol=EndNormalizedMergedCol, stats=stats) %>%
-                  bind_rows()
+    TheSummary <- map(.x=TheClusters, .f=LuciernagaSmallReport,
+       Data=ExportData, RetainedType=RetainedType, ColsN=ColsN,
+       StartNormalizedMergedCol=StartNormalizedMergedCol,
+       EndNormalizedMergedCol=EndNormalizedMergedCol, stats=stats) |>
+       bind_rows()
 
     FinalData <- left_join(TheData, TheSummary, by = "Cluster")
     return(FinalData)
