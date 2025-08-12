@@ -83,7 +83,7 @@ template, GatePlots=TRUE, TheN=3, Display="selection"){
 
   ReturnedOutputs <- map(.x=MyGatingSet, .f=LuciernagaLocal,
    outpath=Tags, TheN=TheN, Display=Display,
-   ExperimentName=ExperimentName)
+   ExperimentName=ExperimentName, AFOverlap=AFOverlap)
 
   Dataset <- map(ReturnedOutputs, ~ .x$Data) |> bind_rows()
   ThePlots <- map(ReturnedOutputs, ~ .x$Plots)
@@ -111,6 +111,7 @@ template, GatePlots=TRUE, TheN=3, Display="selection"){
 #' @param TheN Selects the number of signature variants per peak detector
 #' @param Display Default "selection" returns visual plots showing only TheN,
 #'  alternatively "all" will show all signatures before filtering in the plots
+#' @param AFOverlap Luciernaga_QC default
 #' 
 #' @importFrom fs file_temp dir_ls file_copy dir_delete
 #' @importFrom flowWorkspace keyword
@@ -122,7 +123,8 @@ template, GatePlots=TRUE, TheN=3, Display="selection"){
 #' the parent function
 #' 
 #' @noRd
-LuciernagaLocal <- function(x, outpath, TheN, Display, ExperimentName){
+LuciernagaLocal <- function(x, outpath, TheN, Display, ExperimentName,
+AFOverlap){
   LuciernagaTemp <- file_temp("Luciernaga_Temp_")
   dir.create(LuciernagaTemp)
   # dir.exists(LuciernagaTemp)
@@ -136,7 +138,8 @@ LuciernagaLocal <- function(x, outpath, TheN, Display, ExperimentName){
   sample.name=c("GROUPNAME", "TUBENAME"), unmixingcontroltype = "cells",
   Unstained = TRUE, ratiopopcutoff = 0.01, Verbose = FALSE,
   AFOverlap = AFOverlap, stats = "median", ExportType = "fcs",
-  SignatureReturnNow = FALSE, outpath = LuciernagaTemp, Increments=0.1, experiment=ExperimentName, condition="NA", minimalfcscutoff = 0.001, 
+  SignatureReturnNow = FALSE, outpath = LuciernagaTemp, Increments=0.1,
+  experiment=ExperimentName, condition="NA", minimalfcscutoff = 0.001, 
   NegativeType="artificial")
 
   TheTempFiles <- dir_ls(LuciernagaTemp, glob = "*.fcs")
@@ -159,7 +162,7 @@ LuciernagaLocal <- function(x, outpath, TheN, Display, ExperimentName){
 
   CopyThese <- TheTempFiles[basename(TheTempFiles) %in% TheseSpecimens]
 
-  file_copy(CopyThese, outpath)
+  file_copy(CopyThese, outpath, overwrite=TRUE)
 
   if (Display=="selection"){
     DataToUse <- DecisionData
