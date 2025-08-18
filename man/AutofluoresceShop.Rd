@@ -13,7 +13,8 @@ AutofluoresceShop(
   GatePlots = TRUE,
   TheN = 3,
   Display = "selection",
-  AFOverlap = NULL
+  AFOverlap = NULL,
+  ExceptFor = NULL
 )
 }
 \arguments{
@@ -37,6 +38,12 @@ GatingSet files to verify gate placement worked as expected}
 alternatively "all" will show all signatures before filtering in the plots}
 
 \item{AFOverlap}{Default NULL, alternately a file.path to an AFOverlap .csv file}
+
+\item{nameOverride}{Default FALSE, if true uses all fcs files provided regardless
+if they match the experiment name string character provided in x}
+
+\item{subsets}{Default lymphocytes, alternatively provide gate name for Luciernaga_QC to
+retrieve autofluorescence signatures from.}
 }
 \value{
 Selected .fcs tags to the Tags folder, visualized plot

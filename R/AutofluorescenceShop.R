@@ -12,6 +12,12 @@
 #' @param Display Default "selection" returns visual plots showing only TheN,
 #'  alternatively "all" will show all signatures before filtering in the plots
 #' @param AFOverlap Default NULL, alternately a file.path to an AFOverlap .csv file
+#' @param nameOverride Default FALSE, if true uses all fcs files provided regardless
+#' if they match the experiment name string character provided in x
+#' @param subsets Default lymphocytes, alternatively provide gate name for Luciernaga_QC to
+#' retrieve autofluorescence signatures from. 
+#' @param therows Default 3
+#' @param thecolumns Default 1
 #' 
 #' @importFrom flowWorkspace load_cytoset_from_fcs GatingSet
 #' @importFrom openCyto gatingTemplate gt_gating
@@ -26,13 +32,16 @@
 #' @export 
 #' 
 AutofluoresceShop <- function(x, visualized, files, experimentdesignation="AB",
-template, GatePlots=TRUE, TheN=3, Display="selection", AFOverlap=NULL){
+template, GatePlots=TRUE, TheN=3, Display="selection", AFOverlap=NULL,
+ nameOverride=FALSE, subsets="lymphocytes", therows=3, thecolumns=1){
 
   Status <- x %in% visualized
   ExperimentName <- x
   if (Status == TRUE){return(Status)}
 
-  internalfiles <- files[grep(ExperimentName, files)]
+  if (nameOverride==FALSE){
+    internalfiles <- files[grep(ExperimentName, files)]
+  } else {internalfiles <- files}
 
   # experimentdesignation <- "AB"
   Experiment <- sub(paste0("_", experimentdesignation, ".*"), "", ExperimentName)
@@ -86,7 +95,8 @@ template, GatePlots=TRUE, TheN=3, Display="selection", AFOverlap=NULL){
 
   ReturnedOutputs <- map(.x=MyGatingSet, .f=LuciernagaLocal,
    outpath=Tags, TheN=TheN, Display=Display,
-   ExperimentName=ExperimentName, AFOverlap=AFOverlap)
+   ExperimentName=ExperimentName, AFOverlap=AFOverlap,
+  subsets=subsets)
 
   Dataset <- map(ReturnedOutputs, ~ .x$Data) |> bind_rows()
   ThePlots <- map(ReturnedOutputs, ~ .x$Plots)
@@ -94,7 +104,7 @@ template, GatePlots=TRUE, TheN=3, Display="selection", AFOverlap=NULL){
   TheFileName <- paste(ExperimentName, "Signatures", sep="_")
 
   Utility_Patchwork(x=ThePlots, filename=TheFileName,
-  outfolder=Autofluorescence, therows=3, thecolumns=1,
+  outfolder=Autofluorescence, therows=therows, thecolumns=thecolumns,
   NotListofList = FALSE)
 
   TheFileName <- paste(ExperimentName, "AFData", sep="_")
@@ -121,6 +131,7 @@ template, GatePlots=TRUE, TheN=3, Display="selection", AFOverlap=NULL){
 #' @param Display Default "selection" returns visual plots showing only TheN,
 #'  alternatively "all" will show all signatures before filtering in the plots
 #' @param AFOverlap Luciernaga_QC default
+#' @param subsets The subset gate from which Luciernaga_QC should sample
 #' 
 #' @importFrom fs file_temp dir_ls file_copy dir_delete
 #' @importFrom flowWorkspace keyword
@@ -133,7 +144,7 @@ template, GatePlots=TRUE, TheN=3, Display="selection", AFOverlap=NULL){
 #' 
 #' @noRd
 LuciernagaLocal <- function(x, outpath, TheN, Display, ExperimentName,
-AFOverlap){
+AFOverlap, subsets){
   LuciernagaTemp <- file_temp("Luciernaga_Temp_")
   dir.create(LuciernagaTemp)
   # dir.exists(LuciernagaTemp)
@@ -142,7 +153,7 @@ AFOverlap){
   second <- keyword(x, "TUBENAME")
   LocalPlotName <- paste(first, second, sep="_")
 
-  ReturnedFCS <- purrr::map(.x=x, .f=Luciernaga_QC, subsets="lymphocytes",
+  ReturnedFCS <- purrr::map(.x=x, .f=Luciernaga_QC, subsets=subsets,
   removestrings=".fcs", 
   sample.name=c("GROUPNAME", "TUBENAME"), unmixingcontroltype = "cells",
   Unstained = TRUE, ratiopopcutoff = 0.01, Verbose = FALSE,
