@@ -44,6 +44,10 @@ if they match the experiment name string character provided in x}
 
 \item{subsets}{Default lymphocytes, alternatively provide gate name for Luciernaga_QC to
 retrieve autofluorescence signatures from.}
+
+\item{therows}{Default 3}
+
+\item{thecolumns}{Default 1}
 }
 \value{
 Selected .fcs tags to the Tags folder, visualized plot
