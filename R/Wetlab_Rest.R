@@ -84,7 +84,7 @@ Wetlab_Rest <- function(data, DesiredConcentration_MillionperML, MaxMLperTube, r
 #' @param TubeMaxML Passed parameter
 #' @param DesiredConcentration Redundant passed parameter
 #'
-#' @importFrom dplyr filter select pull mutate relocate case_when
+#' @importFrom dplyr filter select pull mutate relocate case_when %>%
 #'
 #' @return An internal value
 #'
@@ -135,7 +135,7 @@ RestInternal <- function(x, Updated, DesiredConcentration_MillionperML,
     TotalTubesTwo <- A/TubeMaxML
     SpinProtocol <- SpinProtocol |> mutate(TotalTubes = case_when(
       is.double(TotalTubes) ~ TotalTubesTwo, TRUE ~ TotalTubes))
-    NewName <- SpinProtocol |> pull(name) |> paste0("Spin_", .)
+    NewName <- SpinProtocol |> pull(name) %>% paste0("Spin_", .)
     SpinProtocol <- SpinProtocol |> mutate(name = case_when(
       is.character(name) ~ NewName, TRUE ~ name))
     SpinProtocol$NeededVolume <- format(SpinProtocol$NeededVolume, digits=2)

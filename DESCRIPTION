@@ -1,7 +1,7 @@
 Package: Luciernaga
 Type: Package
 Title: Tools for the evaluation of Spectral Flow Cytometry (SFC) unmixing controls 
-Version: 0.99.4
+Version: 0.99.6
 Authors@R: 
     person("David", "Rach", , "drach@som.umaryland.edu", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0003-2235-5585"))
