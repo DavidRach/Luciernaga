@@ -10,7 +10,9 @@ Wetlab_Rest(
   MaxMLperTube,
   returntype,
   outpath = NULL,
-  filename = "CellResuspensions"
+  filename = "CellResuspensions",
+  ColorSelection = NULL,
+  outputType = "png"
 )
 }
 \arguments{
@@ -25,6 +27,10 @@ Wetlab_Rest(
 \item{outpath}{File path of location to store the table}
 
 \item{filename}{File name to store the table as, ex}
+
+\item{ColorSelection}{Default NULL, else provide desired color palette.}
+
+\item{outputType}{Default png, alternate pdf}
 }
 \value{
 A data.frame of resuspension measurements to get to the desired parameters
