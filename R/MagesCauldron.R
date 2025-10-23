@@ -12,6 +12,7 @@
 #' @param device Desired storage format, default is "png"
 #' @param width Desired height for saved plot, default is 15
 #' @param height Desired height for saved plot, default  is 15
+#' @param NumberDetectors Default NULL, used when unstained is NULL
 #' 
 #' @importFrom dplyr mutate
 #' @importFrom dplyr relocate
@@ -43,7 +44,7 @@
 #' @noRd
 MagesCauldron <- function(panelfluors, unstained, returnType="plot", savePlot=FALSE,
    outpath=NULL, filename=NULL, device="png", width=15, height=15, swapname=NULL,
-   swapvalue=NULL){
+   swapvalue=NULL, NumberDetectors=NULL){
   
   if (!is.null(unstained)){
   DetectorLength <- ncol(unstained)
@@ -56,7 +57,12 @@ MagesCauldron <- function(panelfluors, unstained, returnType="plot", savePlot=FA
   
   TheUnstained <- unstained |> mutate(Fluorophore="Unstained") |>
     relocate(Fluorophore, .before=1)
-  }
+  } else {
+    if (is.null(NumberDetectors)){
+      stop("When not providing unstained, provide NumberDetectors argument")
+    }
+    DetectorLength <- NumberDetectors
+    }
 
   Vaiya <- InstrumentReferences(NumberDetectors = DetectorLength)
   TheseFluorophores <- panelfluors

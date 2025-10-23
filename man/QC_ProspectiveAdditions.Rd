@@ -16,11 +16,11 @@ QC_ProspectiveAdditions(
 )
 }
 \arguments{
-\item{path}{Filepath to the panel .csv}
+\item{path}{Filepath to the panel .csv, or a data.frame with column Fluorophore}
 
 \item{NumberDetectors}{Number of detectors for the instrument to pull references}
 
-\item{TheCutoff}{Default is 0.9, cosine matrix value}
+\item{TheCutoff}{Default is 0.9, determines HighOverlap count threshold}
 
 \item{returnAll}{Whether to return all variants, default is FALSE}
 
