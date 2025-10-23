@@ -45,6 +45,7 @@ MagesCauldron <- function(panelfluors, unstained, returnType="plot", savePlot=FA
    outpath=NULL, filename=NULL, device="png", width=15, height=15, swapname=NULL,
    swapvalue=NULL){
   
+  if (!is.null(unstained)){
   DetectorLength <- ncol(unstained)
 
   if (any(unstained > 1)){
@@ -52,18 +53,24 @@ MagesCauldron <- function(panelfluors, unstained, returnType="plot", savePlot=FA
     A <- do.call(pmax, unstained)
     unstained <- unstained/A
   }
+  
+  TheUnstained <- unstained |> mutate(Fluorophore="Unstained") |>
+    relocate(Fluorophore, .before=1)
+  }
 
   Vaiya <- InstrumentReferences(NumberDetectors = DetectorLength)
-  TheUnstained <- unstained |> mutate(Fluorophore="Unstained") |>
-       relocate(Fluorophore, .before=1)
   TheseFluorophores <- panelfluors
   Data <- Vaiya |> filter(Fluorophore %in% TheseFluorophores)
   Data <- Data |> select(-Instrument)
   Data <- Data |> pivot_wider(names_from="Detector",
    values_from="AdjustedY")
+  
+  if (!is.null(unstained)){
   colnames(TheUnstained) <- gsub("-A", "", gsub("-H", "", colnames(TheUnstained)))
   Data <- bind_rows(Data, TheUnstained)
   TheseFluorophores <- c(TheseFluorophores, paste0("Unstained", seq_len(nrow(unstained))))
+  }
+
   Data$Fluorophore <- factor(Data$Fluorophore, levels=TheseFluorophores)
   Data <- Data |> arrange(desc(Fluorophore))
   Data <- Data |> arrange(Fluorophore)
