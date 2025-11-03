@@ -4,10 +4,22 @@
 \alias{QC_ChorusPDF}
 \title{Processes BD Chorus QC PDF files into .csv files}
 \usage{
-QC_ChorusPDF(x, returnPreference = "Imaging")
+QC_ChorusPDF(
+  x,
+  returnPreference = "Imaging",
+  returnType = "data",
+  outpath = NULL
+)
 }
 \arguments{
 \item{x}{A file.path to the desired QC pdf}
+
+\item{returnPreference}{When both modes present, whether
+to return QC values from Imaging or High-Speed settings}
+
+\item{returnType}{Default data, alternative is csv}
+
+\item{outpath}{When return type is csv, file.path to store the csv}
 }
 \description{
 Processes BD Chorus QC PDF files into .csv files

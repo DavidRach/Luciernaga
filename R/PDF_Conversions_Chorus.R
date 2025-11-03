@@ -103,7 +103,7 @@ if (length(NameLine) == 1){
     df <- do.call(rbind, Data)
     colnames(df) <- df[1,]
     QCData <- as.data.frame(df[-1,], stringsAsFactors = FALSE, check.names=FALSE)
-} else {message("Multiple name lines for page one")
+} else {stop("Multiple name lines for page one")
         QCData <- NULL
 }
 
@@ -163,15 +163,20 @@ return(Cargo)
 #' Processes BD Chorus QC PDF files into .csv files
 #' 
 #' @param x A file.path to the desired QC pdf
+#' @param returnPreference When both modes present, whether
+#'  to return QC values from Imaging or High-Speed settings
+#' @param returnType Default data, alternative is csv
+#' @param outpath When return type is csv, file.path to store the csv
 #' 
 #' @importFrom pdftools pdf_text
 #' @importFrom purrr map
+#' @importFrom utils write.csv
 #' 
 #' @export
 #' 
 #' @examples A <- 2+2
 #' 
-QC_ChorusPDF <- function(x, returnPreference="Imaging"){
+QC_ChorusPDF <- function(x, returnPreference="Imaging", returnType="data", outpath=NULL){
     text <- pdftools::pdf_text(x)
     NumberPages <- length(text)
     FirstPageCargo <- FirstChorusPage(x=text[1])
@@ -181,6 +186,17 @@ QC_ChorusPDF <- function(x, returnPreference="Imaging"){
     Works <- purrr::map(.x=text[2:NumberPages], .f=AdditionalPageHandler)
     Dataset <- Consolidator(x=Works, Metadata=Metadata,
      FirstPage=FirstPage, returnPreference=returnPreference)
+    
+    if (returnType != "data"){
+        if (is.null(outpath)){outpath <- getwd()}
+        PDFName <- Dataset$PDFName |> unique()
+        if (returnPreference != "Imaging"){
+            AppendValue <- paste0(returnPreference, ".csv")
+        } else {AppendValue <- ".csv"}
+        PDFName <- gsub(".pdf", AppendValue, PDFName)
+        StorageLocation <- file.path(outpath, PDFName)
+        write.csv(Dataset, StorageLocation, row.names=FALSE)
+    }
 
     return(Dataset)
 }
@@ -230,16 +246,34 @@ Consolidator <- function(x, Metadata, FirstPage, returnPreference){
         colnames(FourthData) <- as.character(unlist(FourthData[1, ]))
         FourthData <- FourthData[-1, , drop = FALSE]
     }
+    
+    if (length(CombinedList) == 4 && returnPreference != "Imaging"){
+    MainData <- ThirdData
 
-    if (returnPreference== "Imaging"){
-    SecondDataWide <- SecondData |> rename(LaserDelay = `Laser Delay`,
-            LaserPowerWithinSpec = `Laser Power within Spec`) |>
-  pivot_wider(names_from = Laser, values_from = c(LaserDelay, LaserPowerWithinSpec),names_glue = "{Laser}_{.value}")
+    FourthDataWide <- FourthData |>
+        rename(LaserDelay = `Laser Delay`, 
+        LaserPowerWithinSpec = `Laser Power within Spec`) |>
+        pivot_wider(names_from = Laser,
+             values_from = c(LaserDelay, LaserPowerWithinSpec),
+             names_glue = "{Laser}_{.value}")
 
-   MetaFull <- cbind(Metadata, SecondDataWide)
-   MetaExpanded <- MetaFull[rep(1, nrow(FirstData)), , drop = FALSE]
-   FinalData <- cbind(MetaExpanded, FirstData)
-} else {message("Remind David to Implement High-Speed return")}
+    MetaFull <- cbind(Metadata, FourthDataWide)
+    MetaExpanded <- MetaFull[rep(1, nrow(MainData)), , drop = FALSE]
+    FinalData <- cbind(MetaExpanded, MainData)
+    } else if (returnPreference== "Imaging"){
+    SecondDataWide <- SecondData |>
+        rename(LaserDelay = `Laser Delay`, 
+        LaserPowerWithinSpec = `Laser Power within Spec`) |>
+        pivot_wider(names_from = Laser,
+             values_from = c(LaserDelay, LaserPowerWithinSpec),
+             names_glue = "{Laser}_{.value}")
+
+    MetaFull <- cbind(Metadata, SecondDataWide)
+    MetaExpanded <- MetaFull[rep(1, nrow(MainData)), , drop = FALSE]
+    FinalData <- cbind(MetaExpanded, MainData)
+    }
+
+
 
    return(FinalData)
 }
