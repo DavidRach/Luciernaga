@@ -201,23 +201,23 @@ LevyJennings <- function(x, FailedFlag, xValue, TheData, Metadata,
 
   if (str_detect(yValue, "^UV\\d{1,2}-[A-Za-z]+(_Gain)?$")){
     mycolor <- "purple"
-  } else if (str_detect(yValue, "^UV\\d{1,3}-")){
+  } else if (str_detect(yValue, "^UV\\d{1,3}[-_]")){
     mycolor <- "purple"
-  } else if (str_detect(yValue, "^V\\d{1,3}-")){
+  } else if (str_detect(yValue, "^V\\d{1,3}[-_]")){
     mycolor <- "violet"
   } else if (str_detect(yValue, "^V\\d{1,2}-[A-Za-z]+(_Gain)?$")){
     mycolor <- "violet"
-  } else if (str_detect(yValue, "^B\\d{1,3}-")){
+  } else if (str_detect(yValue, "^B\\d{1,3}[-_]")){
     mycolor <- "blue"
   } else if (str_detect(yValue, "^B\\d{1,2}-[A-Za-z]+(_Gain)?$")){
     mycolor <- "blue"
-  } else if (str_detect(yValue, "^Y\\d{1,3}-")){
+  } else if (str_detect(yValue, "^Y\\d{1,3}[-_]")){
     mycolor <- "darkgreen"
-  } else if (str_detect(yValue, "^YG\\d{1,3}-")){
+  } else if (str_detect(yValue, "^YG\\d{1,3}[-_]")){
     mycolor <- "darkgreen"
   } else if (str_detect(yValue, "^YG\\d{1,2}-[A-Za-z]+(_Gain)?$")){
     mycolor <- "darkgreen"
-  } else if (str_detect(yValue, "^R\\d{1,3}-")){
+  } else if (str_detect(yValue, "^R\\d{1,3}[-_]")){
     mycolor <- "darkred"
   } else if (str_detect(yValue, "^R\\d{1,2}-[A-Za-z]+(_Gain)?$")){
     mycolor <- "darkred"

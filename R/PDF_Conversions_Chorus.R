@@ -258,24 +258,63 @@ Consolidator <- function(x, Metadata, FirstPage, returnPreference){
              names_glue = "{Laser}_{.value}")
 
     MetaFull <- cbind(Metadata, FourthDataWide)
-    MetaExpanded <- MetaFull[rep(1, nrow(MainData)), , drop = FALSE]
+    MainData <- MainDataWiden(MainData)
+    MetaExpanded <- MetaFull
+    #MetaExpanded <- MetaFull[rep(1, nrow(MainData)), , drop = FALSE]
     FinalData <- cbind(MetaExpanded, MainData)
     } else if (returnPreference== "Imaging"){
+
     SecondDataWide <- SecondData |>
         rename(LaserDelay = `Laser Delay`, 
         LaserPowerWithinSpec = `Laser Power within Spec`) |>
         pivot_wider(names_from = Laser,
              values_from = c(LaserDelay, LaserPowerWithinSpec),
              names_glue = "{Laser}_{.value}")
+    
+    MainData <- MainDataWiden(MainData)
+    MetaExpanded <- MetaFull
 
     MetaFull <- cbind(Metadata, SecondDataWide)
-    MetaExpanded <- MetaFull[rep(1, nrow(MainData)), , drop = FALSE]
+    #MetaExpanded <- MetaFull[rep(1, nrow(MainData)), , drop = FALSE]
     FinalData <- cbind(MetaExpanded, MainData)
     }
 
 
 
    return(FinalData)
+}
+
+#' Internal for QC_ChorusPDF, widens Main Data
+#' 
+#' @param MainData The passed MainData data.frame containing QC for
+#'  the respective detectors
+#' 
+#' @importFrom tidyr pivot_wider
+#' @importFrom dplyr rename mutate case_when select
+#' 
+#' @noRd
+MainDataWiden <- function(MainData){
+    MainData <- MainData |> rename(DetectorGain=`Detector Gain`,
+     MFI=`MFI-A`, rCV=`%rCV`, LimitResolution= `Limit of Resolution`,
+    SystemBackground=`System Background`)
+    MainData <- MainData |> mutate(Detector = case_when(
+        grepl("^LightLoss", Name) ~ Name,
+        grepl("^SSC", Name) ~ Name,
+        TRUE ~ sub(" .*", "", Name)))
+
+    MainData$Detector <- gsub("(", "", fixed=TRUE, MainData$Detector)
+    MainData$Detector <- gsub(")", "", fixed=TRUE, MainData$Detector)
+    MainData$MFI <- gsub(",", "", fixed=TRUE, MainData$MFI)
+    MainData$MFI <- as.numeric(MainData$MFI)
+
+    Check <- MainData |> select(-Name, -Filter) |>
+  pivot_wider(
+    names_from = Detector,
+    values_from = DetectorGain:SystemBackground,
+    names_glue = "{Detector}_{.value}"
+  )
+    
+    return(Check)
 }
 
 #' Internal for QC_ChorusPDF, handles second plus pages
