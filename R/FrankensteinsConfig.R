@@ -8,15 +8,19 @@
 #' 
 #' @importFrom dplyr pull bind_rows left_join mutate case_when
 #' @importFrom purrr map
+#' @importFrom stringr str_detect
 #' 
 #' @noRd
 FrankensteinsConfig <- function(NumberDetectors){
 
 Data <- Luciernaga:::InstrumentReferences(NumberDetectors) |> pull(Detector) |> unique()
 AllDetectors <- length(Data)
-Lasers <- sub("-.*", "", Data) |> unique()
-
-# x <- Lasers[1] 
+  
+if (any(str_detect(Data, "-"))){
+  Lasers <- sub("-.*", "", Data) |> unique()
+} else {Lasers <- str_remove_all(Data, "[0-9]") |> unique()}
+  
+# x <- Lasers[2] 
 # data <- Data
 DetectorCount <- map(.x=Lasers, .f=DetectorsPerLaser, data=Data) |> bind_rows()
 
@@ -37,6 +41,11 @@ ReferenceChart <- TargetLasers |> mutate(Original = case_when(
   Lasers == "640" ~ "640",
   Lasers == "785" ~ "640",
   Lasers == "808" ~ "640",
+  Lasers == "UV" ~ "355",
+  Lasers == "V" ~ "405",
+  Lasers == "B" ~ "488",
+  Lasers == "YG" ~ "561",
+  Lasers == "R" ~ "640",
   TRUE ~ "")
 )
 
@@ -280,7 +289,15 @@ FranksHeadGears <- function(NumberDetectors){
 #' @noRd
 DetectorsPerLaser <- function(x, data){
   Lasers <- x
-  DetectorCount <- length(data[str_detect(data, x)])
+  if (Lasers == "V"){
+    Lasers <- paste0("^", Lasers)
+    Conditional <- TRUE
+  } else {Conditional <- FALSE}
+
+  DetectorCount <- length(data[str_detect(data, Lasers)])
+
+  if (Conditional == TRUE){Lasers <- "V"}
+
   Stats <- data.frame(Lasers, DetectorCount, check.names=FALSE)
   return(Stats)
 }
