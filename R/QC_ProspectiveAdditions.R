@@ -1,9 +1,9 @@
 #' From existing panel, figures out open detectors, and returns potential
 #'  fluorophores that might fit between the existing ones
 #'
-#' @param path Filepath to the panel .csv
+#' @param path Filepath to the panel .csv, or a data.frame with column Fluorophore
 #' @param NumberDetectors Number of detectors for the instrument to pull references
-#' @param TheCutoff Default is 0.9, cosine matrix value
+#' @param TheCutoff Default is 0.9, determines HighOverlap count threshold
 #' @param returnAll Whether to return all variants, default is FALSE
 #' @param returnCSV Whether to return as a csv to designated outpath and filename, a TRUE/FALSE
 #' @param filename Desired name for the output .csv
@@ -40,45 +40,49 @@ QC_ProspectiveAdditions <- function(path, NumberDetectors, TheCutoff=0.9,
                                     returnAll=FALSE, filename, outpath,
                                     returnCSV){
 
-  TheList <- read.csv(path, check.names=FALSE)
   ReferenceData <- InstrumentReferences(NumberDetectors=NumberDetectors)
 
-  TheList <- TheList %>% pull(Fluorophore)
+  if (!is.data.frame(path)){
+  TheList <- read.csv(path, check.names=FALSE)
+  TheList <- TheList |> pull(Fluorophore)
+  } else {TheList <- path |> pull(Fluorophore)} 
   #x <- TheList[1]
 
-  TheReferenceList <- ReferenceData %>% dplyr::filter(Fluorophore %in% TheList)
+  TheReferenceList <- ReferenceData |> dplyr::filter(Fluorophore %in% TheList)
 
-  TheDetectorContained <- TheReferenceList %>% group_by(Fluorophore) %>%
-    arrange(desc(AdjustedY)) %>% slice(1) %>% select(Fluorophore, Detector) %>%
+  TheDetectorContained <- TheReferenceList |> group_by(Fluorophore) |>
+    arrange(desc(AdjustedY)) |> slice(1) |> select(Fluorophore, Detector) |>
     ungroup()
 
-  TheOccupiedDetectors <- TheDetectorContained %>% pull(Detector) %>% sort()
+  TheOccupiedDetectors <- TheDetectorContained |> pull(Detector) |> sort()
 
-  TheOtherFluors <-  ReferenceData %>% dplyr::filter(!Fluorophore %in% TheList)
-  TheOtherDetectors <- TheOtherFluors %>% group_by(Fluorophore) %>%
-    arrange(desc(AdjustedY)) %>% slice(1) %>% select(Fluorophore, Detector) %>%
+  TheOtherFluors <-  ReferenceData |> dplyr::filter(!Fluorophore %in% TheList)
+  TheOtherDetectors <- TheOtherFluors |> group_by(Fluorophore) |>
+    arrange(desc(AdjustedY)) |> slice(1) |> select(Fluorophore, Detector) |>
     ungroup()
-  TheOtherDetectors <- TheOtherDetectors %>% arrange(Detector)
-  TheOtherDetectors <- TheOtherDetectors %>%
+  TheOtherDetectors <- TheOtherDetectors |> arrange(Detector)
+  TheOtherDetectors <- TheOtherDetectors |>
     dplyr::filter(!Detector %in% TheOccupiedDetectors)
 
-  TheOtherDetectors <- TheOtherDetectors %>% relocate(Detector, .before=Fluorophore)
+  TheOtherDetectors <- TheOtherDetectors |> relocate(Detector, .before=Fluorophore)
 
-  PossibleDetectors <- TheOtherDetectors %>% pull(Detector) %>%
+  PossibleDetectors <- TheOtherDetectors |> pull(Detector) |>
     unique() #%>% length()
 
+  # x <- PossibleDetectors[1]
   DataUnlocked <- map(.x=PossibleDetectors, .f=Comparison,
                       TheOtherDetectors=TheOtherDetectors,
                       TheList=TheList, ReferenceData=ReferenceData,
-                      TheCutoff=TheCutoff) %>% bind_rows()
+                      TheCutoff=TheCutoff) |> bind_rows()
+  
+  DataUnlocked$RankValue <- as.numeric(DataUnlocked$RankValue)
 
-  if (returnAll == TRUE){PossibleLocations <- DataUnlocked %>%
-    group_by(TheDetector) %>% arrange(RankValue) %>% ungroup()
-  } else {PossibleLocations <- DataUnlocked %>% group_by(TheDetector) %>%
-    arrange(RankValue) %>% slice(1) %>% ungroup()
+  if (returnAll == TRUE){PossibleLocations <- DataUnlocked |> 
+    arrange(TheDetector, RankValue)
+  } else {PossibleLocations <- DataUnlocked |> group_by(TheDetector) |>
+    arrange(RankValue) |> slice(1) |> ungroup()
+    TheOutput <- PossibleLocations |> arrange(RankValue)
   }
-
-  TheOutput <- PossibleLocations %>% arrange(RankValue)
 
   if (returnCSV == TRUE) {
     TheFileName <- paste0(filename, ".csv")
@@ -113,9 +117,10 @@ Comparison <- function(x, TheOtherDetectors, TheList, ReferenceData, TheCutoff){
   TheComparisonList <- TheOtherDetectors %>% dplyr::filter(Detector %in% x) %>%
     pull(Fluorophore)
 
+  # x <- TheComparisonList[1]
   TheIndividualDetector <- map(.x=TheComparisonList, .f=InternalComparison,
                                TheList=TheList, ReferenceData=ReferenceData,
-                               TheCutoff=TheCutoff, TheDetector=TheDetector) %>%
+                               TheCutoff=TheCutoff, TheDetector=TheDetector) |>
     bind_rows()
 
   return(TheIndividualDetector)
@@ -145,22 +150,22 @@ Comparison <- function(x, TheOtherDetectors, TheList, ReferenceData, TheCutoff){
 #' @noRd
 InternalComparison <- function(x, TheList, ReferenceData, TheCutoff, TheDetector){
 
-  TheCandidate <- ReferenceData %>% dplyr::filter(Fluorophore %in% x)
-  TheReferenceList <- ReferenceData %>% dplyr::filter(Fluorophore %in% TheList)
-  TheData <- rbind(TheCandidate, TheReferenceList) %>% select(-Instrument)
-  TheCosineData <- TheData %>%
+  TheCandidate <- ReferenceData |> dplyr::filter(Fluorophore %in% x)
+  TheReferenceList <- ReferenceData |> dplyr::filter(Fluorophore %in% TheList)
+  TheData <- rbind(TheCandidate, TheReferenceList) |> select(-Instrument)
+  TheCosineData <- TheData |>
     pivot_wider(names_from = Detector, values_from = AdjustedY)
-  Names <- TheCosineData %>% pull(Fluorophore)
-  TheValues <- TheCosineData %>% select(-Fluorophore)
+  Names <- TheCosineData |> pull(Fluorophore)
+  TheValues <- TheCosineData |> select(-Fluorophore)
   TheTransposed <- t(TheValues)
   colnames(TheTransposed) <- Names
   TheMatrix <- data.matrix(TheTransposed)
   CosineMatrix <- cosine(TheMatrix)
   CosineMatrix <- data.frame(CosineMatrix, check.names = FALSE)
-  TheCandidateValues <- CosineMatrix %>% select(all_of(x))
+  TheCandidateValues <- CosineMatrix |> select(all_of(x))
   HighOverlaps <- TheCandidateValues %>% filter(!!sym(x) >= TheCutoff)
   HighOverlaps <- length(HighOverlaps)
-  RankValue <- round(kappa(TheMatrix, exact=TRUE),2)
+  RankValue <- round(kappa(CosineMatrix, exact=TRUE),2) # I believe from Cosine, not the signature matrix
   Fluorophore <- x
 
   Prelim <- cbind(Fluorophore, TheDetector, HighOverlaps, RankValue)
