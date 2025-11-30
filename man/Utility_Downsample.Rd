@@ -7,22 +7,20 @@
 Utility_Downsample(
   x,
   sample.name,
-  removestrings,
   subsets,
   subsample = NULL,
   inverse.transform,
   internal = FALSE,
   export = FALSE,
   outpath = NULL,
-  metadataCols = NULL
+  metadataCols = NULL,
+  addon = NULL
 )
 }
 \arguments{
 \item{x}{A gating set object}
 
 \item{sample.name}{Keyword specifying sample name}
-
-\item{removestrings}{Value to be removed from sample name}
 
 \item{subsets}{The gating hierarchy subset you want to include}
 
@@ -41,6 +39,8 @@ default is set to FALSE.}
 stored.}
 
 \item{metadataCols}{column names from pData to append as metadata for the .fcs, default NULL}
+
+\item{addon}{Additional value to add before .fcs to denote modification, default NULL}
 }
 \value{
 Either a data.frame, a flow.frame or an .fcs file depending on your

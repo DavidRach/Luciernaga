@@ -2,7 +2,6 @@
 #'
 #' @param x A gating set object
 #' @param sample.name Keyword specifying sample name
-#' @param removestrings Value to be removed from sample name
 #' @param subsets The gating hierarchy subset you want to include
 #' @param subsample Total number of events to sub-sample from each specimen.
 #'  If value between 0 and 1, grabs that equivalent proportion of total cells.
@@ -14,19 +13,14 @@
 #' @param outpath When export is true, the file.path to where you want the .fcs file
 #' stored.
 #' @param metadataCols column names from pData to append as metadata for the .fcs, default NULL
+#' @param addon Additional value to add before .fcs to denote modification, default NULL
 #'
-#' @importFrom flowWorkspace keyword
-#' @importFrom flowWorkspace gs_pop_get_data
-#' @importFrom flowCore exprs
-#' @importFrom dplyr slice_sample
-#' @importFrom flowCore parameters
+#' @importFrom flowWorkspace keyword gs_pop_get_data
+#' @importFrom flowCore exprs parameters write.FCS
+#' @importFrom dplyr slice_sample select slice mutate
 #' @importFrom methods new
-#' @importFrom flowCore write.FCS
-#' @importFrom dplyr mutate
 #' @importFrom Biobase pData
-#' @importFrom dplyr select
 #' @importFrom tidyselect all_of
-#' @importFrom dplyr slice
 #'
 #' @return Either a data.frame, a flow.frame or an .fcs file depending on your
 #' selected options
@@ -72,23 +66,13 @@
 #'  subsets = "live", subsample = 2500, internal = FALSE,
 #'  export = FALSE, inverse.transform=TRUE)
 #'
-Utility_Downsample <- function(x, sample.name, removestrings,
-                                  subsets, subsample=NULL, inverse.transform,
-                                  internal = FALSE, export = FALSE, outpath = NULL,
-                                  metadataCols=NULL){
-
-  if(length(sample.name) == 1){
-    name <- keyword(x, sample.name)
-    alternatename <- NameCleanUp(name, removestrings)
-  } else {first <- sample.name[1]
-          second <- sample.name[2]
-          first <- keyword(x, first)
-          first <- NameCleanUp(first, removestrings)
-          second <- keyword(x, second)
-          second <- NameCleanUp(second, removestrings)
-          alternatename <- paste(first, second, sep="_")
-  }
-
+Utility_Downsample <- function(x, sample.name, subsets,
+   subsample=NULL, inverse.transform, internal = FALSE,
+   export = FALSE, outpath = NULL, metadataCols=NULL, addon=NULL){
+  
+  keywords <- sample.name
+  alternatename <- FlowKeywords(x=x, keywords=keywords, addon=addon)
+  
   #Retrieving the exprs data for my subset population of interest
   ff <- gs_pop_get_data(x, subsets, inverse.transform = inverse.transform)
   df <- exprs(ff[[1]])
