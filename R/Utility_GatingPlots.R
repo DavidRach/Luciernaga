@@ -127,7 +127,8 @@ Utility_GatingPlots <- function(x, sample.name, removestrings,
                                         outfolder=outpath, returntype = "patchwork",
                                         therows=therows, thecolumns=thecolumns,
                                         width = width, height = height)
-  } else if (returnType == "plots"){AssembledPlots <- CompiledPlots}
+  } else if (returnType == "plots"){AssembledPlots <- CompiledPlots
+  } else {AssembledPlots <- CompiledPlots}
 
   return(AssembledPlots)
 }
