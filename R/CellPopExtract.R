@@ -82,16 +82,19 @@ write.FCS(new_fcs, filename = FinalRestingPlace, delimiter="#")
 FlowKeywords <- function(x, keywords, addon){
     if (length(keywords) > 0){
         First <- keyword(x, keywords[1])
+
     if (length(keywords) > 1) {
         Second <- keyword(x, keywords[2])
-    } else {Nomenclature <- First}
+    
     if (length(keywords) > 2) {
         Third <- keyword(x, keywords[3])
-    } else {Nomenclature <- paste(First, Second, sep="_")}
+   
     if (length(keywords) > 3) {
         stop("Please choose only three keywords, thank you!")
-    } else {Nomenclature <- paste(First, Second, Third, sep="_")}
-    }
+    } else {Nomenclature <- paste(First, Second, Third, sep="_")} 
+    } else {Nomenclature <- paste(First, Second, sep="_")}    
+    } else {Nomenclature <- First}
+    } else {stop("No keywords provided")}
 
     if (!is.null(addon)){FileName <- paste(Nomenclature, addon, sep="_")
         } else {FileName <- Nomenclature}

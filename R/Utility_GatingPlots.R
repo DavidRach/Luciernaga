@@ -75,13 +75,11 @@ Utility_GatingPlots <- function(x, sample.name, removestrings,
 
   # Pulling Gating Information
   if(!is.null(gtFile)){
-  TheXYZgates <- gtFile |> pull(alias)
+    TheXYZgates <- gtFile |> pull(alias)
   if ("*" %in% TheXYZgates){
     gtFile <- TemplateConverter(gtFile)
     TheXYZgates <- gtFile |> pull(alias)
-  }
-    
-  } else {
+    }} else {
     message("No gating reference file provided, returning provided arguments")
     TheXYZgates <- NULL}
 
@@ -107,6 +105,8 @@ Utility_GatingPlots <- function(x, sample.name, removestrings,
     TheDF <- data.frame(df, check.names = FALSE)
     x2 <- x
 
+    # x <- TheXYZgates[1]
+    # data <- x2
     CompiledPlots <- map(.x = TheXYZgates, .f = GatePlot, data=x2, TheDF = TheDF,
                         gtFile = gtFile, bins=bins, clearance=clearance, name=name)
     } else {
@@ -250,12 +250,13 @@ GatePlot <- function(x, data, TheDF, gtFile, bins=270, clearance = 0.2,
     theYmax <- theYmax + (clearance*theYmax)}
 
   if (!exists("theYmax") || !exists("theXmax")){
-    Plot <- as.ggplot(ggcyto(data, aes(x = .data[[xValue]], y = .data[[yValue]]),
+    Plot <- ggcyto(data, aes(x = .data[[xValue]], y = .data[[yValue]]),
        subset = theSubset) + geom_hex(bins=bins) + geom_gate(theGate) + theme_bw() +
        labs(title = name) + theme(strip.background = element_blank(),
        strip.text.x = element_blank(), panel.grid.major = element_line(
        linetype = "blank"), panel.grid.minor = element_line(linetype = "blank"),
-       axis.title = element_text(size = 10, face = "bold"), legend.position = "none"))
+       axis.title = element_text(size = 10, face = "bold"), legend.position = "none")
+    Plot <- Luciernaga.as.ggplot(Plot)
   } else {
     Plot <- as.ggplot(ggcyto(data, aes(x = .data[[xValue]], y = .data[[yValue]]), subset = theSubset)) +
       geom_hex(bins=bins) +
