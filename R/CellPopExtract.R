@@ -10,6 +10,7 @@
 #' @param addon Default NULL, appends to the end of the filename to distinguish from original fcs file.
 #' @param downsample Default NULL, provide a number to downsample to that number, alternatively use
 #' 0.1 for a proportion of total cells
+#' @param metadataOverride Default NULL
 #' 
 #' @importFrom CytoML open_flowjo_xml flowjo_to_gatingset
 #' @importFrom flowWorkspace gs_pop_get_data
@@ -21,7 +22,7 @@
 #' 
 #' @examples A <- 2+2
 CellPopExtract <- function(x, path, keywords="GROUPNAME", subset, outpath, addon=NULL, 
-downsample=NULL){
+downsample=NULL, metadataOverride=NULL){
 
 if (inherits(x, "GatingSet")){gs <- x
 } else {
@@ -36,7 +37,7 @@ if (!is.null(downsample)){
 } else {
     SubsetSolo <- flowWorkspace::gs_pop_get_data(gs, subset, inverse.transform = TRUE)
     purrr::walk(.x=SubsetSolo, .f=FCS_Subset_Copy, keywords=keywords, 
-        outpath=outpath, addon=addon)
+        outpath=outpath, addon=addon, metadataOverride=metadataOverride)
 }
 }
 
@@ -54,15 +55,49 @@ if (!is.null(downsample)){
 #' @return Writes the .fcs file with altered naming to the designated outpath
 #' 
 #' @noRd
-FCS_Subset_Copy <- function(x, keywords, outpath, addon){
+FCS_Subset_Copy <- function(x, keywords, outpath, addon, metadataOverride){
 
-FileName <- FlowKeywords(x=x, keywords=keywords, addon=addon)
+if (!is.null(metadataOverride)){
+
+    WhatTheHellMate <- do.call(
+        rbind,
+        lapply(keywords, function(x) {
+            parts <- strsplit(sub("^~", "", x), "=")[[1]]
+            data.frame(
+            keyword = parts[1],
+            value   = parts[2],
+            stringsAsFactors = FALSE
+            )}))
+    
+NotAsteriskArchive <- WhatTheHellMate[WhatTheHellMate$value != "*", ]
+    
+not_asterisk <- WhatTheHellMate$value != "*"
+is_asterisk <- WhatTheHellMate$value == "*"
+
+if (any(is_asterisk)) {
+  resolved <- FlowKeywords(
+    x        = x,
+    keywords = WhatTheHellMate$keyword[is_asterisk],
+    addon    = addon
+  )
+  WhatTheHellMate$value[is_asterisk] <- resolved
+}
+FileName <- paste(WhatTheHellMate$value, collapse = "_")
+} else {FileName <- FlowKeywords(x=x, keywords=keywords, addon=addon)}
 
 FileNameOut <- paste0(FileName, ".fcs")
 if (is.null(outpath)) {outpath <- getwd()}
 FinalRestingPlace <- file.path(outpath, FileNameOut)
 
 new_fcs <- cytoframe_to_flowFrame(x)
+    
+if (!is.null(metadataOverride)){
+    for (i in seq_len(nrow(NotAsteriskArchive))) {
+    new_fcs@description[[NotAsteriskArchive$keyword[i]]] <-
+    NotAsteriskArchive$value[i]
+  }
+}
+
 new_fcs@description$GUID <- FileName
 write.FCS(new_fcs, filename = FinalRestingPlace, delimiter="#")
 }

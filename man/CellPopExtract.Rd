@@ -12,7 +12,8 @@ CellPopExtract(
   subset,
   outpath,
   addon = NULL,
-  downsample = NULL
+  downsample = NULL,
+  metadataOverride = NULL
 )
 }
 \arguments{
@@ -31,6 +32,8 @@ the respective .fcs files contained within that workspace}
 
 \item{downsample}{Default NULL, provide a number to downsample to that number, alternatively use
 0.1 for a proportion of total cells}
+
+\item{metadataOverride}{Default NULL}
 }
 \value{
 Returns .fcs files for the designated cell population to the designated folder.
