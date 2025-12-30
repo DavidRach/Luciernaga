@@ -1,8 +1,8 @@
 test_that("AveragedSignature returns a dataframe with more than 1 row", {
 
-  expect_true(length(MyGatingSet) > 0)
+  expect_true(length(MyUnstainedGatingSet) > 0)
 
-  PopulationInterest <- gs_pop_get_data(MyGatingSet[1], subset="lymphocytes")
+  PopulationInterest <- gs_pop_get_data(MyUnstainedGatingSet[1], subset="lymphocytes")
   TheDataValues <- exprs(PopulationInterest[[1]])
   TheDataValues <- data.frame(TheDataValues, check.names=FALSE)
 

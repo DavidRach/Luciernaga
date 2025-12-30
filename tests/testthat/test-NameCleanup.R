@@ -1,4 +1,5 @@
 test_that("Name gets cleaned up", {
+  
   name <- "DR BUV496 CD8 (Cells).fcs"
   removestrings <- c("DR", "(Cells)", ".fcs", " ")
 

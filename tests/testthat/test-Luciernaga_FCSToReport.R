@@ -1,14 +1,16 @@
 test_that("Luciernaga_FCSToReport returns a dataframe with at least 1 row", {
 
-  # NonFunctional #TODOLIST #MultiSpecimen
+  tmp <- withr::local_tempdir(pattern = "Luciernaga")
+  withr::local_dir(tmp)
+  StorageLocation <- tmp
 
-  expect_true(length(MyGatingSet) > 0)
+  expect_true(length(MySCsGatingSet) > 0)
 
   FileLocation <- system.file("extdata", package = "Luciernaga")
   pattern = "AutofluorescentOverlaps.csv"
   AFOverlap <- list.files(path=FileLocation, pattern=pattern, full.names = TRUE)
 
-  SingleColor_Data <- map(.x=MyGatingSet[1:2], .f=Luciernaga_QC, subsets="lymphocytes",
+  SingleColor_Data <- map(.x=MySCsGatingSet[1:2], .f=Luciernaga_QC, subsets="lymphocytes",
                           removestrings=removestrings, sample.name="GUID",
                           unmixingcontroltype = "cells", Unstained = FALSE,
                           ratiopopcutoff = 0.001, Verbose = FALSE, AFOverlap = AFOverlap,

@@ -1,10 +1,10 @@
 test_that("QC_ViewSignature returns a ggplot2 object", {
 
-  expect_true(length(MyGatingSet) > 0)
+  expect_true(length(MyUnstainedGatingSet) > 0)
 
   StorageLocation <- file.path("C:", "Users", "JohnDoe", "Desktop")
 
-  PopulationInterest <- gs_pop_get_data(MyGatingSet[1], subset="lymphocytes")
+  PopulationInterest <- gs_pop_get_data(MyUnstainedGatingSet[1], subset="lymphocytes")
   TheDataValues <- exprs(PopulationInterest[[1]])
   TheDataValues <- data.frame(TheDataValues, check.names=FALSE)
   Signature <- AveragedSignature(TheDataValues, stats="median")
@@ -12,7 +12,7 @@ test_that("QC_ViewSignature returns a ggplot2 object", {
   TheData1 <- TheData1 |> mutate(Sample="lymphocytes") |>
     relocate(Sample, .before=1)
 
-  PopulationInterest <- gs_pop_get_data(MyGatingSet[1], subset="nonDebris")
+  PopulationInterest <- gs_pop_get_data(MyUnstainedGatingSet[1], subset="nonDebris")
   TheDataValues <- exprs(PopulationInterest[[1]])
   TheDataValues <- data.frame(TheDataValues, check.names=FALSE)
   Signature <- AveragedSignature(TheDataValues, stats="median")
