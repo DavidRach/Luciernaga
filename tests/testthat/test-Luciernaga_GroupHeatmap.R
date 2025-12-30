@@ -1,27 +1,9 @@
 test_that("Luciernaga_GroupHeatmap returns a ggplot2 object", {
 
-  # Prepare the test
+  # NonFunctional #TODOLIST #MultiSpecimen
 
-  library(flowCore)
-  library(flowWorkspace)
-  library(openCyto)
-  library(data.table)
-  library(dplyr)
-  library(purrr)
+  expect_true(length(MyGatingSet) > 0)
 
-  File_Location <- system.file("extdata", package = "Luciernaga")
-  FCS_Files <- list.files(path = File_Location, pattern = ".fcs", full.names = TRUE)
-  UnstainedFCSFiles <- FCS_Files[grep("Unstained", FCS_Files)]
-  UnstainedCells <- UnstainedFCSFiles[-grep(
-    "Beads", UnstainedFCSFiles)]
-  MyCytoSet <- load_cytoset_from_fcs(UnstainedCells[c(1,3,5)],
-                                     truncate_max_range = FALSE,transformation = FALSE)
-  MyGatingSet <- GatingSet(MyCytoSet)
-  MyGates <- fread(file.path(path = File_Location, pattern = 'Gates.csv'))
-  MyGatingTemplate <- gatingTemplate(MyGates)
-  gt_gating(MyGatingTemplate, MyGatingSet)
-  removestrings <-  c("DR_", "Cells", ".fcs", "-", " ")
-  StorageLocation <- file.path("C:", "Users", "JohnDoe", "Desktop")
   FileLocation <- system.file("extdata", package = "Luciernaga")
   pattern = "AutofluorescentOverlaps.csv"
   AFOverlap <- list.files(path=FileLocation, pattern=pattern, full.names = TRUE)

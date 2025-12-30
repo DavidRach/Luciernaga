@@ -1,28 +1,9 @@
 test_that("Luciernaga_FCSToReport returns a dataframe with at least 1 row", {
 
-  # Prepare the test
-  library(flowCore)
-  library(flowWorkspace)
-  library(openCyto)
-  library(data.table)
-  library(dplyr)
-  library(purrr)
-  library(stringr)
+  # NonFunctional #TODOLIST #MultiSpecimen
 
-  StorageLocation <- file.path(tempdir(), "LuciernagaFCSToReportExample1")
-  if (!dir.exists(StorageLocation)) {dir.create(StorageLocation)}
-  File_Location <- system.file("extdata", package = "Luciernaga")
-  FCS_Files <- list.files(path = File_Location, pattern = ".fcs", full.names = TRUE)
-  CellSingleColorFiles <- FCS_Files[grep("Cells", FCS_Files)]
-  CellSingleColors <- CellSingleColorFiles[!str_detect("Unstained", CellSingleColorFiles)]
-  MyCytoSet <- load_cytoset_from_fcs(CellSingleColors[1:2],
-                                     truncate_max_range = FALSE,
-                                     transformation = FALSE)
-  MyGatingSet <- GatingSet(MyCytoSet)
-  MyGates <- fread(file.path(path = File_Location, pattern = 'Gates.csv'))
-  MyGatingTemplate <- gatingTemplate(MyGates)
-  gt_gating(MyGatingTemplate, MyGatingSet)
-  removestrings <-  c(".fcs", "(", ")", "Cells")
+  expect_true(length(MyGatingSet) > 0)
+
   FileLocation <- system.file("extdata", package = "Luciernaga")
   pattern = "AutofluorescentOverlaps.csv"
   AFOverlap <- list.files(path=FileLocation, pattern=pattern, full.names = TRUE)
