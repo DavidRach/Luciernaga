@@ -256,7 +256,7 @@ GatePlot <- function(x, data, TheDF, gtFile, bins=270, clearance = 0.2,
        strip.text.x = element_blank(), panel.grid.major = element_line(
        linetype = "blank"), panel.grid.minor = element_line(linetype = "blank"),
        axis.title = element_text(size = 10, face = "bold"), legend.position = "none")
-    Plot <- Luciernaga.as.ggplot(Plot)
+    Plot <- as.ggplot(Plot)
   } else {
     Plot <- as.ggplot(ggcyto(data, aes(x = .data[[xValue]], y = .data[[yValue]]), subset = theSubset)) +
       geom_hex(bins=bins) +
