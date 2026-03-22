@@ -1,0 +1,771 @@
+"Instrument","Fluorophore","Detector","AdjustedY"
+"Bigfoot_7L_488_561","ATTO 390","349-387/11",0
+"Bigfoot_7L_488_561","ATTO 390","349-420/10",0
+"Bigfoot_7L_488_561","ATTO 390","349-434/17",0.0131337381725745
+"Bigfoot_7L_488_561","ATTO 390","349-455/14",0.223273548933766
+"Bigfoot_7L_488_561","ATTO 390","349-473/15",0.424657534246575
+"Bigfoot_7L_488_561","ATTO 390","349-507/19",0.288942239796639
+"Bigfoot_7L_488_561","ATTO 390","349-549/15",0.070046603587064
+"Bigfoot_7L_488_561","ATTO 390","349-575/15",0.0218895636209575
+"Bigfoot_7L_488_561","ATTO 390","349-615/24",0.0043779127241915
+"Bigfoot_7L_488_561","ATTO 390","349-670/30",0
+"Bigfoot_7L_488_561","ATTO 390","349-728/40",0
+"Bigfoot_7L_488_561","ATTO 390","349-750LP",0
+"Bigfoot_7L_488_561","ATTO 390","405-420/10",0
+"Bigfoot_7L_488_561","ATTO 390","405-434/17",0.0309278350515464
+"Bigfoot_7L_488_561","ATTO 390","405-455/14",0.525773195876289
+"Bigfoot_7L_488_561","ATTO 390","405-473/15",1
+"Bigfoot_7L_488_561","ATTO 390","405-507/19",0.680412371134021
+"Bigfoot_7L_488_561","ATTO 390","405-549/15",0.164948453608247
+"Bigfoot_7L_488_561","ATTO 390","405-575/15",0.0515463917525773
+"Bigfoot_7L_488_561","ATTO 390","405-615/24",0.0103092783505155
+"Bigfoot_7L_488_561","ATTO 390","405-661/20",0
+"Bigfoot_7L_488_561","ATTO 390","405-710/20",0
+"Bigfoot_7L_488_561","ATTO 390","405-747/33",0
+"Bigfoot_7L_488_561","ATTO 390","405-770LP",0
+"Bigfoot_7L_488_561","ATTO 390","445-465/22",0
+"Bigfoot_7L_488_561","ATTO 390","445-525/35",0
+"Bigfoot_7L_488_561","ATTO 390","445-583/30",0
+"Bigfoot_7L_488_561","ATTO 390","445-650LP",0
+"Bigfoot_7L_488_561","ATTO 390","488-507/19",0
+"Bigfoot_7L_488_561","ATTO 390","488-549/15",0
+"Bigfoot_7L_488_561","ATTO 390","488-583/30",0
+"Bigfoot_7L_488_561","ATTO 390","488-615/24",0
+"Bigfoot_7L_488_561","ATTO 390","488-670/30",0
+"Bigfoot_7L_488_561","ATTO 390","488-720/60",0
+"Bigfoot_7L_488_561","ATTO 390","488-750LP",0
+"Bigfoot_7L_488_561","ATTO 390","561-575/15",0
+"Bigfoot_7L_488_561","ATTO 390","561-589/15",0
+"Bigfoot_7L_488_561","ATTO 390","561-605/15",0
+"Bigfoot_7L_488_561","ATTO 390","561-622/15",0
+"Bigfoot_7L_488_561","ATTO 390","561-661/20",0
+"Bigfoot_7L_488_561","ATTO 390","561-685/15",0
+"Bigfoot_7L_488_561","ATTO 390","561-700/13",0
+"Bigfoot_7L_488_561","ATTO 390","561-720/24",0
+"Bigfoot_7L_488_561","ATTO 390","561-760/50",0
+"Bigfoot_7L_488_561","ATTO 390","561-800/12",0
+"Bigfoot_7L_488_561","ATTO 390","561-832/37",0
+"Bigfoot_7L_488_561","ATTO 390","561-860LP",0
+"Bigfoot_7L_488_561","ATTO 390","640-670/30",0
+"Bigfoot_7L_488_561","ATTO 390","640-700/13",0
+"Bigfoot_7L_488_561","ATTO 390","640-720/24",0
+"Bigfoot_7L_488_561","ATTO 390","640-760/50",0
+"Bigfoot_7L_488_561","ATTO 390","640-770LP",0
+"Bigfoot_7L_488_561","ATTO 390","785-800/12",0
+"Bigfoot_7L_488_561","ATTO 390","785-832/37",0
+"Bigfoot_7L_488_561","ATTO 390","785-860LP",0
+"Bigfoot_7L_488_561","ATTO 565","349-387/11",0
+"Bigfoot_7L_488_561","ATTO 565","349-420/10",0
+"Bigfoot_7L_488_561","ATTO 565","349-434/17",0
+"Bigfoot_7L_488_561","ATTO 565","349-455/14",0
+"Bigfoot_7L_488_561","ATTO 565","349-473/15",0
+"Bigfoot_7L_488_561","ATTO 565","349-507/19",0
+"Bigfoot_7L_488_561","ATTO 565","349-549/15",0.00242424242424242
+"Bigfoot_7L_488_561","ATTO 565","349-575/15",0.0412121212121212
+"Bigfoot_7L_488_561","ATTO 565","349-615/24",0.0290909090909091
+"Bigfoot_7L_488_561","ATTO 565","349-670/30",0.00484848484848485
+"Bigfoot_7L_488_561","ATTO 565","349-728/40",0.000606060606060606
+"Bigfoot_7L_488_561","ATTO 565","349-750LP",0
+"Bigfoot_7L_488_561","ATTO 565","405-420/10",0
+"Bigfoot_7L_488_561","ATTO 565","405-434/17",0
+"Bigfoot_7L_488_561","ATTO 565","405-455/14",0
+"Bigfoot_7L_488_561","ATTO 565","405-473/15",0
+"Bigfoot_7L_488_561","ATTO 565","405-507/19",0
+"Bigfoot_7L_488_561","ATTO 565","405-549/15",0.00121212121212121
+"Bigfoot_7L_488_561","ATTO 565","405-575/15",0.0206060606060606
+"Bigfoot_7L_488_561","ATTO 565","405-615/24",0.0145454545454545
+"Bigfoot_7L_488_561","ATTO 565","405-661/20",0.00363636363636364
+"Bigfoot_7L_488_561","ATTO 565","405-710/20",0.000606060606060606
+"Bigfoot_7L_488_561","ATTO 565","405-747/33",0
+"Bigfoot_7L_488_561","ATTO 565","405-770LP",0
+"Bigfoot_7L_488_561","ATTO 565","445-465/22",0
+"Bigfoot_7L_488_561","ATTO 565","445-525/35",0
+"Bigfoot_7L_488_561","ATTO 565","445-583/30",0.0094949494949495
+"Bigfoot_7L_488_561","ATTO 565","445-650LP",0
+"Bigfoot_7L_488_561","ATTO 565","488-507/19",0
+"Bigfoot_7L_488_561","ATTO 565","488-549/15",0.00282828282828283
+"Bigfoot_7L_488_561","ATTO 565","488-583/30",0.0664646464646465
+"Bigfoot_7L_488_561","ATTO 565","488-615/24",0.0339393939393939
+"Bigfoot_7L_488_561","ATTO 565","488-670/30",0.00565656565656566
+"Bigfoot_7L_488_561","ATTO 565","488-720/60",0.000707070707070707
+"Bigfoot_7L_488_561","ATTO 565","488-750LP",0
+"Bigfoot_7L_488_561","ATTO 565","561-575/15",0.68
+"Bigfoot_7L_488_561","ATTO 565","561-589/15",1
+"Bigfoot_7L_488_561","ATTO 565","561-605/15",0.7
+"Bigfoot_7L_488_561","ATTO 565","561-622/15",0.37
+"Bigfoot_7L_488_561","ATTO 565","561-661/20",0.12
+"Bigfoot_7L_488_561","ATTO 565","561-685/15",0.04
+"Bigfoot_7L_488_561","ATTO 565","561-700/13",0.03
+"Bigfoot_7L_488_561","ATTO 565","561-720/24",0.01
+"Bigfoot_7L_488_561","ATTO 565","561-760/50",0
+"Bigfoot_7L_488_561","ATTO 565","561-800/12",0
+"Bigfoot_7L_488_561","ATTO 565","561-832/37",0
+"Bigfoot_7L_488_561","ATTO 565","561-860LP",0
+"Bigfoot_7L_488_561","ATTO 565","640-670/30",0
+"Bigfoot_7L_488_561","ATTO 565","640-700/13",0
+"Bigfoot_7L_488_561","ATTO 565","640-720/24",0
+"Bigfoot_7L_488_561","ATTO 565","640-760/50",0
+"Bigfoot_7L_488_561","ATTO 565","640-770LP",0
+"Bigfoot_7L_488_561","ATTO 565","785-800/12",0
+"Bigfoot_7L_488_561","ATTO 565","785-832/37",0
+"Bigfoot_7L_488_561","ATTO 565","785-860LP",0
+"Bigfoot_7L_488_561","ATTO 647N","349-387/11",0
+"Bigfoot_7L_488_561","ATTO 647N","349-420/10",0
+"Bigfoot_7L_488_561","ATTO 647N","349-434/17",0
+"Bigfoot_7L_488_561","ATTO 647N","349-455/14",0
+"Bigfoot_7L_488_561","ATTO 647N","349-473/15",0
+"Bigfoot_7L_488_561","ATTO 647N","349-507/19",0
+"Bigfoot_7L_488_561","ATTO 647N","349-549/15",0
+"Bigfoot_7L_488_561","ATTO 647N","349-575/15",0
+"Bigfoot_7L_488_561","ATTO 647N","349-615/24",0
+"Bigfoot_7L_488_561","ATTO 647N","349-670/30",0.021978021978022
+"Bigfoot_7L_488_561","ATTO 647N","349-728/40",0.00527472527472527
+"Bigfoot_7L_488_561","ATTO 647N","349-750LP",0.00021978021978022
+"Bigfoot_7L_488_561","ATTO 647N","405-420/10",0
+"Bigfoot_7L_488_561","ATTO 647N","405-434/17",0
+"Bigfoot_7L_488_561","ATTO 647N","405-455/14",0
+"Bigfoot_7L_488_561","ATTO 647N","405-473/15",0
+"Bigfoot_7L_488_561","ATTO 647N","405-507/19",0
+"Bigfoot_7L_488_561","ATTO 647N","405-549/15",0
+"Bigfoot_7L_488_561","ATTO 647N","405-575/15",0
+"Bigfoot_7L_488_561","ATTO 647N","405-615/24",0
+"Bigfoot_7L_488_561","ATTO 647N","405-661/20",0.0369230769230769
+"Bigfoot_7L_488_561","ATTO 647N","405-710/20",0.0127472527472527
+"Bigfoot_7L_488_561","ATTO 647N","405-747/33",0.00747252747252747
+"Bigfoot_7L_488_561","ATTO 647N","405-770LP",0.00043956043956044
+"Bigfoot_7L_488_561","ATTO 647N","445-465/22",0
+"Bigfoot_7L_488_561","ATTO 647N","445-525/35",0
+"Bigfoot_7L_488_561","ATTO 647N","445-583/30",0
+"Bigfoot_7L_488_561","ATTO 647N","445-650LP",0.000549450549450549
+"Bigfoot_7L_488_561","ATTO 647N","488-507/19",0
+"Bigfoot_7L_488_561","ATTO 647N","488-549/15",0
+"Bigfoot_7L_488_561","ATTO 647N","488-583/30",0
+"Bigfoot_7L_488_561","ATTO 647N","488-615/24",0
+"Bigfoot_7L_488_561","ATTO 647N","488-670/30",0.010989010989011
+"Bigfoot_7L_488_561","ATTO 647N","488-720/60",0.00285714285714286
+"Bigfoot_7L_488_561","ATTO 647N","488-750LP",0.00010989010989011
+"Bigfoot_7L_488_561","ATTO 647N","561-575/15",0
+"Bigfoot_7L_488_561","ATTO 647N","561-589/15",0
+"Bigfoot_7L_488_561","ATTO 647N","561-605/15",0
+"Bigfoot_7L_488_561","ATTO 647N","561-622/15",0.000879120879120879
+"Bigfoot_7L_488_561","ATTO 647N","561-661/20",0.0738461538461538
+"Bigfoot_7L_488_561","ATTO 647N","561-685/15",0.0606593406593407
+"Bigfoot_7L_488_561","ATTO 647N","561-700/13",0.0325274725274725
+"Bigfoot_7L_488_561","ATTO 647N","561-720/24",0.0228571428571429
+"Bigfoot_7L_488_561","ATTO 647N","561-760/50",0.00967032967032967
+"Bigfoot_7L_488_561","ATTO 647N","561-800/12",0.0043956043956044
+"Bigfoot_7L_488_561","ATTO 647N","561-832/37",0.00175824175824176
+"Bigfoot_7L_488_561","ATTO 647N","561-860LP",0
+"Bigfoot_7L_488_561","ATTO 647N","640-670/30",1
+"Bigfoot_7L_488_561","ATTO 647N","640-700/13",0.37
+"Bigfoot_7L_488_561","ATTO 647N","640-720/24",0.26
+"Bigfoot_7L_488_561","ATTO 647N","640-760/50",0.11
+"Bigfoot_7L_488_561","ATTO 647N","640-770LP",0.01
+"Bigfoot_7L_488_561","ATTO 647N","785-800/12",0
+"Bigfoot_7L_488_561","ATTO 647N","785-832/37",0
+"Bigfoot_7L_488_561","ATTO 647N","785-860LP",0
+"Bigfoot_7L_488_561","Brilliant Ultraviolet 805","349-387/11",0.715221774193548
+"Bigfoot_7L_488_561","Brilliant Ultraviolet 805","349-420/10",0.532258064516129
+"Bigfoot_7L_488_561","Brilliant Ultraviolet 805","349-434/17",0.332661290322581
+"Bigfoot_7L_488_561","Brilliant Ultraviolet 805","349-455/14",0.149697580645161
+"Bigfoot_7L_488_561","Brilliant Ultraviolet 805","349-473/15",0.0498991935483871
+"Bigfoot_7L_488_561","Brilliant Ultraviolet 805","349-507/19",0
+"Bigfoot_7L_488_561","Brilliant Ultraviolet 805","349-549/15",0
+"Bigfoot_7L_488_561","Brilliant Ultraviolet 805","349-575/15",0
+"Bigfoot_7L_488_561","Brilliant Ultraviolet 805","349-615/24",0
+"Bigfoot_7L_488_561","Brilliant Ultraviolet 805","349-670/30",0
+"Bigfoot_7L_488_561","Brilliant Ultraviolet 805","349-728/40",0
+"Bigfoot_7L_488_561","Brilliant Ultraviolet 805","349-750LP",0.316028225806452
+"Bigfoot_7L_488_561","Brilliant Ultraviolet 805","405-420/10",0.0053763440860215
+"Bigfoot_7L_488_561","Brilliant Ultraviolet 805","405-434/17",0.00336021505376344
+"Bigfoot_7L_488_561","Brilliant Ultraviolet 805","405-455/14",0.00151209677419355
+"Bigfoot_7L_488_561","Brilliant Ultraviolet 805","405-473/15",0.000504032258064516
+"Bigfoot_7L_488_561","Brilliant Ultraviolet 805","405-507/19",0
+"Bigfoot_7L_488_561","Brilliant Ultraviolet 805","405-549/15",0
+"Bigfoot_7L_488_561","Brilliant Ultraviolet 805","405-575/15",0
+"Bigfoot_7L_488_561","Brilliant Ultraviolet 805","405-615/24",0
+"Bigfoot_7L_488_561","Brilliant Ultraviolet 805","405-661/20",0
+"Bigfoot_7L_488_561","Brilliant Ultraviolet 805","405-710/20",0
+"Bigfoot_7L_488_561","Brilliant Ultraviolet 805","405-747/33",0.000168010752688172
+"Bigfoot_7L_488_561","Brilliant Ultraviolet 805","405-770LP",0.00252016129032258
+"Bigfoot_7L_488_561","Brilliant Ultraviolet 805","445-465/22",0.00084005376344086
+"Bigfoot_7L_488_561","Brilliant Ultraviolet 805","445-525/35",0
+"Bigfoot_7L_488_561","Brilliant Ultraviolet 805","445-583/30",0
+"Bigfoot_7L_488_561","Brilliant Ultraviolet 805","445-650LP",0.015625
+"Bigfoot_7L_488_561","Brilliant Ultraviolet 805","488-507/19",0
+"Bigfoot_7L_488_561","Brilliant Ultraviolet 805","488-549/15",0
+"Bigfoot_7L_488_561","Brilliant Ultraviolet 805","488-583/30",0
+"Bigfoot_7L_488_561","Brilliant Ultraviolet 805","488-615/24",0
+"Bigfoot_7L_488_561","Brilliant Ultraviolet 805","488-670/30",0
+"Bigfoot_7L_488_561","Brilliant Ultraviolet 805","488-720/60",0
+"Bigfoot_7L_488_561","Brilliant Ultraviolet 805","488-750LP",0
+"Bigfoot_7L_488_561","Brilliant Ultraviolet 805","561-575/15",0
+"Bigfoot_7L_488_561","Brilliant Ultraviolet 805","561-589/15",0
+"Bigfoot_7L_488_561","Brilliant Ultraviolet 805","561-605/15",0
+"Bigfoot_7L_488_561","Brilliant Ultraviolet 805","561-622/15",0
+"Bigfoot_7L_488_561","Brilliant Ultraviolet 805","561-661/20",0
+"Bigfoot_7L_488_561","Brilliant Ultraviolet 805","561-685/15",0
+"Bigfoot_7L_488_561","Brilliant Ultraviolet 805","561-700/13",0
+"Bigfoot_7L_488_561","Brilliant Ultraviolet 805","561-720/24",0
+"Bigfoot_7L_488_561","Brilliant Ultraviolet 805","561-760/50",0
+"Bigfoot_7L_488_561","Brilliant Ultraviolet 805","561-800/12",0
+"Bigfoot_7L_488_561","Brilliant Ultraviolet 805","561-832/37",0
+"Bigfoot_7L_488_561","Brilliant Ultraviolet 805","561-860LP",0
+"Bigfoot_7L_488_561","Brilliant Ultraviolet 805","640-670/30",0
+"Bigfoot_7L_488_561","Brilliant Ultraviolet 805","640-700/13",0
+"Bigfoot_7L_488_561","Brilliant Ultraviolet 805","640-720/24",0
+"Bigfoot_7L_488_561","Brilliant Ultraviolet 805","640-760/50",0.00252016129032258
+"Bigfoot_7L_488_561","Brilliant Ultraviolet 805","640-770LP",0.00756048387096774
+"Bigfoot_7L_488_561","Brilliant Ultraviolet 805","785-800/12",1
+"Bigfoot_7L_488_561","Brilliant Ultraviolet 805","785-832/37",0.397849462365591
+"Bigfoot_7L_488_561","Brilliant Ultraviolet 805","785-860LP",0
+"Bigfoot_7L_488_561","iFluor 514","349-387/11",0
+"Bigfoot_7L_488_561","iFluor 514","349-420/10",0
+"Bigfoot_7L_488_561","iFluor 514","349-434/17",0
+"Bigfoot_7L_488_561","iFluor 514","349-455/14",0
+"Bigfoot_7L_488_561","iFluor 514","349-473/15",0
+"Bigfoot_7L_488_561","iFluor 514","349-507/19",0
+"Bigfoot_7L_488_561","iFluor 514","349-549/15",0
+"Bigfoot_7L_488_561","iFluor 514","349-575/15",0
+"Bigfoot_7L_488_561","iFluor 514","349-615/24",0
+"Bigfoot_7L_488_561","iFluor 514","349-670/30",0
+"Bigfoot_7L_488_561","iFluor 514","349-728/40",0
+"Bigfoot_7L_488_561","iFluor 514","349-750LP",0
+"Bigfoot_7L_488_561","iFluor 514","405-420/10",0
+"Bigfoot_7L_488_561","iFluor 514","405-434/17",0
+"Bigfoot_7L_488_561","iFluor 514","405-455/14",0
+"Bigfoot_7L_488_561","iFluor 514","405-473/15",0
+"Bigfoot_7L_488_561","iFluor 514","405-507/19",0
+"Bigfoot_7L_488_561","iFluor 514","405-549/15",0
+"Bigfoot_7L_488_561","iFluor 514","405-575/15",0
+"Bigfoot_7L_488_561","iFluor 514","405-615/24",0
+"Bigfoot_7L_488_561","iFluor 514","405-661/20",0
+"Bigfoot_7L_488_561","iFluor 514","405-710/20",0
+"Bigfoot_7L_488_561","iFluor 514","405-747/33",0
+"Bigfoot_7L_488_561","iFluor 514","405-770LP",0
+"Bigfoot_7L_488_561","iFluor 514","445-465/22",0
+"Bigfoot_7L_488_561","iFluor 514","445-525/35",0.0212765957446809
+"Bigfoot_7L_488_561","iFluor 514","445-583/30",0.073758865248227
+"Bigfoot_7L_488_561","iFluor 514","445-650LP",0
+"Bigfoot_7L_488_561","iFluor 514","488-507/19",0
+"Bigfoot_7L_488_561","iFluor 514","488-549/15",1
+"Bigfoot_7L_488_561","iFluor 514","488-583/30",0.553191489361702
+"Bigfoot_7L_488_561","iFluor 514","488-615/24",0.180851063829787
+"Bigfoot_7L_488_561","iFluor 514","488-670/30",0
+"Bigfoot_7L_488_561","iFluor 514","488-720/60",0
+"Bigfoot_7L_488_561","iFluor 514","488-750LP",0
+"Bigfoot_7L_488_561","iFluor 514","561-575/15",0.14468085106383
+"Bigfoot_7L_488_561","iFluor 514","561-589/15",0.0851063829787234
+"Bigfoot_7L_488_561","iFluor 514","561-605/15",0.051063829787234
+"Bigfoot_7L_488_561","iFluor 514","561-622/15",0.0276595744680851
+"Bigfoot_7L_488_561","iFluor 514","561-661/20",0
+"Bigfoot_7L_488_561","iFluor 514","561-685/15",0
+"Bigfoot_7L_488_561","iFluor 514","561-700/13",0
+"Bigfoot_7L_488_561","iFluor 514","561-720/24",0
+"Bigfoot_7L_488_561","iFluor 514","561-760/50",0
+"Bigfoot_7L_488_561","iFluor 514","561-800/12",0
+"Bigfoot_7L_488_561","iFluor 514","561-832/37",0
+"Bigfoot_7L_488_561","iFluor 514","561-860LP",0
+"Bigfoot_7L_488_561","iFluor 514","640-670/30",0
+"Bigfoot_7L_488_561","iFluor 514","640-700/13",0
+"Bigfoot_7L_488_561","iFluor 514","640-720/24",0
+"Bigfoot_7L_488_561","iFluor 514","640-760/50",0
+"Bigfoot_7L_488_561","iFluor 514","640-770LP",0
+"Bigfoot_7L_488_561","iFluor 514","785-800/12",0
+"Bigfoot_7L_488_561","iFluor 514","785-832/37",0
+"Bigfoot_7L_488_561","iFluor 514","785-860LP",0
+"Bigfoot_7L_488_561","iFluor 810","349-387/11",0
+"Bigfoot_7L_488_561","iFluor 810","349-420/10",0
+"Bigfoot_7L_488_561","iFluor 810","349-434/17",0
+"Bigfoot_7L_488_561","iFluor 810","349-455/14",0
+"Bigfoot_7L_488_561","iFluor 810","349-473/15",0
+"Bigfoot_7L_488_561","iFluor 810","349-507/19",0
+"Bigfoot_7L_488_561","iFluor 810","349-549/15",0
+"Bigfoot_7L_488_561","iFluor 810","349-575/15",0
+"Bigfoot_7L_488_561","iFluor 810","349-615/24",0
+"Bigfoot_7L_488_561","iFluor 810","349-670/30",0
+"Bigfoot_7L_488_561","iFluor 810","349-728/40",0
+"Bigfoot_7L_488_561","iFluor 810","349-750LP",0
+"Bigfoot_7L_488_561","iFluor 810","405-420/10",0
+"Bigfoot_7L_488_561","iFluor 810","405-434/17",0
+"Bigfoot_7L_488_561","iFluor 810","405-455/14",0
+"Bigfoot_7L_488_561","iFluor 810","405-473/15",0
+"Bigfoot_7L_488_561","iFluor 810","405-507/19",0
+"Bigfoot_7L_488_561","iFluor 810","405-549/15",0
+"Bigfoot_7L_488_561","iFluor 810","405-575/15",0
+"Bigfoot_7L_488_561","iFluor 810","405-615/24",0
+"Bigfoot_7L_488_561","iFluor 810","405-661/20",0
+"Bigfoot_7L_488_561","iFluor 810","405-710/20",0
+"Bigfoot_7L_488_561","iFluor 810","405-747/33",0
+"Bigfoot_7L_488_561","iFluor 810","405-770LP",0
+"Bigfoot_7L_488_561","iFluor 810","445-465/22",0
+"Bigfoot_7L_488_561","iFluor 810","445-525/35",0
+"Bigfoot_7L_488_561","iFluor 810","445-583/30",0
+"Bigfoot_7L_488_561","iFluor 810","445-650LP",0
+"Bigfoot_7L_488_561","iFluor 810","488-507/19",0
+"Bigfoot_7L_488_561","iFluor 810","488-549/15",0
+"Bigfoot_7L_488_561","iFluor 810","488-583/30",0
+"Bigfoot_7L_488_561","iFluor 810","488-615/24",0
+"Bigfoot_7L_488_561","iFluor 810","488-670/30",0
+"Bigfoot_7L_488_561","iFluor 810","488-720/60",0
+"Bigfoot_7L_488_561","iFluor 810","488-750LP",0
+"Bigfoot_7L_488_561","iFluor 810","561-575/15",0
+"Bigfoot_7L_488_561","iFluor 810","561-589/15",0
+"Bigfoot_7L_488_561","iFluor 810","561-605/15",0
+"Bigfoot_7L_488_561","iFluor 810","561-622/15",0
+"Bigfoot_7L_488_561","iFluor 810","561-661/20",0
+"Bigfoot_7L_488_561","iFluor 810","561-685/15",0
+"Bigfoot_7L_488_561","iFluor 810","561-700/13",0
+"Bigfoot_7L_488_561","iFluor 810","561-720/24",0
+"Bigfoot_7L_488_561","iFluor 810","561-760/50",0
+"Bigfoot_7L_488_561","iFluor 810","561-800/12",0
+"Bigfoot_7L_488_561","iFluor 810","561-832/37",0
+"Bigfoot_7L_488_561","iFluor 810","561-860LP",0
+"Bigfoot_7L_488_561","iFluor 810","640-670/30",0
+"Bigfoot_7L_488_561","iFluor 810","640-700/13",0
+"Bigfoot_7L_488_561","iFluor 810","640-720/24",0
+"Bigfoot_7L_488_561","iFluor 810","640-760/50",0
+"Bigfoot_7L_488_561","iFluor 810","640-770LP",0.00549450549450549
+"Bigfoot_7L_488_561","iFluor 810","785-800/12",0.41025641025641
+"Bigfoot_7L_488_561","iFluor 810","785-832/37",1
+"Bigfoot_7L_488_561","iFluor 810","785-860LP",0
+"Bigfoot_7L_488_561","Nuclear Violet","349-387/11",0
+"Bigfoot_7L_488_561","Nuclear Violet","349-420/10",0.0124947938359017
+"Bigfoot_7L_488_561","Nuclear Violet","349-434/17",0.108288213244481
+"Bigfoot_7L_488_561","Nuclear Violet","349-455/14",0.408163265306123
+"Bigfoot_7L_488_561","Nuclear Violet","349-473/15",0.370678883798417
+"Bigfoot_7L_488_561","Nuclear Violet","349-507/19",0.158267388588088
+"Bigfoot_7L_488_561","Nuclear Violet","349-549/15",0.0541441066222407
+"Bigfoot_7L_488_561","Nuclear Violet","349-575/15",0.0374843815077051
+"Bigfoot_7L_488_561","Nuclear Violet","349-615/24",0.0208246563931695
+"Bigfoot_7L_488_561","Nuclear Violet","349-670/30",0
+"Bigfoot_7L_488_561","Nuclear Violet","349-728/40",0
+"Bigfoot_7L_488_561","Nuclear Violet","349-750LP",0
+"Bigfoot_7L_488_561","Nuclear Violet","405-420/10",0.0306122448979592
+"Bigfoot_7L_488_561","Nuclear Violet","405-434/17",0.26530612244898
+"Bigfoot_7L_488_561","Nuclear Violet","405-455/14",1
+"Bigfoot_7L_488_561","Nuclear Violet","405-473/15",0.908163265306122
+"Bigfoot_7L_488_561","Nuclear Violet","405-507/19",0.387755102040816
+"Bigfoot_7L_488_561","Nuclear Violet","405-549/15",0.13265306122449
+"Bigfoot_7L_488_561","Nuclear Violet","405-575/15",0.0918367346938776
+"Bigfoot_7L_488_561","Nuclear Violet","405-615/24",0.0510204081632653
+"Bigfoot_7L_488_561","Nuclear Violet","405-661/20",0
+"Bigfoot_7L_488_561","Nuclear Violet","405-710/20",0
+"Bigfoot_7L_488_561","Nuclear Violet","405-747/33",0
+"Bigfoot_7L_488_561","Nuclear Violet","405-770LP",0
+"Bigfoot_7L_488_561","Nuclear Violet","445-465/22",0.383798417326114
+"Bigfoot_7L_488_561","Nuclear Violet","445-525/35",0.0870470637234486
+"Bigfoot_7L_488_561","Nuclear Violet","445-583/30",0.0316534777176177
+"Bigfoot_7L_488_561","Nuclear Violet","445-650LP",0
+"Bigfoot_7L_488_561","Nuclear Violet","488-507/19",0.0158267388588088
+"Bigfoot_7L_488_561","Nuclear Violet","488-549/15",0.00541441066222407
+"Bigfoot_7L_488_561","Nuclear Violet","488-583/30",0.00333194502290712
+"Bigfoot_7L_488_561","Nuclear Violet","488-615/24",0.00208246563931695
+"Bigfoot_7L_488_561","Nuclear Violet","488-670/30",0
+"Bigfoot_7L_488_561","Nuclear Violet","488-720/60",0
+"Bigfoot_7L_488_561","Nuclear Violet","488-750LP",0
+"Bigfoot_7L_488_561","Nuclear Violet","561-575/15",0.00187421907538526
+"Bigfoot_7L_488_561","Nuclear Violet","561-589/15",0.00166597251145356
+"Bigfoot_7L_488_561","Nuclear Violet","561-605/15",0.00124947938359017
+"Bigfoot_7L_488_561","Nuclear Violet","561-622/15",0.000832986255726781
+"Bigfoot_7L_488_561","Nuclear Violet","561-661/20",0
+"Bigfoot_7L_488_561","Nuclear Violet","561-685/15",0
+"Bigfoot_7L_488_561","Nuclear Violet","561-700/13",0
+"Bigfoot_7L_488_561","Nuclear Violet","561-720/24",0
+"Bigfoot_7L_488_561","Nuclear Violet","561-760/50",0
+"Bigfoot_7L_488_561","Nuclear Violet","561-800/12",0
+"Bigfoot_7L_488_561","Nuclear Violet","561-832/37",0
+"Bigfoot_7L_488_561","Nuclear Violet","561-860LP",0
+"Bigfoot_7L_488_561","Nuclear Violet","640-670/30",0
+"Bigfoot_7L_488_561","Nuclear Violet","640-700/13",0
+"Bigfoot_7L_488_561","Nuclear Violet","640-720/24",0
+"Bigfoot_7L_488_561","Nuclear Violet","640-760/50",0
+"Bigfoot_7L_488_561","Nuclear Violet","640-770LP",0
+"Bigfoot_7L_488_561","Nuclear Violet","785-800/12",0
+"Bigfoot_7L_488_561","Nuclear Violet","785-832/37",0
+"Bigfoot_7L_488_561","Nuclear Violet","785-860LP",0
+"Bigfoot_7L_488_561","PE-DyLight 594","349-387/11",0
+"Bigfoot_7L_488_561","PE-DyLight 594","349-420/10",0
+"Bigfoot_7L_488_561","PE-DyLight 594","349-434/17",0
+"Bigfoot_7L_488_561","PE-DyLight 594","349-455/14",0
+"Bigfoot_7L_488_561","PE-DyLight 594","349-473/15",0
+"Bigfoot_7L_488_561","PE-DyLight 594","349-507/19",0
+"Bigfoot_7L_488_561","PE-DyLight 594","349-549/15",0
+"Bigfoot_7L_488_561","PE-DyLight 594","349-575/15",0
+"Bigfoot_7L_488_561","PE-DyLight 594","349-615/24",0
+"Bigfoot_7L_488_561","PE-DyLight 594","349-670/30",0
+"Bigfoot_7L_488_561","PE-DyLight 594","349-728/40",0
+"Bigfoot_7L_488_561","PE-DyLight 594","349-750LP",0
+"Bigfoot_7L_488_561","PE-DyLight 594","405-420/10",0
+"Bigfoot_7L_488_561","PE-DyLight 594","405-434/17",0
+"Bigfoot_7L_488_561","PE-DyLight 594","405-455/14",0
+"Bigfoot_7L_488_561","PE-DyLight 594","405-473/15",0
+"Bigfoot_7L_488_561","PE-DyLight 594","405-507/19",0
+"Bigfoot_7L_488_561","PE-DyLight 594","405-549/15",0
+"Bigfoot_7L_488_561","PE-DyLight 594","405-575/15",0.0157136105860113
+"Bigfoot_7L_488_561","PE-DyLight 594","405-615/24",0.0802221172022684
+"Bigfoot_7L_488_561","PE-DyLight 594","405-661/20",0.0190217391304348
+"Bigfoot_7L_488_561","PE-DyLight 594","405-710/20",0
+"Bigfoot_7L_488_561","PE-DyLight 594","405-747/33",0
+"Bigfoot_7L_488_561","PE-DyLight 594","405-770LP",0
+"Bigfoot_7L_488_561","PE-DyLight 594","445-465/22",0
+"Bigfoot_7L_488_561","PE-DyLight 594","445-525/35",0
+"Bigfoot_7L_488_561","PE-DyLight 594","445-583/30",0.0124054820415879
+"Bigfoot_7L_488_561","PE-DyLight 594","445-650LP",0
+"Bigfoot_7L_488_561","PE-DyLight 594","488-507/19",0
+"Bigfoot_7L_488_561","PE-DyLight 594","488-549/15",0
+"Bigfoot_7L_488_561","PE-DyLight 594","488-583/30",0.129017013232514
+"Bigfoot_7L_488_561","PE-DyLight 594","488-615/24",0.59593572778828
+"Bigfoot_7L_488_561","PE-DyLight 594","488-670/30",0.110586011342155
+"Bigfoot_7L_488_561","PE-DyLight 594","488-720/60",0
+"Bigfoot_7L_488_561","PE-DyLight 594","488-750LP",0
+"Bigfoot_7L_488_561","PE-DyLight 594","561-575/15",0.206521739130435
+"Bigfoot_7L_488_561","PE-DyLight 594","561-589/15",0.282608695652174
+"Bigfoot_7L_488_561","PE-DyLight 594","561-605/15",0.83695652173913
+"Bigfoot_7L_488_561","PE-DyLight 594","561-622/15",1
+"Bigfoot_7L_488_561","PE-DyLight 594","561-661/20",0.25
+"Bigfoot_7L_488_561","PE-DyLight 594","561-685/15",0.130434782608696
+"Bigfoot_7L_488_561","PE-DyLight 594","561-700/13",0
+"Bigfoot_7L_488_561","PE-DyLight 594","561-720/24",0
+"Bigfoot_7L_488_561","PE-DyLight 594","561-760/50",0
+"Bigfoot_7L_488_561","PE-DyLight 594","561-800/12",0
+"Bigfoot_7L_488_561","PE-DyLight 594","561-832/37",0
+"Bigfoot_7L_488_561","PE-DyLight 594","561-860LP",0
+"Bigfoot_7L_488_561","PE-DyLight 594","640-670/30",0
+"Bigfoot_7L_488_561","PE-DyLight 594","640-700/13",0
+"Bigfoot_7L_488_561","PE-DyLight 594","640-720/24",0
+"Bigfoot_7L_488_561","PE-DyLight 594","640-760/50",0
+"Bigfoot_7L_488_561","PE-DyLight 594","640-770LP",0
+"Bigfoot_7L_488_561","PE-DyLight 594","785-800/12",0
+"Bigfoot_7L_488_561","PE-DyLight 594","785-832/37",0
+"Bigfoot_7L_488_561","PE-DyLight 594","785-860LP",0
+"Bigfoot_7L_488_561","RealBlue 780","349-387/11",0
+"Bigfoot_7L_488_561","RealBlue 780","349-420/10",0
+"Bigfoot_7L_488_561","RealBlue 780","349-434/17",0
+"Bigfoot_7L_488_561","RealBlue 780","349-455/14",0
+"Bigfoot_7L_488_561","RealBlue 780","349-473/15",0
+"Bigfoot_7L_488_561","RealBlue 780","349-507/19",0
+"Bigfoot_7L_488_561","RealBlue 780","349-549/15",0
+"Bigfoot_7L_488_561","RealBlue 780","349-575/15",0
+"Bigfoot_7L_488_561","RealBlue 780","349-615/24",0
+"Bigfoot_7L_488_561","RealBlue 780","349-670/30",0
+"Bigfoot_7L_488_561","RealBlue 780","349-728/40",0
+"Bigfoot_7L_488_561","RealBlue 780","349-750LP",0.0909090909090909
+"Bigfoot_7L_488_561","RealBlue 780","405-420/10",0
+"Bigfoot_7L_488_561","RealBlue 780","405-434/17",0
+"Bigfoot_7L_488_561","RealBlue 780","405-455/14",0
+"Bigfoot_7L_488_561","RealBlue 780","405-473/15",0
+"Bigfoot_7L_488_561","RealBlue 780","405-507/19",0
+"Bigfoot_7L_488_561","RealBlue 780","405-549/15",0
+"Bigfoot_7L_488_561","RealBlue 780","405-575/15",0
+"Bigfoot_7L_488_561","RealBlue 780","405-615/24",0
+"Bigfoot_7L_488_561","RealBlue 780","405-661/20",0
+"Bigfoot_7L_488_561","RealBlue 780","405-710/20",0
+"Bigfoot_7L_488_561","RealBlue 780","405-747/33",0.0296846011131725
+"Bigfoot_7L_488_561","RealBlue 780","405-770LP",0.0222634508348794
+"Bigfoot_7L_488_561","RealBlue 780","445-465/22",0
+"Bigfoot_7L_488_561","RealBlue 780","445-525/35",0
+"Bigfoot_7L_488_561","RealBlue 780","445-583/30",0
+"Bigfoot_7L_488_561","RealBlue 780","445-650LP",0.406307977736549
+"Bigfoot_7L_488_561","RealBlue 780","488-507/19",0
+"Bigfoot_7L_488_561","RealBlue 780","488-549/15",0
+"Bigfoot_7L_488_561","RealBlue 780","488-583/30",0
+"Bigfoot_7L_488_561","RealBlue 780","488-615/24",0
+"Bigfoot_7L_488_561","RealBlue 780","488-670/30",0
+"Bigfoot_7L_488_561","RealBlue 780","488-720/60",0
+"Bigfoot_7L_488_561","RealBlue 780","488-750LP",1
+"Bigfoot_7L_488_561","RealBlue 780","561-575/15",0
+"Bigfoot_7L_488_561","RealBlue 780","561-589/15",0
+"Bigfoot_7L_488_561","RealBlue 780","561-605/15",0
+"Bigfoot_7L_488_561","RealBlue 780","561-622/15",0
+"Bigfoot_7L_488_561","RealBlue 780","561-661/20",0
+"Bigfoot_7L_488_561","RealBlue 780","561-685/15",0
+"Bigfoot_7L_488_561","RealBlue 780","561-700/13",0
+"Bigfoot_7L_488_561","RealBlue 780","561-720/24",0
+"Bigfoot_7L_488_561","RealBlue 780","561-760/50",0.0371057513914657
+"Bigfoot_7L_488_561","RealBlue 780","561-800/12",0.0451453308596166
+"Bigfoot_7L_488_561","RealBlue 780","561-832/37",0.0185528756957328
+"Bigfoot_7L_488_561","RealBlue 780","561-860LP",0
+"Bigfoot_7L_488_561","RealBlue 780","640-670/30",0
+"Bigfoot_7L_488_561","RealBlue 780","640-700/13",0
+"Bigfoot_7L_488_561","RealBlue 780","640-720/24",0
+"Bigfoot_7L_488_561","RealBlue 780","640-760/50",0.0742115027829313
+"Bigfoot_7L_488_561","RealBlue 780","640-770LP",0.0222634508348794
+"Bigfoot_7L_488_561","RealBlue 780","785-800/12",0.541743970315399
+"Bigfoot_7L_488_561","RealBlue 780","785-832/37",0.222634508348794
+"Bigfoot_7L_488_561","RealBlue 780","785-860LP",0
+"Bigfoot_7L_488_561","Rhod-FF","349-387/11",0
+"Bigfoot_7L_488_561","Rhod-FF","349-420/10",0
+"Bigfoot_7L_488_561","Rhod-FF","349-434/17",0
+"Bigfoot_7L_488_561","Rhod-FF","349-455/14",0
+"Bigfoot_7L_488_561","Rhod-FF","349-473/15",0
+"Bigfoot_7L_488_561","Rhod-FF","349-507/19",0
+"Bigfoot_7L_488_561","Rhod-FF","349-549/15",0
+"Bigfoot_7L_488_561","Rhod-FF","349-575/15",0
+"Bigfoot_7L_488_561","Rhod-FF","349-615/24",0
+"Bigfoot_7L_488_561","Rhod-FF","349-670/30",0
+"Bigfoot_7L_488_561","Rhod-FF","349-728/40",0
+"Bigfoot_7L_488_561","Rhod-FF","349-750LP",0
+"Bigfoot_7L_488_561","Rhod-FF","405-420/10",0
+"Bigfoot_7L_488_561","Rhod-FF","405-434/17",0
+"Bigfoot_7L_488_561","Rhod-FF","405-455/14",0
+"Bigfoot_7L_488_561","Rhod-FF","405-473/15",0
+"Bigfoot_7L_488_561","Rhod-FF","405-507/19",0
+"Bigfoot_7L_488_561","Rhod-FF","405-549/15",0
+"Bigfoot_7L_488_561","Rhod-FF","405-575/15",0
+"Bigfoot_7L_488_561","Rhod-FF","405-615/24",0
+"Bigfoot_7L_488_561","Rhod-FF","405-661/20",0
+"Bigfoot_7L_488_561","Rhod-FF","405-710/20",0
+"Bigfoot_7L_488_561","Rhod-FF","405-747/33",0
+"Bigfoot_7L_488_561","Rhod-FF","405-770LP",0
+"Bigfoot_7L_488_561","Rhod-FF","445-465/22",0
+"Bigfoot_7L_488_561","Rhod-FF","445-525/35",0
+"Bigfoot_7L_488_561","Rhod-FF","445-583/30",0
+"Bigfoot_7L_488_561","Rhod-FF","445-650LP",0
+"Bigfoot_7L_488_561","Rhod-FF","488-507/19",0
+"Bigfoot_7L_488_561","Rhod-FF","488-549/15",0.0198412698412698
+"Bigfoot_7L_488_561","Rhod-FF","488-583/30",0.125661375661376
+"Bigfoot_7L_488_561","Rhod-FF","488-615/24",0.041005291005291
+"Bigfoot_7L_488_561","Rhod-FF","488-670/30",0
+"Bigfoot_7L_488_561","Rhod-FF","488-720/60",0
+"Bigfoot_7L_488_561","Rhod-FF","488-750LP",0
+"Bigfoot_7L_488_561","Rhod-FF","561-575/15",1
+"Bigfoot_7L_488_561","Rhod-FF","561-589/15",0.818181818181818
+"Bigfoot_7L_488_561","Rhod-FF","561-605/15",0.434343434343434
+"Bigfoot_7L_488_561","Rhod-FF","561-622/15",0.282828282828283
+"Bigfoot_7L_488_561","Rhod-FF","561-661/20",0
+"Bigfoot_7L_488_561","Rhod-FF","561-685/15",0
+"Bigfoot_7L_488_561","Rhod-FF","561-700/13",0
+"Bigfoot_7L_488_561","Rhod-FF","561-720/24",0
+"Bigfoot_7L_488_561","Rhod-FF","561-760/50",0
+"Bigfoot_7L_488_561","Rhod-FF","561-800/12",0
+"Bigfoot_7L_488_561","Rhod-FF","561-832/37",0
+"Bigfoot_7L_488_561","Rhod-FF","561-860LP",0
+"Bigfoot_7L_488_561","Rhod-FF","640-670/30",0
+"Bigfoot_7L_488_561","Rhod-FF","640-700/13",0
+"Bigfoot_7L_488_561","Rhod-FF","640-720/24",0
+"Bigfoot_7L_488_561","Rhod-FF","640-760/50",0
+"Bigfoot_7L_488_561","Rhod-FF","640-770LP",0
+"Bigfoot_7L_488_561","Rhod-FF","785-800/12",0
+"Bigfoot_7L_488_561","Rhod-FF","785-832/37",0
+"Bigfoot_7L_488_561","Rhod-FF","785-860LP",0
+"Bigfoot_7L_488_561","Rhodamine 101","349-387/11",0
+"Bigfoot_7L_488_561","Rhodamine 101","349-420/10",0
+"Bigfoot_7L_488_561","Rhodamine 101","349-434/17",0
+"Bigfoot_7L_488_561","Rhodamine 101","349-455/14",0
+"Bigfoot_7L_488_561","Rhodamine 101","349-473/15",0
+"Bigfoot_7L_488_561","Rhodamine 101","349-507/19",0
+"Bigfoot_7L_488_561","Rhodamine 101","349-549/15",0
+"Bigfoot_7L_488_561","Rhodamine 101","349-575/15",0
+"Bigfoot_7L_488_561","Rhodamine 101","349-615/24",0
+"Bigfoot_7L_488_561","Rhodamine 101","349-670/30",0
+"Bigfoot_7L_488_561","Rhodamine 101","349-728/40",0
+"Bigfoot_7L_488_561","Rhodamine 101","349-750LP",0
+"Bigfoot_7L_488_561","Rhodamine 101","405-420/10",0
+"Bigfoot_7L_488_561","Rhodamine 101","405-434/17",0
+"Bigfoot_7L_488_561","Rhodamine 101","405-455/14",0
+"Bigfoot_7L_488_561","Rhodamine 101","405-473/15",0
+"Bigfoot_7L_488_561","Rhodamine 101","405-507/19",0
+"Bigfoot_7L_488_561","Rhodamine 101","405-549/15",0
+"Bigfoot_7L_488_561","Rhodamine 101","405-575/15",0
+"Bigfoot_7L_488_561","Rhodamine 101","405-615/24",0
+"Bigfoot_7L_488_561","Rhodamine 101","405-661/20",0
+"Bigfoot_7L_488_561","Rhodamine 101","405-710/20",0
+"Bigfoot_7L_488_561","Rhodamine 101","405-747/33",0
+"Bigfoot_7L_488_561","Rhodamine 101","405-770LP",0
+"Bigfoot_7L_488_561","Rhodamine 101","445-465/22",0
+"Bigfoot_7L_488_561","Rhodamine 101","445-525/35",0
+"Bigfoot_7L_488_561","Rhodamine 101","445-583/30",0
+"Bigfoot_7L_488_561","Rhodamine 101","445-650LP",0
+"Bigfoot_7L_488_561","Rhodamine 101","488-507/19",0
+"Bigfoot_7L_488_561","Rhodamine 101","488-549/15",0
+"Bigfoot_7L_488_561","Rhodamine 101","488-583/30",0.0399500624219725
+"Bigfoot_7L_488_561","Rhodamine 101","488-615/24",0.0190670752468505
+"Bigfoot_7L_488_561","Rhodamine 101","488-670/30",0.00226988991033935
+"Bigfoot_7L_488_561","Rhodamine 101","488-720/60",0
+"Bigfoot_7L_488_561","Rhodamine 101","488-750LP",0
+"Bigfoot_7L_488_561","Rhodamine 101","561-575/15",0.565656565656566
+"Bigfoot_7L_488_561","Rhodamine 101","561-589/15",1
+"Bigfoot_7L_488_561","Rhodamine 101","561-605/15",0.707070707070707
+"Bigfoot_7L_488_561","Rhodamine 101","561-622/15",0.292929292929293
+"Bigfoot_7L_488_561","Rhodamine 101","561-661/20",0.0707070707070707
+"Bigfoot_7L_488_561","Rhodamine 101","561-685/15",0
+"Bigfoot_7L_488_561","Rhodamine 101","561-700/13",0
+"Bigfoot_7L_488_561","Rhodamine 101","561-720/24",0
+"Bigfoot_7L_488_561","Rhodamine 101","561-760/50",0
+"Bigfoot_7L_488_561","Rhodamine 101","561-800/12",0
+"Bigfoot_7L_488_561","Rhodamine 101","561-832/37",0
+"Bigfoot_7L_488_561","Rhodamine 101","561-860LP",0
+"Bigfoot_7L_488_561","Rhodamine 101","640-670/30",0
+"Bigfoot_7L_488_561","Rhodamine 101","640-700/13",0
+"Bigfoot_7L_488_561","Rhodamine 101","640-720/24",0
+"Bigfoot_7L_488_561","Rhodamine 101","640-760/50",0
+"Bigfoot_7L_488_561","Rhodamine 101","640-770LP",0
+"Bigfoot_7L_488_561","Rhodamine 101","785-800/12",0
+"Bigfoot_7L_488_561","Rhodamine 101","785-832/37",0
+"Bigfoot_7L_488_561","Rhodamine 101","785-860LP",0
+"Bigfoot_7L_488_561","Spark Blue 515","349-387/11",0
+"Bigfoot_7L_488_561","Spark Blue 515","349-420/10",0
+"Bigfoot_7L_488_561","Spark Blue 515","349-434/17",0
+"Bigfoot_7L_488_561","Spark Blue 515","349-455/14",0
+"Bigfoot_7L_488_561","Spark Blue 515","349-473/15",0
+"Bigfoot_7L_488_561","Spark Blue 515","349-507/19",0
+"Bigfoot_7L_488_561","Spark Blue 515","349-549/15",0
+"Bigfoot_7L_488_561","Spark Blue 515","349-575/15",0
+"Bigfoot_7L_488_561","Spark Blue 515","349-615/24",0
+"Bigfoot_7L_488_561","Spark Blue 515","349-670/30",0
+"Bigfoot_7L_488_561","Spark Blue 515","349-728/40",0
+"Bigfoot_7L_488_561","Spark Blue 515","349-750LP",0
+"Bigfoot_7L_488_561","Spark Blue 515","405-420/10",0
+"Bigfoot_7L_488_561","Spark Blue 515","405-434/17",0
+"Bigfoot_7L_488_561","Spark Blue 515","405-455/14",0
+"Bigfoot_7L_488_561","Spark Blue 515","405-473/15",0
+"Bigfoot_7L_488_561","Spark Blue 515","405-507/19",0.0102040816326531
+"Bigfoot_7L_488_561","Spark Blue 515","405-549/15",0.00247046186895811
+"Bigfoot_7L_488_561","Spark Blue 515","405-575/15",0.00075187969924812
+"Bigfoot_7L_488_561","Spark Blue 515","405-615/24",0
+"Bigfoot_7L_488_561","Spark Blue 515","405-661/20",0
+"Bigfoot_7L_488_561","Spark Blue 515","405-710/20",0
+"Bigfoot_7L_488_561","Spark Blue 515","405-747/33",0
+"Bigfoot_7L_488_561","Spark Blue 515","405-770LP",0
+"Bigfoot_7L_488_561","Spark Blue 515","445-465/22",0
+"Bigfoot_7L_488_561","Spark Blue 515","445-525/35",0.111707841031149
+"Bigfoot_7L_488_561","Spark Blue 515","445-583/30",0.00687432867883996
+"Bigfoot_7L_488_561","Spark Blue 515","445-650LP",0
+"Bigfoot_7L_488_561","Spark Blue 515","488-507/19",1
+"Bigfoot_7L_488_561","Spark Blue 515","488-549/15",0.242105263157895
+"Bigfoot_7L_488_561","Spark Blue 515","488-583/30",0.0421052631578947
+"Bigfoot_7L_488_561","Spark Blue 515","488-615/24",0
+"Bigfoot_7L_488_561","Spark Blue 515","488-670/30",0
+"Bigfoot_7L_488_561","Spark Blue 515","488-720/60",0
+"Bigfoot_7L_488_561","Spark Blue 515","488-750LP",0
+"Bigfoot_7L_488_561","Spark Blue 515","561-575/15",0
+"Bigfoot_7L_488_561","Spark Blue 515","561-589/15",0
+"Bigfoot_7L_488_561","Spark Blue 515","561-605/15",0
+"Bigfoot_7L_488_561","Spark Blue 515","561-622/15",0
+"Bigfoot_7L_488_561","Spark Blue 515","561-661/20",0
+"Bigfoot_7L_488_561","Spark Blue 515","561-685/15",0
+"Bigfoot_7L_488_561","Spark Blue 515","561-700/13",0
+"Bigfoot_7L_488_561","Spark Blue 515","561-720/24",0
+"Bigfoot_7L_488_561","Spark Blue 515","561-760/50",0
+"Bigfoot_7L_488_561","Spark Blue 515","561-800/12",0
+"Bigfoot_7L_488_561","Spark Blue 515","561-832/37",0
+"Bigfoot_7L_488_561","Spark Blue 515","561-860LP",0
+"Bigfoot_7L_488_561","Spark Blue 515","640-670/30",0
+"Bigfoot_7L_488_561","Spark Blue 515","640-700/13",0
+"Bigfoot_7L_488_561","Spark Blue 515","640-720/24",0
+"Bigfoot_7L_488_561","Spark Blue 515","640-760/50",0
+"Bigfoot_7L_488_561","Spark Blue 515","640-770LP",0
+"Bigfoot_7L_488_561","Spark Blue 515","785-800/12",0
+"Bigfoot_7L_488_561","Spark Blue 515","785-832/37",0
+"Bigfoot_7L_488_561","Spark Blue 515","785-860LP",0
+"Bigfoot_7L_488_561","Spark Red 718","349-387/11",0
+"Bigfoot_7L_488_561","Spark Red 718","349-420/10",0
+"Bigfoot_7L_488_561","Spark Red 718","349-434/17",0
+"Bigfoot_7L_488_561","Spark Red 718","349-455/14",0
+"Bigfoot_7L_488_561","Spark Red 718","349-473/15",0
+"Bigfoot_7L_488_561","Spark Red 718","349-507/19",0
+"Bigfoot_7L_488_561","Spark Red 718","349-549/15",0
+"Bigfoot_7L_488_561","Spark Red 718","349-575/15",0
+"Bigfoot_7L_488_561","Spark Red 718","349-615/24",0
+"Bigfoot_7L_488_561","Spark Red 718","349-670/30",0
+"Bigfoot_7L_488_561","Spark Red 718","349-728/40",0
+"Bigfoot_7L_488_561","Spark Red 718","349-750LP",0
+"Bigfoot_7L_488_561","Spark Red 718","405-420/10",0
+"Bigfoot_7L_488_561","Spark Red 718","405-434/17",0
+"Bigfoot_7L_488_561","Spark Red 718","405-455/14",0
+"Bigfoot_7L_488_561","Spark Red 718","405-473/15",0
+"Bigfoot_7L_488_561","Spark Red 718","405-507/19",0
+"Bigfoot_7L_488_561","Spark Red 718","405-549/15",0
+"Bigfoot_7L_488_561","Spark Red 718","405-575/15",0
+"Bigfoot_7L_488_561","Spark Red 718","405-615/24",0
+"Bigfoot_7L_488_561","Spark Red 718","405-661/20",0
+"Bigfoot_7L_488_561","Spark Red 718","405-710/20",0.0783707865168539
+"Bigfoot_7L_488_561","Spark Red 718","405-747/33",0.0160112359550562
+"Bigfoot_7L_488_561","Spark Red 718","405-770LP",0
+"Bigfoot_7L_488_561","Spark Red 718","445-465/22",0
+"Bigfoot_7L_488_561","Spark Red 718","445-525/35",0
+"Bigfoot_7L_488_561","Spark Red 718","445-583/30",0
+"Bigfoot_7L_488_561","Spark Red 718","445-650LP",0.000842696629213483
+"Bigfoot_7L_488_561","Spark Red 718","488-507/19",0
+"Bigfoot_7L_488_561","Spark Red 718","488-549/15",0
+"Bigfoot_7L_488_561","Spark Red 718","488-583/30",0
+"Bigfoot_7L_488_561","Spark Red 718","488-615/24",0
+"Bigfoot_7L_488_561","Spark Red 718","488-670/30",0
+"Bigfoot_7L_488_561","Spark Red 718","488-720/60",0
+"Bigfoot_7L_488_561","Spark Red 718","488-750LP",0
+"Bigfoot_7L_488_561","Spark Red 718","561-575/15",0
+"Bigfoot_7L_488_561","Spark Red 718","561-589/15",0
+"Bigfoot_7L_488_561","Spark Red 718","561-605/15",0
+"Bigfoot_7L_488_561","Spark Red 718","561-622/15",0
+"Bigfoot_7L_488_561","Spark Red 718","561-661/20",0
+"Bigfoot_7L_488_561","Spark Red 718","561-685/15",0.0160112359550562
+"Bigfoot_7L_488_561","Spark Red 718","561-700/13",0.0581460674157303
+"Bigfoot_7L_488_561","Spark Red 718","561-720/24",0.075
+"Bigfoot_7L_488_561","Spark Red 718","561-760/50",0.00926966292134831
+"Bigfoot_7L_488_561","Spark Red 718","561-800/12",0.00252808988764045
+"Bigfoot_7L_488_561","Spark Red 718","561-832/37",0
+"Bigfoot_7L_488_561","Spark Red 718","561-860LP",0
+"Bigfoot_7L_488_561","Spark Red 718","640-670/30",0.0449438202247191
+"Bigfoot_7L_488_561","Spark Red 718","640-700/13",0.775280898876404
+"Bigfoot_7L_488_561","Spark Red 718","640-720/24",1
+"Bigfoot_7L_488_561","Spark Red 718","640-760/50",0.123595505617978
+"Bigfoot_7L_488_561","Spark Red 718","640-770LP",0
+"Bigfoot_7L_488_561","Spark Red 718","785-800/12",0
+"Bigfoot_7L_488_561","Spark Red 718","785-832/37",0
+"Bigfoot_7L_488_561","Spark Red 718","785-860LP",0
+"Bigfoot_7L_488_561","StarBright Yellow 665","349-387/11",0
+"Bigfoot_7L_488_561","StarBright Yellow 665","349-420/10",0
+"Bigfoot_7L_488_561","StarBright Yellow 665","349-434/17",0
+"Bigfoot_7L_488_561","StarBright Yellow 665","349-455/14",0
+"Bigfoot_7L_488_561","StarBright Yellow 665","349-473/15",0
+"Bigfoot_7L_488_561","StarBright Yellow 665","349-507/19",0
+"Bigfoot_7L_488_561","StarBright Yellow 665","349-549/15",0
+"Bigfoot_7L_488_561","StarBright Yellow 665","349-575/15",0
+"Bigfoot_7L_488_561","StarBright Yellow 665","349-615/24",0.027281746031746
+"Bigfoot_7L_488_561","StarBright Yellow 665","349-670/30",0.545634920634921
+"Bigfoot_7L_488_561","StarBright Yellow 665","349-728/40",0.125496031746032
+"Bigfoot_7L_488_561","StarBright Yellow 665","349-750LP",0.0109126984126984
+"Bigfoot_7L_488_561","StarBright Yellow 665","405-420/10",0
+"Bigfoot_7L_488_561","StarBright Yellow 665","405-434/17",0
+"Bigfoot_7L_488_561","StarBright Yellow 665","405-455/14",0
+"Bigfoot_7L_488_561","StarBright Yellow 665","405-473/15",0
+"Bigfoot_7L_488_561","StarBright Yellow 665","405-507/19",0
+"Bigfoot_7L_488_561","StarBright Yellow 665","405-549/15",0
+"Bigfoot_7L_488_561","StarBright Yellow 665","405-575/15",0
+"Bigfoot_7L_488_561","StarBright Yellow 665","405-615/24",0.00992063492063492
+"Bigfoot_7L_488_561","StarBright Yellow 665","405-661/20",0.166666666666667
+"Bigfoot_7L_488_561","StarBright Yellow 665","405-710/20",0.0555555555555556
+"Bigfoot_7L_488_561","StarBright Yellow 665","405-747/33",0.0376984126984127
+"Bigfoot_7L_488_561","StarBright Yellow 665","405-770LP",0.00198412698412698
+"Bigfoot_7L_488_561","StarBright Yellow 665","445-465/22",0
+"Bigfoot_7L_488_561","StarBright Yellow 665","445-525/35",0
+"Bigfoot_7L_488_561","StarBright Yellow 665","445-583/30",0
+"Bigfoot_7L_488_561","StarBright Yellow 665","445-650LP",0.00744047619047619
+"Bigfoot_7L_488_561","StarBright Yellow 665","488-507/19",0
+"Bigfoot_7L_488_561","StarBright Yellow 665","488-549/15",0
+"Bigfoot_7L_488_561","StarBright Yellow 665","488-583/30",0
+"Bigfoot_7L_488_561","StarBright Yellow 665","488-615/24",0.0186011904761905
+"Bigfoot_7L_488_561","StarBright Yellow 665","488-670/30",0.37202380952381
+"Bigfoot_7L_488_561","StarBright Yellow 665","488-720/60",0.0892857142857143
+"Bigfoot_7L_488_561","StarBright Yellow 665","488-750LP",0.00744047619047619
+"Bigfoot_7L_488_561","StarBright Yellow 665","561-575/15",0
+"Bigfoot_7L_488_561","StarBright Yellow 665","561-589/15",0.0119047619047619
+"Bigfoot_7L_488_561","StarBright Yellow 665","561-605/15",0.0357142857142857
+"Bigfoot_7L_488_561","StarBright Yellow 665","561-622/15",0.0714285714285714
+"Bigfoot_7L_488_561","StarBright Yellow 665","561-661/20",1
+"Bigfoot_7L_488_561","StarBright Yellow 665","561-685/15",0.845238095238095
+"Bigfoot_7L_488_561","StarBright Yellow 665","561-700/13",0.452380952380952
+"Bigfoot_7L_488_561","StarBright Yellow 665","561-720/24",0.285714285714286
+"Bigfoot_7L_488_561","StarBright Yellow 665","561-760/50",0.166666666666667
+"Bigfoot_7L_488_561","StarBright Yellow 665","561-800/12",0.0476190476190476
+"Bigfoot_7L_488_561","StarBright Yellow 665","561-832/37",0.0238095238095238
+"Bigfoot_7L_488_561","StarBright Yellow 665","561-860LP",0
+"Bigfoot_7L_488_561","StarBright Yellow 665","640-670/30",0.037202380952381
+"Bigfoot_7L_488_561","StarBright Yellow 665","640-700/13",0.0141369047619048
+"Bigfoot_7L_488_561","StarBright Yellow 665","640-720/24",0.00892857142857143
+"Bigfoot_7L_488_561","StarBright Yellow 665","640-760/50",0.00520833333333333
+"Bigfoot_7L_488_561","StarBright Yellow 665","640-770LP",0.00037202380952381
+"Bigfoot_7L_488_561","StarBright Yellow 665","785-800/12",0
+"Bigfoot_7L_488_561","StarBright Yellow 665","785-832/37",0
+"Bigfoot_7L_488_561","StarBright Yellow 665","785-860LP",0

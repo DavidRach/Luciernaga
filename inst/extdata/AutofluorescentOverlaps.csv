@@ -1,0 +1,6 @@
+Fluorophore,MainDetector
+Unstained,"UV7-A,V7-A,V3-A,V5-A"
+BUV496,UV7-A
+BV480,V5-A
+BV510,V7-A
+BV570,V8-A
