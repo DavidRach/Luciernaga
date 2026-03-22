@@ -27,14 +27,12 @@
 #' @param height Desired page height for a pdf, default is 7 inches
 #' @param filename Default NULL, provide name to set the filename. 
 #'
-#' @importFrom flowWorkspace keyword
-#' @importFrom flowWorkspace gs_pop_get_data
+#' @importFrom flowWorkspace keyword gs_pop_get_data
 #' @importFrom flowCore exprs
-#' @importFrom patchwork wrap_plots
-#' @importFrom patchwork plot_spacer
+#' @importFrom patchwork wrap_plots plot_spacer
 #' @importFrom purrr map
 #'
-#' @return A value to be determined later
+#' @return A one by N plot
 #' @export
 #'
 #' @examples
@@ -74,10 +72,11 @@
 #'   gatelines = FALSE, reference = NULL, outpath = StorageLocation,
 #'   returntype="patchwork")
 #'
-Utility_NbyNPlots <- function(x, sample.name, removestrings, experiment = NULL,
-  experiment.name = NULL, condition = NULL, condition.name = NULL, marginsubset,
-  gatesubset, ycolumn, bins, clearance, gatelines, reference = NULL, outpath, returntype,
-  width = 9, height = 7, filename = NULL) {
+Utility_NbyNPlots <- function(x, sample.name=c("GROUPNAME", "TUBENAME"),
+ removestrings=".fcs", experiment = NULL, experiment.name = NULL, condition = NULL,
+  condition.name = NULL, marginsubset="root", gatesubset="root",
+  ycolumn, bins=100, clearance=0.2, gatelines=FALSE, reference = NULL,
+  outpath=NULL, returntype="patchwork", width = 9, height = 7, filename = NULL) {
 
   if (!is.null(reference)){
     if (is.data.frame(reference)){reference <- reference

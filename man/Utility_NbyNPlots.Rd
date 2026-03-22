@@ -6,21 +6,21 @@
 \usage{
 Utility_NbyNPlots(
   x,
-  sample.name,
-  removestrings,
+  sample.name = c("GROUPNAME", "TUBENAME"),
+  removestrings = ".fcs",
   experiment = NULL,
   experiment.name = NULL,
   condition = NULL,
   condition.name = NULL,
-  marginsubset,
-  gatesubset,
+  marginsubset = "root",
+  gatesubset = "root",
   ycolumn,
-  bins,
-  clearance,
-  gatelines,
+  bins = 100,
+  clearance = 0.2,
+  gatelines = FALSE,
   reference = NULL,
-  outpath,
-  returntype,
+  outpath = NULL,
+  returntype = "patchwork",
   width = 9,
   height = 7,
   filename = NULL
@@ -73,7 +73,7 @@ main population but exclude outliers.}
 \item{filename}{Default NULL, provide name to set the filename.}
 }
 \value{
-A value to be determined later
+A one by N plot
 }
 \description{
 Generate NxN plots for one or all fluorophores.
