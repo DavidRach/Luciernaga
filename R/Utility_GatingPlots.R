@@ -73,7 +73,7 @@ Utility_GatingPlots <- function(x, sample.name, removestrings,
   AggregateName <- Luciernaga:::NameForSample(x=x, sample.name=sample.name,
                                  removestrings=removestrings)
 
-  # Pulling Gating Information
+  # Retrieve Gates present in the GatingSet.
   if(!is.null(gtFile)){
     TheXYZgates <- gtFile |> pull(alias)
   if ("*" %in% TheXYZgates){
