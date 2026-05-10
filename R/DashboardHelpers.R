@@ -1012,9 +1012,9 @@ VisualQCSummary <- function(x, detectorType="-A"){
     left_join(rCV, by = c("Detector", "DateTime"))
 
   TheDetectors <- Tidy |> pull(Detector) |> unique()
-  TheDetectors <- TheDetectors[str_detect(TheDetectors, detectorType)]
+  #TheDetectors <- TheDetectors[str_detect(TheDetectors, detectorType)]
 
-  Summary <- map(.x=TheDetectors, .f=QCSummaryCheck, data=Tidy) |> bind_rows()
+  Summary <- map(.x=TheDetectors, .f=Luciernaga:::QCSummaryCheck, data=Tidy) |> bind_rows()
   return(Summary)
 }
 

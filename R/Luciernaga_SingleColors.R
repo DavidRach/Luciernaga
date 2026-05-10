@@ -12,23 +12,17 @@
 #' @param Verbose Provides debugging for removestrings
 #' @param returntype Allows to modify default "data" to instead return the "plots"
 #'
-#' @importFrom flowCore keyword
-#' @importFrom stringr str_detect
+#' @importFrom flowCore keyword exprs
 #' @importFrom flowWorkspace gs_pop_get_data
-#' @importFrom flowCore exprs
 #' @importFrom BiocGenerics nrow
-#' @importFrom dplyr filter
-#' @importFrom dplyr arrange
-#' @importFrom utils read.csv
-#' @importFrom dplyr select
-#' @importFrom dplyr pull
+#' @importFrom stringr str_detect
+#' @importFrom dplyr filter arrange select pull rename mutate relocate
+#' @importFrom tidyr pivot_longer
+#' @importFrom ggplot2 ggplot aes geom_line theme_bw labs theme element_text
+#' element_blank scale_color_manual
 #' @importFrom tidyselect all_of
 #' @importFrom stats quantile
-#' @importFrom dplyr rename
-#' @importFrom dplyr mutate
-#' @importFrom dplyr relocate
-#' @importFrom tidyr pivot_longer
-#' @importFrom ggplot2 ggplot
+#' @importFrom utils read.csv
 #'
 #' @return A tibble row for each flow object containing the summarized data.
 #' @export
@@ -193,7 +187,7 @@ Luciernaga_SingleColors <- function(x, sample.name, removestrings,
     PanelCuts <- read.csv(PanelCuts, check.names = FALSE)
     } else {PanelCuts <- PanelCuts}
 
-  PanelCuts$Fluorophore <- gsub("-A", "", PanelCuts$Fluorophore)
+  PanelCuts$Fluorophore <- gsub("-A$", "", PanelCuts$Fluorophore)
 
   TheInfo <- PanelCuts %>% dplyr::filter(Fluorophore %in% TheFluorophores)
 
@@ -216,7 +210,7 @@ Luciernaga_SingleColors <- function(x, sample.name, removestrings,
     UpperBound <- UpperBound / 100
   }
 
-  QuantileData <- TheColumns %>% select(all_of(TheDetector)) %>% pull()
+  QuantileData <- TheColumns |> select(all_of(TheDetector)) |> pull()
   LowerBoundMFI <- QuantileData %>% quantile(., LowerBound)
   UpperBoundMFI <- QuantileData %>% quantile(., UpperBound)
 
@@ -249,7 +243,7 @@ Luciernaga_SingleColors <- function(x, sample.name, removestrings,
       relocate(Fluorophore, .before=1)
     LineCols <- ncol(ThePlotData)
 
-    Melted <- ThePlotData |> pivot_longer(cols=2:LineCols,
+    Melted <- ThePlotData |> pivot_longer(cols=all_of(2:LineCols),
        names_to = "Detector", values_to = "value")
     Melted$Detector <- factor(Melted$Detector, levels = detector_order)
 
@@ -266,7 +260,7 @@ Luciernaga_SingleColors <- function(x, sample.name, removestrings,
     }
 
     plot <- ggplot(Melted, aes(x = Detector, y = value, group = Type,
-      color = Type)) + geom_line(size=1) + theme_bw() +
+      color = Type)) + geom_line(linewidth=1) + theme_bw() +
       labs(title = thename, x = "Detectors", y = "Normalized") +
       theme(axis.title.x = element_text(face = "plain"), 
       axis.title.y = element_text(face = "plain"),

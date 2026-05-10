@@ -74,7 +74,7 @@ Luciernaga_Unmix <- function(x, controlData, sample.name, removestrings,
     controlData <- bind_cols(Metadata, Normalized)
  }
 
-  controlData$Fluorophore <- gsub("-A", "", controlData$Fluorophore)
+  controlData$Fluorophore <- gsub("-A$", "", controlData$Fluorophore)
 
   NewControlData <- controlData |> arrange(match(Fluorophore, CorrectColumnOrder))
   Newest <- NewControlData |> pull(Fluorophore)
