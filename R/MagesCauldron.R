@@ -42,7 +42,7 @@
 #' @return Either a plot or the underlying matrix
 #' 
 #' @noRd
-MagesCauldron <- function(panelfluors, unstained, returnType="plot", savePlot=FALSE,
+MagesCauldron <- function(panelfluors, unstained=NULL, returnType="plot", savePlot=FALSE,
    outpath=NULL, filename=NULL, device="png", width=15, height=15, swapname=NULL,
    swapvalue=NULL, NumberDetectors=NULL){
   

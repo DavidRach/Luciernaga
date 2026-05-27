@@ -87,10 +87,15 @@ Utility_NbyNPlots <- function(x, sample.name=c("GROUPNAME", "TUBENAME"),
   AggregateName <- NameForSample(x=x, sample.name=sample.name, removestrings=removestrings,
                                  experiment=experiment, experiment.name=experiment.name,
                                  condition=condition, condition.name=condition.name)
-  
-  if (length(sample.name) == 1){
-    name <- keyword(x, sample.name)
-  } else {name <- AggregateName}  
+
+
+  if (length(sample.name) == 2){
+      first <- sample.name[[1]]
+      second <- sample.name[[2]]
+      first <- keyword(x, first)
+      second <- keyword(x, second)
+      name <- paste(first, second, sep="_")
+    } else {name <- keyword(x, sample.name)}
 
   StorageLocation <- file.path(outpath, AggregateName)
 
@@ -150,7 +155,7 @@ Utility_NbyNPlots <- function(x, sample.name=c("GROUPNAME", "TUBENAME"),
 
   return(AssembledPlots)
 
-  }
+}
 
 #' Internal for Utility_NbyNPlots
 #' @importFrom flowWorkspace keyword
