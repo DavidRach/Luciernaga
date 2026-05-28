@@ -218,11 +218,15 @@ Unity <- function(x, TheY, TheX, marginsubset, gatesubset, sample.name, removest
      }
     }
 
-  if (gatelines == TRUE){Value <- reference %>% dplyr::filter(specimen %in% name) %>%
+  if (gatelines == TRUE){
+  Value <- reference %>% dplyr::filter(specimen %in% name) %>%
     select(all_of(TheX)) %>% pull(.)
-  Plot <- Plot + geom_vline(xintercept = c(seq(0,200,25)), colour = "gray") +
-    geom_vline(xintercept = c(seq(0,200,2)), colour = "white", alpha = 0.1) +
-    geom_vline(xintercept = Value, colour = "red")}
+ 
+  Plot <- Plot +
+    geom_vline(xintercept = c(seq(0,10000,25)), colour = "gray", alpha=0.1) +
+    geom_vline(xintercept = c(seq(0,10000,2)), colour = "white", alpha = 0) +
+    geom_vline(xintercept = Value, colour = "red")
+  }
 
   return(Plot)
 }
