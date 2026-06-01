@@ -153,7 +153,7 @@ InternalUnmix <- function(cs, StashedDF, TheData, Ligands){
   new_pid <- seq(new_pid, length.out = ncol)
   new_pid <- paste0("$P", new_pid)
 
-  SecondCN <- cn[NewColStart+1:AllCols]
+  SecondCN <- cn[NewColStart:AllCols]
 
   new_pd <- do.call(rbind, lapply(SecondCN, function(i){
     vec <- cols[,i]
