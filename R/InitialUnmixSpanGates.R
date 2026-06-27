@@ -19,7 +19,7 @@
 #' 
 #' @examples A <- 2+2
 #' 
-InitialUnmixSpanGates <- function(template, gs, subset, minpercentile=0.90,
+InitialUnmixSpanGates <- function(template, gs, subset, minpercentile=0.5,
  maxpercentile=0.99, inverse.transform=FALSE){
 
     These <- template |> select(name, Fluorophore, Detector)
@@ -28,9 +28,11 @@ InitialUnmixSpanGates <- function(template, gs, subset, minpercentile=0.90,
     gs_index <- match(DetectorsPresent$name, sampleNames(gs))
     DetectorsPresent$gs_index <- gs_index
 
+    GatesToAdd <- DetectorsPresent |> pull(Fluorophore)
+
     purrr::walk(.x= GatesToAdd, .f=InitialSpans, gs=gs, subset=subset, data=DetectorsPresent,
     inverse.transform=inverse.transform, minpercentile=minpercentile,
-    maxpercentile=maxpercentile)
+    maxpercentile=maxpercentile, .progress = TRUE)
  }
 
 #' Internal for InitialUnmixingGates, creates gates for designated fluorophores

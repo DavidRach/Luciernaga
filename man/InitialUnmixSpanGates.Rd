@@ -9,7 +9,7 @@ InitialUnmixSpanGates(
   template,
   gs,
   subset,
-  minpercentile = 0.9,
+  minpercentile = 0.5,
   maxpercentile = 0.99,
   inverse.transform = FALSE
 )
