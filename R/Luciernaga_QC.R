@@ -107,17 +107,17 @@
 #'  experiment = "FirstExperiment", condition = "ILTPanel", Subtraction = "Internal",
 #'  CellAF=TheCellAF, SCData="subtracted", NegativeType="default") %>% bind_rows()
 #'
-Luciernaga_QC <- function(x, subsets, sample.name, removestrings=NULL, Verbose = FALSE,
+Luciernaga_QC <- function(x, subsets, sample.name="TUBENAME", removestrings=NULL, Verbose = FALSE,
                           experiment = NULL, experiment.name = NULL, condition = NULL,
                           condition.name = NULL, AFOverlap, unmixingcontroltype="both",
                           Unstained=FALSE, ratiopopcutoff=0.01, stats="median",
                           Subtraction = "Internal", desiredAF=NULL, BeadAF=NULL,
                           BeadMainAF=NULL, CellAF=NULL, CellMainAF=NULL,
-                          SignatureReturnNow=FALSE, Increments, LocalMaximaRatio=0.15,
+                          SignatureReturnNow=FALSE, Increments=0.1, LocalMaximaRatio=0.15,
                           SecondaryPeaks=2, Brightness=FALSE, RetainedType="raw",
-                          ExportType, minimalfcscutoff = 0.05, SCData = "subtracted",
-                          NegativeType= "default", TotalNegatives = 500, outpath,
-                          inverse.transform=FALSE, Consolidate=NULL){
+                          ExportType="data", minimalfcscutoff = 0.05, SCData = "subtracted",
+                          NegativeType= "default", TotalNegatives = 500, outpath=NULL,
+                          inverse.transform=TRUE, Consolidate=NULL){
 
   ###################
   # Metadata Module #
@@ -217,7 +217,7 @@ Luciernaga_QC <- function(x, subsets, sample.name, removestrings=NULL, Verbose =
   # Determining Peak Detectors #
   ##############################
 
-  if (Type == "Cells"|Type == "Cells_Unstained") {
+  if (Type == "Cells"|Type == "Cells_Unstained"|Type=="Unknown_Unstained") {
     CellCutoff <- startingcells*ratiopopcutoff
     Detectors <- PeakDetectorCounts %>% dplyr::filter(Counts > CellCutoff)
   }
@@ -309,9 +309,9 @@ Luciernaga_QC <- function(x, subsets, sample.name, removestrings=NULL, Verbose =
   # Inverse of retained, then top for peak
 
   if (Type == "Cells"){Intermediate <- Detectors %>% filter(!Fluors %in% Retained)}
-  if (Type == "Cells_Unstained"){Intermediate <- Detectors}
+  if (Type == "Cells_Unstained" | Type == "Unknown_Unstained"){Intermediate <- Detectors}
 
-  if (Type == "Cells"|Type == "Cells_Unstained"){
+  if (Type == "Cells"|Type == "Cells_Unstained"| Type == "Unknown_Unstained"){
     InternalOverride <- FALSE
 
     if (nrow(Intermediate) >0){
@@ -412,7 +412,7 @@ Luciernaga_QC <- function(x, subsets, sample.name, removestrings=NULL, Verbose =
   WorkAround1 <- WorkAround %>% mutate(Backups = Backups$Backups) %>%
     relocate(Backups, .before = 1) #This will change the start/end count
 
-  if (Type == "Cells_Unstained"){
+  if (Type == "Cells_Unstained" | Type == "Unknown_Unstained"){
     # x <- Retained[3]
     RetainedDF <- map(.x= Retained, .f=UnstainedSignatures,
                       WorkAround1=WorkAround1, alternatename=AggregateName,

@@ -17,42 +17,20 @@
 #' @param returncutplot Default FALSE, if true returns a histogram plot with locations
 #'  where percentile slice occured.
 #' @param titleplot Default NULL, sets the returncutplot title
+#' @param inverse.transform Default TRUE, whether to inverse.transform. 
 #'
-#' @importFrom flowCore keyword
+#' @importFrom flowCore keyword exprs
 #' @importFrom flowWorkspace gs_pop_get_data
 #' @importFrom BiocGenerics nrow
-#' @importFrom flowCore exprs
-#' @importFrom dplyr arrange
-#' @importFrom dplyr desc
-#' @importFrom dplyr filter
-#' @importFrom dplyr slice
-#' @importFrom dplyr pull
+#' @importFrom dplyr arrange desc filter slice pull mutate group_by select ungroup
+#' across everything cur_column
 #' @importFrom stats quantile
-#' @importFrom dplyr mutate
-#' @importFrom dplyr group_by
-#' @importFrom tidyr nest
-#' @importFrom dplyr select
-#' @importFrom tidyr unnest
-#' @importFrom dplyr ungroup
-#' @importFrom tidyr pivot_longer
+#' @importFrom tidyr nest unnest pivot_longer
 #' @importFrom tidyselect all_of
-#' @importFrom ggplot2 ggplot
-#' @importFrom ggplot2 aes
-#' @importFrom ggplot2 theme_bw
-#' @importFrom ggplot2 labs
-#' @importFrom ggplot2 geom_density
-#' @importFrom ggplot2 geom_rect
-#' @importFrom ggplot2 scale_fill_manual
-#' @importFrom ggplot2 geom_line
-#' @importFrom ggplot2 scale_color_hue
-#' @importFrom ggplot2 theme_linedraw
-#' @importFrom ggplot2 element_text
-#' @importFrom ggplot2 element_blank
-#' @importFrom ggplot2 theme
-#' @importFrom ggplot2 scale_x_log10
-#' @importFrom ggplot2 annotation_logticks
-#' @importFrom scales trans_format 
-#' @importFrom scales math_format 
+#' @importFrom ggplot2 ggplot aes theme_bw labs geom_density geom_rect scale_fill_manual
+#' geom_line scale_color_hue theme_linedraw element_text element_blank theme scale_x_log10
+#' annotation_logticks
+#' @importFrom scales trans_format math_format 
 #' 
 #' @return Either ggplots or the summarized data.frame object preceding
 #' @export
@@ -91,18 +69,23 @@
 Luciernaga_LinearSlices <- function(x, subset, sample.name, removestrings, stats,
                                     returntype, probsratio=0.1, output, desiredAF=NULL,
                                     legend=TRUE, droplowest=TRUE, titlename=NULL,
-                                    returncutplot=FALSE, titleplot =NULL){
+                                    returncutplot=FALSE, titleplot =NULL,
+                                    inverse.transform=TRUE, parentSignature=NULL){
   name <- keyword(x, sample.name)
   name <- NameCleanUp(name, removestrings)
 
-  cs <- gs_pop_get_data(x, subset)
+  cs <- gs_pop_get_data(x, subset, inverse.transform)
   startingcells <- nrow(cs)[[1]]
   Data <- data.frame(exprs(cs[[1]]), check.names = FALSE)
   n <- Data[,-grep("Time|FS|SC|SS|Original|W$|H$", names(Data))]
   DetectorOrder <- colnames(n)
 
+  if(!is.null(parentSignature)){
+    n <- n |> mutate(across(everything(), ~ . - parentSignature[[cur_column()]]))
+  }
+
   # Triangulating on Detector
-  n[n < 0] <- 0
+  #n[n < 0] <- 0
   A <- do.call(pmax, n)
   Normalized <- n/A
   #Normalized <- round(Normalized, 1)
@@ -124,8 +107,8 @@ Luciernaga_LinearSlices <- function(x, subset, sample.name, removestrings, stats
           data <- n}
 
   if(nrow(Detectors) > 1 && is.null(desiredAF)){
-    message("Luciernaga_LinearSlices is only meant to work on LuciernagaQC output .fcs files,
-            your file ", name," contained two peak detectors, only the first was selected")
+    #message("Luciernaga_LinearSlices is only meant to work on LuciernagaQC output .fcs files,
+    #        your file ", name," contained two peak detectors, only the first was selected")
             Detectors <- Detectors |> slice(1)
   } else if (nrow(Detectors) > 1 && !is.null(desiredAF)){
     #desiredAF <- as.character(desiredAF)

@@ -18,7 +18,9 @@ Luciernaga_LinearSlices(
   droplowest = TRUE,
   titlename = NULL,
   returncutplot = FALSE,
-  titleplot = NULL
+  titleplot = NULL,
+  inverse.transform = TRUE,
+  parentSignature = NULL
 )
 }
 \arguments{
@@ -52,6 +54,8 @@ detector, default is set to NULL}
 where percentile slice occured.}
 
 \item{titleplot}{Default NULL, sets the returncutplot title}
+
+\item{inverse.transform}{Default TRUE, whether to inverse.transform.}
 }
 \value{
 Either ggplots or the summarized data.frame object preceding

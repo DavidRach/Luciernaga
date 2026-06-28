@@ -7,7 +7,7 @@
 Luciernaga_QC(
   x,
   subsets,
-  sample.name,
+  sample.name = "TUBENAME",
   removestrings = NULL,
   Verbose = FALSE,
   experiment = NULL,
@@ -26,18 +26,18 @@ Luciernaga_QC(
   CellAF = NULL,
   CellMainAF = NULL,
   SignatureReturnNow = FALSE,
-  Increments,
+  Increments = 0.1,
   LocalMaximaRatio = 0.15,
   SecondaryPeaks = 2,
   Brightness = FALSE,
   RetainedType = "raw",
-  ExportType,
+  ExportType = "data",
   minimalfcscutoff = 0.05,
   SCData = "subtracted",
   NegativeType = "default",
   TotalNegatives = 500,
-  outpath,
-  inverse.transform = FALSE,
+  outpath = NULL,
+  inverse.transform = TRUE,
   Consolidate = NULL
 )
 }
