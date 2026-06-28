@@ -68,8 +68,8 @@ RetrieveAverageSignature <- function(template, gs, inverse.transform=TRUE,
 #' 
 #' @examples A <- 2+2
 #' 
-GateExprsIterated <- function(gs, sample, gate, inverse.transform, excludeThese="FSC|SSC|Time|-H"){
-  PopulationInterest <- gs_pop_get_data(gs[sample], subset=gate)
+GateExprsIterated <- function(gs, sample, gate, inverse.transform=TRUE, excludeThese="FSC|SSC|Time|-H"){
+  PopulationInterest <- gs_pop_get_data(gs[sample], subset=gate, inverse.transform=inverse.transform)
   TheDataValues <- exprs(PopulationInterest[[1]])
 
   TheDataValues <- data.frame(TheDataValues, check.names=FALSE)

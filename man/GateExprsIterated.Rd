@@ -9,7 +9,7 @@ GateExprsIterated(
   gs,
   sample,
   gate,
-  inverse.transform,
+  inverse.transform = TRUE,
   excludeThese = "FSC|SSC|Time|-H"
 )
 }
