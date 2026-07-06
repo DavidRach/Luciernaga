@@ -15,7 +15,8 @@ Luciernaga_Summary(
   NumberDetectors = 64,
   excludeThese = "FSC|SSC|Time|-H|-W",
   Unstained = FALSE,
-  inverse.transform = TRUE
+  inverse.transform = TRUE,
+  AFOverlap
 )
 }
 \arguments{
@@ -37,6 +38,9 @@ columns. The default is set to "FSC|SSC|Time|-H|-W"}
 therefore is not needed)}
 
 \item{inverse.transform}{Whether to inverse.transform, default is TRUE}
+
+\item{AFOverlap}{See Luciernaga Vignette, default NULL falls back to the 
+default shipped within Luciernaga extdata.}
 }
 \value{
 A named list containing the various data.frames and plots for the respective gate

@@ -18,8 +18,11 @@
 #' @examples A <- 2 + 2
 #' 
 BackgroundSubtraction <- function(data, Normalize=TRUE, keepNegatives=FALSE){
+
   StartingDetector <- which(colnames(data) %in% "Negative") + 1
   DetectorColumns <- colnames(data)[StartingDetector:ncol(data)]
+
+  UpdatedTemplate <- data
 
 NegativeTheoretical <- UpdatedTemplate |>
   select(Fluorophore, all_of(DetectorColumns)) |>

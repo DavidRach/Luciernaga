@@ -20,6 +20,7 @@
 #' similar fluorophores in the library
 #' @param Unstained Default FALSE, set to TRUE if sample is unstained (and subtraction 
 #' therefore is not needed)
+#' @param NumberDetectors Default 64 (5-laser Cytek Aurora)
 #' 
 #' @importFrom dplyr select filter pull
 #' @importFrom utils read.csv
@@ -36,7 +37,7 @@
 LuciernagaIntegration <- function(template, gs, AFOverlap=NULL,
  externalAF_gs = NULL, externalAF_gs_index=NULL, externalAF_gs_gate=NULL,
  excludeThese="FSC|SSC|Time|-H|-W", inverse.transform=TRUE,
-GuessSimilar=FALSE, Unstained=Unstained){
+ GuessSimilar=FALSE, Unstained=FALSE, NumberDetectors=64){
 
   if (is.null(AFOverlap)){
     FileLocation <- system.file("extdata", package = "Luciernaga")
@@ -69,7 +70,7 @@ GuessSimilar=FALSE, Unstained=Unstained){
   gs=gs, externalAF_gs=externalAF_gs, externalAF_gs_index=externalAF_gs_index,
   externalAF_gs_gate=externalAF_gs_gate, GuessSimilar=GuessSimilar,
   NumberDetectors=NumberDetectors, excludeThese=excludeThese, Unstained=Unstained,
-  inverse.transform=inverse.transform)
+  inverse.transform=inverse.transform, AFOverlap=AFOverlap)
 
   return(ListOfLists)
 }
@@ -87,6 +88,8 @@ GuessSimilar=FALSE, Unstained=Unstained){
 #' @param Unstained Default FALSE, set to TRUE if sample is unstained (and subtraction 
 #' therefore is not needed)
 #' @param inverse.transform Whether to inverse.transform, default is TRUE
+#' @param AFOverlap See Luciernaga Vignette, default NULL falls back to the 
+#' default shipped within Luciernaga extdata. 
 #' 
 #' @importFrom  flowWorkspace gs_pop_get_parent
 #' @importFrom flowCore exprs
@@ -103,7 +106,7 @@ GuessSimilar=FALSE, Unstained=Unstained){
 Luciernaga_Summary <- function(x, y, gs,  
   externalAF_gs=NULL, externalAF_gs_index=NULL, externalAF_gs_gate=NULL,
   GuessSimilar=FALSE, NumberDetectors=64, excludeThese="FSC|SSC|Time|-H|-W", 
-  Unstained=FALSE, inverse.transform=TRUE){
+  Unstained=FALSE, inverse.transform=TRUE, AFOverlap){
 
   if (is.null(externalAF_gs)){
     path <- gs_pop_get_parent(gs[y], x, inverse.transform=inverse.transform)
@@ -162,8 +165,8 @@ Luciernaga_Summary <- function(x, y, gs,
   TheSimilarPlot <- SimilarData[[2]]
   
   } else {
-    SimilarData <- NULL
-    SimilarPlot <- NULL
+    TheSimilarData <- NULL
+    TheSimilarPlot <- NULL
   }
 
   NormalizedPlot <- QC_Amalgamate(data=CosineData, samplecolumn="Cluster",

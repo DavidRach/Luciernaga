@@ -15,7 +15,8 @@ LuciernagaIntegration(
   excludeThese = "FSC|SSC|Time|-H|-W",
   inverse.transform = TRUE,
   GuessSimilar = FALSE,
-  Unstained = Unstained
+  Unstained = FALSE,
+  NumberDetectors = 64
 )
 }
 \arguments{
@@ -47,6 +48,8 @@ similar fluorophores in the library}
 
 \item{Unstained}{Default FALSE, set to TRUE if sample is unstained (and subtraction 
 therefore is not needed)}
+
+\item{NumberDetectors}{Default 64 (5-laser Cytek Aurora)}
 }
 \value{
 A list of lists containing data.frame and plots for all the single-color
