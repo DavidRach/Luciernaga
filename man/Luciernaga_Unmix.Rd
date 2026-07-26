@@ -14,7 +14,8 @@ Luciernaga_Unmix(
   subset = "root",
   outpath,
   PanelPath,
-  returnType = "fcs"
+  returnType = "fcs",
+  inverse.transform = FALSE
 )
 }
 \arguments{
@@ -38,6 +39,9 @@ from these}
 \item{PanelPath}{Location to a panel.csv containing correct order of fluorophores}
 
 \item{returnType}{Whether to return "fcs" or "flowframe"}
+
+\item{inverse.transform}{Default is FALSE, set to TRUE if data is already transformed
+and needs to be reversed.}
 }
 \value{
 A new .fcs file with the new columns appended
@@ -46,5 +50,6 @@ A new .fcs file with the new columns appended
 OLS unmixing of a Gating Set object
 }
 \examples{
-NULL
+A <- 2+2
+
 }

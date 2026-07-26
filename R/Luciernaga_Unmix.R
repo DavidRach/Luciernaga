@@ -11,24 +11,24 @@
 #' @param Verbose For troubleshooting name after removestrings
 #' @param PanelPath Location to a panel.csv containing correct order of fluorophores
 #' @param returnType Whether to return "fcs" or "flowframe"
+#' @param inverse.transform Default is FALSE, set to TRUE if data is already transformed
+#' and needs to be reversed. 
 #'
-#' @importFrom flowCore keyword
 #' @importFrom flowWorkspace gs_pop_get_data
-#' @importFrom flowCore exprs
-#' @importFrom dplyr mutate
-#' @importFrom dplyr select
+#' @importFrom flowCore exprs keyword write.FCS
+#' @importFrom dplyr mutate select pull arrange
 #' @importFrom utils read.csv
-#' @importFrom dplyr pull
-#' @importFrom dplyr arrange
 #' @importFrom stats lsfit
-#' @importFrom flowCore write.FCS
 #'
 #' @return A new .fcs file with the new columns appended
+#' 
 #' @export
 #'
-#' @examples NULL
+#' @examples A <- 2+2
+#' 
 Luciernaga_Unmix <- function(x, controlData, sample.name, removestrings,
-   Verbose, addon, subset="root", outpath, PanelPath, returnType="fcs"){
+   Verbose, addon, subset="root", outpath, PanelPath, returnType="fcs", 
+   inverse.transform=FALSE){
 
   if (length(sample.name) == 2){
     first <- sample.name[[1]]
@@ -41,7 +41,7 @@ Luciernaga_Unmix <- function(x, controlData, sample.name, removestrings,
   name <- NameCleanUp(name, removestrings=removestrings)
   if (Verbose == TRUE){message("After removestrings, name is ", name)}
 
-  cs <- gs_pop_get_data(x, subset)
+  cs <- gs_pop_get_data(x, subset, inverse.transform = inverse.transform)
   Data <- exprs(cs[[1]])
   Data <- data.frame(Data, check.names = FALSE)
 
@@ -126,11 +126,11 @@ Luciernaga_Unmix <- function(x, controlData, sample.name, removestrings,
 #' @param TheData The Unmixed Data
 #' @param Ligands The ligand names
 #'
-#' @importFrom dplyr filter
+#' @importFrom dplyr filter slice 
 #' @importFrom stringr str_detect
-#' @importFrom dplyr slice
 #' @importFrom tidyr unnest
 #' @importFrom tidyselect where
+#' @importFrom flowCore parameters<-
 #'
 #' @return An internal value
 #'
