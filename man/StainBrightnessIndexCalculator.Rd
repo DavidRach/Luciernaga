@@ -14,7 +14,8 @@ StainBrightnessIndexCalculator(
   pos = 5.62,
   neg = 0,
   widthBasis = -1000,
-  inverse.transform = TRUE
+  inverse.transform = TRUE,
+  stringAppend = "-A"
 )
 }
 \arguments{
@@ -36,6 +37,8 @@ the variant .fcs files were stored}
 \item{widthBasis}{Default for biexponential transformation is -1000}
 
 \item{inverse.transform}{Default is TRUE}
+
+\item{stringAppend}{Default is -A}
 }
 \value{
 A data.frame containing staining index for all the FMO folders fcs files.

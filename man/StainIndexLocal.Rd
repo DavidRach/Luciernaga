@@ -6,13 +6,15 @@
 proceeds to extract the correct positive and negative gate values for the respective single-color
 and process the staining index.}
 \usage{
-StainIndexLocal(x, inverse.transform)
+StainIndexLocal(x, inverse.transform, stringAppend)
 }
 \arguments{
 \item{x}{The individual GatingHierarchy being iterated in}
 
 \item{inverse.transform}{Whether to reverse the transformation 
 before calculating the staining index.}
+
+\item{stringAppend}{Default is -A}
 }
 \description{
 Internal for BrightnessIndexIterator (also an internal). When handed the gated flowframe,

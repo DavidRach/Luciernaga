@@ -174,9 +174,11 @@ SingleUnmixIterator <- function(x, gs, matrix, outpath, subset, inverse.transfor
 #' @param neg Default for biexponential transformation is 0
 #' @param widthBasis Default for biexponential transformation is -1000
 #' @param inverse.transform Default is TRUE
+#' @param stringAppend Default is -A
 #' 
 #' @importFrom purrr map
 #' @importFrom dplyr bind_rows
+#' @importFrom mirai daemons
 #' 
 #' @return A data.frame containing staining index for all the FMO folders fcs files. 
 #' 
@@ -188,18 +190,36 @@ SingleUnmixIterator <- function(x, gs, matrix, outpath, subset, inverse.transfor
 StainBrightnessIndexCalculator <- function(folder_location, outpath=NULL,
      excludeThese="FSC|SSC|Time", channelRange=4096, maxValue=4194304,
      pos=5.62, neg=0, widthBasis=-1000,
-     inverse.transform=TRUE){
+     inverse.transform=TRUE, stringAppend="-A"){
 
      AllUnmix <- list.files(folder_location, full.names=TRUE, pattern="AllUnmix")
      FMO <- list.files(folder_location, full.names=TRUE, pattern="FMO")
      FMO_Folders <- list.files(FMO, full.names=TRUE)
      SingleUnmix <- list.files(folder_location, full.names=TRUE, pattern="SingleUnmix")
-
-     TheData <- purrr::map(.x=FMO_Folders, .f=BrightnessIndexIterator,
-          excludeThese=excludeThese, channelRange=channelRange, maxValue=maxValue,
-          pos=pos, neg=neg, widthBasis=widthBasis, inverse.transform=inverse.transform)
+     
+     # Handle the FMOs
+     # x <- FMO_Folders[26]
+     TheData <- purrr::map(.x=FMO_Folders,
+               BrightnessIndexIterator,
+               excludeThese=excludeThese, channelRange=channelRange, maxValue=maxValue,
+               pos=pos, neg=neg, widthBasis=widthBasis, inverse.transform=inverse.transform,
+               stringAppend=stringAppend, .progress=TRUE)
 
      TheData <- TheData |> bind_rows()
+
+     if (is.null(outpath)){
+          outpath <- getwd()
+     }
+
+     filename <- "FMO_StainIndex.csv"
+     StoreHere <- file.path(outpath, filename)
+     write.csv(TheData, StoreHere, row.names=FALSE)
+
+     # Handle the 'Full-Unmixed'
+
+
+     
+
      return(TheData)
 }
 
@@ -214,6 +234,7 @@ StainBrightnessIndexCalculator <- function(folder_location, outpath=NULL,
 #' @param neg Default for biexponential transformation is 0
 #' @param widthBasis Default for biexponential transformation is -1000
 #' @param inverse.transform Default is TRUE
+#' @param stringAppend Default is -A
 #' 
 #' @importFrom flowWorkspace load_cytoset_from_fcs GatingSet flowjo_biexp_trans transformerList transform
 #' @importFrom data.table fread
@@ -228,7 +249,7 @@ StainBrightnessIndexCalculator <- function(folder_location, outpath=NULL,
 #' @noRd
 #' 
 BrightnessIndexIterator <- function(x, excludeThese, channelRange, maxValue,
-     pos, neg, widthBasis, inverse.transform){
+     pos, neg, widthBasis, inverse.transform, stringAppend){
 
      files <- list.files(x, pattern=".fcs", full.names=TRUE)
      theCytoset <-load_cytoset_from_fcs(files,
@@ -260,10 +281,12 @@ BrightnessIndexIterator <- function(x, excludeThese, channelRange, maxValue,
           Example <- rbind(Example, Template1)
      }
 
-     UnmixedGating <- gatingTemplate(Example)
-     gt_gating(UnmixedGating, theGatingSet) #flowCore filterList
+     UnmixedGating <- suppressMessages(gatingTemplate(Example))
+     suppressMessages(gt_gating(UnmixedGating, theGatingSet)) #flowCore filterList
 
-     Data <- purrr::map(.x=theGatingSet, .f=StainIndexLocal, inverse.transform=inverse.transform)
+     # x <- theGatingSet[26]
+     Data <- purrr::map(.x=theGatingSet, .f=StainIndexLocal,
+           inverse.transform=inverse.transform, stringAppend=stringAppend)
      Data <- Data |> bind_rows()
      return(Data)
 }
@@ -275,20 +298,33 @@ BrightnessIndexIterator <- function(x, excludeThese, channelRange, maxValue,
 #' @param x The individual GatingHierarchy being iterated in
 #' @param inverse.transform Whether to reverse the transformation 
 #' before calculating the staining index. 
+#' @param stringAppend Default is -A
 #' 
 #' @importFrom flowWorkspace pData gs_pop_get_data
 #' @importFrom dplyr pull summarise where across select
 #' @importFrom tidyselect all_of
 #' @importFrom stats quantile
-#' @importFrom stringr str_extract str_match
+#' @importFrom stringr str_extract str_match str_remove_all
 #' @importFrom flowCore exprs
 #' 
-StainIndexLocal <- function(x, inverse.transform){
+StainIndexLocal <- function(x, inverse.transform, stringAppend){
 
      NameString <- pData(x) |> pull(name)
      TheAbsentFluorophore <- str_extract(NameString, "(?<=_No).*(?=Unmixed\\.fcs)")
-
      TheFluorophore <- str_match(NameString, "^\\S+ (.*?) \\(Beads\\)")[,2]
+
+     FluorNameCheck <- paste0(TheFluorophore, stringAppend)
+
+     if (!FluorNameCheck %in% colnames(x)){
+          normalize <- function(s){str_remove_all(s, "\\s+")}
+          TheFluorophoreNorm <- str_remove_all(FluorNameCheck, "\\s+")
+          colnamesNorm <- str_remove_all(colnames(x), "\\s+")
+          if (TheFluorophoreNorm %in% colnamesNorm){
+               index <- which(colnamesNorm %in% TheFluorophoreNorm)
+               TheFluorophore <- colnames(x)[index]
+               TheFluorophore <- gsub(stringAppend, "", TheFluorophore)
+          } else {warning("Can't match naming for ", FluorNameCheck)}
+     }
      
      PositiveGate <- paste0(TheFluorophore, stringAppend, "+")
      NegativeGate <- paste0(TheFluorophore, stringAppend, "-")
