@@ -178,7 +178,6 @@ SingleUnmixIterator <- function(x, gs, matrix, outpath, subset, inverse.transfor
 #' 
 #' @importFrom purrr map
 #' @importFrom dplyr bind_rows
-#' @importFrom mirai daemons
 #' 
 #' @return A data.frame containing staining index for all the FMO folders fcs files. 
 #' 

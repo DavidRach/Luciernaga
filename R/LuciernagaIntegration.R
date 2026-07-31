@@ -52,19 +52,19 @@ LuciernagaIntegration <- function(template, gs, AFOverlap=NULL,
       }
   }
 
-  These <- template |> select(name, Fluorophore, Detector)
-  DetectorsPresent <- These |> filter(!is.na(Detector) & Detector != "")
+  These <- template |> dplyr::select(name, Fluorophore, Detector)
+  DetectorsPresent <- These |> dplyr::filter(!is.na(Detector) & Detector != "")
 
   gs_index <- match(DetectorsPresent$name, sampleNames(gs))
   DetectorsPresent$gs_index <- gs_index
 
-  GatesToAdd <- DetectorsPresent |> pull(Fluorophore)
-  SpecimenIndeces <- DetectorsPresent |> pull(gs_index)
+  GatesToAdd <- DetectorsPresent |> dplyr::pull(Fluorophore)
+  SpecimenIndeces <- DetectorsPresent |> dplyr::pull(gs_index)
 
   # sampleNames(gs)
   # sampleNames(gs[SpecimenIndeces[14]])
-  #x <- GatesToAdd[1]
-  #y <- SpecimenIndeces[1]
+  # x <- GatesToAdd[1]
+  # y <- SpecimenIndeces[1]
 
   ListOfLists <- map2(.x=GatesToAdd, .y=SpecimenIndeces, .f=Luciernaga_Summary,
   gs=gs, externalAF_gs=externalAF_gs, externalAF_gs_index=externalAF_gs_index,
@@ -91,7 +91,7 @@ LuciernagaIntegration <- function(template, gs, AFOverlap=NULL,
 #' @param AFOverlap See Luciernaga Vignette, default NULL falls back to the 
 #' default shipped within Luciernaga extdata. 
 #' 
-#' @importFrom  flowWorkspace gs_pop_get_parent
+#' @importFrom  flowWorkspace gs_pop_get_parent gh_pop_get_indices
 #' @importFrom flowCore exprs
 #' @importFrom stringr str_detect
 #' @importFrom dplyr select filter
@@ -111,14 +111,27 @@ Luciernaga_Summary <- function(x, y, gs,
   if (is.null(externalAF_gs)){
     path <- gs_pop_get_parent(gs[y], x, inverse.transform=inverse.transform)
     parentgate <- basename(path)
-    parentCS <- gs_pop_get_data(gs[y], parentgate)
+
+    parent_idx <- gh_pop_get_indices(gs[y], parentgate) # Alternate assign to gh <- gs[[y]]
+    child_idx  <- gh_pop_get_indices(gs[y], x) # Alternate assign to gh <- gs[[y]]
+    not_idx_in_parent <- !child_idx[parent_idx]
+
+    parentCS <- gs_pop_get_data(gs[y], parentgate, inverse.transform = inverse.transform)
+    TheseValues <- exprs(parentCS[[1]])
+    TheseValues  <- TheseValues[not_idx_in_parent, ]
+
   } else {
-    parentCS <- gs_pop_get_data(externalAF_gs[externalAF_gs_index], externalAF_gs_gate)
+    parentCS <- gs_pop_get_data(externalAF_gs[externalAF_gs_index], externalAF_gs_gate,
+       inverse.transform = inverse.transform)
+    TheseValues <- exprs(parentCS[[1]])
   }
 
-  parentData <- data.frame(exprs(parentCS[[1]]), check.names=FALSE)
+  parentData <- data.frame(TheseValues, check.names=FALSE)
   parentData <- parentData[!str_detect(colnames(parentData), excludeThese)]
   parentSignature <- AveragedSignature(parentData, stats="median")
+
+  #Stash <- parentSignature |> mutate(Fluorophore="Test") |> relocate(Fluorophore, .before=1)
+  #VisualizeSignatures(Stash, 64, x="Test", columnname="Fluorophore")
 
   if (Unstained == TRUE){
     
