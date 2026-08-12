@@ -319,9 +319,7 @@ Luciernaga_QC <- function(x, subsets, sample.name="TUBENAME", removestrings=NULL
     } else {
 
       if (Type == "Cells"){
-      message("Only a single detector present. If this was not an autofluorescence overlap
-              fluourophore, it would suggest there was no antibody staining, or everything
-              was overstained. Please investigate further.")
+      message("Only a single peak detector present.")
       }
 
       if (Type == "Cells" && Subtraction == "Internal" && !is.null(CellAF)){

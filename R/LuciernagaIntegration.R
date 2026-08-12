@@ -165,10 +165,10 @@ Luciernaga_Summary <- function(x, y, gs,
    normalize=TRUE, countcolumn="Count", returnType="data",
     titlename=ThePlotName, linecolor="blue", legend=FALSE)
 
-  JustAmalgamate <- AmalgamateData |> filter(Cluster %in% "Average")
+  JustAmalgamate <- AmalgamateData |> dplyr::filter(Cluster %in% "Average")
   colnames(JustAmalgamate)[1] <- "Fluorophore"
 
-  if(GuessSimilar == TRUE){
+  if (GuessSimilar == TRUE){
 
   SimilarData <- QC_WhatsThis(x="Average", columnname="Fluorophore",
    data=JustAmalgamate, NumberHits = 10, NumberDetectors = NumberDetectors,
@@ -198,10 +198,17 @@ Luciernaga_Summary <- function(x, y, gs,
 
   CosineData <- CosineData |> select(-Count) 
 
+  if (nrow(CosineData) > 1){
+
   CosinePlot <- Luciernaga_Cosine(data=CosineData,
   returntype="plot", rearrange=TRUE, limitlow=0.90, limithigh=1,
   colorlow="navajowhite", colorhigh="tan1", legend=TRUE) +
      labs(title="ThePlotName")
+
+  } else {
+    message("Only one signature retrieved for ", x, " , Cosine not run")
+    CosinePlot <- NULL
+  }
 
   # subset <- GatesToAdd[14]
   LinearData <- Luciernaga_LinearSlices(x=gs[y], subset=x,
