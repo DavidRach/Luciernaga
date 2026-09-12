@@ -12,8 +12,7 @@
 #'
 #' @importFrom Biobase pData
 #' @importFrom flowCore keyword
-#' @importFrom ggcyto ggcyto
-#' @importFrom ggcyto as.ggplot
+#' @importFrom ggcyto ggcyto as.ggplot
 #' @importFrom ggplot2 ggplot
 #' @importFrom purrr map
 #'

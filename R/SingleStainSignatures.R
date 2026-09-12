@@ -22,22 +22,12 @@
 #' @param LocalMaximaRatio Height of peaks to proceed
 #' @param SecondaryPeaks Number of Secondary Peaks, default is set to 2.
 #'
-#' @importFrom dplyr filter
-#' @importFrom dplyr arrange
-#' @importFrom dplyr select
-#' @importFrom tidyselect all_of
-#' @importFrom dplyr mutate
-#' @importFrom dplyr across
-#' @importFrom tidyselect where
-#' @importFrom dplyr relocate
-#' @importFrom dplyr bind_rows
+#' @importFrom dplyr filter arrange select mutate relocate bind_rows slice pull left_join across
+#' @importFrom tidyselect all_of where
 #' @importFrom stringr str_starts
-#' @importFrom ggplot2 ggplot
-#' @importFrom dplyr slice
-#' @importFrom dplyr pull
-#' @importFrom dplyr left_join
+#' @importFrom ggplot2 ggplot geom_bar
 #' @importFrom purrr map
-#' @importFrom ggplot2 geom_bar
+
 #'
 #' @return An internal value
 #'

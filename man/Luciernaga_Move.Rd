@@ -9,11 +9,13 @@ Luciernaga_Move(x, data, input, output)
 \arguments{
 \item{x}{A vector containing fluorophore names found within data.}
 
-\item{data}{The data.frame output of LuciernagaTree listing files to be moved.}
+\item{data}{The data.frame output of LuciernagaTree listing files to
+be moved.}
 
 \item{input}{The path to the current storage location of the .fcs files.}
 
-\item{output}{The path to the desired future storage location of the selected
+\item{output}{The path to the desired future storage location of the
+ selected
 files.}
 }
 \value{

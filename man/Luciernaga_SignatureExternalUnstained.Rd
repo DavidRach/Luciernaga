@@ -2,8 +2,9 @@
 % Please edit documentation in R/Luciernaga_SignatureExternalUnstained.R
 \name{Luciernaga_SignatureExternalUnstained}
 \alias{Luciernaga_SignatureExternalUnstained}
-\title{Wrapper for LuciernagaQC for large scale profiling. Matches unstained with single colors for respective
-dates, extracts signature and plots, returns data.frame and list of patchwork objects.}
+\title{Wrapper for LuciernagaQC for large scale profiling. Matches unstained
+ with single colors for respective dates, extracts signature and plots,
+ returns data.frame and list of patchwork objects.}
 \usage{
 Luciernaga_SignatureExternalUnstained(
   x,
@@ -24,24 +25,29 @@ Luciernaga_SignatureExternalUnstained(
 
 \item{FluorophoreList}{The list of file.paths for the fluorophore files}
 
-\item{Multiple}{Default FALSE, if expecting multiple single color controls per unstained set TRUE}
+\item{Multiple}{Default FALSE, if expecting multiple single color
+controls per unstained set TRUE}
 
 \item{GateTemplatePath}{File.path to the openCyto gating template .csv}
 
 \item{removestrings}{Default is ".fcs", removes from name}
 
-\item{AFOverlap}{File.path to LuciernagaQC AFOverlap .csv to handle exceptions.}
+\item{AFOverlap}{File.path to LuciernagaQC AFOverlap .csv to
+handle exceptions.}
 
-\item{controlType}{Either "beads" or "cells" (selects respective external AF protocol)}
+\item{controlType}{Either "beads" or "cells" (selects respective
+external AF protocol)}
 
-\item{subsets}{The desired openCyto gating population to extract signature from}
+\item{subsets}{The desired openCyto gating population to extract
+signature from}
 }
 \value{
 A data.frame and a list of patchwork plots
 }
 \description{
-Wrapper for LuciernagaQC for large scale profiling. Matches unstained with single colors for respective
-dates, extracts signature and plots, returns data.frame and list of patchwork objects.
+Wrapper for LuciernagaQC for large scale profiling. Matches unstained
+ with single colors for respective dates, extracts signature and plots,
+ returns data.frame and list of patchwork objects.
 }
 \examples{
 

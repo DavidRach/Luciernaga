@@ -14,16 +14,16 @@
 #'
 #' @importFrom Biobase pData
 #' @importFrom flowCore keyword
-#' @importFrom ggcyto ggcyto
-#' @importFrom ggcyto as.ggplot
+#' @importFrom ggcyto ggcyto as.ggplot
 #' @importFrom ggplot2 ggplot
 #' @importFrom purrr map
 #'
 #' @return A ggplot corresponding to the given inputs
 #'
 #' @noRd
-InternalIterator <- function(x, gs, subset, gate, xValue, yValue, sample.name,
-                             removestrings, bins, plotname){
+InternalIterator <- function(x, gs, subset, gate, xValue,
+   yValue, sample.name, removestrings, bins, plotname){
+  
   theGSsubset <- subset(gs, name == x)
 
   if (length(sample.name) == 2){
@@ -38,16 +38,24 @@ InternalIterator <- function(x, gs, subset, gate, xValue, yValue, sample.name,
 
   if(!is.null(gate)){
 
-    Plot <- as.ggplot(ggcyto(theGSsubset, aes(x=.data[[xValue]], y=.data[[yValue]]),
-      subset=subset) + geom_gate(gate) + geom_hex(bins=bins) + labs(title = name) +
+    Plot <- as.ggplot(ggcyto(theGSsubset,
+       aes(x=.data[[xValue]], y=.data[[yValue]]),
+      subset=subset) + geom_gate(gate) + geom_hex(bins=bins) +
+      labs(title = name) +
       theme_bw() + theme(strip.background = element_blank(),
-      strip.text.x = element_blank(), panel.grid.major = element_line(
-      linetype = "blank"), panel.grid.minor = element_line(linetype = "blank"),
-      axis.title = element_text(size = 10, face = "bold"), legend.position = "none"))
+      strip.text.x = element_blank(),
+       panel.grid.major = element_line(
+      linetype = "blank"),
+       panel.grid.minor = element_line(linetype = "blank"),
+      axis.title = element_text(size = 10, face = "bold"),
+       legend.position = "none"))
   } else {
-    Plot <- as.ggplot(ggcyto(theGSsubset, aes(x=.data[[xValue]], y=.data[[yValue]]),
-     subset=subset) + geom_hex(bins=bins) + labs(title = name) + theme_bw() +
-     theme(strip.background = element_blank(), strip.text.x = element_blank(),
+    Plot <- as.ggplot(ggcyto(theGSsubset,
+       aes(x=.data[[xValue]], y=.data[[yValue]]),
+     subset=subset) + geom_hex(bins=bins) +
+      labs(title = name) + theme_bw() +
+     theme(strip.background = element_blank(),
+     strip.text.x = element_blank(),
      panel.grid.major = element_line(linetype = "blank"),
      panel.grid.minor = element_line(linetype = "blank"),
      axis.title = element_text(size = 10, face = "bold"),

@@ -2,7 +2,8 @@
 % Please edit documentation in R/Luciernaga_Brightness.R
 \name{Luciernaga_Brightness}
 \alias{Luciernaga_Brightness}
-\title{Visualize MFI of raw .fcs files to evaluate single color controls.}
+\title{Visualize MFI of raw .fcs files to evaluate single color
+ controls.}
 \usage{
 Luciernaga_Brightness(
   fluorophore.name,
@@ -20,44 +21,50 @@ Luciernaga_Brightness(
 )
 }
 \arguments{
-\item{fluorophore.name}{The name of the fluorophore to filter from data}
+\item{fluorophore.name}{The name of the fluorophore to filter
+from data}
 
-\item{data}{The data.frame derrived by Luciernaga_FolderBrightness, consisting
-of fluorophore and cluster metadata, and the raw detector values}
+\item{data}{The data.frame derrived by Luciernaga_FolderBrightness,
+consisting of fluorophore and cluster metadata, and the raw
+detector values}
 
-\item{fluorophore.column}{The name of the column containing the fluorophore 
+\item{fluorophore.column}{The name of the column containing the
+fluorophore  information}
+
+\item{cluster.column}{The name of the column containing the cluster
 information}
 
-\item{cluster.column}{The name of the column containing the cluster information}
+\item{downsample}{Default is TRUE, to avoid having large populations
+take over the entire y-axis.}
 
-\item{downsample}{Default is TRUE, to avoid having large populations take over
-the entire y-axis.}
-
-\item{subsample}{When downsample is true, number of cells from each cluster to
-keep. The default NULL will select the number of cells found in the smallest cluster}
+\item{subsample}{When downsample is true, number of cells from each
+cluster to  keep. The default NULL will select the number of cells
+found in the smallest cluster}
 
 \item{reference}{A .csv path or data.frame containing Fluorophore
-and Detector information from which to retrieve the x-axis detector, use same 
-naming as with the passed fluorophore argument in x}
+and Detector information from which to retrieve the x-axis detector,
+ use same naming as with the passed fluorophore argument in x}
 
 \item{clearance}{A buffer area multiplier to xmin and xmax when
 scaled equals false}
 
-\item{Scaled}{Default is set to TRUE, returning log_10 transformed data, 
-FALSE will return raw MFI.}
+\item{Scaled}{Default is set to TRUE, returning log_10 transformed
+data, FALSE will return raw MFI.}
 
 \item{maxtik}{Default is 1e6}
 
 \item{legend}{Default is "right"}
 
-\item{Detector}{Default NULL, when reference is NULL sets the detector to plot
-on the x-axis}
+\item{Detector}{Default NULL, when reference is NULL sets the detector
+to plot on the x-axis}
 }
 \value{
-ggplot objects for each fluorophore containing the various clusters
+ggplot objects for each fluorophore containing the various
+ clusters
 }
 \description{
-Visualize MFI of raw .fcs files to evaluate single color controls.
+Visualize MFI of raw .fcs files to evaluate single color
+ controls.
 }
 \examples{
 NULL

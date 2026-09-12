@@ -3,9 +3,7 @@
 #' @param x The iterated parameter
 #' @param data The data being compared against
 #'
-#' @importFrom dplyr filter
-#' @importFrom dplyr slice
-#' @importFrom dplyr pull
+#' @importFrom dplyr filter slice pull
 #'
 #' @return The color-coded summary
 #' @noRd

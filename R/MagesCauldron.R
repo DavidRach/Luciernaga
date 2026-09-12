@@ -1,10 +1,13 @@
-#' Playing around with Peter Mage's Hotspot calculation, extending the preprint concepts. 
-#' and the .
+#' Playing around with Peter Mage's Hotspot calculation, extending the
+#'  preprint concepts and the .
 #' 
-#' @param panelfluors A vector fluorophores in your panel (names matching those in QC_ReferenceLibrary)
-#' @param unstained Luciernaga_QC ReturnSignature output containing just detector columns
+#' @param panelfluors A vector fluorophores in your panel (names matching
+#'  those in QC_ReferenceLibrary)
+#' @param unstained Luciernaga_QC ReturnSignature output containing just 
+#' detector columns
 #' @param returnType Default is plot, alternate data
-#' @param swapname Name of the Fluorophore to replace with experimental signature,
+#' @param swapname Name of the Fluorophore to replace with experimental
+#'  signature,
 #'  see QC_ReferenceLibrary for exact formatting
 #' @param swapvalue Just the detector columns for the swapname Fluorophore
 #' @param outpath Default NULL, file.path to store the savePlot outputs
@@ -14,37 +17,20 @@
 #' @param height Desired height for saved plot, default  is 15
 #' @param NumberDetectors Default NULL, used when unstained is NULL
 #' 
-#' @importFrom dplyr mutate
-#' @importFrom dplyr relocate
-#' @importFrom dplyr filter
-#' @importFrom dplyr select
-#' @importFrom tidyr pivot_wider
-#' @importFrom dplyr bind_rows
-#' @importFrom dplyr arrange
-#' @importFrom dplyr desc
+#' @importFrom dplyr mutate relocate filter select bind_rows arrange desc
+#' @importFrom tidyr pivot_wider pivot_longer
 #' @importFrom MASS ginv
-#' @importFrom tibble rownames_to_column
-#' @importFrom tidyr pivot_longer
-#' @importFrom ggplot2 ggplot
-#' @importFrom ggplot2 aes
-#' @importFrom ggplot2 geom_tile
-#' @importFrom ggplot2 geom_text
-#' @importFrom ggplot2 scale_fill_gradient
-#' @importFrom ggplot2 scale_x_discrete
-#' @importFrom ggplot2 labs
-#' @importFrom ggplot2 coord_fixed
-#' @importFrom ggplot2 theme_minimal
-#' @importFrom ggplot2 theme
-#' @importFrom ggplot2 element_blank
-#' @importFrom ggplot2 element_text
-#' @importFrom ggplot2 ggsave
+#' @importFrom tibble rownames_to_column 
+#' @importFrom ggplot2 ggplot aes geom_tile geom_text scale_fill_gradient
+#'  scale_x_discrete labs coord_fixed theme_minimal theme  element_blank
+#'  element_text  ggsave
 #' 
 #' @return Either a plot or the underlying matrix
 #' 
 #' @noRd
-MagesCauldron <- function(panelfluors, unstained=NULL, returnType="plot", savePlot=FALSE,
-   outpath=NULL, filename=NULL, device="png", width=15, height=15, swapname=NULL,
-   swapvalue=NULL, NumberDetectors=NULL){
+MagesCauldron <- function(panelfluors, unstained=NULL, returnType="plot",
+ savePlot=FALSE, outpath=NULL, filename=NULL, device="png", width=15,
+ height=15, swapname=NULL, swapvalue=NULL, NumberDetectors=NULL){
   
   if (!is.null(unstained)){
   DetectorLength <- ncol(unstained)
@@ -72,9 +58,11 @@ MagesCauldron <- function(panelfluors, unstained=NULL, returnType="plot", savePl
    values_from="AdjustedY")
   
   if (!is.null(unstained)){
-  colnames(TheUnstained) <- gsub("-A", "", gsub("-H", "", colnames(TheUnstained)))
+  colnames(TheUnstained) <- gsub("-A", "",
+    gsub("-H", "", colnames(TheUnstained)))
   Data <- bind_rows(Data, TheUnstained)
-  TheseFluorophores <- c(TheseFluorophores, paste0("Unstained", seq_len(nrow(unstained))))
+  TheseFluorophores <- c(TheseFluorophores,
+     paste0("Unstained", seq_len(nrow(unstained))))
   }
 
   Data$Fluorophore <- factor(Data$Fluorophore, levels=TheseFluorophores)
@@ -110,7 +98,8 @@ MagesCauldron <- function(panelfluors, unstained=NULL, returnType="plot", savePl
 
   Longer <- as.data.frame(lower_tri) |> rownames_to_column("row") |> 
     pivot_longer(cols = -row, names_to = "col_num", names_prefix = "V",
-    values_to = "value") |> mutate(row = factor(row, levels=rev(TheseFluorophores)),
+    values_to = "value") |> 
+    mutate(row = factor(row, levels=rev(TheseFluorophores)),
     col = as.numeric(col_num), col_label = factor(
       TheseFluorophores[col], levels = TheseFluorophores)) |>
     filter(!is.na(value)) |> arrange(row)

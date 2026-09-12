@@ -4,10 +4,8 @@
 #' @param y The Instrument data
 #' @param timewindow The number  desired months
 #'
-#' @importFrom dplyr filter
-#' @importFrom dplyr pull
+#' @importFrom dplyr filter pull bind_rows
 #' @importFrom purrr map
-#' @importFrom dplyr bind_rows
 #'
 #' @return Individual instrument QC history summary
 #' @noRd
@@ -21,6 +19,8 @@ AcrossTime <- function(x, y, timewindow){
 
   # x <- TheDates[1]
 
-  InstrumentHistory <- map(.x=TheDates, data=data, .f=DateMapper, Instrument=Instrument) |> bind_rows()
+  InstrumentHistory <- map(.x=TheDates, data=data,
+     .f=DateMapper, Instrument=Instrument) |> bind_rows()
+  
   return(InstrumentHistory)
 }

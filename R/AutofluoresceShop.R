@@ -1,8 +1,9 @@
 #' Internal For who Knows
 #' 
 #' 
-AutofluoresceShop <- function(x, visualized, files, experimentdesignation="AB",
-template, GatePlots=TRUE, TheN=3, Display="selection", AFOverlap=NULL, ExceptFor=NULL){
+AutofluoresceShop <- function(x, visualized, files,
+   experimentdesignation="AB", template, GatePlots=TRUE,
+    TheN=3, Display="selection", AFOverlap=NULL, ExceptFor=NULL){
 
   Status <- x %in% visualized
   ExperimentName <- x
@@ -18,11 +19,13 @@ template, GatePlots=TRUE, TheN=3, Display="selection", AFOverlap=NULL, ExceptFor
   }
 
   # experimentdesignation <- "AB"
-  Experiment <- sub(paste0("_", experimentdesignation, ".*"), "", ExperimentName)
+  Experiment <- sub(paste0(
+    "_", experimentdesignation, ".*"), "", ExperimentName)
   Experiment <- gsub("_", "-", Experiment)
 
   LabFiles <- list.files("LabNotebook", include.dirs=TRUE)
-  if (!Experiment %in% LabFiles)(stop("LabNotebook for ", Experiment, " is not present"))
+  if (!Experiment %in% LabFiles)(stop(
+    "LabNotebook for ", Experiment, " is not present"))
   
   Notebook <- file.path("LabNotebook", Experiment)
   NotebookFiles <- list.files(Notebook, include.dirs=TRUE)

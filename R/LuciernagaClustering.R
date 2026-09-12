@@ -5,8 +5,7 @@
 #' @param DetectorName The brightest peak everything is normalized to.
 #' @param SkipMain Default FALSE, TRUE used by Luciernaga_SpotCheck
 #'
-#' @importFrom dplyr mutate
-#' @importFrom dplyr case_when
+#' @importFrom dplyr mutate case_when
 #'
 #' @return An internal value
 #'
@@ -20,7 +19,8 @@ LuciernagaClustering <- function(MyData, These, DetectorName,
 
   if (length(These) > 15){stop(
     "Only currently set up to handle up to 16 fluorescence peaks per fluorophore")
-  } else if (length(These) == 15){second <- These[[1]]
+  } else if (length(These) == 15){
+    second <- These[[1]]
     third <- These[[2]]
     fourth <- These[[3]]
     fifth <- These[[4]]

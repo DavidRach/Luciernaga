@@ -2,7 +2,8 @@
 % Please edit documentation in R/HolisticToArchived.R
 \name{HolisticToArchived}
 \alias{HolisticToArchived}
-\title{Converts the extracted BeadData into the ArchivedData format needed to plot Gain/RCV fails}
+\title{Converts the extracted BeadData into the ArchivedData format
+ needed to plot Gain/RCV fails}
 \usage{
 HolisticToArchived(
   data,
@@ -16,19 +17,26 @@ HolisticToArchived(
 \arguments{
 \item{data}{A data.frame object of the bead data}
 
-\item{manufacturer}{Options Cytek or other, basically whether to use the DailyQC CSV or the template}
+\item{manufacturer}{Options Cytek or other, basically whether
+to use the DailyQC CSV or the template}
 
-\item{baselinecutoffs}{The DailyQC .csv or the template .csv or associated file.path}
+\item{baselinecutoffs}{The DailyQC .csv or the template .csv
+or associated file.path}
 
-\item{returnTemplate}{Returns DailyQC template that can be adjusted beyond Cytek settings}
+\item{returnTemplate}{Returns DailyQC template that can be
+adjusted beyond Cytek settings}
 
-\item{outpath}{Default NULL, specifies where to returnTemplate .csv to}
+\item{outpath}{Default NULL, specifies where to returnTemplate
+.csv to}
 
-\item{gainmultiplier}{Gain times this value is the cutoff point at which Gain Fails}
+\item{gainmultiplier}{Gain times this value is the cutoff point
+at which Gain Fails}
 }
 \value{
-An updated data.frame containing the necessary Flag columns for plotting
+An updated data.frame containing the necessary Flag
+ columns for plotting
 }
 \description{
-Converts the extracted BeadData into the ArchivedData format needed to plot Gain/RCV fails
+Converts the extracted BeadData into the ArchivedData format
+ needed to plot Gain/RCV fails
 }

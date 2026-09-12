@@ -1,7 +1,9 @@
-#' Internal for Application Log Parse, filters out or in the Error and StackTraces
+#' Internal for Application Log Parse, filters out or in the
+#'  Error and StackTraces
 #' 
 #' @param data The passed data.frame
-#' @param returnType The passed specification of data to keep, default is clean. 
+#' @param returnType The passed specification of data to keep,
+#'  default is clean. 
 #' 
 #' @return The filtered clean or error data.frame
 #' 

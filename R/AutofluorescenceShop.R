@@ -11,10 +11,13 @@
 #' @param TheN Selects the number of signature variants per peak detector
 #' @param Display Default "selection" returns visual plots showing only TheN,
 #'  alternatively "all" will show all signatures before filtering in the plots
-#' @param AFOverlap Default NULL, alternately a file.path to an AFOverlap .csv file
-#' @param nameOverride Default FALSE, if true uses all fcs files provided regardless
+#' @param AFOverlap Default NULL, alternately a file.path to an
+#'  AFOverlap .csv file
+#' @param nameOverride Default FALSE, if true uses all fcs files
+#'  provided regardless
 #' if they match the experiment name string character provided in x
-#' @param subsets Default lymphocytes, alternatively provide gate name for Luciernaga_QC to
+#' @param subsets Default lymphocytes, alternatively provide gate
+#'  name for Luciernaga_QC to
 #' retrieve autofluorescence signatures from. 
 #' @param therows Default 3
 #' @param thecolumns Default 1
@@ -44,11 +47,13 @@ template, GatePlots=TRUE, TheN=3, Display="selection", AFOverlap=NULL,
   } else {internalfiles <- files}
 
   # experimentdesignation <- "AB"
-  Experiment <- sub(paste0("_", experimentdesignation, ".*"), "", ExperimentName)
+  Experiment <- sub(paste0(
+    "_", experimentdesignation, ".*"), "", ExperimentName)
   Experiment <- gsub("_", "-", Experiment)
 
   LabFiles <- list.files("LabNotebook", include.dirs=TRUE)
-  if (!Experiment %in% LabFiles)(stop("LabNotebook for ", Experiment, " is not present"))
+  if (!Experiment %in% LabFiles)(
+    stop("LabNotebook for ", Experiment, " is not present"))
   
   Notebook <- file.path("LabNotebook", Experiment)
   NotebookFiles <- list.files(Notebook, include.dirs=TRUE)

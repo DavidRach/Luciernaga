@@ -12,15 +12,9 @@
 #' @param height Passed to Patchwork, page height
 #' @param saveCSV Whether to return a .csv of underlying data, default is TRUE
 #'
-#' @importFrom dplyr filter
-#' @importFrom dplyr select
-#' @importFrom dplyr pull
-#' @importFrom dplyr arrange
+#' @importFrom dplyr filter select pull arrange mutate relocate rename
 #' @importFrom tidyr gather
 #' @importFrom tidyselect all_of
-#' @importFrom dplyr mutate
-#' @importFrom dplyr relocate
-#' @importFrom dplyr rename
 #' @importFrom purrr map
 #' @importFrom utils read.csv
 #'

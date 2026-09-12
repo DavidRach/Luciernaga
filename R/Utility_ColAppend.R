@@ -8,8 +8,7 @@
 #' @importFrom purrr map
 #' @importFrom dplyr bind_cols
 #' @importFrom flowWorkspace keyword
-#' @importFrom flowCore parameters
-#' @importFrom flowCore exprs
+#' @importFrom flowCore parameters exprs
 #' @importFrom Biobase pData
 #' @importFrom methods new
 #'

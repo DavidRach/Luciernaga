@@ -3,9 +3,7 @@
 #' @param x Passed Retained Detector
 #' @param data The Raw and Normed Data.frame
 #'
-#' @importFrom dplyr filter
-#' @importFrom dplyr select
-#' @importFrom dplyr pull
+#' @importFrom dplyr filter select pull
 #' @importFrom tidyselect all_of
 #'
 #' @return A vector of values to be passed to quantile

@@ -44,7 +44,8 @@ CartoonSignatures <- function(x=NULL, columnname="Sample",
     Identity <- Identity |> rename("Fluorophore"=1)
     Identity <- Identity |> mutate(Fluorophore=paste0("ID_", Fluorophore))
   } else {
-    Identity <- StartingData |> select(!where(is.numeric)) |> rename("Fluorophore"=1)
+    Identity <- StartingData |>
+      select(!where(is.numeric)) |> rename("Fluorophore"=1)
     Identity <- Identity |> mutate(Fluorophore=paste0("ID_", Fluorophore))
   }
 

@@ -4,17 +4,12 @@
 #' @param x The Cytometer Folder Name
 #'
 #' @importFrom purrr map
-#' @importFrom dplyr bind_rows
-#' @importFrom dplyr mutate
-#' @importFrom dplyr across
+#' @importFrom dplyr bind_rows mutate across arrange desc
 #' @importFrom tidyselect starts_with
 #' @importFrom utils read.csv
-#' @importFrom lubridate ymd_hms
+#' @importFrom lubridate ymd_hms ymd
 #' @importFrom generics setdiff
-#' @importFrom dplyr arrange
-#' @importFrom dplyr desc
 #' @importFrom utils write.csv
-#' @importFrom lubridate ymd
 #'
 #' @return Updated tracking data CSV in the Archive Folder
 #' @noRd
@@ -28,7 +23,8 @@ DailyQCParse <- function(MainFolder, x){
 
     if (length(DailyQCFiles)>=1){
 
-      Parsed <- map(.x=DailyQCFiles, .f=QC_FilePrep_DailyQC) |> bind_rows()
+      Parsed <- map(.x=DailyQCFiles, .f=QC_FilePrep_DailyQC) |>
+        bind_rows()
       Parsed <- Parsed |> mutate(across(starts_with("Flag"), ~ as.logical(.)))
 
     } else {stop("Two csv files in the folder found!")}
@@ -36,7 +32,8 @@ DailyQCParse <- function(MainFolder, x){
     # New Integration # Verify that it adds correctly
       ShinyData <- ShinyQCSummary(x=Parsed, Instrument=x)
       HistoricalPath <- file.path(MainFolder, "HistoricalData.csv")
-      History <- list.files(MainFolder, pattern="HistoricalData.csv", full.names=TRUE)
+      History <- list.files(MainFolder,
+         pattern="HistoricalData.csv", full.names=TRUE)
     
       if (length(History == 1)){
       HistoricalData <- read.csv(HistoricalPath, check.names=FALSE)
@@ -60,7 +57,8 @@ DailyQCParse <- function(MainFolder, x){
       } else {message("Two csv files in the folder found!")}
 
       ArchivedData$DateTime <- lubridate::ymd_hms(ArchivedData$DateTime)
-      ArchivedData <- ArchivedData |> mutate(across(starts_with("Flag"), ~ as.logical(.)))
+      ArchivedData <- ArchivedData |>
+        mutate(across(starts_with("Flag"), ~ as.logical(.)))
 
       # Troubleshooting
       if (!ncol(ArchivedData) == ncol(Parsed)){
@@ -73,7 +71,8 @@ DailyQCParse <- function(MainFolder, x){
           WorkAround1 <- WorkAround[1:UpToHere,]
           NewData <- generics::setdiff(WorkAround1, ArchivedData)
           UpdatedData <- rbind(NewData, ArchivedData)
-        } else {stop("Mismatched Columns, newer data fewer columns than old data")}
+        } else {stop(
+          "Mismatched Columns, newer data fewer columns than old data")}
       } else{
         NewData <- generics::setdiff(Parsed, ArchivedData)
         UpdatedData <- rbind(NewData, ArchivedData)

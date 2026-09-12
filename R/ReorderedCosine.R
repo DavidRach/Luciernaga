@@ -1,7 +1,6 @@
 #' Internal for LuciernagaReport
 #'
-#' @importFrom stats as.dist
-#' @importFrom stats hclust
+#' @importFrom stats as.dist hclust
 #'
 #' @return An internal value
 #'

@@ -1,9 +1,14 @@
-#' Internal, thin wrapper that filters for Fluorophore and then group plots from Library Data
+#' Internal, thin wrapper that filters for Fluorophore and then
+#'  group plots from Library Data
 #'
 #' @param x A iterated Fluorophore Name
 #' @param data The data output from QC_Library
 #' @param myfactor The desired factor for group
-#' @param animate Whether to convert to ggplotly output, default FALSE
+#' @param animate Whether to convert to ggplotly output,
+#'  default FALSE
+#' 
+#' @importFrom dplyr filter
+#' @importFrom plotly ggplotly
 #'
 #' @return A ggplot2 or a ggplotly object
 #' @noRd

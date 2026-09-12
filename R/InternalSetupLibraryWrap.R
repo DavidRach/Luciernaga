@@ -10,8 +10,7 @@
 #' @param Normalize A
 #' @param TheFormat A
 #' 
-#' @importFrom dplyr filter
-#' @importFrom dplyr pull
+#' @importFrom dplyr filter pull
 #' @importFrom purrr map
 #' 
 #' @return A ggplot2 object

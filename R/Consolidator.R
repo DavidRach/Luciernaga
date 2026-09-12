@@ -5,8 +5,7 @@
 #' @param FirstPage The First page data.frame from QC_Chorus
 #' @param returnPreference Whether to return Imaging or HighSpeed data
 #' 
-#' @importFrom dplyr bind_rows
-#' @importFrom dplyr rename
+#' @importFrom dplyr bind_rows rename
 #' @importFrom tidyr pivot_wider
 #' 
 #' @noRd

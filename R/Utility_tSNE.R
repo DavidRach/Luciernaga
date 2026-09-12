@@ -15,13 +15,9 @@
 #' @param export When set to TRUE returns as fcs files to specified outpath.
 #'
 #' @importFrom Rtsne Rtsne
-#' @importFrom flowWorkspace keyword
-#' @importFrom flowWorkspace gs_pop_get_data
-#' @importFrom flowCore exprs
-#' @importFrom flowCore write.FCS
-#' @importFrom dplyr slice_sample
-#' @importFrom dplyr mutate
-#' @importFrom dplyr select
+#' @importFrom flowWorkspace keyword gs_pop_get_data
+#' @importFrom flowCore exprs write.FCS
+#' @importFrom dplyr slice_sample mutate select
 #'
 #' @return tSNE axes bound to a flowframe or fcs file
 #' @export

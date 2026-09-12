@@ -1,17 +1,21 @@
 #' OLS unmixing of a Gating Set object
 #'
 #' @param x A Gating Set object
-#' @param controlData The matrix of single color controls generated from Luciernaga
+#' @param controlData The matrix of single color controls generated
+#'  from Luciernaga
 #' @param sample.name The keyword containing the fcs file name
 #' @param addon Additional addon to append to the new .fcs file name
 #' @param removestrings A list of values to remove from name
-#' @param subset A gating hierarchy level to sort cells at, expression values retrieved
+#' @param subset A gating hierarchy level to sort cells at, expression
+#'  values retrieved
 #' from these
 #' @param outpath The return folder for the .fcs files
 #' @param Verbose For troubleshooting name after removestrings
-#' @param PanelPath Location to a panel.csv containing correct order of fluorophores
+#' @param PanelPath Location to a panel.csv containing correct order of
+#'  fluorophores
 #' @param returnType Whether to return "fcs" or "flowframe"
-#' @param inverse.transform Default is FALSE, set to TRUE if data is already transformed
+#' @param inverse.transform Default is FALSE, set to TRUE if data is
+#'  already transformed
 #' and needs to be reversed. 
 #'
 #' @importFrom flowWorkspace gs_pop_get_data
@@ -114,7 +118,8 @@ Luciernaga_Unmix <- function(x, controlData, sample.name, removestrings,
 
   fileSpot <- file.path(outpath, AssembledName)
 
-  if (returnType == "fcs") {write.FCS(new_fcs, filename = fileSpot, delimiter="#")
+  if (returnType == "fcs") {
+    write.FCS(new_fcs, filename = fileSpot, delimiter="#")
   } else {return(new_fcs)}
 }
 

@@ -17,8 +17,7 @@
 #'
 #' @noRd
 NameForSample <- function(x, sample.name, removestrings, experiment.name = NULL,
-                          experiment = NULL, condition.name = NULL, condition = NULL,
-                          returnType = "name"){
+  experiment = NULL, condition.name = NULL, condition = NULL, returnType = "name"){
 
   if (length(sample.name) == 2){
     first <- sample.name[[1]]

@@ -4,10 +4,8 @@
 #' @param x Something
 #' @param type Something
 #' 
-#' @importFrom dplyr select
+#' @importFrom dplyr select slice pull
 #' @importFrom tidyselect all_of
-#' @importFrom dplyr slice
-#' @importFrom dplyr pull
 #' @importFrom stats na.omit
 #' @return Some value
 #' 

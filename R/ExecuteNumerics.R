@@ -5,18 +5,17 @@
 #' @param data The concatenated data.frame to be edited
 #' @param conversion The output of DoWeConvert
 #'
-#' @importFrom dplyr filter
-#' @importFrom dplyr pull
-#' @importFrom dplyr mutate
-#' @importFrom dplyr across
+#' @importFrom dplyr filter pull mutate across
 #' @importFrom tidyselect all_of
 #'
 #' @noRd
 ExecuteNumerics <- function(x, data, conversion){
 
 
-  Numbers <- conversion  %>% dplyr::filter(Column %in% x) %>% pull(Numbers)
-  Letters <- conversion  %>% dplyr::filter(Column %in% x) %>% pull(Letters)
+  Numbers <- conversion |>
+    dplyr::filter(Column %in% x) |> pull(Numbers)
+  Letters <- conversion |>
+    dplyr::filter(Column %in% x) |> pull(Letters)
   if (Numbers == TRUE && Letters==FALSE){
     data <- data %>% mutate(across(all_of(x), ~ as.numeric(.)))
   }

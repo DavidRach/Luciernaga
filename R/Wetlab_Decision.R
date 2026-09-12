@@ -7,13 +7,9 @@
 #' @param ReturnLeftover Whether to return leftover cells as own line
 #'
 #' @importFrom utils read.csv
-#' @importFrom dplyr select
-#' @importFrom dplyr filter
-#' @importFrom dplyr mutate
-#' @importFrom dplyr case_when
+#' @importFrom dplyr select filter mutate case_when bind_rows
 #' @importFrom stringr str_detect
 #' @importFrom purrr map
-#' @importFrom dplyr bind_rows
 #'
 #' @return A data.frame object
 #' @export

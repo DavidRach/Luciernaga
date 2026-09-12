@@ -10,8 +10,7 @@
 #' @importFrom flowCore keyword
 #' @importFrom BiocGenerics nrow
 #' @importFrom lubridate hms
-#' @importFrom dplyr mutate
-#' @importFrom dplyr relocate
+#' @importFrom dplyr mutate relocate
 #'
 #' @return A data.frame of useful information
 #' @export

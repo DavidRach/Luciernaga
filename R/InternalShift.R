@@ -7,7 +7,7 @@
 #'
 #' @noRd
 InternalShift <- function(x, columnframe){
-  TheColumn <- columnframe %>% select(all_of(x))
+  TheColumn <- columnframe |> select(all_of(x))
   ShiftedColumn <- TheColumn + abs(min(TheColumn))+1
   return(ShiftedColumn)
 }

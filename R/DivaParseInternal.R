@@ -2,9 +2,7 @@
 #' 
 #' @param x The iterated xml_node for fluorophore being parsed
 #' @param y The name of the iterated fluorophore
-#' @importFrom xml2 xml_children
-#' @importFrom xml2 xml_name
-#' @importFrom xml2 xml_text
+#' @importFrom xml2 xml_children xml_name xml_text
 #' @importFrom dplyr mutate
 #' 
 #' @return The iterated data.frame row of Fluorophore and Gain

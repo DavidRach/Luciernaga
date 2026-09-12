@@ -1,4 +1,5 @@
-#' Sister function to FolderSignature, returns a density plot of brightness
+#' Sister function to FolderSignature, returns a density plot
+#'  of brightness
 #'
 #' @param FolderPath Location where the Luciernaga_QC .fcs file
 #' outputs are stored

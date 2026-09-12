@@ -10,17 +10,9 @@
 #' @param outpath Path Location to store the the output .csv
 #'
 #' @importFrom utils read.csv
-#' @importFrom dplyr pull
-#' @importFrom dplyr filter
-#' @importFrom dplyr group_by
-#' @importFrom dplyr arrange
-#' @importFrom dplyr desc
-#' @importFrom dplyr slice
-#' @importFrom dplyr select
-#' @importFrom dplyr ungroup
-#' @importFrom dplyr relocate
+#' @importFrom dplyr pull filter group_by arrange desc slice
+#'  select ungroup relocate bind_rows
 #' @importFrom purrr map
-#' @importFrom dplyr bind_rows
 #' @importFrom utils write.csv
 #'
 #' @return A csv containing selected fluorophores

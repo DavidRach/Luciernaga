@@ -2,8 +2,9 @@
 % Please edit documentation in R/InitialUnmixSpanGates.R
 \name{InitialUnmixSpanGates}
 \alias{InitialUnmixSpanGates}
-\title{Based on a template, creates the initial gates for use in retrieving the 
-signature matrix. Expects columns name, Fluorophore and Detector}
+\title{Based on a template, creates the initial gates for use in
+ retrieving the signature matrix. Expects columns name, 
+Fluorophore and Detector}
 \usage{
 InitialUnmixSpanGates(
   template,
@@ -15,24 +16,29 @@ InitialUnmixSpanGates(
 )
 }
 \arguments{
-\item{template}{The data.frame containing the name, Fluorophore and Detector columns}
+\item{template}{The data.frame containing the name, Fluorophore
+and Detector columns}
 
 \item{gs}{The GatingSet}
 
 \item{subset}{The gate under which to create the new gates}
 
-\item{minpercentile}{Default 0.90, sets the lower bound of the span gate being created}
+\item{minpercentile}{Default 0.90, sets the lower bound of the
+span gate being created}
 
-\item{maxpercentile}{Default 0.99, sets the upper bound of the span gate being created}
+\item{maxpercentile}{Default 0.99, sets the upper bound of the 
+span gate being created}
 
-\item{inverse.transform}{Whether to inverse a transformation, default set to FALSE}
+\item{inverse.transform}{Whether to inverse a transformation,
+default set to FALSE}
 }
 \value{
 Silent, creates gates in the GatingSet
 }
 \description{
-Based on a template, creates the initial gates for use in retrieving the 
-signature matrix. Expects columns name, Fluorophore and Detector
+Based on a template, creates the initial gates for use in
+ retrieving the signature matrix. Expects columns name, 
+Fluorophore and Detector
 }
 \examples{
 A <- 2+2

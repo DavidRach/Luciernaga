@@ -13,30 +13,13 @@
 #' @param linecolor Default is red, specify alternate color for the Average signature
 #' @param legend Whether to return legend, default is TRUE
 #' 
-#' @importFrom tidyr uncount
+#' @importFrom tidyr uncount pivot_longer
 #' @importFrom rlang sym
-#' @importFrom dplyr select
-#' @importFrom tidyselect all_of
-#' @importFrom tidyselect where
-#' @importFrom dplyr summarize
-#' @importFrom dplyr across
-#' @importFrom dplyr everything
-#' @importFrom dplyr mutate
-#' @importFrom dplyr relocate
-#' @importFrom dplyr all_of
-#' @importFrom dplyr bind_rows
-#' @importFrom dplyr bind_cols
-#' @importFrom tidyr pivot_longer
-#' @importFrom ggplot2 ggplot
-#' @importFrom ggplot2 aes
-#' @importFrom ggplot2 geom_line
-#' @importFrom ggplot2 scale_color_manual
-#' @importFrom ggplot2 labs
-#' @importFrom ggplot2 theme
-#' @importFrom ggplot2 theme_bw
-#' @importFrom ggplot2 theme_linedraw
-#' @importFrom ggplot2 element_text
-#' @importFrom ggplot2 element_blank
+#' @importFrom dplyr select summarize across everything mutate
+#'  relocate all_of bind_rows bind_cols
+#' @importFrom tidyselect all_of where
+#' @importFrom ggplot2 ggplot aes geom_line scale_color_manual labs
+#'  theme theme_bw theme_linedraw element_text element_blank
 #' @importFrom stats setNames
 #' 
 #' @export

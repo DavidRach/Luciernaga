@@ -2,13 +2,9 @@
 #'
 #' @param x Passed xml_node child to extract signature values from
 #'
-#' @importFrom xml2 xml_children
-#' @importFrom xml2 xml_name
-#' @importFrom xml2 xml_text
-#' @importFrom xml2 xml_find_all
-#' @importFrom xml2 xml_ns
-#' @importFrom lubridate ymd
-#' @importFrom lubridate hms
+#' @importFrom xml2 xml_children xml_name  xml_text  xml_find_all
+#'  xml_ns
+#' @importFrom lubridate ymd  hms
 #'
 #' @return An assembled row corresponding to the nodes fluorophore
 #' @noRd

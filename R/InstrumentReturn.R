@@ -1,4 +1,5 @@
-#' Internal for InstrumentComparison, pulls fluorophore list for respective instrument
+#' Internal for InstrumentComparison, pulls fluorophore list for
+#'  respective instrument
 #'
 #' @param x Number detectors corresponding desired instrument
 #'

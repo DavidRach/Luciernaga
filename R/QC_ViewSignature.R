@@ -21,15 +21,9 @@
 #' @param plotlinecolor Default NULL, alternatively provide color
 #'  when only a single line
 #'
-#' @importFrom dplyr filter
-#' @importFrom dplyr select
-#' @importFrom tidyselect everything
-#' @importFrom tidyr unite
-#' @importFrom tidyselect where
-#' @importFrom dplyr rename
-#' @importFrom dplyr mutate
-#' @importFrom dplyr pull
-#' @importFrom tidyr pivot_longer
+#' @importFrom dplyr filter select rename mutate pull
+#' @importFrom tidyselect everything where
+#' @importFrom tidyr unite pivot_longer
 #'
 #' @returns A dataframe of similar fluorophores
 #' @export

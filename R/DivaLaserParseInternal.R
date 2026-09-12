@@ -3,9 +3,7 @@
 #' @param x The iterrated xml_node with the laser information
 #' @param y The name of the laser being iterrated on
 #' 
-#' @importFrom xml2 xml_children
-#' @importFrom xml2 xml_name
-#' @importFrom xml2 xml_text
+#' @importFrom xml2 xml_children xml_name xml_text
 #' 
 #' @return A data.frame row containing the parsed data
 #' 

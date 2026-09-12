@@ -11,8 +11,7 @@
 #' @param KeptMarkers Columns to include
 #' 
 #' @importFrom flowWorkspace flowjo_biexp_trans
-#' @importFrom flowWorkspace transformerList
-#' @importFrom flowWorkspace transform
+#'  transformerList transform
 #' 
 #' @noRd
 InternalTransformation <- function(x, TransformationChoice, channelRange,

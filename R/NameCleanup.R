@@ -1,14 +1,16 @@
 #' Shorten a variable name
 #'
 #' @param name The variable that you wish to shorten.
-#' @param removestrings A list of strings to be sequentially removed from the name.
+#' @param removestrings A list of strings to be sequentially removed from 
+#' the name.
 #'  An example: removestrings = c("ReferenceGroup_", ".fcs")
-#' @param substitutestrings A data.frame containing two columns, Original and
+#' @param substitutestrings A data.frame containing two columns, Original
+#'  and
 #' Substitute.
-#'  When a row of Original is recognized, it's replaced with substitute value.
+#'  When a row of Original is recognized, it's replaced with substitute
+#'  value.
 #'
-#' @importFrom stringr str_replace_all
-#' @importFrom stringr fixed
+#' @importFrom stringr str_replace_all fixed
 #'
 #' @return The shortened variable
 #'

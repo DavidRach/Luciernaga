@@ -8,14 +8,10 @@
 #' @param NumberDetectors The Aurora number of detectors, used to retrieve the complete information
 #'  rather cutting off abruptly
 #'
-#' @importFrom lubridate mdy_hms
-#' @importFrom dplyr filter
+#' @importFrom lubridate mdy_hms floor_date ymd_hms
+#' @importFrom dplyr filter bind_rows mutate
 #' @importFrom stringr str_starts
 #' @importFrom purrr map
-#' @importFrom dplyr bind_rows
-#' @importFrom dplyr mutate
-#' @importFrom lubridate floor_date
-#' @importFrom lubridate ymd_hms
 #' 
 #' @return A data.frame object
 #' 

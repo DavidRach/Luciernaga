@@ -2,25 +2,32 @@
 % Please edit documentation in R/FCS_Jailbreak.R
 \name{FCS_Jailbreak}
 \alias{FCS_Jailbreak}
-\title{Helpful function for extracting .fcs files from SpectroFlo .Zip folders.}
+\title{Helpful function for extracting .fcs files from SpectroFlo 
+.Zip folders.}
 \usage{
 FCS_Jailbreak(x, Type = "Raw", FileType = "Reference", outpath)
 }
 \arguments{
-\item{x}{Provide either the Zip folder path, or a folder containing a single Zip folder within. 
-I have not yet implemented a handling condition for when two zipped folders are present!}
+\item{x}{Provide either the Zip folder path, or a folder
+ containing a single Zip folder within. I have not yet 
+implemented a handling condition for when two zipped folders
+ are present!}
 
-\item{Type}{Default is "Raw", alternate is "Unmixed", provide "All" for both.}
+\item{Type}{Default is "Raw", alternate is "Unmixed", provide
+"All" for both.}
 
-\item{FileType}{Default is "Reference", alternates are "Unstained", and "Samples"}
+\item{FileType}{Default is "Reference", alternates are
+"Unstained", and "Samples"}
 
-\item{outpath}{The folder in which to store the unzipped .fcs files}
+\item{outpath}{The folder in which to store the unzipped
+.fcs files}
 }
 \value{
 Files transferred to the desired folder
 }
 \description{
-Helpful function for extracting .fcs files from SpectroFlo .Zip folders.
+Helpful function for extracting .fcs files from SpectroFlo 
+.Zip folders.
 }
 \examples{
 A <- 2 + 2

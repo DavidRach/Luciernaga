@@ -2,7 +2,8 @@
 % Please edit documentation in R/Luciernaga_Cosine.R
 \name{Luciernaga_Cosine}
 \alias{Luciernaga_Cosine}
-\title{Generates cosine comparison from a data.frame of fluorescent signatures}
+\title{Generates cosine comparison from a data.frame of fluorescent 
+signatures}
 \usage{
 Luciernaga_Cosine(
   data,
@@ -16,11 +17,14 @@ Luciernaga_Cosine(
 )
 }
 \arguments{
-\item{data}{A data.frame with a single name column and rest numeric columns}
+\item{data}{A data.frame with a single name column and rest
+numeric columns}
 
-\item{returntype}{Default returns "plot", alternatively "data" for underlying data}
+\item{returntype}{Default returns "plot", alternatively "data"
+for underlying data}
 
-\item{rearrange}{Whether to rearrange the plot to group similar signatures}
+\item{rearrange}{Whether to rearrange the plot to group similar
+signatures}
 
 \item{colorlow}{Default "lightblue"}
 
@@ -36,7 +40,8 @@ Luciernaga_Cosine(
 Either a ggplot or matrix object
 }
 \description{
-Generates cosine comparison from a data.frame of fluorescent signatures
+Generates cosine comparison from a data.frame of fluorescent 
+signatures
 }
 \examples{
 

@@ -12,47 +12,30 @@
 #' @param StackedBarPlots Whether to return StackedBarPlots
 #' @param HeatmapPlots Whether to return Heatmap Plots
 #'
-#' @importFrom dplyr filter
-#' @importFrom dplyr select
+#' @importFrom dplyr filter select pull mutate
 #' @importFrom tidyr gather
-#' @importFrom tidyselect all_of
-#' @importFrom ggplot2 ggplot
-#' @importFrom tidyselect where
+#' @importFrom tidyselect all_of where
 #' @importFrom lsa cosine
 #' @importFrom reshape2 melt
-#' @importFrom dplyr pull
-#' @importFrom dplyr mutate
 #' @importFrom viridis scale_fill_viridis
 #' @importFrom figpatch fig
-#' @importFrom ggplot2 scale_color_hue
-#' @importFrom ggplot2 theme_linedraw
-#' @importFrom ggplot2 element_rect
-#' @importFrom ggplot2 geom_tile
-#' @importFrom ggplot2 scale_fill_gradient2
-#' @importFrom ggplot2 unit
-#' @importFrom ggplot2 geom_col
-#' @importFrom ggplot2 scale_fill_gradient
-#' @importFrom ggplot2 coord_fixed
-#' @importFrom ggplot2 geom_text
-#' @importFrom stats as.dist
-#' @importFrom stats hclust
-#' @importFrom ggplot2 aes
-#' @importFrom ggplot2 theme_bw
-#' @importFrom ggplot2 theme
-#' @importFrom ggplot2 element_blank
-#' @importFrom ggplot2 element_text
-#' @importFrom ggplot2 ylim
-#'
+#' @importFrom ggplot2 scale_color_hue theme_linedraw element_rect
+#'  geom_tile scale_fill_gradient2 unit geom_col scale_fill_gradient
+#'  coord_fixed geom_text aes theme_bw theme element_blank element_text
+#'  ylim ggplot
+#' @importFrom stats as.dist hclust
+#' 
 #' @return An internal value
 #'
 #' @noRd
-InternalReport <- function(x, data, FirstDetectorColumn, LastDetectorColumn,
-                           RetainedType, CellPopRatio, LinePlots, CosinePlots,
-                           StackedBarPlots, HeatmapPlots){
+InternalReport <- function(x, data, FirstDetectorColumn,
+   LastDetectorColumn, RetainedType, CellPopRatio, LinePlots,
+   CosinePlots,StackedBarPlots, HeatmapPlots){
+  
   First <- FirstDetectorColumn+1
   Last <- LastDetectorColumn+1
 
-  subset <- data %>% filter(Sample %in% c(x))
+  subset <- data |> filter(Sample %in% c(x))
   colnames(subset) <- NameCleanUp(colnames(subset), removestrings="-A")
 
   #ZeroBuggedRows <- subset %>% filter(rowSums(select(.,
@@ -62,13 +45,13 @@ InternalReport <- function(x, data, FirstDetectorColumn, LastDetectorColumn,
   #  ., all_of(First:Last)), na.rm = TRUE) != 0)}
 
   if (LinePlots == TRUE){
-  LinePlotData <- subset %>% filter(!Cluster %in% "Other") %>%
+  LinePlotData <- subset |> filter(!Cluster %in% "Other") %>%
     select(Cluster, {{First}}:{{Last}})
 
   LineColN <- ncol(LinePlotData)
   DetectorOrder <- colnames(subset)[First:Last]
 
-  Melted <- LinePlotData %>%
+  Melted <- LinePlotData |>
     gather(key = "Detector", value = "value", all_of(2:LineColN))
   Melted$Detector <- factor(Melted$Detector, levels = DetectorOrder)
   Melted$Cluster <- factor(Melted$Cluster)
@@ -89,18 +72,21 @@ InternalReport <- function(x, data, FirstDetectorColumn, LastDetectorColumn,
     theme(plot.title = element_text(size = 16L, face = "plain", hjust = 0.5),
           axis.title.y = element_text(size = 11L, face = "plain"),
           axis.title.x = element_text(size = 11L, face = "plain"),
-          panel.grid.major = element_line(colour = "gray95", linetype = "twodash"),
-          panel.grid.minor = element_line(colour = "gray95",linetype = "longdash"),
-          panel.background = element_rect(fill = NA), plot.background = element_rect(
+          panel.grid.major = element_line(colour = "gray95",
+           linetype = "twodash"),
+          panel.grid.minor = element_line(colour = "gray95",
+          linetype = "longdash"),
+          panel.background = element_rect(fill = NA),
+           plot.background = element_rect(
           colour = NA), legend.background = element_rect(fill = NA),
           axis.text.x = element_text(size = 5, angle = 45, hjust = 1))
   }
 
   if (CosinePlots == TRUE){
-    CosineData <- subset %>% filter(!Cluster %in% "Other") %>%
+    CosineData <- subset |> filter(!Cluster %in% "Other") %>%
       select(Cluster, {{First}}:{{Last}})
     Names <- CosineData$Cluster
-    Numbers <- CosineData %>% select(where(is.numeric))
+    Numbers <- CosineData |> select(where(is.numeric))
     NumericsT <- t(Numbers)
     rownames(NumericsT) <- NULL
     colnames(NumericsT) <- Names
@@ -129,7 +115,7 @@ InternalReport <- function(x, data, FirstDetectorColumn, LastDetectorColumn,
             axis.text.y = element_text(size = 6),
             legend.key.size = unit(0.4, "cm"))
 
-    CosineOrder <- data.frame(table(MeltedCosine$Var1)) %>% pull(Var1) %>%
+    CosineOrder <- data.frame(table(MeltedCosine$Var1)) |> pull(Var1) %>%
       as.character(.)
 
   } else {image_path <- system.file("hex", "hex.png", package = "Luciernaga",
@@ -139,10 +125,11 @@ InternalReport <- function(x, data, FirstDetectorColumn, LastDetectorColumn,
 
   }
 
-  Bd <- subset %>% mutate(Ratio = round(Ratio, 2))
+  Bd <- subset |> mutate(Ratio = round(Ratio, 2))
 
   if (exists("CosineOrder")) {Bd$Cluster <- factor(Bd$Cluster,
-      levels = unique(Bd$Cluster)[order(match(unique(Bd$Cluster), CosineOrder))])
+      levels = unique(Bd$Cluster)[order(
+        match(unique(Bd$Cluster), CosineOrder))])
   }
 
   if (StackedBarPlots == TRUE){
@@ -150,8 +137,10 @@ InternalReport <- function(x, data, FirstDetectorColumn, LastDetectorColumn,
 
   StackedBarPlot <- ggplot(Bd, aes(x= Sample, y = Ratio,
     fill = Cluster)) + geom_col() + theme_bw() + scale_fill_viridis(
-    discrete = TRUE, option = "inferno", direction = -1) + labs(title = title) +
-    theme(plot.title = element_text(hjust = 0.5), panel.grid.minor = element_line(
+    discrete = TRUE, option = "inferno", direction = -1) +
+    labs(title = title) +
+    theme(plot.title = element_text(hjust = 0.5),
+    panel.grid.minor = element_line(
     linetype = "blank"), axis.title = element_text(size = 10),
     axis.title.x = element_blank(), legend.key.size = unit(0.4, "cm")) +
     coord_fixed(ratio = 2)
@@ -170,13 +159,17 @@ InternalReport <- function(x, data, FirstDetectorColumn, LastDetectorColumn,
   }
 
   ThePlots <- list()
-  if (LinePlots == TRUE){ThePlots <- append(ThePlots, list(LinePlot))}
+  if (LinePlots == TRUE){
+    ThePlots <- append(ThePlots, list(LinePlot))}
 
-  if (CosinePlots == TRUE){ThePlots <- append(ThePlots, list(CosinePlot))}
+  if (CosinePlots == TRUE){
+    ThePlots <- append(ThePlots, list(CosinePlot))}
 
-  if (StackedBarPlots == TRUE){ThePlots <- append(ThePlots, list(StackedBarPlot))}
+  if (StackedBarPlots == TRUE){
+    ThePlots <- append(ThePlots, list(StackedBarPlot))}
 
-  if (HeatmapPlots == TRUE){ThePlots <- append(ThePlots, list(HeatmapPlot))}
+  if (HeatmapPlots == TRUE){
+    ThePlots <- append(ThePlots, list(HeatmapPlot))}
 
   return(ThePlots)
 }

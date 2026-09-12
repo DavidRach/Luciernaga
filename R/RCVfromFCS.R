@@ -10,9 +10,7 @@
 #' @importFrom flowWorkspace gs_pop_get_data
 #' @importFrom Biobase exprs
 #' @importFrom purrr map
-#' @importFrom dplyr bind_cols
-#' @importFrom dplyr mutate
-#' @importFrom dplyr relocate
+#' @importFrom dplyr bind_cols mutate relocate
 #' 
 #' @return A data.frame row with the marker RCVs as a proportion. 
 #' 

@@ -14,11 +14,14 @@ Luciernaga_GroupHeatmap(
 )
 }
 \arguments{
-\item{reports}{A data.frame or a list of Luciernaga_QC report data objects}
+\item{reports}{A data.frame or a list of Luciernaga_QC report
+data objects}
 
-\item{nameColumn}{The name of the column that differentiates between the reports}
+\item{nameColumn}{The name of the column that differentiates
+between the reports}
 
-\item{cutoff}{Proportion of cells that at least 1 report needs to exceed for retention.}
+\item{cutoff}{Proportion of cells that at least 1 report needs
+to exceed for retention.}
 
 \item{returntype}{Either "plot" or underlying "data"}
 

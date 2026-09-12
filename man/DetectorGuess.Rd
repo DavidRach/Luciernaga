@@ -2,24 +2,27 @@
 % Please edit documentation in R/DetectorGuess.R
 \name{DetectorGuess}
 \alias{DetectorGuess}
-\title{Small helper function, attempts to guess the correct max fluorophore for a
-given instrument.}
+\title{Small helper function, attempts to guess the correct max
+ fluorophore for a given instrument.}
 \usage{
 DetectorGuess(x, NumberDetectors = 64)
 }
 \arguments{
 \item{x}{The iterated in fluorophore name}
 
-\item{NumberDetectors}{Value used by InstrumentReferences to identify an instrument}
+\item{NumberDetectors}{Value used by InstrumentReferences to
+identify an instrument}
 }
 \value{
-If identified, the peak detector for a given fluor, else NULL
+If identified, the peak detector for a given fluor,
+ else NULL
 }
 \description{
-Small helper function, attempts to guess the correct max fluorophore for a
-given instrument.
+Small helper function, attempts to guess the correct max
+ fluorophore for a given instrument.
 }
 \examples{
-PeakDetector <- DetectorGuess(x="APC-Fire 810", NumberDetectors=64)
+PeakDetector <- DetectorGuess(x="APC-Fire 810",
+ NumberDetectors=64)
 
 }

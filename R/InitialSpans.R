@@ -1,7 +1,7 @@
 
-#' Internal for InitialUnmixingGates, creates gates for designated fluorophores
-#' at the corresponding dimension, using the assigned percentiles to draw
-#' the initial span gates
+#' Internal for InitialUnmixingGates, creates gates for designated
+#'  fluorophores at the corresponding dimension, using the assigned
+#'  percentiles to draw the initial span gates
 #' 
 #' @param x The iterated in Fluorophore
 #' @param gs The GatingSet
@@ -32,7 +32,8 @@ InitialSpans <- function(x, gs, subset, data, inverse.transform,
     dims <- Internal |> pull(Detector)
     theIndex <- Internal |> pull(gs_index)
 
-    InternalData <- gs_pop_get_data(gs[theIndex], subset=subset, inverse.transform=inverse.transform)
+    InternalData <- gs_pop_get_data(gs[theIndex], subset=subset,
+         inverse.transform=inverse.transform)
     TheExprs <- data.frame(exprs(InternalData[[1]]), check.names=FALSE)
     ExprDim <- paste0(dims, "-A")
     TheValues <- TheExprs[[ExprDim]]
@@ -45,18 +46,18 @@ InitialSpans <- function(x, gs, subset, data, inverse.transform,
     if(!any(str_equal(ExistingGates, filterId))){
 
         suppressMessages(
-            gs_add_gating_method(gs, alias = filterId, pop = "+", parent = subset, 
-                     dims = ExprDim, gating_method = "span_gate",
-                     gating_args = Values)
+            gs_add_gating_method(gs, alias = filterId, pop = "+",
+             parent = subset,  dims = ExprDim,
+              gating_method = "span_gate", gating_args = Values)
         )
 
     } else {
         gs_pop_remove(gs, filterId, recompute = TRUE, recursive = TRUE) 
 
         suppressMessages(
-        gs_add_gating_method(gs, alias = filterId, pop = "+", parent = subset, 
-                     dims = ExprDim, gating_method = "span_gate",
-                     gating_args = Values)
+        gs_add_gating_method(gs, alias = filterId, pop = "+", 
+        parent = subset, dims = ExprDim, gating_method = "span_gate",
+        gating_args = Values)
         )
 
     }

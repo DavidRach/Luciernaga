@@ -3,9 +3,10 @@
 #' @param x A specific gate, ex. "nonDebris"
 #' @param data A GatingSet object
 #' @param TheDF A data.frame object of the flow file's expr data
-#' @param gtFile The data.table imported .csv file containing the gating template.
-#' @param bins Argument to geom_hex for number of bins to visualize the plotted
-#' data density.
+#' @param gtFile The data.table imported .csv file containing the 
+#' gating template.
+#' @param bins Argument to geom_hex for number of bins to visualize
+#'  the plotted data density.
 #' @param clearance A buffer area around the plot edge
 #' @param name Sets the title for the plot, default is NULL
 #'
@@ -78,16 +79,21 @@ GatePlot <- function(x, data, TheDF, gtFile, bins=270, clearance = 0.2,
 
   if (!exists("theYmax") || !exists("theXmax")){
     Plot <- ggcyto(data, aes(x = .data[[xValue]], y = .data[[yValue]]),
-       subset = theSubset) + geom_hex(bins=bins) + geom_gate(theGate) + theme_bw() +
+       subset = theSubset) + geom_hex(bins=bins) + geom_gate(theGate) +
+      theme_bw() +
        labs(title = name) + theme(strip.background = element_blank(),
        strip.text.x = element_blank(), panel.grid.major = element_line(
-       linetype = "blank"), panel.grid.minor = element_line(linetype = "blank"),
-       axis.title = element_text(size = 10, face = "bold"), legend.position = "none")
+       linetype = "blank"), panel.grid.minor = element_line(
+        linetype = "blank"),
+       axis.title = element_text(size = 10, face = "bold"),
+        legend.position = "none")
     Plot <- as.ggplot(Plot)
   } else {
-    Plot <- as.ggplot(ggcyto(data, aes(x = .data[[xValue]], y = .data[[yValue]]), subset = theSubset)) +
+    Plot <- as.ggplot(ggcyto(data, aes(x = .data[[xValue]],
+       y = .data[[yValue]]), subset = theSubset)) +
       geom_hex(bins=bins) +
-      coord_cartesian(xlim = c(theXmin, theXmax), ylim = c(theYmin, theYmax), default = TRUE) +
+      coord_cartesian(xlim = c(theXmin, theXmax), ylim = c(
+        theYmin, theYmax), default = TRUE) +
       geom_gate(theGate) + theme_bw() + labs(title = name) +
       theme(strip.background = element_blank(),
             strip.text.x = element_blank(),

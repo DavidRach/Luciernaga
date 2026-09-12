@@ -4,7 +4,8 @@
 #' tool for what elements in the config file do what. Original nerd-snipe
 #' credit goes to the Cytometry Discord discussion
 #' 
-#' @param NumberDetectors QC_ReferenceLibrary input to specify alternate instrument
+#' @param NumberDetectors QC_ReferenceLibrary input to specify
+#'  alternate instrument
 #' 
 #' @importFrom dplyr pull bind_rows left_join mutate case_when
 #' @importFrom purrr map
@@ -13,7 +14,8 @@
 #' @noRd
 FrankensteinsConfig <- function(NumberDetectors){
 
-Data <- Luciernaga:::InstrumentReferences(NumberDetectors) |> pull(Detector) |> unique()
+Data <- Luciernaga:::InstrumentReferences(NumberDetectors) |>
+  pull(Detector) |> unique()
 AllDetectors <- length(Data)
   
 if (any(str_detect(Data, "-"))){
@@ -22,7 +24,8 @@ if (any(str_detect(Data, "-"))){
   
 # x <- Lasers[2] 
 # data <- Data
-DetectorCount <- map(.x=Lasers, .f=DetectorsPerLaser, data=Data) |> bind_rows()
+DetectorCount <- map(.x=Lasers,
+   .f=DetectorsPerLaser, data=Data) |> bind_rows()
 
 TargetLasers <- data.frame(Lasers=Lasers, check.names=FALSE)
 #str(TargetLasers)

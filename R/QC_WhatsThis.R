@@ -12,25 +12,12 @@
 #' @param valuecolumn Default NULL, when TheFormat="longer" specify value column name
 #' @param plotlinecolor Default NULL, otherwise if single line provide desired color
 #'
-#' @importFrom dplyr filter
-#' @importFrom dplyr slice
-#' @importFrom dplyr select
-#' @importFrom tidyselect where 
-#' @importFrom dplyr rename
-#' @importFrom dplyr mutate
-#' @importFrom tidyr pivot_longer
-#' @importFrom dplyr bind_rows
-#' @importFrom dplyr group_by
-#' @importFrom tidyr pivot_wider
-#' @importFrom dplyr ungroup
-#' @importFrom dplyr pull
+#' @importFrom dplyr filter slice select rename mutate bind_rows
+#'  ungroup group_by pull arrange desc slice_head
+#' @importFrom tidyselect where starts_with  
+#' @importFrom tidyr pivot_longer pivot_wider
 #' @importFrom lsa cosine
-#' @importFrom tidyselect starts_with
 #' @importFrom tibble rownames_to_column
-#' @importFrom dplyr arrange
-#' @importFrom dplyr arrange
-#' @importFrom dplyr desc
-#' @importFrom dplyr slice_head
 #'
 #' @returns A dataframe of similar fluorophores or a ggplot2 object
 #' @export

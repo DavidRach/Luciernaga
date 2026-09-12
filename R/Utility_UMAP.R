@@ -16,13 +16,9 @@
 #' @param ... Other arguments to pass to umap()
 #'
 #' @importFrom uwot umap
-#' @importFrom flowWorkspace keyword
-#' @importFrom flowWorkspace gs_pop_get_data
-#' @importFrom flowCore exprs
-#' @importFrom flowCore write.FCS
-#' @importFrom dplyr slice_sample
-#' @importFrom dplyr mutate
-#' @importFrom dplyr select
+#' @importFrom flowWorkspace keyword gs_pop_get_data
+#' @importFrom flowCore exprs write.FCS
+#' @importFrom dplyr slice_sample mutate select
 #'
 #' @return UMAP axes bound to a flowframe or fcs file
 #' @export

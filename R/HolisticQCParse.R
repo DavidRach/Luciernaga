@@ -47,13 +47,15 @@ HolisticQCParse <- function(x, MainFolder, Template=NULL, subsets=NULL,
 
     if (is.null(Template)){
     Parsed <- map(.x=The_CS, .f=QC_GainMonitoring,
-                       sample.name = sample.name, stats="median") |> bind_rows()
+                       sample.name = sample.name, stats="median") |>
+      bind_rows()
     } else {
       Gating <- data.table::fread(Template)
       MyGatingSet <- GatingSet(The_CS)
       MyGatingTemplate <- gatingTemplate(Gating)
 
-      MyGatingSet <- GateCheck(gs=MyGatingSet, gatingtemplate = MyGatingTemplate, 
+      MyGatingSet <- GateCheck(gs=MyGatingSet,
+         gatingtemplate = MyGatingTemplate, 
       subsets=subsets)
       
       if (is.null(MyGatingSet)){return(MyGatingSet)}
@@ -64,7 +66,8 @@ HolisticQCParse <- function(x, MainFolder, Template=NULL, subsets=NULL,
           sample.name = sample.name1, stats="median") |> bind_rows()
       
       if (DateFormat == "01-Jan-0001"){
-        Parsed <- Parsed |> mutate(DATE = gsub("DailyQCDataSample_", "", SAMPLE))
+        Parsed <- Parsed |> mutate(DATE = gsub(
+          "DailyQCDataSample_", "", SAMPLE))
         Parsed <- Parsed |> mutate(TIME = sub("^[^_]*_", "", DATE))
         Parsed <- Parsed |> mutate(DATE = sub("_.*", "", DATE))
         Parsed$DATE <- ymd(Parsed$DATE)
@@ -82,7 +85,8 @@ HolisticQCParse <- function(x, MainFolder, Template=NULL, subsets=NULL,
     Parsed <- Parsed |> arrange(desc(DateTime))
 
     ArchiveFolder <- file.path(Folder, "Archive")
-    ArchiveCSV <- list.files(ArchiveFolder, pattern="Holistic", full.names=TRUE)
+    ArchiveCSV <- list.files(ArchiveFolder, pattern="Holistic",
+     full.names=TRUE)
 
     if (!length(ArchiveCSV) == 0){
 

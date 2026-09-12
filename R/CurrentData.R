@@ -5,13 +5,9 @@
 #' @param type Whether to return "MFI" or "Gain" plots
 #'
 #' @importFrom utils read.csv
-#' @importFrom lubridate ymd_hms
-#' @importFrom lubridate ymd
-#' @importFrom lubridate hms
+#' @importFrom lubridate ymd_hms ymd hms mdy_hm
 #' @importFrom stringr str_detect
-#' @importFrom lubridate mdy_hm
-#' @importFrom dplyr arrange
-#' @importFrom dplyr desc
+#' @importFrom dplyr arrange desc
 #'
 #' @return Updated Tracking Data CSV for specified type
 #' @noRd
@@ -48,6 +44,6 @@ CurrentData <- function(x, MainFolder, type){
     Data$TIME <- lubridate::hms(Data$TIME)
   }
 
-  Data <- Data %>% arrange(desc(DateTime))
+  Data <- Data |> arrange(desc(DateTime))
   return(Data)
 }

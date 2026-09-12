@@ -34,9 +34,10 @@
 #' @export
 #'
 #' @examples NULL
-Luciernaga_IterativeUnmixing <- function(IterativePath, IterativeSampleName,
-   Iterativeremovestrings, fluorophore.name, PanelCuts=NULL, stats="median",
-   samplecolumn="Sample", controlData, FullStainedGS, sample.name, removestrings,
+Luciernaga_IterativeUnmixing <- function(IterativePath,
+   IterativeSampleName, Iterativeremovestrings, fluorophore.name,
+   PanelCuts=NULL, stats="median", samplecolumn="Sample",
+   controlData, FullStainedGS, sample.name, removestrings,
    subset="root", returnType="fcs", outpath=outpath, PanelPath){
    
    if (!is.data.frame(IterativePath)){
@@ -65,9 +66,11 @@ Luciernaga_IterativeUnmixing <- function(IterativePath, IterativeSampleName,
    These <- Dataset |> pull(Sample)
 
    Stash <- map(.x=These, .f=IterativeUnmixingInternal,
-      Iteration=Dataset, samplecolumn=samplecolumn, controlData=controlData1,
+      Iteration=Dataset, samplecolumn=samplecolumn,
+       controlData=controlData1,
       FullStainedGS=FullStainedGS, sample.name=sample.name,
-      removestrings=removestrings, subset=subset, returnType=returnType,
+      removestrings=removestrings, subset=subset,
+       returnType=returnType,
       outpath=outpath, PanelPath=PanelPath)
    
    return(Stash)

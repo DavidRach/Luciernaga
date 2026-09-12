@@ -2,22 +2,14 @@
 #'
 #' @param x A flowframe object
 #'
-#' @importFrom flowCore exprs
-#' @importFrom dplyr summarise
-#' @importFrom dplyr across
+#' @importFrom flowCore exprs keyword
+#' @importFrom dplyr summarise across
 #' @importFrom tidyselect where
 #' @importFrom stats quantile
-#' @importFrom flowWorkspace cytoset
-#' @importFrom flowWorkspace flowFrame_to_cytoframe
-#' @importFrom flowCore keyword
-#' @importFrom flowWorkspace cs_add_cytoframe
-#' @importFrom flowWorkspace GatingSet
-#' @importFrom flowWorkspace flowjo_biexp_trans
-#' @importFrom flowWorkspace transformerList
-#' @importFrom flowWorkspace transform
+#' @importFrom flowWorkspace cytoset flowFrame_to_cytoframe cs_add_cytoframe 
+#'  GatingSet transform flowjo_biexp_trans transformerList
 #' @importFrom data.table fread
-#' @importFrom openCyto gatingTemplate
-#' @importFrom openCyto gt_gating
+#' @importFrom openCyto gatingTemplate gt_gating
 #'
 #' @return A Gating Set object transformed and gated
 #' @noRd

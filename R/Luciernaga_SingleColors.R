@@ -1,16 +1,17 @@
-#' Calculates the single color control matrix for a given quantile cutoffs and a given
-#' statistic
+#' Calculates the single color control matrix for a given quantile
+#'  cutoffs and a given statistic
 #'
 #' @param x A Gating Set Object
 #' @param sample.name The Keyword for which the Fluorophore Name is stored
 #' @param removestrings Values to remove from the name
 #' @param subset A desired Gating Hierarchy level of cells to filter in
-#' @param PanelCuts A .csv or dataframe containing columns Fluorophore, From and To
-#' Fluorophore name should match sample.name style
+#' @param PanelCuts A .csv or dataframe containing columns Fluorophore,
+#'  From and To Fluorophore name should match sample.name style
 #' @param stats Whether to use "mean" or "median"
 #' @param SignatureView Whether to also return a normalized signature plot.
 #' @param Verbose Provides debugging for removestrings
-#' @param returntype Allows to modify default "data" to instead return the "plots"
+#' @param returntype Allows to modify default "data" to instead return 
+#' the "plots"
 #'
 #' @importFrom flowCore keyword exprs
 #' @importFrom flowWorkspace gs_pop_get_data
@@ -136,11 +137,13 @@ Luciernaga_SingleColors <- function(x, sample.name, removestrings,
     name <- paste(first, second, sep="_")
   } else {name <- keyword(x, sample.name)}
 
-  name <- NameCleanUp(name, removestrings=c("(Cells)", "(Beads)", "Reference Group_"))
+  name <- NameCleanUp(name,
+     removestrings=c("(Cells)", "(Beads)", "Reference Group_"))
   name <- gsub("\\s+$", "", name)
   name <- NameCleanUp(name, removestrings=removestrings)
 
-  if (Verbose == TRUE){message("After removestrings cleanup the name is ", name)}
+  if (Verbose == TRUE){
+    message("After removestrings cleanup the name is ", name)}
 
   if (!str_detect(name, "nstained")){
   name <- sub(" ", "_", name)
@@ -154,7 +157,8 @@ Luciernaga_SingleColors <- function(x, sample.name, removestrings,
   }
 
   if (Verbose == TRUE){
-    message("The Fluorophore is ", TheFluorophores, " and the ligand is ", TheLigand)
+    message("The Fluorophore is ",
+     TheFluorophores, " and the ligand is ", TheLigand)
     }
 
   cs <- gs_pop_get_data(x, subset)

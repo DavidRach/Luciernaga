@@ -1,4 +1,5 @@
-#' Takes a Lucierna SingleColorQC .fcs, splits into percentiles, and plots the results.
+#' Takes a Lucierna SingleColorQC .fcs, splits into percentiles, and plots
+#'  the results.
 #'
 #' @param x A GatingSet object
 #' @param subset The desired gating hierarchy level to look at the data
@@ -6,15 +7,19 @@
 #' @param removestrings A list of values to remove from the name
 #' @param stats Whether to use "mean" or "median"
 #' @param returntype Whether to return a "raw" or "normalized" value lineplot.
-#' @param probsratio Ratio increments to break quantiles into, default is set to 0.1.
+#' @param probsratio Ratio increments to break quantiles into, default is set
+#'  to 0.1.
 #' @param output Whether to return "plot" or "data"
-#' @param desiredAF Peak detector(ex. "V7-A") want to filter cells by before slicing, argument
-#' only used to override the main peak detector when a .fcs file has more than a single peak
+#' @param desiredAF Peak detector(ex. "V7-A") want to filter cells by before 
+#' slicing, argument
+#' only used to override the main peak detector when a .fcs file has more than
+#'  a single peak
 #' detector, default is set to NULL
 #' @param legend Returns the legend, default is TRUE. 
 #' @param droplowest Removes lowest bin (percentile 0), default is TRUE
 #' @param titlename Default NULL, otherwise provide an alternate title. 
-#' @param returncutplot Default FALSE, if true returns a histogram plot with locations
+#' @param returncutplot Default FALSE, if true returns a histogram plot with
+#'  locations
 #'  where percentile slice occured.
 #' @param titleplot Default NULL, sets the returncutplot title
 #' @param inverse.transform Default TRUE, whether to inverse.transform. 
@@ -22,14 +27,14 @@
 #' @importFrom flowCore keyword exprs
 #' @importFrom flowWorkspace gs_pop_get_data
 #' @importFrom BiocGenerics nrow
-#' @importFrom dplyr arrange desc filter slice pull mutate group_by select ungroup
-#'  across everything cur_column
+#' @importFrom dplyr arrange desc filter slice pull mutate group_by select
+#'  ungroup across everything cur_column
 #' @importFrom stats quantile
 #' @importFrom tidyr nest unnest pivot_longer
 #' @importFrom tidyselect all_of
-#' @importFrom ggplot2 ggplot aes theme_bw labs geom_density geom_rect scale_fill_manual
-#'  geom_line scale_color_hue theme_linedraw element_text element_blank theme scale_x_log10
-#'  annotation_logticks
+#' @importFrom ggplot2 ggplot aes theme_bw labs geom_density geom_rect
+#'  scale_fill_manual geom_line scale_color_hue theme_linedraw 
+#'  element_text element_blank theme scale_x_log10 annotation_logticks
 #' @importFrom scales trans_format math_format 
 #' 
 #' @return Either ggplots or the summarized data.frame object preceding
@@ -66,11 +71,12 @@
 #'  stats="median", returntype="normalized", probsratio=0.1, output="plot",
 #'  desiredAF="R1-A")
 #'
-Luciernaga_LinearSlices <- function(x, subset, sample.name, removestrings, stats,
-                                    returntype, probsratio=0.1, output, desiredAF=NULL,
-                                    legend=TRUE, droplowest=TRUE, titlename=NULL,
-                                    returncutplot=FALSE, titleplot =NULL,
-                                    inverse.transform=TRUE, parentSignature=NULL){
+Luciernaga_LinearSlices <- function(x, subset, sample.name,
+  removestrings, stats, returntype, probsratio=0.1, output,
+  desiredAF=NULL, legend=TRUE, droplowest=TRUE, titlename=NULL,
+  returncutplot=FALSE, titleplot = NULL, inverse.transform=TRUE,
+  parentSignature=NULL){
+  
   name <- keyword(x, sample.name)
   name <- NameCleanUp(name, removestrings)
 
@@ -133,12 +139,14 @@ Luciernaga_LinearSlices <- function(x, subset, sample.name, removestrings, stats
   #probsratio <- 0.1
   probslabel <- probsratio*100
 
-  percentiles <- quantile(data[[TheDetector]], probs = seq(0, 1, by = probsratio),
+  percentiles <- quantile(
+    data[[TheDetector]], probs = seq(0, 1, by = probsratio),
                           na.rm = TRUE)
 
   ByPercentiles <- data %>% mutate(Percentiles = cut(.data[[TheDetector]],
                       breaks = c(-Inf, percentiles),
-                      labels = seq(0, 100, by = probslabel), include.lowest = TRUE))
+                      labels = seq(0, 100, by = probslabel),
+                       include.lowest = TRUE))
   
   if (returncutplot == TRUE){
     breaks <- percentiles |> unname()

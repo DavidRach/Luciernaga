@@ -2,8 +2,9 @@
 % Please edit documentation in R/CellPopExtract.R
 \name{CellPopExtract}
 \alias{CellPopExtract}
-\title{Extracts out a subset from a GatingSet, and returns as their respective .fcs files
- to a target folder. Additional option to downsample to a desired number.}
+\title{Extracts out a subset from a GatingSet, and returns as their
+ respective .fcs files to a target folder. Additional option to
+ downsample to a desired number.}
 \usage{
 CellPopExtract(
   x,
@@ -17,30 +18,38 @@ CellPopExtract(
 )
 }
 \arguments{
-\item{x}{Either a file path to a FlowJo workspace, or a GatingSet object.}
+\item{x}{Either a file path to a FlowJo workspace, or a
+GatingSet object.}
 
-\item{path}{When using a FlowJo workspace for argument x, path to the folder containing
+\item{path}{When using a FlowJo workspace for argument x,
+ path to the folder containing
 the respective .fcs files contained within that workspace}
 
-\item{keywords}{Default "GROUPNAME", can handle up to 3, ex. c("$PROJ", "GROUPNAME", "TUBENAME")}
+\item{keywords}{Default "GROUPNAME", can handle up to 3,
+ex. c("$PROJ", "GROUPNAME", "TUBENAME")}
 
-\item{subset}{The population node in the GatingSet that you want to extract as their own .fcs files}
+\item{subset}{The population node in the GatingSet that
+you want to extract as their own .fcs files}
 
 \item{outpath}{The file.path to the storage location}
 
-\item{addon}{Default NULL, appends to the end of the filename to distinguish from original fcs file.}
+\item{addon}{Default NULL, appends to the end of the filename
+to distinguish from original fcs file.}
 
-\item{downsample}{Default NULL, provide a number to downsample to that number, alternatively use
-0.1 for a proportion of total cells}
+\item{downsample}{Default NULL, provide a number to downsample
+to that number, alternatively use 0.1 for a proportion of total
+cells}
 
 \item{metadataOverride}{Default NULL}
 }
 \value{
-Returns .fcs files for the designated cell population to the designated folder.
+Returns .fcs files for the designated cell population to
+ the designated folder.
 }
 \description{
-Extracts out a subset from a GatingSet, and returns as their respective .fcs files
- to a target folder. Additional option to downsample to a desired number.
+Extracts out a subset from a GatingSet, and returns as their
+ respective .fcs files to a target folder. Additional option to
+ downsample to a desired number.
 }
 \examples{
 A <- 2+2

@@ -27,18 +27,24 @@ LuciernagaIntegration(
 \item{AFOverlap}{See Luciernaga Vignette, default NULL falls back to the 
 default shipped within Luciernaga extdata.}
 
-\item{externalAF_gs}{Default NULL, if you wish to provide an external AF for
-subtraction, provide the gs name (and next two arguments). Leaving NULL will grab
-the parent to provided gate on assumption both positive and negative cells will
+\item{externalAF_gs}{Default NULL, if you wish to provide an external AF
+ for
+subtraction, provide the gs name (and next two arguments). Leaving NULL 
+will grab
+the parent to provided gate on assumption both positive and negative cells
+ will
 be present in that gate.}
 
-\item{externalAF_gs_index}{The index value to select the unstained in combination
+\item{externalAF_gs_index}{The index value to select the unstained in
+combination
 with previous argument}
 
-\item{externalAF_gs_gate}{The gate corresponding to the unstained population you
+\item{externalAF_gs_gate}{The gate corresponding to the unstained 
+population you
 want to use for background subtraction}
 
-\item{excludeThese}{Excludes columns containing values, leaving just the detector
+\item{excludeThese}{Excludes columns containing values, leaving just 
+the detector
 columns. The default is set to "FSC|SSC|Time|-H|-W"}
 
 \item{inverse.transform}{Whether to inverse.transform, default is TRUE}
@@ -46,13 +52,15 @@ columns. The default is set to "FSC|SSC|Time|-H|-W"}
 \item{GuessSimilar}{Default FALSE, will attempt to match to
 similar fluorophores in the library}
 
-\item{Unstained}{Default FALSE, set to TRUE if sample is unstained (and subtraction 
+\item{Unstained}{Default FALSE, set to TRUE if sample is unstained 
+(and subtraction 
 therefore is not needed)}
 
 \item{NumberDetectors}{Default 64 (5-laser Cytek Aurora)}
 }
 \value{
-A list of lists containing data.frame and plots for all the single-color
+A list of lists containing data.frame and plots for all the 
+single-color
 reference controls designated in the template.
 }
 \description{

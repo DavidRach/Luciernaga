@@ -18,24 +18,15 @@
 #' @param YAxisLabel Character string for the y-axis label.
 #' @param RepairVisits Passed data.frame of engineer visits for vertical lines, default NULL.
 #'
-#' @importFrom dplyr select
+#' @importFrom dplyr select relocate mutate pull slice arrange
 #' @importFrom tidyselect contains
 #' @importFrom stringr str_detect
-#' @importFrom dplyr relocate
-#' @importFrom lubridate ymd_hms
-#' @importFrom dplyr mutate
-#' @importFrom lubridate ymd
-#' @importFrom lubridate hms
+#' @importFrom lubridate ymd_hms ymd hms days mdy
 #' @importFrom tidyr starts_with
 #' @importFrom purrr map
 #' @importFrom patchwork wrap_plots
 #' @importFrom ggplot2 ggplot
-#' @importFrom lubridate days
 #' @importFrom utils read.csv
-#' @importFrom lubridate mdy
-#' @importFrom dplyr pull
-#' @importFrom dplyr slice
-#' @importFrom dplyr arrange
 #'
 #' @return The pdf and/the plots.
 #' @export

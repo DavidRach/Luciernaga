@@ -2,8 +2,7 @@
 #' 
 #' @param x The iterated in pdf page as text lines
 #' 
-#' @importFrom purrr map
-#' @importFrom purrr compact
+#' @importFrom purrr map compact 
 #' 
 #' @noRd
 AdditionalPageHandler <- function(x){

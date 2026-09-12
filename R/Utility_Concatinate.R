@@ -18,12 +18,9 @@
 #' @param DataOverride Testing Purpose default NULL
 #'
 #' @importFrom purrr map
-#' @importFrom dplyr bind_rows
-#' @importFrom dplyr select
-#' @importFrom tidyselect all_of
-#' @importFrom dplyr bind_cols
+#' @importFrom dplyr bind_rows select bind_cols
+#' @importFrom tidyselect all_of starts_with
 #' @importFrom utils write.csv
-#' @importFrom tidyselect starts_with
 #' @importFrom flowWorkspace gs_pop_get_data
 #' @importFrom methods new
 #' @importFrom flowCore write.FCS

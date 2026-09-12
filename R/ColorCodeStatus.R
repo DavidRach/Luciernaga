@@ -3,6 +3,9 @@
 #'
 #' @param x The Instrument Name
 #' @param y The Instrument Data
+#' 
+#' @importFrom dplyr filter
+#' @importFrom stringr str_detect
 #'
 #' @return Global Passing Status
 #' @noRd
@@ -11,10 +14,10 @@ ColorCodeStatus <- function(x, y){
   data <- y
 
   CytekMandate <- c("FSC", "SSC", "SSC-B")
-  CytekData <- data %>%
+  CytekData <- data |>
     filter(Detector %in% CytekMandate)
-  RCVdata <- data %>%
-    filter(str_detect(Detector, "3")) %>%
+  RCVdata <- data |>
+    filter(str_detect(Detector, "3")) |>
     filter(!str_detect(Detector, "1"))
   RCVdata <- rbind(CytekData, RCVdata)
 

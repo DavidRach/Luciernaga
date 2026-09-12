@@ -1,39 +1,29 @@
 #' Converts the Luciernaga outputs into .pdf plots
 #'
 #' @param data The data.frame output from LuciernagaQC
-#' @param RetainedType Whether the data.frame contains "raw" or "normalized" values
+#' @param RetainedType Whether the data.frame contains "raw" or
+#'  "normalized" values
 #' @param CellPopRatio What mininum ratio needed to retain cluster.
 #' @param outfolder The location that you want to save the .pdf output to.
 #' @param filename The name you want to save your .pdf file as.
-#' @param LinePlots Passed to Utility_Patchwork for "pdf" or "patchwork" or "plots"
+#' @param LinePlots Passed to Utility_Patchwork for "pdf" or
+#'  "patchwork" or "plots"
 #' @param CosinePlots Return this kind of plot, default is set to TRUE
 #' @param StackedBarPlots Return this kind of plot, default is set to TRUE
 #' @param HeatmapPlots Return this kind of plot, default is set to TRUE
 #' @param returntype Return "pdf", "patchwork" or "plots"
-#' @param reference path or data.frame containing Fluorophore column for ordering
+#' @param reference path or data.frame containing Fluorophore column
+#'  for ordering
 #' @param thecolumns The number of columns per page
 #' @param therows The number of rows per page
 #' @param width Desired page width
 #' @param height Desired page height
 #'
-#' @importFrom dplyr group_by
-#' @importFrom dplyr summarize
-#' @importFrom dplyr left_join
-#' @importFrom dplyr relocate
-#' @importFrom dplyr filter
-#' @importFrom dplyr mutate
-#' @importFrom dplyr rename
-#' @importFrom dplyr across
-#' @importFrom dplyr select
-#' @importFrom tidyselect all_of
-#' @importFrom tidyselect everything
-#' @importFrom dplyr bind_rows
-#' @importFrom dplyr bind_cols
-#' @importFrom dplyr ungroup
-#' @importFrom purrr map
-#' @importFrom purrr flatten
-#' @importFrom utils head
-#' @importFrom utils tail
+#' @importFrom dplyr group_by summarize left_join relocate
+#'  filter mutate rename across select bind_rows bind_cols ungroup
+#' @importFrom tidyselect all_of everything
+#' @importFrom purrr map flatten
+#' @importFrom utils head tail
 #'
 #' @return A value to be determined later
 #' @export
@@ -101,39 +91,41 @@ Luciernaga_Plots <- function(data, RetainedType, CellPopRatio, outfolder, filena
   # Filtered by CellPopRatio, and creating other  #
   #################################################
 
-  TheCounts <- data %>% group_by(Sample, Experiment, Condition) %>%
+  TheCounts <- data |> group_by(Sample, Experiment, Condition) |>
     summarize(TotalCells = sum(Count, na.rm = TRUE), .groups = 'drop')
 
-  TheData <- data %>% left_join(TheCounts, by = c("Sample", "Experiment", "Condition"))
+  TheData <- data |>
+    left_join(TheCounts, by = c("Sample", "Experiment", "Condition"))
 
-  TheData <- TheData %>% mutate(Ratio = round(Count/TotalCells, 3)) %>%
-    relocate(Ratio, .after=Count) %>% select(-TotalCells)
+  TheData <- TheData |>  mutate(Ratio = round(Count/TotalCells, 3)) |>
+    relocate(Ratio, .after=Count) |> select(-TotalCells)
 
-  FilteredData <- TheData %>% filter(Ratio > CellPopRatio)
+  FilteredData <- TheData |> filter(Ratio > CellPopRatio)
 
-  OtherData <- FilteredData %>% group_by(Sample, Experiment, Condition) %>%
+  OtherData <- FilteredData |> group_by(Sample, Experiment, Condition) |>
     summarize(LostRatio = 1 - sum(Ratio, na.rm = TRUE), .groups = 'drop')
 
-  Other <- TheCounts %>% left_join(OtherData, by = c("Sample", "Experiment",
-    "Condition")) %>% mutate(Count = round(TotalCells*LostRatio, 0)) %>%
-    select(-TotalCells) %>% relocate(Count, .before=LostRatio) %>%
-    rename(Ratio=LostRatio) %>% mutate(Cluster="Other")
+  Other <- TheCounts |> left_join(OtherData, by = c("Sample", "Experiment",
+    "Condition")) |> mutate(Count = round(TotalCells*LostRatio, 0)) |>
+    select(-TotalCells) |> relocate(Count, .before=LostRatio) |>
+    rename(Ratio=LostRatio) |> mutate(Cluster="Other")
 
   OtherN <- nrow(Other)
   FirstDetectorColumn <- which(grepl("\\d", colnames(data)))[1]
   LastDetectorColumn <- tail(which(grepl("\\d", colnames(data))), 1)
 
-  Replacement <- data %>% select(all_of(FirstDetectorColumn:LastDetectorColumn)) %>%
+  Replacement <- data |>
+    select(all_of(FirstDetectorColumn:LastDetectorColumn)) |>
     head(OtherN) %>% mutate(across(everything(), ~0))
 
-  Replacements <- bind_cols(Other, Replacement) %>% ungroup()
+  Replacements <- bind_cols(Other, Replacement) |> ungroup()
   Replaced <- bind_rows(FilteredData, Replacements)
 
   ##############
   # Lets Begin #
   ##############
 
-  Items <- data.frame(table(data$Sample)) %>% pull(Var1) %>% as.character(.)
+  Items <- data.frame(table(data$Sample)) |>  pull(Var1) %>% as.character(.)
 
   if (!is.null(PreferredOrder)){
   if (all(Items %in% PreferredOrder)){
@@ -145,23 +137,22 @@ Luciernaga_Plots <- function(data, RetainedType, CellPopRatio, outfolder, filena
   #data <- Replaced
 
   ThePlots <- map(.x=Items, .f=Luciernaga:::InternalReport, data=Replaced,
-                  FirstDetectorColumn=FirstDetectorColumn,
-                  LastDetectorColumn=LastDetectorColumn,
-                  RetainedType=RetainedType, CellPopRatio=CellPopRatio,
-                  LinePlots=LinePlots, CosinePlots=CosinePlots,
-                  StackedBarPlots=StackedBarPlots, HeatmapPlots=HeatmapPlots)
+    FirstDetectorColumn=FirstDetectorColumn, 
+    LastDetectorColumn=LastDetectorColumn,
+    RetainedType=RetainedType, CellPopRatio=CellPopRatio,
+    LinePlots=LinePlots, CosinePlots=CosinePlots,
+    StackedBarPlots=StackedBarPlots, HeatmapPlots=HeatmapPlots)
 
   if (returntype == "pdf"){
   Utility_Patchwork(x=ThePlots, filename = filename, outfolder = outfolder,
-                    thecolumns = thecolumns, therows = therows, width = width,
-                    height = height, returntype = "pdf", NotListofList = FALSE)
+    thecolumns = thecolumns, therows = therows, width = width,
+    height = height, returntype = "pdf", NotListofList = FALSE)
   }
 
   if (returntype == "patchwork"){
   Hey <-Utility_Patchwork(x=ThePlots, filename = filename, outfolder = outfolder,
-                      thecolumns = thecolumns, therows = therows, width = width,
-                      height = height, returntype = "patchwork",
-                      NotListofList = FALSE)
+    thecolumns = thecolumns, therows = therows, width = width,
+    height = height, returntype = "patchwork", NotListofList = FALSE)
   return(Hey)
   }
 

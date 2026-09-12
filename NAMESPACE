@@ -3,6 +3,7 @@
 export(AutofluoresceShop)
 export(AveragedSignature)
 export(BackgroundSubtraction)
+export(CartoonSignatures)
 export(CellPopExtract)
 export(CheckUnmixingSpanGates)
 export(CytosetScreen)

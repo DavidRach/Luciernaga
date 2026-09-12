@@ -1,10 +1,16 @@
-#' Helpful function for extracting .fcs files from SpectroFlo .Zip folders. 
+#' Helpful function for extracting .fcs files from SpectroFlo 
+#' .Zip folders. 
 #' 
-#' @param x Provide either the Zip folder path, or a folder containing a single Zip folder within. 
-#' I have not yet implemented a handling condition for when two zipped folders are present!
-#' @param Type Default is "Raw", alternate is "Unmixed", provide "All" for both.
-#' @param FileType Default is "Reference", alternates are "Unstained", and "Samples"
-#' @param outpath The folder in which to store the unzipped .fcs files
+#' @param x Provide either the Zip folder path, or a folder
+#'  containing a single Zip folder within. I have not yet 
+#' implemented a handling condition for when two zipped folders
+#'  are present!
+#' @param Type Default is "Raw", alternate is "Unmixed", provide
+#'  "All" for both.
+#' @param FileType Default is "Reference", alternates are
+#'  "Unstained", and "Samples"
+#' @param outpath The folder in which to store the unzipped
+#'  .fcs files
 #' 
 #' @importFrom stringr str_detect
 #' @importFrom purrr walk
@@ -31,24 +37,35 @@ FCS_Jailbreak <- function(x, Type="Raw", FileType="Reference", outpath){
                           return(NULL)
                           })
 
-    ZipContents <- ZipContents[stringr::str_detect(ZipContents, ".fcs")]
+    ZipContents <- ZipContents[
+        stringr::str_detect(ZipContents, ".fcs")]
 
-    if (Type == "Raw"){ZipContents <- ZipContents[stringr::str_detect(ZipContents, "Raw")]}
+    if (Type == "Raw"){
+        ZipContents <- ZipContents[
+            stringr::str_detect(ZipContents, "Raw")]}
 
-    if (Type == "Unmixed"){ZipContents <- ZipContents[stringr::str_detect(ZipContents, "Unmixed")]}
+    if (Type == "Unmixed"){
+        ZipContents <- ZipContents[
+            stringr::str_detect(ZipContents, "Unmixed")]}
 
     if (FileType == "Reference"){
-        ZipContents <- ZipContents[stringr::str_detect(ZipContents, "Reference")]}
+        ZipContents <- ZipContents[
+            stringr::str_detect(ZipContents, "Reference")]}
 
     if (FileType == "Unstained"){
-        ZipContents <- ZipContents[stringr::str_detect(ZipContents, "nstained")]}
+        ZipContents <- ZipContents[
+            stringr::str_detect(ZipContents, "nstained")]}
 
     if (FileType == "Samples"){
-        ZipContents <- ZipContents[!stringr::str_detect(ZipContents, "Reference")]
-        ZipContents <- ZipContents[!stringr::str_detect(ZipContents, "nstained")]
+        ZipContents <- ZipContents[
+            !stringr::str_detect(ZipContents, "Reference")]
+        ZipContents <- ZipContents[
+            !stringr::str_detect(ZipContents, "nstained")]
         }
 
-    purrr::walk(.x=ZipContents, .f= ~ ZippedFileTransfer(x=.x, ZippedFolder=ZippedFolder,  outpath=outpath),
+    purrr::walk(.x=ZipContents,
+         .f= ~ ZippedFileTransfer(x=.x, ZippedFolder=ZippedFolder,
+              outpath=outpath),
      .progress=TRUE)
 
     #message("Done")

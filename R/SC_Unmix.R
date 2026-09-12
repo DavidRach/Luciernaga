@@ -13,16 +13,11 @@
 #' @param ratiopopcutoff Desired cutoff for detector detection
 #' @param NumberFluors Desired number additional fluors in matrix
 #'
-#' @importFrom flowCore keyword
+#' @importFrom flowCore keyword exprs write.FCS
 #' @importFrom flowWorkspace gs_pop_get_data
-#' @importFrom flowCore exprs
-#' @importFrom dplyr mutate
-#' @importFrom dplyr select
+#' @importFrom dplyr mutate select pull arrange
 #' @importFrom utils read.csv
-#' @importFrom dplyr pull
-#' @importFrom dplyr arrange
 #' @importFrom stats lsfit
-#' @importFrom flowCore write.FCS
 #' @importFrom purrr map
 #'
 #' @return A new .fcs file with the new columns appended

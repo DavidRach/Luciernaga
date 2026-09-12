@@ -5,14 +5,9 @@
 #'
 #' @importFrom flowWorkspace gs_pop_get_data
 #' @importFrom flowCore exprs
-#' @importFrom dplyr summarise
-#' @importFrom dplyr across
-#' @importFrom tidyselect where
+#' @importFrom dplyr summarise across select pull filter
+#' @importFrom tidyselect where all_of
 #' @importFrom stats quantile
-#' @importFrom dplyr select
-#' @importFrom tidyselect all_of
-#' @importFrom dplyr pull
-#' @importFrom dplyr filter
 #' @importFrom tidyr pivot_wider
 #'
 #' @return A data.frame row containing the derrived information

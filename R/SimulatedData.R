@@ -12,14 +12,8 @@
 #' @param flowWorkspace load_cytoset_from_fcs
 #' @param returntype Default fcs, anything else returns a flowframe to Renviron
 #'
-#' @importFrom dplyr pull
-#' @importFrom dplyr select
-#' @importFrom dplyr filter
+#' @importFrom dplyr pull select filter bind_rows mutate left_join relocate
 #' @importFrom purrr map
-#' @importFrom dplyr bind_rows
-#' @importFrom dplyr mutate
-#' @importFrom dplyr left_join
-#' @importFrom dplyr relocate
 #' @importFrom flowCore write.FCS
 #'
 #' @return An .fcs or a flow frame containing the simulated data.
@@ -28,15 +22,15 @@
 SimulatedData <- function(populations, abundance, totalevents,
   targets, distribution, NumberDetectors, name, addon, outpath, returntype="fcs"){
 
-TheFluorophores <- targets %>% pull(Fluorophores)
+TheFluorophores <- targets |> pull(Fluorophores)
 ReferenceData <- Luciernaga:::InstrumentReferences(NumberDetectors=NumberDetectors)
-Data <- ReferenceData %>% select(-Instrument) %>% filter(Fluorophore %in% TheFluorophores)
-ScaledData <- map(.x=TheFluorophores, .f=FluorScaling, data=Data, targets=targets) %>% bind_rows()
+Data <- ReferenceData |> select(-Instrument) |> filter(Fluorophore %in% TheFluorophores)
+ScaledData <- map(.x=TheFluorophores, .f=FluorScaling, data=Data, targets=targets) |> bind_rows()
 
-IntAbund <- abundance %>% mutate(Total=Ratio*totalevents) %>% select(-Ratio)
+IntAbund <- abundance |> mutate(Total=Ratio*totalevents) |> select(-Ratio)
 ToAssemble <- left_join(IntAbund, populations, by="Pops")
 
-Pops <- ToAssemble %>% pull(Pops)
+Pops <- ToAssemble |> pull(Pops)
 
 ThePopulations <- map(.x=Pops, .f=DataSimulation,
  ToAssemble=ToAssemble, ScaledData=ScaledData, distribution=distribution)
@@ -44,10 +38,10 @@ ThePopulations <- map(.x=Pops, .f=DataSimulation,
 Dataset <- do.call(rbind, ThePopulations)
 
 Dataset <- data.frame(Dataset)
-Dataset <- Dataset %>% mutate(DateTime="Standin", Fluorophore="Standin") %>%
+Dataset <- Dataset |> mutate(DateTime="Standin", Fluorophore="Standin") |>
   relocate(DateTime, Fluorophore, .before=1)
 Dataset <- Luciernaga:::ColumnNaming(Dataset)
-Dataset <- Dataset %>% select(-Fluorophore, -DateTime)
+Dataset <- Dataset |> select(-Fluorophore, -DateTime)
 colnames(Dataset) <- paste0(colnames(Dataset), "-A")
 
 Noise <- HouseParty(x=Dataset)

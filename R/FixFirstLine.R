@@ -11,7 +11,8 @@ FixFirstLine <- function(lines){
 MetadataLine <- grep("Daily Setup and QC", lines)
 MetadataLine <- lines[MetadataLine]
 
-Date_Search <- stringr::str_extract(MetadataLine, "\\d{2}-\\d{2}-\\d{4}\\s+\\d{2}-\\d{2}\\s+[AP]M")
+Date_Search <- stringr::str_extract(
+    MetadataLine, "\\d{2}-\\d{2}-\\d{4}\\s+\\d{2}-\\d{2}\\s+[AP]M")
 Parts <- strsplit(Date_Search, " ")[[1]]
 Combined <- gsub("-", "/", Parts[1])
 lines <- gsub(Combined, "", lines)

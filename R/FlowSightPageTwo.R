@@ -1,4 +1,5 @@
-#' Internal for QC_FlowSightPDF, parses the second page, returns a data.frame
+#' Internal for QC_FlowSightPDF, parses the second page,
+#'  returns a data.frame
 #' 
 #' @param x The second page of text parsed from the QC report
 #'
@@ -12,7 +13,8 @@ lines <- lines[nzchar(trimws(lines))]
 
 SideScatterCalibrationLine <- grep("Side Scatter Calibration", lines)
 if (length(SideScatterCalibrationLine) == 1){
-    SideScatterCalibrationLine_DF <- TwoLineSandwhich(x=SideScatterCalibrationLine, data=lines)
+    SideScatterCalibrationLine_DF <- TwoLineSandwhich(
+        x=SideScatterCalibrationLine, data=lines)
     #Ignoring second (duplicated???) power listing for now
 }
 
@@ -80,12 +82,15 @@ if (length(LateralStabilityLine) == 1){
 
 FlowCorePositionLines <- grep("Flow Core Position Test", lines)
 if (length(FlowCorePositionLines) == 1){
-    FlowCorePositionLines <- lines[FlowCorePositionLines:(FlowCorePositionLines+3)]
+    FlowCorePositionLines <- lines[
+        FlowCorePositionLines:(FlowCorePositionLines+3)]
     BridgeData <- BridgeSplits(FlowCorePositionLines)
     FlowCorePosition_DF <- BridgeData[[1]]
     BridgeDataset <- BridgeData[[2]]
-    BridgeDataset$Name <- paste0(colnames(FlowCorePosition_DF)[1], " ", BridgeDataset$Name)
-    BridgeDataset <- BridgeDataset |> tidyr::pivot_wider(names_from=Name, values_from=Value)
+    BridgeDataset$Name <- paste0(colnames(
+        FlowCorePosition_DF)[1], " ", BridgeDataset$Name)
+    BridgeDataset <- BridgeDataset |>
+        tidyr::pivot_wider(names_from=Name, values_from=Value)
     FlowCorePosition_DF <- bind_cols(FlowCorePosition_DF, BridgeDataset)
 }
 

@@ -1,15 +1,19 @@
 
 #' Internal for CellPopExtract
 #' 
-#' @param x Either a file path to a FlowJo workspace, or a GatingSet object. 
-#' @param keywords Default "GROUPNAME", can handle up to 3, ex. c("$PROJ", "GROUPNAME", "TUBENAME")
+#' @param x Either a file path to a FlowJo workspace, or a
+#'  GatingSet object. 
+#' @param keywords Default "GROUPNAME", can handle up to 3,
+#'  ex. c("$PROJ", "GROUPNAME", "TUBENAME")
 #' @param outpath The file.path to the storage location
-#' @param addon Default NULL, appends to the end of the filename to distinguish from original fcs file.
+#' @param addon Default NULL, appends to the end of the
+#'  filename to distinguish from original fcs file.
 #' 
 #' @importFrom flowCore keyword write.FCS
 #' @importFrom flowWorkspace cytoframe_to_flowFrame
 #' 
-#' @return Writes the .fcs file with altered naming to the designated outpath
+#' @return Writes the .fcs file with altered naming to the
+#'  designated outpath
 #' 
 #' @noRd
 FCS_Subset_Copy <- function(x, keywords, outpath, addon, metadataOverride){

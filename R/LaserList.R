@@ -3,8 +3,7 @@
 #' @param x The iterated laser
 #' @param data The filtered laser list
 #'
-#' @importFrom dplyr filter
-#' @importFrom dplyr pull
+#' @importFrom dplyr filter pull
 #'
 #' @return The list of laser parameters for the Description list
 #'

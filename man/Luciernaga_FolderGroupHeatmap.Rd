@@ -13,11 +13,14 @@ Luciernaga_FolderGroupHeatmap(
 )
 }
 \arguments{
-\item{FolderPath}{File path to a Folder (or files) to be used for the heatmap}
+\item{FolderPath}{File path to a Folder (or files) to be used
+for the heatmap}
 
-\item{cutoff}{Minimal ratio needed for showing, cells not making criteria rolled into other}
+\item{cutoff}{Minimal ratio needed for showing, cells not making
+criteria rolled into other}
 
-\item{removeFollowing}{Default NULL, string character start for removal via stringr::str_detect}
+\item{removeFollowing}{Default NULL, string character start for
+removal via stringr::str_detect}
 
 \item{legend}{Default is "right", provide "none" to remove.}
 

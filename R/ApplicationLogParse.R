@@ -37,7 +37,8 @@ ApplicationLogParse <- function(x, returnType="clean"){
   Dataset$DateTime <- trimws(Dataset$DateTime, which="right")
   Dataset$DateTime <- mdy_hms(Dataset$DateTime)
   #Troubleshooting <- Dataset[is.na(Dataset$DateTime), ]
-  } else {message("No error-free rows detected, returning NULL, expect bind_rows to error")
+  } else {message(
+    "No error-free rows detected, returning NULL, expect bind_rows to error")
     Dataset <- NULL}
   return(Dataset) 
   }

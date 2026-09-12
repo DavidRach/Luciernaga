@@ -2,11 +2,8 @@
 #'
 #' @param x A DailyQC report .csv
 #'
-#' @importFrom lubridate ymd
-#' @importFrom lubridate hms
-#' @importFrom dplyr mutate
-#' @importFrom dplyr relocate
-#' @importFrom dplyr select
+#' @importFrom lubridate ymd hms
+#' @importFrom dplyr mutate relocate select
 #'
 #' @return A data.frame comparing the cutoffs for Gains
 #' @noRd

@@ -3,16 +3,10 @@
 #' @param x  Takes a Daily QC CSV file, and converts into a "tidyed" dataframe for plotting.
 #' Currently works on our 3L, 4L, 5L Auroras.
 #'
-#' @importFrom lubridate ymd
-#' @importFrom lubridate hms
-#' @importFrom dplyr mutate
-#' @importFrom dplyr relocate
-#' @importFrom dplyr select
-#' @importFrom dplyr case_when
-#' @importFrom dplyr rename
+#' @importFrom lubridate ymd hms
+#' @importFrom dplyr mutate relocate select case_when rename across
 #' @importFrom tidyr pivot_wider
 #' @importFrom tidyselect everything
-#' @importFrom dplyr across
 #'
 #' @return A dataframe.
 #' @export

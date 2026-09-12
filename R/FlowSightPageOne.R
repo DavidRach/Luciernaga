@@ -1,4 +1,5 @@
-#' Internal for QC_FlowSightPDF, parses the first page, returns a data.frame
+#' Internal for QC_FlowSightPDF, parses the first page,
+#'  returns a data.frame
 #' 
 #' @param x The first page of text parsed from the QC report
 #'
@@ -14,7 +15,8 @@ lines <- lines[nzchar(trimws(lines))]
 DateTimeLine <- grep("FlowSight", lines)
 if (length(DateTimeLine) == 1){
    DateTimeLine <-lines[DateTimeLine]
-   DateTime_str <- str_extract(x, "[A-Za-z]+,\\s+[A-Za-z]+\\s+\\d{2},\\s+\\d{4}")
+   DateTime_str <- str_extract(
+    x, "[A-Za-z]+,\\s+[A-Za-z]+\\s+\\d{2},\\s+\\d{4}")
    DateTime <- lubridate::mdy(DateTime_str)
    DateTime <- data.frame(DateTime=DateTime, PDF=DateTime_str)
 }

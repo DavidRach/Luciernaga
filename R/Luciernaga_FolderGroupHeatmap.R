@@ -1,8 +1,11 @@
 #' Small wrapper, passes folder (or files) to Luciernaga_GroupHeatmap
 #' 
-#' @param FolderPath File path to a Folder (or files) to be used for the heatmap
-#' @param cutoff Minimal ratio needed for showing, cells not making criteria rolled into other
-#' @param removeFollowing Default NULL, string character start for removal via stringr::str_detect
+#' @param FolderPath File path to a Folder (or files) to be used
+#'  for the heatmap
+#' @param cutoff Minimal ratio needed for showing, cells not making
+#'  criteria rolled into other
+#' @param removeFollowing Default NULL, string character start for
+#'  removal via stringr::str_detect
 #' @param legend Default is "right", provide "none" to remove.
 #' @param returnType Default is "data", alternate is "count"
 #' 
@@ -22,8 +25,8 @@
 #' 
 #' @examples
 #' A <- 2+2
-Luciernaga_FolderGroupHeatmap <- function(FolderPath, cutoff=0.01, removeFollowing=NULL, 
-  legend="right", returnType="data"){
+Luciernaga_FolderGroupHeatmap <- function(FolderPath, cutoff=0.01,
+   removeFollowing=NULL, legend="right", returnType="data"){
 
   if (length(FolderPath > 1)){
   TheFCSFiles <- FolderPath
@@ -36,8 +39,10 @@ Luciernaga_FolderGroupHeatmap <- function(FolderPath, cutoff=0.01, removeFollowi
    truncate_max_range = FALSE, transformation = FALSE)
   Selected_GS <- GatingSet(Selected_CS)
 
-  Metadata <- map(.x=Selected_GS, .f=GatingSetMetadata) |> dplyr::bind_rows()
-  Metadata$TUBENAME <- NameCleanUp(removestrings=" (Cells)", Metadata$TUBENAME)
+  Metadata <- map(.x=Selected_GS, .f=GatingSetMetadata) |>
+    dplyr::bind_rows()
+  Metadata$TUBENAME <- NameCleanUp(removestrings=" (Cells)",
+   Metadata$TUBENAME)
   Metadata <- Metadata |> rename(Fluorophore=TUBENAME)
 
   Metadata$GUID <-  gsub(".*\\(Cells\\)_", "", Metadata$GUID)
@@ -52,7 +57,8 @@ Luciernaga_FolderGroupHeatmap <- function(FolderPath, cutoff=0.01, removeFollowi
 
   if (!is.null(removeFollowing)){
       Metadata <- Metadata |>
-           dplyr::filter(!stringr::str_detect(Metadata$Cluster, removeFollowing))
+           dplyr::filter(!stringr::str_detect(Metadata$Cluster,
+             removeFollowing))
   }
 
   if (returnType == "data"){

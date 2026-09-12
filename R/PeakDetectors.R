@@ -2,8 +2,7 @@
 #'
 #' @param NewData The exprs for the .fcs file minus scatter params
 #'
-#' @importFrom dplyr arrange
-#' @importFrom dplyr desc
+#' @importFrom dplyr arrange desc
 #'
 #' @return A data.frame of detectors and respective counts
 #' @noRd

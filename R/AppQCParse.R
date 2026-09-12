@@ -4,15 +4,11 @@
 #' @param x The Cytometer Folder Name
 #'
 #' @importFrom purrr map
-#' @importFrom dplyr bind_rows
-#' @importFrom dplyr mutate
-#' @importFrom dplyr across
+#' @importFrom dplyr bind_rows mutate across arrange desc
 #' @importFrom tidyselect starts_with
 #' @importFrom utils read.csv
 #' @importFrom lubridate ymd_hms
 #' @importFrom generics setdiff
-#' @importFrom dplyr arrange
-#' @importFrom dplyr desc
 #' @importFrom utils write.csv
 #'
 #' @return Updated tracking data CSV in the Archive Folder
@@ -27,9 +23,10 @@ AppQCParse <- function(MainFolder, x){
 
     if (length(DailyQCFiles)>=1){
 
-      Parsed <- map(.x=DailyQCFiles, .f=Luciernaga:::ApplicationLogParse) %>% bind_rows()
+      Parsed <- map(.x=DailyQCFiles,
+         .f=Luciernaga:::ApplicationLogParse) |> bind_rows()
       Parsed <- Parsed[grepl("cmd: SitFlush: Begin", Parsed$Command), ]
-      Parsed <- Parsed %>% arrange(desc(DateTime))
+      Parsed <- Parsed |> arrange(desc(DateTime))
 
     } else {stop("Two csv files in the folder found!")}
 
@@ -59,7 +56,7 @@ AppQCParse <- function(MainFolder, x){
 
     file.remove(DailyQCFiles)
 
-    UpdatedData <- UpdatedData %>% arrange(desc(DateTime))
+    UpdatedData <- UpdatedData |> arrange(desc(DateTime))
 
     name <- paste0("ApplicationData", x, ".csv")
     StorageLocation <- file.path(TheArchive, name)

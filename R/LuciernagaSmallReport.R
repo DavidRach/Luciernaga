@@ -1,10 +1,8 @@
 
 #' Internal for LuciernagaQC
 #'
-#' @importFrom dplyr filter
-#' @importFrom dplyr select
+#' @importFrom dplyr filter select rename
 #' @importFrom tidyselect all_of
-#' @importFrom dplyr rename
 #'
 #' @return An internal value
 #'

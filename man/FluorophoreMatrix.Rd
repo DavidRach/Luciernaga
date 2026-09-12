@@ -10,7 +10,8 @@ FluorophoreMatrix(data, NumberDetectors, returnType = "plot")
 \arguments{
 \item{data}{A path to the .csv or a data.frame object}
 
-\item{NumberDetectors}{The corresponding number of detectors for the Cytek Aurora}
+\item{NumberDetectors}{The corresponding number of detectors
+for the Cytek Aurora}
 
 \item{returnType}{Default is plot}
 }

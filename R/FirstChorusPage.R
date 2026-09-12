@@ -3,10 +3,8 @@
 #' @param x An iterated pdf page read in as text
 #' 
 #' @importFrom stringr str_extract
-#' @importFrom lubridate mdy_hm
-#' @importFrom lubridate parse_date_time
-#' @importFrom purrr map
-#' @importFrom purrr compact
+#' @importFrom lubridate mdy_hm parse_date_time
+#' @importFrom purrr map compact
 #' @importFrom dplyr bind_cols
 #' 
 #' @noRd
@@ -56,8 +54,10 @@ if (length(ConfigurationLines) > 1){
     ConfigurationDateTime <- str_extract(ConfigurationLine,
         "\\d{2}/\\d{2}/\\d{4}\\s+\\d{1,2}:\\d{2}\\s*(AM|PM)")
     ConfigurationDateTimeValue <- lubridate::mdy_hm(ConfigurationDateTime)
-    ConfigurationLine <- gsub(ConfigurationDateTime, "TIME    ", ConfigurationLine)
-    ConfigurationLine <- gsub("Configuration:", "    Configuration:", ConfigurationLine)
+    ConfigurationLine <- gsub(
+        ConfigurationDateTime, "TIME    ", ConfigurationLine)
+    ConfigurationLine <- gsub(
+        "Configuration:", "    Configuration:", ConfigurationLine)
     ConfigurationLine <- gsub("/", "", ConfigurationLine)
     Hmm <- TwoPartSplits(ConfigurationLine)
 
@@ -90,12 +90,14 @@ if (length(NameLine) == 1){
 
     df <- do.call(rbind, Data)
     colnames(df) <- df[1,]
-    QCData <- as.data.frame(df[-1,], stringsAsFactors = FALSE, check.names=FALSE)
+    QCData <- as.data.frame(df[-1,],
+         stringsAsFactors = FALSE, check.names=FALSE)
 } else {stop("Multiple name lines for page one")
         QCData <- NULL
 }
 
-Metadata <- bind_cols(DateTime, Status_DF, Reports_DF, User_DF, SerialNumber_DF)
+Metadata <- bind_cols(DateTime, Status_DF, Reports_DF,
+     User_DF, SerialNumber_DF)
 Cargo <- list(Metadata, QCData)
 
 return(Cargo)

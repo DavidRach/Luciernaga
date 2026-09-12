@@ -1,17 +1,11 @@
 #' Internal, processes individual files for signature
 #' 
-#' @importFrom flowCore keyword
+#' @importFrom flowCore keyword exprs
 #' @importFrom flowWorkspace gs_pop_get_data
-#' @importFrom flowCore exprs
 #' @importFrom BiocGenerics nrow
-#' @importFrom dplyr filter
-#' @importFrom dplyr arrange
-#' @importFrom dplyr desc
-#' @importFrom dplyr pull
-#' @importFrom dplyr select
+#' @importFrom dplyr filter arrange desc pull select bind_cols
 #' @importFrom tidyselect all_of
 #' @importFrom stats quantile
-#' @importFrom dplyr bind_cols
 #' 
 #' @return A data.frame row of raw or normalized data
 #' 
@@ -22,7 +16,8 @@ FolderSignatureIterator <- function(x, sample.name, StringRemoval,
   if (is.null(fluorophore.name)){
     FluorophoreName <- keyword(x, "TUBENAME")
     DefaultStrings <- c("DR_", " (Cells)")
-    AbbreviatedFluorophore <- NameCleanUp(FluorophoreName, removestrings=DefaultStrings)
+    AbbreviatedFluorophore <- NameCleanUp(FluorophoreName,
+       removestrings=DefaultStrings)
     fluorophore.name <- sub("^[^ ]+ ", "", AbbreviatedFluorophore)
   }
   
@@ -91,12 +86,14 @@ FolderSignatureIterator <- function(x, sample.name, StringRemoval,
     UpperBound <- UpperBound / 100
   }
 
-  QuantileData <- TheColumns |> select(all_of(TheDetector)) |> pull()
+  QuantileData <- TheColumns |> select(all_of(TheDetector)) |>
+    pull()
   LowerBoundMFI <- QuantileData %>% quantile(., LowerBound)
   UpperBoundMFI <- QuantileData %>% quantile(., UpperBound)
 
   ValuesInterest <- TheColumns |>
-    filter(.data[[TheDetector]]  >= LowerBoundMFI & .data[[TheDetector]] <= UpperBoundMFI)
+    filter(.data[[TheDetector]]  >= LowerBoundMFI &
+      .data[[TheDetector]] <= UpperBoundMFI)
 
   if (returnType == "Signatures"){
   if (normalize == TRUE){
@@ -112,8 +109,10 @@ FolderSignatureIterator <- function(x, sample.name, StringRemoval,
   Data <- bind_cols(Metadata, Samples)
   return(Data)
   } else {
-    Dataset <- ValuesInterest |> mutate(Fluorophore = fluorophore.name) |>
-      mutate(Sample=sampleName) |> relocate(Fluorophore, Sample, .before=1)
+    Dataset <- ValuesInterest |>
+      mutate(Fluorophore = fluorophore.name) |>
+      mutate(Sample=sampleName) |> 
+      relocate(Fluorophore, Sample, .before=1)
     
     return(Dataset)}
 }

@@ -1,28 +1,22 @@
 #' Visualizes Cluster MFI over time, uses Luciernaga_QC output 
 #' 
-#' @param data The LuciernagaQC data.frame style output with raw detector values. 
-#' @param columnname The columnname for Cluster, becomes the categorical defining lines and dots
-#' @param datename The column name for Experiment/Dates, becomes the x-axis
-#' @param Detector Default NULL, specify a detector, overrides the y-axis
+#' @param data The LuciernagaQC data.frame style output with raw
+#'  detector values. 
+#' @param columnname The columnname for Cluster, becomes the
+#'  categorical defining lines and dots
+#' @param datename The column name for Experiment/Dates, becomes
+#'  the x-axis
+#' @param Detector Default NULL, specify a detector, overrides
+#'  the y-axis
 #' @param plotType Something
 #' 
 #' @importFrom stringr str_detect
-#' @importFrom dplyr pull
+#' @importFrom dplyr pull arrange desc slice select
 #' @importFrom purrr map_chr
-#' @importFrom dplyr arrange
-#' @importFrom dplyr desc
-#' @importFrom dplyr slice
-#' @importFrom dplyr select
 #' @importFrom tidyselect all_of
-#' @importFrom ggplot2 ggplot
-#' @importFrom ggplot2 aes 
-#' @importFrom ggplot2 geom_line
-#' @importFrom ggplot2 geom_point
-#' @importFrom ggplot2 labs
-#' @importFrom ggplot2 theme_bw
-#' @importFrom ggplot2 theme
-#' @importFrom viridis scale_color_viridis
-#' @importFrom viridis scale_fill_viridis
+#' @importFrom ggplot2 ggplot aes geom_line geom_point
+#'  labs theme_bw theme
+#' @importFrom viridis scale_color_viridis scale_fill_viridis
 #' 
 #' @return A ggplot2 object
 #' 

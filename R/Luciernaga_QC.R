@@ -46,27 +46,15 @@
 #' @param Consolidate Default NULL, alternative Cluster character string to partly match to consolidate fcs_export
 #'
 #' @importFrom flowCore keyword
-#' @importFrom stringr str_detect
+#' @importFrom stringr str_detect str_split
 #' @importFrom flowWorkspace gs_pop_get_data
 #' @importFrom BiocGenerics nrow
 #' @importFrom flowCore exprs
-#' @importFrom dplyr mutate
-#' @importFrom dplyr select
-#' @importFrom dplyr arrange
-#' @importFrom dplyr desc
-#' @importFrom purrr map
-#' @importFrom dplyr bind_rows
-#' @importFrom dplyr pull
-#' @importFrom dplyr filter
+#' @importFrom dplyr mutate select arrange desc bind_rows pull filter
+#'  slice relocate left_join arrange
+#' @importFrom purrr map compact set_names
 #' @importFrom utils read.csv
-#' @importFrom stringr str_split
-#' @importFrom dplyr slice
 #' @importFrom tidyselect all_of
-#' @importFrom dplyr relocate
-#' @importFrom dplyr left_join
-#' @importFrom dplyr arrange
-#' @importFrom purrr set_names
-#' @importFrom purrr compact
 #'
 #' @return Additional information to be added
 #' @export

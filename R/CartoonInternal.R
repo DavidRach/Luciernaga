@@ -6,8 +6,10 @@
 #' @param data The reference data of fluorophore signatures
 #' @param legend Default TRUE, alternately removes plot legend
 #' @param plotname Default NULL, alternately specifies the plot title
-#' @param plotlinecolor Expects NULL, otherwise if single line provide desired color
-#' @param unstained Default NULL, alternatively adds corresponding unstained signature
+#' @param plotlinecolor Expects NULL, otherwise if single line provide
+#'  desired color
+#' @param unstained Default NULL, alternatively adds corresponding
+#'  unstained signature
 #' 
 #' @importFrom dplyr filter rename select mutate relocate
 #'  bind_cols bind_rows
@@ -37,7 +39,8 @@ CartoonInternal <- function(TheseFluorophores, TheFluorophore, data,
        }
 
         UnstainedData <- unstained |> select(where(is.numeric)) |>
-          pivot_longer(cols=everything(), names_to = "Detector", values_to="value") |>
+          pivot_longer(cols=everything(),
+         names_to = "Detector", values_to="value") |>
           mutate(Instrument="Existing", Fluorophore="Unstained") |>
           relocate(Instrument, Fluorophore, .before="Detector")
       } else {These <- c(TheFluorophore, TheseFluorophores)}
@@ -49,10 +52,12 @@ CartoonInternal <- function(TheseFluorophores, TheFluorophore, data,
   
       TheData$Detector <- gsub("-A", "", TheData$Detector)
 
-      Iterations <- TheData |> filter(Fluorophore %in% These[[1]]) %>% nrow()
+      Iterations <- TheData |>
+        filter(Fluorophore %in% These[[1]]) |> nrow()
 
       if (is.character(TheData$Detector)) {
-        MyVector <- TheData |> filter(Fluorophore %in% These[[1]]) |> pull(Detector)
+        MyVector <- TheData |> filter(Fluorophore %in% These[[1]]) |>
+          pull(Detector)
       }
 
       if (is.numeric(TheData$Detector)) {
@@ -72,27 +77,35 @@ CartoonInternal <- function(TheseFluorophores, TheFluorophore, data,
       } else {LegendLocation <- "none"}
   
       if (!is.null(plotlinecolor)){
-        ThePlot <- ggplot(TheData, aes(x=Detector, y=value, group=Fluorophore)) +
+        ThePlot <- ggplot(TheData,
+           aes(x=Detector, y=value, group=Fluorophore)) +
           geom_line(color = plotlinecolor) + theme_bw() +
-         labs(title=TheTitle, x=NULL, y=YAxisLabel) + geom_hline(yintercept = 1,
+         labs(title=TheTitle, x=NULL, y=YAxisLabel) +
+          geom_hline(yintercept = 1,
             linetype = "dashed", color = "red") +
          theme(plot.title = element_text(size = 8),
              legend.position = LegendLocation,
              axis.text.x = element_text(size = 6, angle = 45),
-             panel.grid = element_blank(), axis.ticks.x = element_blank(),
+             panel.grid = element_blank(),
+              axis.ticks.x = element_blank(),
              axis.title.y =  element_text(size=8)) +
-       scale_x_discrete(breaks = unique(TheData$Detector)[c(TRUE, rep(FALSE, 4))])
+       scale_x_discrete(
+        breaks = unique(TheData$Detector)[c(TRUE, rep(FALSE, 4))])
       } else {
-        ThePlot <- ggplot(TheData, aes(x=Detector, y=value, group=Fluorophore,
+        ThePlot <- ggplot(TheData, aes(x=Detector, y=value,
+           group=Fluorophore,
            color = Fluorophore)) + geom_line() + theme_bw() +
-          labs(title=TheTitle, x=NULL, y=YAxisLabel) + geom_hline(yintercept = 1,
+          labs(title=TheTitle, x=NULL, y=YAxisLabel) +
+          geom_hline(yintercept = 1,
              linetype = "dashed", color = "red") +
           theme(plot.title = element_text(size = 8),
               legend.position = LegendLocation,
               axis.text.x = element_text(size = 6, angle = 45),
-              panel.grid = element_blank(), axis.ticks.x = element_blank(),
+              panel.grid = element_blank(),
+               axis.ticks.x = element_blank(),
               axis.title.y =  element_text(size=8)) +
-        scale_x_discrete(breaks = unique(TheData$Detector)[c(TRUE, rep(FALSE, 4))])
+        scale_x_discrete(breaks = unique(
+          TheData$Detector)[c(TRUE, rep(FALSE, 4))])
         } 
   
       return(ThePlot)

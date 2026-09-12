@@ -6,8 +6,7 @@
 #'
 #' @importFrom purrr flatten
 #' @importFrom plotly ggplotly
-#' @importFrom htmltools tagList
-#' @importFrom htmltools div
+#' @importFrom htmltools tagList div
 #'
 #' @return An internal value
 #'

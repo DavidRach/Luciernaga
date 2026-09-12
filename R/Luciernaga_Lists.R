@@ -1,7 +1,9 @@
 #' Generate Luciernaga plot outputs from List of List
 #'
-#' @param ListOfList A list containing the returns from Luciernaga_Plots plot option.
-#' @param SecondaryList Default NULL, if given a list will incorporate the plot in.
+#' @param ListOfList A list containing the returns from Luciernaga_Plots 
+#' plot option.
+#' @param SecondaryList Default NULL, if given a list will incorporate
+#'  the plot in.
 #' @param PlotType Whether "html" or "pdf"
 #' @param thecolumns The number of columns per page
 #' @param therows The number of rows per page
@@ -18,9 +20,10 @@
 #' @export
 #'
 #' @examples NULL
-Luciernaga_Lists <- function(ListOfList, SecondaryList=NULL, PlotType,
-                             thecolumns=2, therows=3, width=7, height=9,
-                             ReturnFolder, CurrentExperiment){
+Luciernaga_Lists <- function(ListOfList, SecondaryList=NULL,
+  PlotType, thecolumns=2, therows=3, width=7, height=9,
+  ReturnFolder, CurrentExperiment){
+  
   FullLength <- length(ListOfList)
 
   indices <- length(ListOfList[[1]])
@@ -35,9 +38,9 @@ Luciernaga_Lists <- function(ListOfList, SecondaryList=NULL, PlotType,
 
   if (PlotType == "pdf"){
 
-    Utility_Patchwork(x=Transposed, filename=CurrentExperiment, outfolder=ReturnFolder,
-                      thecolumns=thecolumns, therows=therows, width=width, height=height,
-                      returntype="pdf", NotListofList = FALSE)
+    Utility_Patchwork(x=Transposed, filename=CurrentExperiment,
+      outfolder=ReturnFolder, thecolumns=thecolumns, therows=therows,
+      width=width, height=height, returntype="pdf", NotListofList = FALSE)
   }
 
   if (PlotType == "html"){

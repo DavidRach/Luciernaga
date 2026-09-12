@@ -5,13 +5,7 @@
 #' @param timewindow The number  desired months
 #' 
 #' @importFrom purrr map2
-#' @importFrom dplyr bind_rows
-#' @importFrom dplyr mutate
-#' @importFrom dplyr filter
-#' @importFrom dplyr pull
-#' @importFrom dplyr group_by
-#' @importFrom dplyr slice
-#' @importFrom dplyr ungroup
+#' @importFrom dplyr bind_rows mutate filter pull group_by slice ungroup  
 #' @importFrom tidyr pivot_wider
 #'
 #' @return Data ready for gt coloring

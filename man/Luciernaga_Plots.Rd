@@ -25,7 +25,8 @@ Luciernaga_Plots(
 \arguments{
 \item{data}{The data.frame output from LuciernagaQC}
 
-\item{RetainedType}{Whether the data.frame contains "raw" or "normalized" values}
+\item{RetainedType}{Whether the data.frame contains "raw" or
+"normalized" values}
 
 \item{CellPopRatio}{What mininum ratio needed to retain cluster.}
 
@@ -33,7 +34,8 @@ Luciernaga_Plots(
 
 \item{filename}{The name you want to save your .pdf file as.}
 
-\item{LinePlots}{Passed to Utility_Patchwork for "pdf" or "patchwork" or "plots"}
+\item{LinePlots}{Passed to Utility_Patchwork for "pdf" or
+"patchwork" or "plots"}
 
 \item{CosinePlots}{Return this kind of plot, default is set to TRUE}
 
@@ -43,7 +45,8 @@ Luciernaga_Plots(
 
 \item{returntype}{Return "pdf", "patchwork" or "plots"}
 
-\item{reference}{path or data.frame containing Fluorophore column for ordering}
+\item{reference}{path or data.frame containing Fluorophore column
+for ordering}
 
 \item{thecolumns}{The number of columns per page}
 

@@ -11,18 +11,9 @@
 #' @param LocalMaximaRatio Height of peaks to proceed
 #' @param SecondaryPeaks Number of Secondary Peaks, default is set to 2.
 #'
-#' @importFrom dplyr filter
-#' @importFrom dplyr select
-#' @importFrom tidyselect all_of
-#' @importFrom dplyr mutate
-#' @importFrom dplyr across
-#' @importFrom tidyselect where
-#' @importFrom dplyr relocate
-#' @importFrom dplyr arrange
-#' @importFrom dplyr left_join
-#' @importFrom dplyr pull
-#' @importFrom dplyr case_when
-#' @importFrom dplyr near
+#' @importFrom dplyr filter select mutate across relocate
+#'  arrange left_join pull case_when near
+#' @importFrom tidyselect all_of where
 #' @importFrom utils head
 #'
 #' @return An internal value

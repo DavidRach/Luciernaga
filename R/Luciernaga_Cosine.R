@@ -1,8 +1,12 @@
-#' Generates cosine comparison from a data.frame of fluorescent signatures
+#' Generates cosine comparison from a data.frame of fluorescent 
+#' signatures
 #'
-#' @param data A data.frame with a single name column and rest numeric columns
-#' @param returntype Default returns "plot", alternatively "data" for underlying data
-#' @param rearrange Whether to rearrange the plot to group similar signatures
+#' @param data A data.frame with a single name column and rest
+#'  numeric columns
+#' @param returntype Default returns "plot", alternatively "data"
+#'  for underlying data
+#' @param rearrange Whether to rearrange the plot to group similar
+#'  signatures
 #' @param colorlow Default "lightblue"
 #' @param colorhigh Default "orange"
 #' @param limitlow Default 0.4
@@ -13,16 +17,8 @@
 #' @importFrom tidyselect where
 #' @importFrom lsa cosine
 #' @importFrom reshape2 melt
-#' @importFrom ggplot2 ggplot
-#' @importFrom ggplot2 geom_tile
-#' @importFrom ggplot2 scale_fill_gradient
-#' @importFrom ggplot2 aes
-#' @importFrom ggplot2 theme_bw
-#' @importFrom ggplot2 geom_text
-#' @importFrom ggplot2 coord_fixed
-#' @importFrom ggplot2 theme
-#' @importFrom ggplot2 element_blank
-#' @importFrom ggplot2 element_text
+#' @importFrom ggplot2 ggplot geom_tile  scale_fill_gradient aes
+#'  theme_bw geom_text coord_fixed theme element_blank element_text
 #'
 #' @return Either a ggplot or matrix object
 #' @export
@@ -95,8 +91,9 @@ Luciernaga_Cosine <- function(data, returntype="plot", rearrange=TRUE,
     if (legend == TRUE){
     CosinePlot <- ggplot(MeltedCosine, aes(Var2, Var1, fill = value)) +
       geom_tile(color = "white") +
-      scale_fill_gradient(low = colorlow, high = colorhigh, limit = c(limitlow,limithigh),
-                           space = "Lab", name="Cosine\nSimilarity") +
+      scale_fill_gradient(low = colorlow, high = colorhigh,
+         limit = c(limitlow,limithigh),
+        space = "Lab", name="Cosine\nSimilarity") +
       theme_bw() + geom_text(aes(Var2, Var1, label = value), color = "black",
                              size = 2) + coord_fixed(ratio = 1.3) +
       theme(axis.title.x = element_blank(), axis.title.y = element_blank(),
@@ -110,15 +107,24 @@ Luciernaga_Cosine <- function(data, returntype="plot", rearrange=TRUE,
     } else {
       CosinePlot <- ggplot(MeltedCosine, aes(Var2, Var1, fill = value)) +
         geom_tile(color = "white") +
-        scale_fill_gradient(low = colorlow, high = colorhigh, limit = c(limitlow,limithigh),
+        scale_fill_gradient(low = colorlow,
+           high = colorhigh,
+            limit = c(limitlow,limithigh),
                              space = "Lab", name="Cosine\nSimilarity") +
-        theme_bw() + geom_text(aes(Var2, Var1, label = value), color = "black",
-                               size = 2) + coord_fixed(ratio = 1.3) +
-        theme(axis.title.x = element_blank(), axis.title.y = element_blank(),
-              panel.grid.major = element_blank(), panel.border = element_blank(),
-              panel.background = element_blank(), axis.ticks = element_blank(),
-              legend.position= "none", axis.text.x = element_text(
-                angle = 45, vjust = 1, hjust = 1, size = 6),
+        theme_bw() + geom_text(
+          aes(Var2, Var1, label = value), color = "black",
+                               size = 2) +
+        coord_fixed(ratio = 1.3) +
+        theme(axis.title.x = element_blank(),
+       axis.title.y = element_blank(),
+              panel.grid.major = element_blank(),
+               panel.border = element_blank(),
+              panel.background = element_blank(),
+               axis.ticks = element_blank(),
+              legend.position= "none",
+               axis.text.x = element_text(
+                angle = 45, vjust = 1,
+                 hjust = 1, size = 6),
               axis.text.y = element_text(size = 6),
               legend.key.size = unit(0.4, "cm"))
     }

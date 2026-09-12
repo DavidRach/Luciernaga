@@ -2,13 +2,10 @@
 #'
 #' @param data Assembled data for cytometer pass fails past three months
 #'
-#' @importFrom gt gt
-#' @importFrom gt data_color
+#' @importFrom gt gt data_color sub_values opt_table_font cols_align
 #' @importFrom tidyselect everything
 #' @importFrom scales col_factor
-#' @importFrom gt sub_values
-#' @importFrom gt opt_table_font
-#' @importFrom gt cols_align
+#' 
 #' @noRd
 SmallTableGlobal <- function(data){
   table <- data %>%

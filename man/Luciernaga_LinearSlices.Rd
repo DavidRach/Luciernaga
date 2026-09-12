@@ -2,7 +2,8 @@
 % Please edit documentation in R/Luciernaga_LinearSlices.R
 \name{Luciernaga_LinearSlices}
 \alias{Luciernaga_LinearSlices}
-\title{Takes a Lucierna SingleColorQC .fcs, splits into percentiles, and plots the results.}
+\title{Takes a Lucierna SingleColorQC .fcs, splits into percentiles, and plots
+ the results.}
 \usage{
 Luciernaga_LinearSlices(
   x,
@@ -36,12 +37,15 @@ Luciernaga_LinearSlices(
 
 \item{returntype}{Whether to return a "raw" or "normalized" value lineplot.}
 
-\item{probsratio}{Ratio increments to break quantiles into, default is set to 0.1.}
+\item{probsratio}{Ratio increments to break quantiles into, default is set
+to 0.1.}
 
 \item{output}{Whether to return "plot" or "data"}
 
-\item{desiredAF}{Peak detector(ex. "V7-A") want to filter cells by before slicing, argument
-only used to override the main peak detector when a .fcs file has more than a single peak
+\item{desiredAF}{Peak detector(ex. "V7-A") want to filter cells by before 
+slicing, argument
+only used to override the main peak detector when a .fcs file has more than
+ a single peak
 detector, default is set to NULL}
 
 \item{legend}{Returns the legend, default is TRUE.}
@@ -50,7 +54,8 @@ detector, default is set to NULL}
 
 \item{titlename}{Default NULL, otherwise provide an alternate title.}
 
-\item{returncutplot}{Default FALSE, if true returns a histogram plot with locations
+\item{returncutplot}{Default FALSE, if true returns a histogram plot with
+locations
 where percentile slice occured.}
 
 \item{titleplot}{Default NULL, sets the returncutplot title}
@@ -61,7 +66,8 @@ where percentile slice occured.}
 Either ggplots or the summarized data.frame object preceding
 }
 \description{
-Takes a Lucierna SingleColorQC .fcs, splits into percentiles, and plots the results.
+Takes a Lucierna SingleColorQC .fcs, splits into percentiles, and plots
+ the results.
 }
 \examples{
 

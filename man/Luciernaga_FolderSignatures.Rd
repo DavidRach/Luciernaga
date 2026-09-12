@@ -21,19 +21,23 @@ Luciernaga_FolderSignatures(
 \arguments{
 \item{FolderPath}{Location of the Luciernaga_QC .fcs outputs}
 
-\item{sample.name}{The keyword where the identifying sample name can be found}
+\item{sample.name}{The keyword where the identifying sample name 
+can be found}
 
-\item{StringRemoval}{Default NULL, provide to remove items from sample.name
+\item{StringRemoval}{Default NULL, provide to remove items from
+ sample.name
 based on values found on the keyword}
 
-\item{fluorophore.name}{Specify the name of the fluorophore, alternatively NULL}
+\item{fluorophore.name}{Specify the name of the fluorophore,
+alternatively NULL}
 
 \item{Verbose}{Default FALSE, provides info as it goes}
 
 \item{stats}{Whether to use median or mean}
 
 \item{PanelCuts}{Default NULL, provide a c(0.5,1) argument to specify 
-the brightness percentiles to retrieve signature from for the individual files}
+the brightness percentiles to retrieve signature from for the
+individual files}
 
 \item{normalize}{Default TRUE, whether to return normalized or
 raw averaged MFI signatures}

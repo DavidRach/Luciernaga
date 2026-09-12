@@ -13,8 +13,9 @@
 #' @return An internal value
 #'
 #' @noRd
-ConditionWrap <- function(x, name, Date, TotalCells, RestConcentration, FinalConcentration, CellsPerTube,
-                          TheConditions){
+ConditionWrap <- function(x, name, Date, TotalCells,
+  RestConcentration, FinalConcentration, CellsPerTube,
+  TheConditions){
 
   Condition <- x
 
@@ -30,11 +31,14 @@ ConditionWrap <- function(x, name, Date, TotalCells, RestConcentration, FinalCon
   if (MediaVolToAddML < 0){SpinDown <- FALSE
   } else {SpinDown <- TRUE}
 
-  FinalConcentration <- format(FinalConcentration, scientific=TRUE, digits=2)
-  CellsPerTube <- format(CellsPerTube, scientific=TRUE, digits=2)
+  FinalConcentration <- format(FinalConcentration,
+     scientific=TRUE, digits=2)
+  CellsPerTube <- format(CellsPerTube,
+     scientific=TRUE, digits=2)
 
-  PreliminaryData <- cbind(name, Date, Condition, TotalCells, RestConcentration, FinalConcentration,
-                           RestVolToAddML, MediaVolToAddML, CellsPerTube, FinalVolumeML)
+  PreliminaryData <- cbind(name, Date, Condition, TotalCells,
+    RestConcentration, FinalConcentration, RestVolToAddML,
+    MediaVolToAddML, CellsPerTube, FinalVolumeML)
 
   PreliminaryData <- data.frame(PreliminaryData, check.names=FALSE)
   return(PreliminaryData)

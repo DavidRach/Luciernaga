@@ -1,4 +1,5 @@
-#' Similar to CytosetScreen, checks for mismatching cytoframes that throw inconvenient errors
+#' Similar to CytosetScreen, checks for mismatching cytoframes that
+#'  throw inconvenient errors
 #' 
 #' @param gs A gating set object
 #' @param gatingtemplate The gating template object

@@ -2,9 +2,9 @@
 % Please edit documentation in R/MarginClean.R
 \name{MarginClean}
 \alias{MarginClean}
-\title{Adds openCyto boundary gates at designated location, selectively cleaning out margin
-events that mess with various algorithms. Can return template for redo editing, as well
-as returns plots for troubleshooting.}
+\title{Adds openCyto boundary gates at designated location, selectively cleaning
+ out margin events that mess with various algorithms. Can return template
+ for redo editing, as well as returns plots for troubleshooting.}
 \usage{
 MarginClean(
   gs,
@@ -27,7 +27,8 @@ MarginClean(
 \arguments{
 \item{gs}{The GatingSet object you want to clean margins on}
 
-\item{desiredCols}{Provide a vector of fluorophore names to clean margins for
+\item{desiredCols}{Provide a vector of fluorophore names to clean margins
+for
 (see colnames(gs)), default NULL cleans margins for all fluorophores}
 
 \item{subset}{Subset at which to start margin cleanup, default is root.}
@@ -48,7 +49,8 @@ returnTemplate .csv from the inpath location and uses for the openCyto gating}
 \item{returnPlots}{Default is FALSE, when TRUE, returns a pdf of margin clean
 events to the outpath to verify didn't cut of the population of interest.}
 
-\item{Verbose}{Default is FALSE, will print to console the frequency of retained
+\item{Verbose}{Default is FALSE, will print to console the frequency of
+retained
 cells after margin cleanup for each specimen}
 
 \item{inpath}{Default NULL, alternatively a file.path to the template.csv
@@ -63,17 +65,19 @@ returnPlot objects}
 \item{yaxis}{Sets yaxis fluorophore on returnPlots, the default NULL utilizes
 the first fluorophore in the panel}
 
-\item{sample.name}{Used when returningPlots, default NULL uses TUBENAME as the keyword
+\item{sample.name}{Used when returningPlots, default NULL uses TUBENAME as
+ the keyword
 value provided when retrieving sample name for plot titles.}
 
-\item{inverse.transform}{Default is FALSE, retaining input GatingSet transformation setting}
+\item{inverse.transform}{Default is FALSE, retaining input GatingSet
+transformation setting}
 }
 \value{
-A margin cleaned GatingSet, alternatively an openCyto template or visualized 
-cleaned data
+A margin cleaned GatingSet, alternatively an openCyto template 
+or visualized cleaned data
 }
 \description{
-Adds openCyto boundary gates at designated location, selectively cleaning out margin
-events that mess with various algorithms. Can return template for redo editing, as well
-as returns plots for troubleshooting.
+Adds openCyto boundary gates at designated location, selectively cleaning
+ out margin events that mess with various algorithms. Can return template
+ for redo editing, as well as returns plots for troubleshooting.
 }

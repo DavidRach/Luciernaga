@@ -3,14 +3,13 @@
 #' @param x The instrument designation
 #' @param data The QC status data.frame
 #'
-#' @importFrom dplyr filter
-#' @importFrom dplyr pull
+#' @importFrom dplyr filter pull 
 #'
 #' @return A hex code to fill with
 #' @noRd
 ColorCode <- function(x, data){
 
-  Color <- data %>% dplyr::filter(Instrument %in% x) %>%
+  Color <- data |> dplyr::filter(Instrument %in% x) |>
     pull(QCStatus)
 
   Hex <- "#FFFFFF"

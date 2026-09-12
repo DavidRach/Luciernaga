@@ -18,9 +18,9 @@
 InternalUnmix <- function(cs, StashedDF, TheData, Ligands){
   fr <- cs[[1, returnType = "flowFrame"]]
   ParamData <- fr@parameters@data
-  FluorData <- ParamData %>% filter(!str_detect(name, "Time|FSC|SSC")) %>%
+  FluorData <- ParamData |> filter(!str_detect(name, "Time|FSC|SSC")) |>
     slice(1)
-  ParamData <- ParamData %>% filter(str_detect(name, "Time|FSC|SSC"))
+  ParamData <- ParamData |> filter(str_detect(name, "Time|FSC|SSC"))
 
   NewColStart <- ncol(StashedDF)
   AllCols <- ncol(TheData)
@@ -54,9 +54,10 @@ InternalUnmix <- function(cs, StashedDF, TheData, Ligands){
   DisplayParams <- new_kw[grepl("^\\P\\d+DISPLAY\\d*", names(new_kw))]
   TypeParams <- new_kw[grepl("^\\$P\\d+TYPE\\d*", names(new_kw))]
 
-  DescriptionData <- cbind(NameParams, VoltageParams, DisplayParams, TypeParams)
+  DescriptionData <- cbind(NameParams, VoltageParams,
+     DisplayParams, TypeParams)
   DescriptionData <- as.data.frame(DescriptionData)
-  DescriptionData <- DescriptionData %>%
+  DescriptionData <- DescriptionData |>
     filter(str_detect(NameParams, "Time|FSC|SSC|B1-A"))
   DescriptionData <- DescriptionData %>% unnest(cols = where(is.list))
   #DescriptionData
@@ -79,7 +80,8 @@ InternalUnmix <- function(cs, StashedDF, TheData, Ligands){
     if (!str_detect(TheName, "Time|FSC|SSC")) {Test[paste0(i,"V")] <- "0"
     } else {
       if (str_detect(TheName, "FSC|SSC")){
-        Voltage <- DescriptionData %>% filter(NameParams %in% TheName) %>%
+        Voltage <- DescriptionData |>
+          filter(NameParams %in% TheName) |>
           pull(VoltageParams)
         Test[paste0(i,"V")] <- Voltage
       }

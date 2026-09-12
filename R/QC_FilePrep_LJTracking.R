@@ -7,17 +7,10 @@
 #' @param DailyQC A single DailyQCReport .csv file, used to import baseline settings.
 #'
 #' @importFrom purrr map2
-#' @importFrom tidyr pivot_longer
-#' @importFrom tidyr pivot_wider
-#' @importFrom tidyselect all_of
-#' @importFrom dplyr "%>%"
-#' @importFrom dplyr mutate
-#' @importFrom dplyr select
-#' @importFrom dplyr left_join
-#' @importFrom dplyr case_when
-#' @importFrom dplyr bind_cols
-#' @importFrom dplyr across
-#' @importFrom tidyselect everything
+#' @importFrom tidyr pivot_longer pivot_wider
+#' @importFrom tidyselect all_of everything
+#' @importFrom dplyr "%>%" mutate select left_join case_when
+#'  bind_cols across
 #' @importFrom lubridate mdy_hms
 #'
 #' @return A dataframe.

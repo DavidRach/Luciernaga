@@ -1,28 +1,30 @@
-#' Internal LuciernagaQC detects Fluorophore Peak Detectors by Local Maxima
+#' Internal LuciernagaQC detects Fluorophore Peak Detectors by
+#'  Local Maxima
 #'
 #' @param theX A vector of detectors from 1:n
-#' @param theY The corresponding y values corresponding to the measurements
-#' of theX
-#' @param therepeats Additional values to temporarily add to the edges to
-#' allow for peak detection
+#' @param theY The corresponding y values corresponding to the
+#'  measurements of theX
+#' @param therepeats Additional values to temporarily add to the
+#'  edges to allow for peak detection
 #' @param w The span around which rolling will happen
-#' @param alternatename The cleaned up name passed to the plots (internal)
+#' @param alternatename The cleaned up name passed to the plots
+#'  (internal)
 #' @param Verbose Whether to print line plot outputs
 #' @param ... Additional arguments passed to zoo package
 #'
 #' @importFrom stats loess
-#' @importFrom zoo rollapply
-#' @importFrom zoo zoo
+#' @importFrom zoo rollapply zoo
 #' @importFrom dplyr filter
-#' @importFrom ggplot2 ggplot
+#' @importFrom ggplot2 ggplot geom_segment geom_point geom_line
+#'  aes labs theme theme_bw element_blank
 #' @importFrom dplyr select
-#' @importFrom ggplot2 geom_segment
+
 #'
 #' @return A value to be determined later
 #'
 #' @noRd
-LocalMaxima <- function(theX, theY, therepeats, w, alternatename,
-                        Verbose = FALSE, ...){
+LocalMaxima <- function(theX, theY, therepeats, w,
+   alternatename, Verbose = FALSE, ...){
 
   #Adding Margins
   repeats <- therepeats*2
@@ -46,13 +48,13 @@ LocalMaxima <- function(theX, theY, therepeats, w, alternatename,
   delta <- y.max - y.smooth[-c(1:w, n+1-1:w)]
   i.max <- which(delta <= 0) + w
   peaks <- list(x=x[i.max]-therepeats, i=i.max-therepeats,
-                y.hat=y.smooth[(therepeats + 1):(length(y.smooth) - therepeats)])
+    y.hat=y.smooth[(therepeats + 1):(length(y.smooth) - therepeats)])
 
   peak_points <- peaks$x
 
   MainData <- data.frame(x = theX, y = theY, yhat = peaks$y.hat)
 
-  PointData <- MainData %>% filter(x %in% peak_points)
+  PointData <- MainData |> filter(x %in% peak_points)
 
   Views <- ggplot(MainData, aes(x = x, y = y)) +
     geom_point(size = 2, color = "Gray") +
@@ -63,14 +65,14 @@ LocalMaxima <- function(theX, theY, therepeats, w, alternatename,
                  color = "Red", linewidth = 1, linetype = "dashed") +
     labs(title = alternatename) + theme_bw() +
     theme(plot.title = element_text(hjust = 0.5),
-          axis.title.x = element_blank(), axis.title.y = element_blank(),
-          panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+      axis.title.x = element_blank(), axis.title.y = element_blank(),
+      panel.grid.major = element_blank(), panel.grid.minor = element_blank())
 
   if (Verbose == TRUE) {#YNW(Views)
                         Views
     }
 
-  PointData <- PointData %>% select(-y)
+  PointData <- PointData |> select(-y)
 
   return(PointData)
 }

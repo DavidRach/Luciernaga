@@ -5,17 +5,9 @@
 #' @param legend Default is "right", use "none"
 #' @param transpose Default is FALSE, flips orientation
 #'
-#' @importFrom ggplot2 ggplot
-#' @importFrom ggplot2 aes
-#' @importFrom ggplot2 geom_tile
-#' @importFrom ggplot2 geom_text
-#' @importFrom ggplot2 theme_bw
-#' @importFrom ggplot2 scale_fill_gradient
-#' @importFrom ggplot2 theme
-#' @importFrom ggplot2 element_text
-#' @importFrom ggplot2 element_line
-#' @importFrom ggplot2 element_blank
-#' @importFrom ggplot2 coord_fixed
+#' @importFrom ggplot2 ggplot aes geom_tile geom_text coord_fixed 
+#'  element_blank theme_bw scale_fill_gradient theme element_blank 
+#'  element_text element_line
 #'
 #' @noRd
 StackedReportHeatmap <- function(data, nameColumn, legend, transpose){

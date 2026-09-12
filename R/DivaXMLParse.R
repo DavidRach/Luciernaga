@@ -3,11 +3,8 @@
 #' 
 #' @param x A .xml file from BD Diva Software
 #' 
-#' @importFrom xml2 read_xml
-#' @importFrom xml2 xml_children
-#' @importFrom xml2 xml_find_all
-#' @importFrom purrr map
-#' @importFrom purrr compact
+#' @importFrom xml2 read_xml xml_children xml_find_all
+#' @importFrom purrr map compact 
 #' @importFrom dplyr bind_rows
 #' 
 #' @return A data.frame row containing the parsed data

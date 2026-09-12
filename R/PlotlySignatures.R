@@ -5,13 +5,7 @@
 #' @importFrom tidyr pivot_longer
 #' @importFrom dplyr pull
 #' @importFrom tidyselect where
-#' @importFrom ggplot2 ggplot
-#' @importFrom ggplot2 aes
-#' @importFrom ggplot2 geom_line
-#' @importFrom ggplot2 labs
-#' @importFrom ggplot2 theme_bw
-#' @importFrom ggplot2 theme
-#' @importFrom ggplot2 element_text
+#' @importFrom ggplot2 ggplot aes geom_line labs theme_bw theme element_text
 #' @importFrom plotly ggplotly
 #'
 #' @return An interactive plotly object of the line signatures

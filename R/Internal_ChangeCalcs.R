@@ -1,11 +1,9 @@
 #' Internal for CytekQCFilePrep
 #'
 #' @importFrom purrr map
-#' @importFrom dplyr select
-#' @importFrom dplyr rename
+#' @importFrom dplyr select rename
 #' @importFrom tidyr starts_with
-#' @importFrom lubridate mdy_hms
-#' @importFrom lubridate mdy_hm
+#' @importFrom lubridate mdy_hms mdy_hm
 #'
 #' @return An internal value
 #'

@@ -7,9 +7,7 @@
 #' @param TheY The passed argument for the Y axis
 #' @param TheFill The passed argument for the Fill color by factor.
 #'
-#' @importFrom ggcyto ggcyto
-#' @importFrom ggcyto axis_x_inverse_trans
-#' @importFrom ggcyto as.ggplot
+#' @importFrom ggcyto ggcyto  axis_x_inverse_trans  as.ggplot
 #' @importFrom ggridges geom_density_ridges
 #' @importFrom ggplot2 facet_null
 #'

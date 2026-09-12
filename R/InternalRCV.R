@@ -4,8 +4,7 @@
 #' @param data The data.frame of exprs values
 #' 
 #' @importFrom dplyr select
-#' @importFrom stats mad
-#' @importFrom stats median
+#' @importFrom stats mad median
 #' 
 #' @return An RCV for the individual marker
 #' 

@@ -2,10 +2,11 @@
 #' Simulation function to approximate fluorophore drift
 #' 
 #' @param Residual The output of SignatureShifts
-#' @param NumberDetectors Number of detectors corresponding to your cytometer
+#' @param NumberDetectors Number of detectors corresponding to
+#'  your cytometer
 #' @param TheFluoruophore The fluorophore of interest
-#' @param RestingMFI Value by which reference signature gets multiplied by for
-#' this simulation
+#' @param RestingMFI Value by which reference signature gets
+#'  multiplied by for this simulation
 #' @param legend Default FALSE, TRUE sets on right side plot
 #' 
 #' @importFrom dplyr filter mutate select left_join filter pull
@@ -16,11 +17,13 @@
 #' @return A signature plot of the reference control vs all. 
 #' 
 #' @noRd
-DriftedFluors <- function(Residual, NumberDetectors=64, TheFluorophore,
-  RestingMFI=100000, legend=FALSE){
+DriftedFluors <- function(Residual, NumberDetectors=64,
+     TheFluorophore, RestingMFI=100000, legend=FALSE){
  
- References <- Luciernaga:::InstrumentReferences(NumberDetectors=NumberDetectors)
- Internal <- References |> filter(Fluorophore %in% TheFluorophore) |>
+ References <- Luciernaga:::InstrumentReferences(
+     NumberDetectors=NumberDetectors)
+ Internal <- References |>
+      filter(Fluorophore %in% TheFluorophore) |>
       mutate(AdjustedY=AdjustedY*RestingMFI)
  
  FinalCol <- ncol(Residual)
@@ -44,8 +47,10 @@ DriftedFluors <- function(Residual, NumberDetectors=64, TheFluorophore,
  
  TheseDates <- Merge2 |> pull(TheSample) |> unique()
  
- Plot <- QC_ViewSignature(x=TheseDates, columnname="TheSample", data=Merge2,
-  TheFormat="longer", detectorcolumn = "Detector", valuecolumn = "Signature",
+ Plot <- QC_ViewSignature(x=TheseDates,
+      columnname="TheSample", data=Merge2,
+  TheFormat="longer", detectorcolumn = "Detector",
+     valuecolumn = "Signature",
   Normalize=FALSE, legend=legend)
 
  #plotly::ggplotly(Plot)

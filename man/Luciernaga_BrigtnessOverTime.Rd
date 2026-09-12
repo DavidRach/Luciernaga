@@ -13,13 +13,17 @@ Luciernaga_BrigtnessOverTime(
 )
 }
 \arguments{
-\item{data}{The LuciernagaQC data.frame style output with raw detector values.}
+\item{data}{The LuciernagaQC data.frame style output with raw
+detector values.}
 
-\item{columnname}{The columnname for Cluster, becomes the categorical defining lines and dots}
+\item{columnname}{The columnname for Cluster, becomes the
+categorical defining lines and dots}
 
-\item{datename}{The column name for Experiment/Dates, becomes the x-axis}
+\item{datename}{The column name for Experiment/Dates, becomes
+the x-axis}
 
-\item{Detector}{Default NULL, specify a detector, overrides the y-axis}
+\item{Detector}{Default NULL, specify a detector, overrides
+the y-axis}
 
 \item{plotType}{Something}
 }

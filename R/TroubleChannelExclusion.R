@@ -1,7 +1,6 @@
 #' Internal for LuciernagaQC
 #'
-#' @importFrom dplyr filter
-#' @importFrom dplyr pull
+#' @importFrom dplyr filter pull
 #'
 #' @return An internal value
 #'

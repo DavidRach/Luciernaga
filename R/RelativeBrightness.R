@@ -2,19 +2,12 @@
 #'
 #' @param x A data.frame containing column Cluster
 #'
-#' @importFrom dplyr mutate
+#' @importFrom dplyr mutate relocate across rename_with relocate
+#'  select pull bind_rows
 #' @importFrom stringr str_split
-#' @importFrom dplyr relocate
-#' @importFrom tidyr unnest_wider
-#' @importFrom dplyr across
-#' @importFrom tidyr starts_with
-#' @importFrom dplyr rename_with
+#' @importFrom tidyr unnest_wider starts_with
 #' @importFrom tidyselect ends_with
-#' @importFrom dplyr relocate
-#' @importFrom dplyr select
-#' @importFrom dplyr pull
-#' @importFrom purrr map
-#' @importFrom dplyr bind_rows
+#' @importFrom purrr map 
 #'
 #' @return A value to be determined later
 #'

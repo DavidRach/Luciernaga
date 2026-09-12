@@ -5,15 +5,8 @@
 #' @param NumberFluors Desired number of additional fluorophores in the matrix
 #'
 #' @importFrom stringr str_count
-#' @importFrom dplyr select
-#' @importFrom dplyr filter
-#' @importFrom dplyr pull
-#' @importFrom dplyr group_by
-#' @importFrom dplyr ungroup
-#' @importFrom dplyr arrange
-#' @importFrom dplyr slice
-#' @importFrom dplyr slice_sample
-#' @importFrom dplyr desc
+#' @importFrom dplyr select filter pull group_by ungroup arrange
+#'  slice slice_sample desc
 #' @importFrom tidyr pivot_wider
 #'
 #' @return A data.frame of the normalized signatures for the randomly selected fluorophores

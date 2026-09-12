@@ -8,21 +8,12 @@
 #' @param returnSynonyms Something
 #' @param plotlinecolor Default NULL, otherwise if single line provide desired color
 #' 
-#' @importFrom dplyr filter
-#' @importFrom dplyr slice
-#' @importFrom dplyr mutate
-#' @importFrom dplyr pull
-#' @importFrom dplyr select
-#' @importFrom dplyr group_by
+#' @importFrom dplyr filter slice mutate pull select group_by
+#'  ungroup bind_rows arrange slice_head
 #' @importFrom tidyr pivot_wider
-#' @importFrom dplyr ungroup
-#' @importFrom dplyr bind_rows
-#' @importFrom tidyselect where
+#' @importFrom tidyselect where starts_with
 #' @importFrom lsa cosine
 #' @importFrom tibble rownames_to_column
-#' @importFrom tidyselect starts_with
-#' @importFrom dplyr arrange
-#' @importFrom dplyr slice_head
 #'
 #' @returns A dataframe of similar fluorophores
 #' @export

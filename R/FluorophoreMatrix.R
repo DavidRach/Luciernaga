@@ -2,18 +2,18 @@
 #' a corresponding Cytek Aurora matrix for inter/intra comparisons
 #' 
 #' @param data A path to the .csv or a data.frame object
-#' @param NumberDetectors The corresponding number of detectors for the Cytek Aurora
+#' @param NumberDetectors The corresponding number of detectors
+#'  for the Cytek Aurora
 #' @param returnType Default is plot
 #' 
 #' @importFrom utils read.csv
 #' @importFrom dplyr pull filter group_by arrange desc slice
 #'  select ungroup mutate left_join across rename_with full_join
 #' @importFrom stringr str_extract str_replace
-#' @importFrom tidyselect everything
+#' @importFrom tidyselect everything all_of
 #' @importFrom tidyr replace_na
 #' @importFrom purrr imap reduce
 #' @importFrom stats setNames
-#' @importFrom tidyselect all_of
 #' @importFrom gt gt tab_style cell_text cells_body cols_width
 #'  cols_label px
 #' 

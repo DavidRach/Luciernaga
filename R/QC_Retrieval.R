@@ -6,12 +6,9 @@
 #'
 #' @importFrom flowCore keyword
 #' @importFrom purrr map2
-#' @importFrom dplyr bind_cols
-#' @importFrom dplyr mutate
-#' @importFrom dplyr across
+#' @importFrom dplyr bind_cols mutate across
 #' @importFrom tidyselect everything
-#' @importFrom lubridate dmy
-#' @importFrom lubridate hms
+#' @importFrom lubridate dmy hms
 #'
 #' @return A dataframe row
 #' @export

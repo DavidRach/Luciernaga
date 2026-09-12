@@ -10,16 +10,17 @@
 #' @param FullStainedGS The GatingSet containing the full-stained samples
 #'  you want to iteratively unmix
 #' @param sample.name Keyword storing the samples name
-#' @param removestrings  A list of character strings to remove from sample.name
-#' @param subset What population to retrieve from the GatingSet, default is root.
-#' @param returnType Default is set to "data", alternate "flowframe" and "fcs"
+#' @param removestrings  A list of character strings to remove from
+#'  sample.name
+#' @param subset What population to retrieve from the GatingSet,
+#'  default is root.
+#' @param returnType Default is set to "data", alternate "flowframe"
+#'  and "fcs"
 #' @param outpath Desired storage location
-#' @param PanelPath Path to a reference panel for ordering of column markers in unmixed file
+#' @param PanelPath Path to a reference panel for ordering of column
+#'  markers in unmixed file
 #'
-#' @importFrom dplyr filter
-#' @importFrom dplyr pull
-#' @importFrom dplyr select
-#' @importFrom dplyr bind_cols
+#' @importFrom dplyr filter pull select bind_cols
 #' @importFrom tidyselect where
 #' @importFrom purrr map
 #'

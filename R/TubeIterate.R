@@ -3,16 +3,12 @@
 #' 
 #' @param x An iterated xml_node corresponding to the tube
 #' 
-#' @importFrom xml2 xml_children
-#' @importFrom xml2 xml_name
+#' @importFrom xml2 xml_children xml_name xml_text xml_find_all
+#'  xml_attr
 #' @importFrom lubridate ymd_hms
-#' @importFrom xml2 xml_text
-#' @importFrom xml2 xml_find_all
-#' @importFrom xml2 xml_attr
 #' @importFrom purrr map2
-#' @importFrom dplyr bind_rows
+#' @importFrom dplyr bind_rows select
 #' @importFrom tidyr pivot_wider
-#' @importFrom dplyr select
 #' 
 #' @return A data.frame row containing the parsed data
 #' 

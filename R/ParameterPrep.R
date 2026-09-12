@@ -2,10 +2,7 @@
 #'
 #' @param x A data.frame with parameter column names in the correct order.
 #'
-#' @importFrom dplyr mutate
-#' @importFrom dplyr pull
-#' @importFrom dplyr case_when
-#' @importFrom dplyr row_number
+#' @importFrom dplyr mutate pull case_when row_number
 #'
 #' @return A data.frame with the parameter data
 #' @noRd

@@ -3,8 +3,7 @@
 #' @param x An iterated path to a .csv to be read.
 #'
 #' @param utils read.csv
-#' @param dplyr mutate
-#' @param dplyr relocate
+#' @param dplyr mutate relocate
 #'
 #' @return An internal value
 #'
@@ -15,5 +14,5 @@ CSVRead <- function(x){
   internalstrings <- c("RelativeBrightness", ".csv")
   name <- Luciernaga::NameCleanUp(name, removestrings=internalstrings)
   Data <- read.csv(x, check.names=FALSE)
-  Data <- Data %>% mutate(sample = name) %>% relocate(sample, .before=Cluster)
+  Data <- Data |> mutate(sample = name) |> relocate(sample, .before=Cluster)
 }

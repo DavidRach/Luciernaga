@@ -4,10 +4,8 @@
 #' @param TheInstrument Something
 #' @param TheSubset Something
 #' 
-#' @importFrom dplyr filter
-#' @importFrom dplyr pull
+#' @importFrom dplyr filter pull bind_rows
 #' @importFrom purrr map
-#' @importFrom dplyr bind_rows
 #' 
 #' @return A value of some form
 #' 

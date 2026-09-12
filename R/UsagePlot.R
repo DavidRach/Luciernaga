@@ -9,27 +9,10 @@
 #' @param textsizey Yaxis text size
 #' @param textsizex Xaxis text size
 #' 
-#' @importFrom dplyr filter
-#' @importFrom lubridate wday
-#' @importFrom lubridate hour
-#' @importFrom dplyr group_by
-#' @importFrom dplyr summarise
-#' @importFrom dplyr arrange
-#' @importFrom dplyr desc
-#' @importFrom dplyr pull
-#' @importFrom ggplot2 ggplot
-#' @importFrom ggplot2 aes
-#' @importFrom ggplot2 labs
-#' @importFrom ggplot2 geom_col
-#' @importFrom ggplot2 facet_grid
-#' @importFrom ggplot2 theme_bw
-#' @importFrom ggplot2 scale_x_continuous
-#' @importFrom ggplot2 theme
-#' @importFrom ggplot2 element_text
-#' @importFrom ggplot2 lims
-#' @importFrom lubridate floor_date
-#' @importFrom dplyr slice
-#' @importFrom lubridate hm
+#' @importFrom dplyr filter group_by summarise arrange desc pull slice
+#' @importFrom lubridate wday hour floor_date hm
+#' @importFrom ggplot2 ggplot aes labs geom_col facet_grid theme_bw
+#'  scale_x_continuous theme element_text lims
 #' 
 #' @return A ggplot2 object
 #' 

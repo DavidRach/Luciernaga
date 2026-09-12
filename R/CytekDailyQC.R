@@ -4,13 +4,8 @@
 #' @param outpath Default NULL, specifies location to store template .csv
 #' @param returnType Options data or csv (saved to outpath)
 #' 
-#' @importFrom lubridate ymd
-#' @importFrom lubridate hms
-#' @importFrom dplyr mutate
-#' @importFrom dplyr relocate
-#' @importFrom dplyr select
-#' @importFrom dplyr case_when
-#' @importFrom dplyr rename
+#' @importFrom lubridate ymd hms
+#' @importFrom dplyr mutate relocate select case_when rename
 #' @importFrom stringr str_detect
 #' @importFrom utils write.csv
 #'

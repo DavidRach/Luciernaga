@@ -2,15 +2,9 @@
 #'
 #' @param x The data.frame of exprs values (including time and scatters)
 #'
-#' @importFrom purrr map
-#' @importFrom purrr flatten
+#' @importFrom purrr map flatten
 #' @importFrom stringr str_detect
-#' @importFrom dplyr filter
-#' @importFrom dplyr pull
-#' @importFrom dplyr mutate
-#' @importFrom dplyr relocate
-#' @importFrom dplyr select
-#' @importFrom dplyr case_when
+#' @importFrom dplyr filter pull mutate relocate select case_when
 #'
 #' @return A TBD product
 #' @noRd

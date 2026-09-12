@@ -7,14 +7,10 @@
 #' @param subsets When provided with a GatingSet, selects this subset to provide the Cytoset
 #' @param inverse.transform Default is FALSE. 
 #'
-#' @importFrom flowWorkspace sampleNames
-#' @importFrom flowWorkspace gs_pop_get_data
+#' @importFrom flowWorkspace sampleNames gs_pop_get_data
 #' @importFrom Biobase exprs
 #' @importFrom purrr map
-#' @importFrom dplyr bind_cols
-#' @importFrom dplyr select
-#' @importFrom dplyr mutate
-#' @importFrom dplyr relocate
+#' @importFrom dplyr bind_cols select mutate relocate
 #' @importFrom stringr str_detect
 #' 
 #'

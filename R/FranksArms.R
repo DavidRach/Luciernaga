@@ -71,8 +71,10 @@ if(!TheTarget$Original == "561"){
   #Now to derrive the detector chunk. 
   Detectors <- Detectors[length(Detectors):1]
   Detectors <- data.frame(Detectors=Detectors, check.names=FALSE)
-  Detectors <- Detectors |> mutate(Name="") |> mutate(Number=row_number()) |> mutate(ChannelNumber=row_number()) |>
-    mutate(GainChannel=row_number()-1) |> mutate(Max="10000") |> mutate(centerWavelength="") |>
+  Detectors <- Detectors |> mutate(Name="") |>
+    mutate(Number=row_number()) |> mutate(ChannelNumber=row_number()) |>
+    mutate(GainChannel=row_number()-1) |>
+    mutate(Max="10000") |> mutate(centerWavelength="") |>
     mutate(bandWidth="") |> mutate(breakdown="150")
 
   Iterators <- Detectors |> pull(Detectors)
@@ -81,6 +83,7 @@ if(!TheTarget$Original == "561"){
   # detector <- Detectors
   DetectorOutputs <- map(.x=Iterators, detector=Detectors, .f=FranksToes)
   AllDetectors <- paste(DetectorOutputs, collapse = "\n    ")
-  LaserOutput <- gsub("#PlaceDetectorsHere", AllDetectors, Combined, fixed = TRUE)
+  LaserOutput <- gsub("#PlaceDetectorsHere",
+   AllDetectors, Combined, fixed = TRUE)
   return(LaserOutput)
 }

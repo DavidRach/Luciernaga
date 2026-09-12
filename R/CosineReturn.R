@@ -5,8 +5,7 @@
 #' @param MainFluorophore The fluorophore the rest are being compared to
 #' @param data The data.frame containing required data
 #'
-#' @importFrom dplyr filter
-#' @importFrom dplyr select
+#' @importFrom dplyr filter select
 #' @importFrom tidyselect where
 #'
 #' @return A single column renamed for the instrument with

@@ -14,19 +14,9 @@
 #' @param unstained Default NULL, alternatively provide corresponding unstained signature
 #' 
 #' @importFrom purrr map
-#' @importFrom dplyr bind_rows
-#' @importFrom dplyr group_by
-#' @importFrom dplyr select
-#' @importFrom dplyr mutate
-#' @importFrom dplyr ungroup
-#' @importFrom dplyr filter
-#' @importFrom dplyr pull
-#' @importFrom stringr str_detect
-#' @importFrom dplyr arrange
-#' @importFrom dplyr desc
-#' @importFrom dplyr slice
-#' @importFrom dplyr n
-#' @importFrom stringr str_extract
+#' @importFrom dplyr bind_rows group_by select mutate ungroup
+#'  filter pull arrange desc slice n
+#' @importFrom stringr str_detect str_extract
 #'
 #' @return A dataframe column containing matching Fluorophores from your querry
 #' @export

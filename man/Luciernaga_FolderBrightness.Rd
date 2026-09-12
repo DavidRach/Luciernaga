@@ -2,7 +2,8 @@
 % Please edit documentation in R/Luciernaga_FolderBrightness.R
 \name{Luciernaga_FolderBrightness}
 \alias{Luciernaga_FolderBrightness}
-\title{Sister function to FolderSignature, returns a density plot of brightness}
+\title{Sister function to FolderSignature, returns a density plot
+ of brightness}
 \usage{
 Luciernaga_FolderBrightness(
   FolderPath,
@@ -51,7 +52,8 @@ Luciernaga_Brightness plot}
 Either a data.frame of brightness values, or a plot
 }
 \description{
-Sister function to FolderSignature, returns a density plot of brightness
+Sister function to FolderSignature, returns a density plot
+ of brightness
 }
 \examples{
 A <- 2+2

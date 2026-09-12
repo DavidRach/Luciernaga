@@ -13,7 +13,7 @@ DisplayInternal <- function(x, data){
   TheX <- gsub("$", "", fixed=TRUE, x)
 
   Display <- paste0(TheX, "DISPLAY")
-  DisplayVal <- Subset %>% pull(Display)
+  DisplayVal <- Subset |> pull(Display)
 
   DisplayList <- list(Display=DisplayVal)
   names(DisplayList) <- Display

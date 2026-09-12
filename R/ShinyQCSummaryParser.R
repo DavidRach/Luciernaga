@@ -3,17 +3,11 @@
 #' @param x The iterated date
 #' @param Intermediate The original instrument data
 #'
-#' @importFrom dplyr filter
-#' @importFrom dplyr select
+#' @importFrom dplyr filter select left_join pull bind_rows
 #' @importFrom lubridate weeks
-#' @importFrom tidyselect starts_with
-#' @importFrom tidyselect contains
-#' @importFrom tidyselect all_of
+#' @importFrom tidyselect starts_with contains all_of
 #' @importFrom tidyr pivot_longer
-#' @importFrom dplyr left_join
-#' @importFrom dplyr pull
 #' @importFrom purrr map
-#' @importFrom dplyr bind_rows
 #'
 #' @return Data frame of passing status for respective parameters
 #' @noRd

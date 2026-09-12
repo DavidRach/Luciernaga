@@ -6,13 +6,9 @@
 #' @param myfactor Plot argument, data column to group by for plotting. Default "Fluorophore".
 #' @param namefactor Plot argument, data column name added to Plot Title.
 #'
-#' @importFrom xml2 read_xml
-#' @importFrom xml2 xml_children
-#' @importFrom xml2 xml_text
-#' @importFrom dplyr mutate
-#' @importFrom dplyr relocate
+#' @importFrom xml2 read_xml xml_children xml_text
+#' @importFrom dplyr mutate relocate rename
 #' @importFrom tidyr pivot_wider
-#' @importFrom dplyr rename
 #'
 #' @return TBD
 #' @export

@@ -21,7 +21,8 @@ Luciernaga_Unmix(
 \arguments{
 \item{x}{A Gating Set object}
 
-\item{controlData}{The matrix of single color controls generated from Luciernaga}
+\item{controlData}{The matrix of single color controls generated
+from Luciernaga}
 
 \item{sample.name}{The keyword containing the fcs file name}
 
@@ -31,16 +32,19 @@ Luciernaga_Unmix(
 
 \item{addon}{Additional addon to append to the new .fcs file name}
 
-\item{subset}{A gating hierarchy level to sort cells at, expression values retrieved
+\item{subset}{A gating hierarchy level to sort cells at, expression
+ values retrieved
 from these}
 
 \item{outpath}{The return folder for the .fcs files}
 
-\item{PanelPath}{Location to a panel.csv containing correct order of fluorophores}
+\item{PanelPath}{Location to a panel.csv containing correct order of
+fluorophores}
 
 \item{returnType}{Whether to return "fcs" or "flowframe"}
 
-\item{inverse.transform}{Default is FALSE, set to TRUE if data is already transformed
+\item{inverse.transform}{Default is FALSE, set to TRUE if data is
+ already transformed
 and needs to be reversed.}
 }
 \value{

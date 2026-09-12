@@ -4,9 +4,8 @@
 #' @param y Passed argument 2
 #' @param TheData The datset
 #'
-#' @importFrom dplyr select
+#' @importFrom dplyr select slice
 #' @importFrom tidyselect all_of
-#' @importFrom dplyr slice
 #'
 #' @return An internal value
 #'

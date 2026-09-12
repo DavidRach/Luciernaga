@@ -8,26 +8,11 @@
 #' @param plotlinecolor Expects NULL, otherwise if single line provide desired color
 #' @param unstained Default NULL, alternatively adds corresponding unstained signature
 #' 
-#' @importFrom dplyr filter
-#' @importFrom dplyr rename
-#' @importFrom dplyr select
-#' @importFrom tidyselect where
+#' @importFrom dplyr filter rename select mutate relocate bind_cols bind_rows
+#' @importFrom tidyselect where everything
 #' @importFrom tidyr pivot_longer
-#' @importFrom tidyselect everything
-#' @importFrom dplyr mutate
-#' @importFrom dplyr relocate
-#' @importFrom dplyr bind_cols
-#' @importFrom dplyr bind_rows
-#' @importFrom ggplot2 ggplot
-#' @importFrom ggplot2 aes
-#' @importFrom ggplot2 geom_line
-#' @importFrom ggplot2 theme_bw
-#' @importFrom ggplot2 labs
-#' @importFrom ggplot2 geom_hline
-#' @importFrom ggplot2 theme
-#' @importFrom ggplot2 element_text
-#' @importFrom ggplot2 element_blank
-#' @importFrom ggplot2 scale_x_discrete
+#' @importFrom ggplot2 ggplot aes geom_line theme_bw labs geom_hline
+#'  theme element_text element_blank scale_x_discrete
 #'
 #' @return An internal value
 #'
@@ -62,7 +47,7 @@ SimilarFluorPlots <- function(TheseFluorophores, TheFluorophore, data,
   
       TheData$Detector <- gsub("-A", "", TheData$Detector)
 
-      Iterations <- TheData |> filter(Fluorophore %in% These[[1]]) %>% nrow()
+      Iterations <- TheData |> filter(Fluorophore %in% These[[1]]) |> nrow()
 
       if (is.character(TheData$Detector)) {
         MyVector <- TheData |> filter(Fluorophore %in% These[[1]]) |> pull(Detector)

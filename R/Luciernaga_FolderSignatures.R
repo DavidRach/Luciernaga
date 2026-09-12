@@ -3,14 +3,18 @@
 #'  in downstream data analysis. 
 #' 
 #' @param FolderPath Location of the Luciernaga_QC .fcs outputs
-#' @param sample.name The keyword where the identifying sample name can be found
-#' @param StringRemoval Default NULL, provide to remove items from sample.name
+#' @param sample.name The keyword where the identifying sample name 
+#' can be found
+#' @param StringRemoval Default NULL, provide to remove items from
+#'  sample.name
 #' based on values found on the keyword
-#' @param fluorophore.name Specify the name of the fluorophore, alternatively NULL
+#' @param fluorophore.name Specify the name of the fluorophore,
+#'  alternatively NULL
 #' @param Verbose Default FALSE, provides info as it goes
 #' @param stats Whether to use median or mean
 #' @param PanelCuts Default NULL, provide a c(0.5,1) argument to specify 
-#' the brightness percentiles to retrieve signature from for the individual files
+#' the brightness percentiles to retrieve signature from for the
+#' individual files
 #' @param normalize Default TRUE, whether to return normalized or
 #' raw averaged MFI signatures
 #' @param returnType Default is "Signatures"
@@ -28,7 +32,8 @@
 #' A <- 2 + 2
 Luciernaga_FolderSignatures <- function(FolderPath, sample.name,
    StringRemoval=NULL, fluorophore.name, Verbose=FALSE,
-    stats="median", PanelCuts=NULL, normalize=TRUE, returnType="Signatures"){
+    stats="median", PanelCuts=NULL, normalize=TRUE,
+    returnType="Signatures"){
   
   if (length(FolderPath > 1)){
     TheFCSFiles <- FolderPath

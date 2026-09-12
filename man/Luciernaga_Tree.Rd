@@ -7,13 +7,16 @@
 Luciernaga_Tree(BrightnessFilePath, PanelPath)
 }
 \arguments{
-\item{BrightnessFilePath}{A path to the folder the individual brightness files are in.}
+\item{BrightnessFilePath}{A path to the folder the individual
+brightness files are in.}
 
-\item{PanelPath}{A path to the .csv file containing the panel information. It should include only
+\item{PanelPath}{A path to the .csv file containing the panel
+ information. It should include only
 the fluorophores captured by the BrightnessFiles}
 }
 \value{
-A data.frame listing the candidate .fcs files for future unmixing use.
+A data.frame listing the candidate .fcs files for future
+ unmixing use.
 }
 \description{
 Select candidate Luciernaga output .fcs files for future use in unmixing.

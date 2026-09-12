@@ -1,11 +1,12 @@
-#' Iterates through the InitialUnmixingSpanGates, allowing for their manual
-#' adjustment without needing to search for the corresponding specimen by gate
-#' combination
+#' Iterates through the InitialUnmixingSpanGates, allowing
+#'  for their manual adjustment without needing to search for
+#'  the corresponding specimen by gate combination
 #' 
-#' @param template The data.frame containing the name, Fluorophore and Detector columns
+#' @param template The data.frame containing the name, Fluorophore
+#'  and Detector columns
 #' @param gs The GatingSet
-#' @param AdjustAll Whether to adjust all specimens in the gating set to the updated gate,
-#'  default is TRUE
+#' @param AdjustAll Whether to adjust all specimens in the gating
+#'  set to the updated gate,  default is TRUE
 #' 
 #' @importFrom dplyr select filter pull
 #' @importFrom flowWorkspace sampleNames

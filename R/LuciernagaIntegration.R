@@ -5,20 +5,27 @@
 #' @param gs The GatingSet
 #' @param AFOverlap See Luciernaga Vignette, default NULL falls back to the 
 #' default shipped within Luciernaga extdata. 
-#' @param externalAF_gs Default NULL, if you wish to provide an external AF for
-#' subtraction, provide the gs name (and next two arguments). Leaving NULL will grab
-#' the parent to provided gate on assumption both positive and negative cells will
+#' @param externalAF_gs Default NULL, if you wish to provide an external AF
+#'  for
+#' subtraction, provide the gs name (and next two arguments). Leaving NULL 
+#' will grab
+#' the parent to provided gate on assumption both positive and negative cells
+#'  will
 #' be present in that gate. 
-#' @param externalAF_gs_index The index value to select the unstained in combination
+#' @param externalAF_gs_index The index value to select the unstained in
+#'  combination
 #'  with previous argument
-#' @param externalAF_gs_gate The gate corresponding to the unstained population you
+#' @param externalAF_gs_gate The gate corresponding to the unstained 
+#' population you
 #' want to use for background subtraction
-#' @param excludeThese Excludes columns containing values, leaving just the detector
+#' @param excludeThese Excludes columns containing values, leaving just 
+#' the detector
 #' columns. The default is set to "FSC|SSC|Time|-H|-W" 
 #' @param inverse.transform Whether to inverse.transform, default is TRUE
 #' @param GuessSimilar Default FALSE, will attempt to match to
 #' similar fluorophores in the library
-#' @param Unstained Default FALSE, set to TRUE if sample is unstained (and subtraction 
+#' @param Unstained Default FALSE, set to TRUE if sample is unstained 
+#' (and subtraction 
 #' therefore is not needed)
 #' @param NumberDetectors Default 64 (5-laser Cytek Aurora)
 #' 
@@ -27,7 +34,8 @@
 #' @importFrom flowWorkspace sampleNames
 #' @importFrom purrr map2
 #' 
-#' @return A list of lists containing data.frame and plots for all the single-color
+#' @return A list of lists containing data.frame and plots for all the 
+#' single-color
 #' reference controls designated in the template. 
 #' 
 #' @export 
@@ -69,7 +77,8 @@ LuciernagaIntegration <- function(template, gs, AFOverlap=NULL,
   ListOfLists <- map2(.x=GatesToAdd, .y=SpecimenIndeces, .f=Luciernaga_Summary,
   gs=gs, externalAF_gs=externalAF_gs, externalAF_gs_index=externalAF_gs_index,
   externalAF_gs_gate=externalAF_gs_gate, GuessSimilar=GuessSimilar,
-  NumberDetectors=NumberDetectors, excludeThese=excludeThese, Unstained=Unstained,
+  NumberDetectors=NumberDetectors, excludeThese=excludeThese, 
+  Unstained=Unstained,
   inverse.transform=inverse.transform, AFOverlap=AFOverlap)
 
   return(ListOfLists)

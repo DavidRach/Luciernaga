@@ -19,16 +19,13 @@
 #' @importFrom Biobase pData
 #' @importFrom purrr map
 #' @importFrom patchwork wrap_plots
-#' @importFrom grDevices pdf
-#' @importFrom grDevices dev.off
+#' @importFrom grDevices pdf dev.off
 #' @importFrom stats quantile
-#' @importFrom flowWorkspace keyword
-#' @importFrom flowWorkspace gs_pop_get_data
+#' @importFrom flowWorkspace keyword gs_pop_get_data
 #' @importFrom flowCore exprs
 #' @importFrom dplyr select
 #' @importFrom tidyr all_of
-#' @importFrom ggcyto as.ggplot
-#' @importFrom ggcyto ggcyto
+#' @importFrom ggcyto as.ggplot ggcyto
 #' @importFrom ggplot2 geom_hex
 #'
 #' @return The ggplots for all the specimens, as well as the optional .pdf

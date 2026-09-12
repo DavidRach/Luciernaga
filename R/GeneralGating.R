@@ -15,27 +15,23 @@
 #'  dataframe
 #' @param reference location ModernCutoff dataframe.
 #'
-#' @importFrom dplyr select
-#' @importFrom dplyr pull
-#' @importFrom dplyr filter
+#' @importFrom dplyr select pull filter
 #' @importFrom tidyselect all_of
-#' @importFrom dplyr pull
 #' @importFrom flowCore keyword
-#' @importFrom ggcyto ggcyto
-#' @importFrom ggcyto as.ggplot
+#' @importFrom ggcyto ggcyto as.ggplot
 #' @importFrom ggplot2 ggplot
 #'
 #' @return A value to be determined later
 #'
 #' @noRd
 GeneralGating <- function(x, name, ff, yValue, clearance, bins,
-                          columnlist, TheDF, gatelines, reference = NULL) {
+  columnlist, TheDF, gatelines, reference = NULL) {
 
   if (yValue == x){stop("x equals yValue and can't be plotted")}
 
   xValue <- x
 
-  if (!grepl("FSC|SSC", yValue)) {ExprsData <- TheDF %>%
+  if (!grepl("FSC|SSC", yValue)) {ExprsData <- TheDF |>
     select(all_of(yValue)) %>% pull()
   theYmin <- ExprsData %>% quantile(., 0.001)
   theYmax <- ExprsData %>% quantile(., 0.999)
@@ -51,33 +47,44 @@ GeneralGating <- function(x, name, ff, yValue, clearance, bins,
 
 
   if (!exists("theYmax") || !exists("theXmax")){
-    Plot <- as.ggplot(ggcyto(ff, aes(x = .data[[xValue]], y = .data[[yValue]]),
-     subset = "root") + geom_hex(bins=bins) + theme_bw() + labs(title = NULL) +
-     theme(strip.background = element_blank(), strip.text.x = element_blank(),
+    Plot <- as.ggplot(ggcyto(ff,
+       aes(x = .data[[xValue]], y = .data[[yValue]]),
+     subset = "root") + geom_hex(bins=bins) + theme_bw() + 
+      labs(title = NULL) +
+     theme(strip.background = element_blank(),
+     strip.text.x = element_blank(),
      panel.grid.major = element_line(linetype = "blank"),
      panel.grid.minor = element_line(linetype = "blank"),
      axis.title = element_text(size = 10, face = "bold"),
      legend.position = "none"))
 
     if (gatelines == TRUE){
-    Value <- reference %>% dplyr::filter(specimen %in% name) %>%
+    Value <- reference %>% dplyr::filter(specimen %in% name) |>
       select(all_of(xValue)) %>% pull(.)
-    Plot <- Plot + geom_vline(xintercept = c(seq(0,200,25)), colour = "gray") +
+    Plot <- Plot +
+      geom_vline(xintercept = c(seq(0,200,25)), colour = "gray") +
       geom_vline(xintercept = Value, colour = "red")
     }
 
-  } else {Plot <- as.ggplot(ggcyto(ff, aes(x = .data[[xValue]], y = .data[[yValue]]),
-          subset = "root") + geom_hex(bins=bins) + coord_cartesian(
-          xlim = c(theXmin, theXmax), ylim = c(theYmin, theYmax), default = TRUE) +
-          theme_bw() + labs(title = NULL) + theme(strip.background = element_blank(),
-          strip.text.x = element_blank(), panel.grid.major = element_line(
-          linetype = "blank"), panel.grid.minor = element_line(linetype = "blank"),
+  } else {Plot <- as.ggplot(ggcyto(ff, 
+    aes(x = .data[[xValue]], y = .data[[yValue]]),
+          subset = "root") + geom_hex(bins=bins) +
+    coord_cartesian(  xlim = c(theXmin, theXmax),
+    ylim = c(theYmin, theYmax), default = TRUE) +
+          theme_bw() + labs(title = NULL) +
+    theme(strip.background = element_blank(),
+          strip.text.x = element_blank(),
+           panel.grid.major = element_line(
+          linetype = "blank"),
+           panel.grid.minor = element_line(linetype = "blank"),
           axis.title = element_text(size = 10, face = "bold"),
           legend.position = "none"))
 
-  if (gatelines == TRUE){Value <- reference %>% dplyr::filter(specimen %in% name) %>%
+  if (gatelines == TRUE){Value <- reference |>
+    dplyr::filter(specimen %in% name) |>
     select(all_of(xValue)) %>% pull(.)
-  Plot <- Plot + geom_vline(xintercept = c(seq(0,200,25)), colour = "gray") +
+  Plot <- Plot + 
+    geom_vline(xintercept = c(seq(0,200,25)), colour = "gray") +
     geom_vline(xintercept = Value, colour = "red")}
   }
 

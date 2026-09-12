@@ -1,21 +1,18 @@
 #' Select candidate Luciernaga output .fcs files for future use in unmixing.
 #'
-#' @param BrightnessFilePath A path to the folder the individual brightness files are in.
-#' @param PanelPath A path to the .csv file containing the panel information. It should include only
+#' @param BrightnessFilePath A path to the folder the individual
+#'  brightness files are in.
+#' @param PanelPath A path to the .csv file containing the panel
+#'  information. It should include only
 #' the fluorophores captured by the BrightnessFiles
 #'
 #' @importFrom purrr map
-#' @importFrom dplyr bind_rows
+#' @importFrom dplyr bind_rows pull filter arrange mutate pull
+#'  row_number relocate
 #' @importFrom utils read.csv
-#' @importFrom dplyr pull
-#' @importFrom dplyr filter
-#' @importFrom dplyr arrange
-#' @importFrom dplyr mutate
-#' @importFrom dplyr pull
-#' @importFrom dplyr row_number
-#' @importFrom dplyr relocate
 #'
-#' @return A data.frame listing the candidate .fcs files for future unmixing use.
+#' @return A data.frame listing the candidate .fcs files for future
+#'  unmixing use.
 #' @export
 #'
 #' @examples
@@ -79,10 +76,12 @@
 #'
 Luciernaga_Tree <- function(BrightnessFilePath, PanelPath){
 
-  TheCSVs <- list.files(BrightnessFilePath, pattern="RelativeBrightness", full.names = TRUE)
-  TheData <- map(.x=TheCSVs, .f=CSVRead) %>% bind_rows()
+  TheCSVs <- list.files(BrightnessFilePath,
+     pattern="RelativeBrightness", full.names = TRUE)
+  TheData <- map(.x=TheCSVs, .f=CSVRead) |> bind_rows()
 
-  if(!is.data.frame(PanelPath)){Panel <- read.csv(PanelPath, check.names = FALSE)
+  if(!is.data.frame(PanelPath)){
+    Panel <- read.csv(PanelPath, check.names = FALSE)
   } else {Panel <- PanelPath}
 
   OriginalPanel <- Panel
@@ -94,7 +93,8 @@ Luciernaga_Tree <- function(BrightnessFilePath, PanelPath){
 
   #x <- TheFluorophores[19]
 
-  NewData <- map(.x=TheFluorophores, .f=InternalTree, TheData=TheData) %>% bind_rows()
+  NewData <- map(.x=TheFluorophores,
+     .f=InternalTree, TheData=TheData) |> bind_rows()
 
   return(NewData)
 }

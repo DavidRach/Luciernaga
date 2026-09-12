@@ -3,23 +3,12 @@
 #' @param HotspotBrighter Brighter hotspot data.frame
 #' @param HotspotDimmer Dimmer hotspot data.frame
 #' 
-#' @importFrom dplyr mutate
-#' @importFrom dplyr arrange
+#' @importFrom dplyr mutate arrange
 #' @importFrom tibble rownames_to_column
 #' @importFrom tidyr pivot_longer
-#' @importFrom ggplot2 ggplot
-#' @importFrom ggplot2 aes
-#' @importFrom ggplot2 geom_tile
-#' @importFrom ggplot2 geom_text
-#' @importFrom ggplot2 scale_fill_gradient2
-#' @importFrom ggplot2 scale_x_discrete
-#' @importFrom ggplot2 labs
-#' @importFrom ggplot2 coord_fixed
-#' @importFrom ggplot2 theme_minimal
-#' @importFrom ggplot2 theme
-#' @importFrom ggplot2 element_blank
-#' @importFrom ggplot2 element_text
-#' @importFrom ggplot2 ggsave
+#' @importFrom ggplot2 ggplot aes geom_tile geom_text scale_fill_gradient2 
+#'  scale_x_discrete labs coord_fixed theme_minimal theme element_blank
+#'  element_text ggsave
 #' 
 #' @return The residual plot of the difference between the two hotspots
 #' 

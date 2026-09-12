@@ -4,8 +4,7 @@
 #' @param data Intermediate data.frame containing RowNumber column
 #' @param TheList The original list of fcs files to be sorted from
 #' 
-#' @importFrom dplyr filter
-#' @importFrom dplyr pull
+#' @importFrom dplyr filter pull
 #' 
 #' @return A compatible subset list
 #' 

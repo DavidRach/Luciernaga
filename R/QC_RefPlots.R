@@ -5,12 +5,8 @@
 #' @param references x
 #' @param refData x
 #'
-#' @importFrom dplyr filter
-#' @importFrom dplyr select
-#' @importFrom dplyr pull
+#' @importFrom dplyr filter select pull rename  mutate
 #' @importFrom ggplot2 ggplot
-#' @importFrom dplyr rename
-#' @importFrom dplyr mutate
 #'
 #' @return An internal value
 #'
@@ -18,8 +14,8 @@
 QC_RefPlots <- function(x, Data, references=FALSE, refData=NULL){
 
   if (!references == TRUE){
-    TheValue <- Data %>% filter(TheSamples %in% x)
-    TheFluorochrome <- TheValue %>% select(Fluorochrome) %>% unique %>% pull()
+    TheValue <- Data |> filter(TheSamples %in% x)
+    TheFluorochrome <- TheValue |> select(Fluorochrome) |> unique() %>% pull()
     ThePlot <- ggplot(TheValue, aes(x=Detector, y=value, group=Sample)) +
       geom_line() + theme_bw() + labs(title=paste0(TheFluorochrome, " ", x),
                                       x=NULL, y="Normalized Value") +
@@ -29,8 +25,8 @@ QC_RefPlots <- function(x, Data, references=FALSE, refData=NULL){
       axis.title.y =  element_text(size=8)) + scale_x_discrete(breaks = unique(
         TheValue$Detector)[c(TRUE, rep(FALSE, 4))])
   } else {
-    TheValue <- Data %>% filter(TheSamples %in% x)
-    TheFluorochrome <- TheValue %>% select(Fluorochrome) %>% unique %>% pull()
+    TheValue <- Data |> filter(TheSamples %in% x)
+    TheFluorochrome <- TheValue |> select(Fluorochrome) |> unique() %>% pull()
 
     #ReferenceRetrieval
     TheFluorochrome1 <- TheFluorochrome #Name Backup
@@ -38,10 +34,10 @@ QC_RefPlots <- function(x, Data, references=FALSE, refData=NULL){
       "Spk", "Spark", TheFluorochrome)))
     TheFluorochrome <- gsub(" ", "", gsub("-", "", gsub(".", "", fixed=TRUE,
                                                         TheFluorochrome)))
-    ReferenceFluorList <- refData %>% select(Fluorophore) %>% unique() %>% pull()
+    ReferenceFluorList <- refData |> select(Fluorophore) |> unique() %>% pull()
 
     if (any(ReferenceFluorList == TheFluorochrome)) { #TheCleanedVersion
-      ReferenceData1 <- refData %>% filter(Fluorophore %in% TheFluorochrome) %>%
+      ReferenceData1 <- refData |> filter(Fluorophore %in% TheFluorochrome) |>
         rename(value=TheValue)
       Iterations <- nrow(ReferenceData1)
       MyVector <- seq_len(Iterations)
@@ -60,8 +56,8 @@ QC_RefPlots <- function(x, Data, references=FALSE, refData=NULL){
 
       ThePlot <- ThePlot + geom_line(data = ReferenceData1, aes(
         x=Detector, y=value, group=TheSamples), color="red")
-    } else {TheValue <- Data %>% filter(TheSamples %in% x)
-    TheFluorochrome <- TheValue %>% select(Fluorochrome) %>% unique %>% pull()
+    } else {TheValue <- Data |> filter(TheSamples %in% x)
+    TheFluorochrome <- TheValue |> select(Fluorochrome) |> unique() %>% pull()
     ThePlot <- ggplot(TheValue, aes(x=Detector, y=value, group=Sample)) + geom_line() +
       theme_bw() + labs(title=paste0(TheFluorochrome, " ", x), x=NULL, y="Normalized Value") +
       geom_hline(yintercept = 1, linetype = "dashed", color = "red") +

@@ -10,7 +10,8 @@ BridgeSplits <- function(data){
     parts <- strsplit(trimws(data), "\\s{2,}")[[1]]
     Second <- paste0(parts[1], ": ", parts[3])
     Bridge <- as.data.frame(t(setNames(strsplit(Second, ":\\s*")[[1]][2],
-                               strsplit(Second, ":\\s*")[[1]][1])), check.names=FALSE)
+                               strsplit(Second, ":\\s*")[[1]][1])),
+                                check.names=FALSE)
     TheParts <- strsplit(trimws(data), "\\s{2,}")[2:6]
     TheVector <- c(parts[2], unlist(TheParts))
 

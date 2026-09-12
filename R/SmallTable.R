@@ -2,14 +2,10 @@
 #'
 #' @param data The QC color status returns
 #'
-#' @importFrom gt gt
-#' @importFrom gt data_color
+#' @importFrom gt gt data_color sub_values opt_table_font 
+#'  cols_align tab_spanner cols_label
 #' @importFrom scales col_factor
-#' @importFrom gt sub_values
-#' @importFrom gt opt_table_font
-#' @importFrom gt cols_align
-#' @importFrom gt tab_spanner
-#' @importFrom gt cols_label
+#' 
 #' @noRd
 SmallTable <- function(data){
 

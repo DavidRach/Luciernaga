@@ -4,25 +4,15 @@
 #' @importFrom Biobase pData
 #' @importFrom purrr map
 #' @importFrom patchwork wrap_plots
-#' @importFrom grDevices pdf
-#' @importFrom grDevices dev.off
+#' @importFrom grDevices pdf dev.off
 #' @importFrom stats quantile
-#' @importFrom flowWorkspace keyword
-#' @importFrom flowWorkspace gs_pop_get_data
+#' @importFrom flowWorkspace keyword gs_pop_get_data
 #' @importFrom flowCore exprs
 #' @importFrom dplyr select
 #' @importFrom tidyr all_of
-#' @importFrom ggcyto as.ggplot
-#' @importFrom ggcyto ggcyto
-#' @importFrom ggplot2 aes
-#' @importFrom ggplot2 geom_point
-#' @importFrom ggplot2 geom_hex
-#' @importFrom ggplot2 coord_cartesian
-#' @importFrom ggplot2 element_line
-#' @importFrom ggplot2 theme_bw
-#' @importFrom ggplot2 theme
-#' @importFrom ggplot2 element_line
-#' @importFrom ggplot2 geom_vline
+#' @importFrom ggcyto as.ggplot ggcyto
+#' @importFrom ggplot2 aes geom_point geom_hex coord_cartesian
+#'  element_line theme_bw theme element_line geom_vline
 #'
 #' @return An internal value
 #'
@@ -112,7 +102,7 @@ Unity <- function(x, TheY, TheX, marginsubset, gatesubset, sample.name, removest
     }
 
   if (gatelines == TRUE){
-  Value <- reference %>% dplyr::filter(specimen %in% name) %>%
+  Value <- reference |> dplyr::filter(specimen %in% name) |>
     select(all_of(TheX)) %>% pull(.)
  
   Plot <- Plot +

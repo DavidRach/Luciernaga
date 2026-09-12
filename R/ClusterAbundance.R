@@ -1,7 +1,6 @@
 #' Internal for Stacked Reports
 #'
-#' @importFrom dplyr filter
-#' @importFrom dplyr pull
+#' @importFrom dplyr filter pull
 #'
 #' @noRd
 ClusterAbundance <- function(x, data){

@@ -6,8 +6,7 @@
 #' @importFrom stringr str_detect
 #' @importFrom data.table fread
 #' @importFrom openCyto gatingTemplate
-#' @importFrom flowWorkspace load_cytoset_from_fcs
-#' @importFrom flowWorkspace GatingSet
+#' @importFrom flowWorkspace load_cytoset_from_fcs GatingSet
 #' @importFrom openCyto gt_gating
 #' 
 #' @return Luciernaga_QC processed signatures to a new Luciernaga subfolder
@@ -78,7 +77,8 @@ HandlingFunction <- function(x){
    gtFile = BeadGates, DesiredGates = NULL,
    outpath = NULL, returnType="patchwork")
 
-  These <- c(UnstainedCellPlot, StainedCellPlot, UnstainedBeadPlot, StainedBeadPlot)
+  These <- c(UnstainedCellPlot, StainedCellPlot,
+     UnstainedBeadPlot, StainedBeadPlot)
 
   OnLocation <- list.dirs(x, full.names=TRUE, recursive=TRUE)
   Presence <- list.files(OnLocation, pattern="Luciernaga", full.names=TRUE)
@@ -91,21 +91,24 @@ HandlingFunction <- function(x){
   # Single-color Cells
 
   UnstainedCellAF <- Luciernaga_QC(x=UnstainedCell_GS[[1]],
-      subsets="nonDebris", removestrings=".fcs", sample.name="GUID",unmixingcontroltype = "cells", Unstained = FALSE, 
+      subsets="nonDebris", removestrings=".fcs",
+       sample.name="GUID",unmixingcontroltype = "cells", Unstained = FALSE, 
       ratiopopcutoff = 0.001, Verbose = FALSE, AFOverlap = AFOverlap,
       stats = "median", ExportType = "fcs", SignatureReturnNow = TRUE,
       outpath = Presence, Increments=0.1, minimalfcscutoff=0.001,
       experiment="SingleColor",condition="Cells")
 
   Unstained <- purrr::map(.f=Luciernaga_QC, .x=UnstainedCell_GS,
-      subsets="nonDebris", removestrings=".fcs", sample.name="GUID",unmixingcontroltype = "cells", Unstained = FALSE, 
+      subsets="nonDebris", removestrings=".fcs",
+       sample.name="GUID",unmixingcontroltype = "cells", Unstained = FALSE, 
       ratiopopcutoff = 0.001, Verbose = FALSE, AFOverlap = AFOverlap,
       stats = "median", ExportType = "fcs", SignatureReturnNow = FALSE,
       outpath = Presence, Increments=0.1, minimalfcscutoff=0.001,
       experiment="SingleColor",condition="Cells")
 
   Colors <- purrr::map(.f=Luciernaga_QC, .x=StainedCell_GS,
-      subsets="nonDebris", removestrings=".fcs", sample.name="GUID",unmixingcontroltype = "cells", Unstained = FALSE, 
+      subsets="nonDebris", removestrings=".fcs",
+       sample.name="GUID",unmixingcontroltype = "cells", Unstained = FALSE, 
       ratiopopcutoff = 0.001, Verbose = FALSE, AFOverlap = AFOverlap,
       stats = "median", ExportType = "fcs", SignatureReturnNow = FALSE,
       outpath = Presence, Increments=0.1, minimalfcscutoff=0.001,

@@ -6,8 +6,7 @@
 #' @param width Default 7
 #' @param height Default 9
 #' 
-#' @importFrom grDevices dev.off
-#' @importFrom grDevices pdf
+#' @importFrom grDevices dev.off pdf
 #' 
 #' @return A pdf to the desired location
 #' 

@@ -6,9 +6,11 @@
 #' @param GuessSimilar Default FALSE, will attempt to match to
 #' similar fluorophores in the library
 #' @param NumberDetectors Default 64 (5-laser Cytek Aurora)
-#' @param excludeThese Excludes columns containing values, leaving just the detector
+#' @param excludeThese Excludes columns containing values, leaving just
+#'  the detector
 #' columns. The default is set to "FSC|SSC|Time|-H|-W" 
-#' @param Unstained Default FALSE, set to TRUE if sample is unstained (and subtraction 
+#' @param Unstained Default FALSE, set to TRUE if sample is unstained
+#'  (and subtraction 
 #' therefore is not needed)
 #' @param inverse.transform Whether to inverse.transform, default is TRUE
 #' @param AFOverlap See Luciernaga Vignette, default NULL falls back to the 
@@ -19,7 +21,8 @@
 #' @importFrom stringr str_detect
 #' @importFrom dplyr select filter
 #' 
-#' @return A named list containing the various data.frames and plots for the respective gate
+#' @return A named list containing the various data.frames and plots for
+#'  the respective gate
 #' 
 #' 
 #' @export 
@@ -77,7 +80,8 @@ Luciernaga_Summary <- function(x, y, gs,
     
   ThePlotName <- QCdata[,1] |> unique() |> unname()
 
-  QCPlot <- VisualizeSignatures(columnname="Cluster", characterColumns = "Cluster", 
+  QCPlot <- VisualizeSignatures(columnname="Cluster", 
+  characterColumns = "Cluster", 
     data=QCdata, Normalize=TRUE, plotname = ThePlotName)
 
   CosineData <- QCdata |> select(-Sample) 

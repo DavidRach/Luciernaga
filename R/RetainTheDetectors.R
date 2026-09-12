@@ -5,10 +5,8 @@
 #' @param name The passed name consisting ligand fluorophore
 #'
 #' @importFrom utils read.csv
-#' @importFrom dplyr filter
-#' @importFrom dplyr pull
-#' @importFrom stringr str_split
-#' @importFrom stringr str_detect
+#' @importFrom dplyr filter pull
+#' @importFrom stringr str_split str_detect
 #'
 #' @return The retained detector(s)
 #' @noRd

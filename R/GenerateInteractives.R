@@ -5,20 +5,11 @@
 #' @param filename The desired file name
 #' 
 #' @importFrom stringr str_detect
-#' @importFrom dplyr filter
-#' @importFrom dplyr select
-#' @importFrom dplyr group_by
-#' @importFrom dplyr slice
-#' @importFrom dplyr desc
-#' @importFrom dplyr arrange
-#' @importFrom dplyr mutate
-#' @importFrom dplyr pull
+#' @importFrom dplyr filter select group_by slice desc
+#'  arrange mutate pull
 #' @importFrom stringr str_extract
-#' @importFrom purrr flatten
-#' @importFrom purrr map
-#' @importFrom htmltools tagList
-#' @importFrom htmltools h1
-#' @importFrom htmltools save_html
+#' @importFrom purrr flatten map
+#' @importFrom htmltools tagList  h1  save_html
 #' 
 #' @return A htmlwebpage to desired location
 #' 
@@ -44,10 +35,13 @@ GenerateInteractives <- function(x, outpath=NULL, filename=NULL){
   TheStained <- TheFiles[!stringr::str_detect(TheFiles, "Unstained")]
   WatchForThese <- paste0("_", MainAFs, collapse = "|")
   
-  TheCleanStained <- TheStained[!stringr::str_detect(TheStained, WatchForThese)]
-  TheseDudes <- sub(" \\(Cells\\).*", "", basename(TheCleanStained)) |> unique()
+  TheCleanStained <- TheStained[!stringr::str_detect(
+    TheStained, WatchForThese)]
+  TheseDudes <- sub(" \\(Cells\\).*", "", basename(TheCleanStained)) |>
+    unique()
   TheseDudettes <- sub("^[^ ]+ ", "", TheseDudes)
-  TheseDudettes <- TheseDudettes[!stringr::str_detect(TheseDudettes, "Unstim")] |> unique()
+  TheseDudettes <- TheseDudettes[!stringr::str_detect(
+    TheseDudettes, "Unstim")] |> unique()
   
   TheRefs <- Luciernaga:::InstrumentReferences(NumberDetectors=64)
   
@@ -63,8 +57,8 @@ GenerateInteractives <- function(x, outpath=NULL, filename=NULL){
       group_order = match(prefix, Order)
     ) |> arrange(group_order, num) |> pull(Fluorophore)
   
-  ThePlots <- map(.x=Sequence, .f=LuciernagaCheck, TheCleanStained=TheCleanStained,
-   returnType="plotly")
+  ThePlots <- map(.x=Sequence, .f=LuciernagaCheck,
+     TheCleanStained=TheCleanStained, returnType="plotly")
   
   ThePlots <- flatten(ThePlots)
   

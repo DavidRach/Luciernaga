@@ -6,11 +6,7 @@
 #' @param cutoffs The processed Gain and RCV cutoff criteria
 #' 
 #' @importFrom stringr str_detect
-#' @importFrom dplyr select
-#' @importFrom dplyr filter
-#' @importFrom dplyr case_when
-#' @importFrom dplyr mutate
-#' @importFrom dplyr pull
+#' @importFrom dplyr select filter case_when mutate pull
 #' @importFrom tidyselect all_of
 #' 
 #' @return Individual flag columns

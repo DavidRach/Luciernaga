@@ -2,30 +2,23 @@
 #' Internal for CytekQCPlots
 #'
 #' @param x  The passed column name to be plotted
-#' @param FailedFlag Whether to show red flags when a detectors "Out-of-Range" is TRUE
+#' @param FailedFlag Whether to show red flags when a detectors 
+#' "Out-of-Range" is TRUE
 #' @param xValue The x-axis column plotted by, default is "DateTime"
 #' @param TheData The passed data.frame from which to retrieve data
 #' @param Metadata The optional column name to be used for "comparison"
 #' @param plotType Whether to look "individual" or "comparison"
-#' @param EngineerVisits Passed data.frame of engineer visits for vertical lines, default NULL.
+#' @param EngineerVisits Passed data.frame of engineer visits for
+#'  vertical lines, default NULL.
 #'
 #' @importFrom dplyr select
 #' @importFrom tidyr starts_with
 #' @importFrom stringr str_detect
 #' @importFrom patchwork wrap_plots
-#' @importFrom ggplot2 ggplot
-#' @importFrom ggplot2 aes
-#' @importFrom ggplot2 geom_line
-#' @importFrom ggplot2 geom_point
-#' @importFrom ggplot2 theme
-#' @importFrom ggplot2 labs
-#' @importFrom ggplot2 theme_bw
+#' @importFrom ggplot2 ggplot aes geom_line geom_point theme labs
+#'  theme_bw scale_color_manual scale_fill_manual scale_shape_manual
+#'  scale_size_manual geom_vline
 #' @importFrom lubridate ymd_hms
-#' @importFrom ggplot2 scale_color_manual
-#' @importFrom ggplot2 scale_fill_manual
-#' @importFrom ggplot2 scale_shape_manual
-#' @importFrom ggplot2 scale_size_manual
-#' @importFrom ggplot2 geom_vline
 #'
 #' @return The pdf and/the plots.
 #'
@@ -38,7 +31,7 @@ LevyJennings <- function(x, FailedFlag, xValue, TheData, Metadata,
   # Select Equivalent Flag Column
   if (FailedFlag == TRUE){
     FlagValue <- paste0("Flag-", yValue)
-    FlagColumn <- TheData %>% select(starts_with(FlagValue)) %>% colnames(.)
+    FlagColumn <- TheData |> select(starts_with(FlagValue)) %>% colnames(.)
     if (length(FlagColumn) >1){
       NewFlagColumn <- str_detect(FlagColumn, paste0("^", FlagValue, "$"))
       FlagColumn <- FlagColumn[which(NewFlagColumn)]
@@ -98,14 +91,18 @@ LevyJennings <- function(x, FailedFlag, xValue, TheData, Metadata,
       Plot <- ggplot(TheData, aes(x=.data[[xValue]], y = .data[[yValue]]))  +
         geom_line(color = mycolor, linewidth = 1) +  geom_point(aes(
         shape = .data[[FlagColumn]], size = .data[[FlagColumn]],
-        fill = .data[[FlagColumn]])) + scale_shape_manual(values = shape_qc) +
-        scale_fill_manual(values = fill_qc) + scale_size_manual(values = size_qc) +
+        fill = .data[[FlagColumn]])) +
+        scale_shape_manual(values = shape_qc) +
+        scale_fill_manual(values = fill_qc) +
+        scale_size_manual(values = size_qc) +
         labs(title = yValue, x = NULL, y = YAxisLabel) + theme_bw() +
         theme(legend.position = "none")
 
-    } else {Plot <- ggplot(TheData, aes(x=.data[[xValue]], y = .data[[yValue]],
+    } else {Plot <- ggplot(TheData,
+       aes(x=.data[[xValue]], y = .data[[yValue]],
             color = mycolor)) + geom_line(color = mycolor) + geom_point(
-            color = mycolor) + labs(title = yValue, x = NULL, y = YAxisLabel) +
+            color = mycolor) +
+      labs(title = yValue, x = NULL, y = YAxisLabel) +
             theme_bw() + theme(legend.position = "none")
 
     }
@@ -115,10 +112,14 @@ LevyJennings <- function(x, FailedFlag, xValue, TheData, Metadata,
     if (mycolor != "black"){VariantColor <- c("black", mycolor)
     } else {VariantColor <- c("gray", mycolor)}
 
-    Plot <- ggplot(TheData, aes(x=.data[[xValue]], y = .data[[yValue]], group = .data[[Metadata]],
+    Plot <- ggplot(TheData,
+       aes(x=.data[[xValue]], y = .data[[yValue]], group = .data[[Metadata]],
       color=.data[[Metadata]])) + geom_line(aes(color = .data[[Metadata]])) +
-      geom_point(aes(color = .data[[Metadata]])) + scale_color_manual(values = VariantColor) +
-      labs(title = yValue, x = NULL, y = YAxisLabel) + theme(legend.position = "none") + theme_bw()
+      geom_point(aes(
+        color = .data[[Metadata]])) +
+      scale_color_manual(values = VariantColor) +
+      labs(title = yValue, x = NULL, y = YAxisLabel) +
+      theme(legend.position = "none") + theme_bw()
   }
 
   if (is.null(EngineerVisits)){

@@ -2,10 +2,10 @@
 #'
 #' @param MainFolder The file.path to the Main Folder
 #' @param x The Cytometer Folder Name
-#' @param Maintainer Logical override for when number of columns don't match
+#' @param Maintainer Logical override for when number of columns
+#'  don't match
 #'
-#' @importFrom dplyr mutate
-#' @importFrom dplyr across
+#' @importFrom dplyr mutate across
 #' @importFrom tidyselect starts_with
 #' @importFrom utils read.csv
 #' @importFrom lubridate ymd_hms
@@ -60,7 +60,8 @@ LevyJenningsParse <- function(MainFolder, x, Maintainer=FALSE){
       }
 
       ArchivedData$DateTime <- ymd_hms(ArchivedData$DateTime)
-      ArchivedData <- ArchivedData %>% mutate(across(starts_with("Flag"), ~ as.logical(.)))
+      ArchivedData <- ArchivedData %>%
+        mutate(across(starts_with("Flag"), ~ as.logical(.)))
       NewData <- generics::setdiff(Parsed, ArchivedData)
       UpdatedData <- rbind(NewData, ArchivedData)
 

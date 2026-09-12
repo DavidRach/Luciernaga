@@ -1,15 +1,11 @@
 
 #' Internal for Utility_ParallelNxNPlots
 #'
-#' @importFrom flowWorkspace keyword
-#' @importFrom flowWorkspace gs_pop_get_data
+#' @importFrom flowWorkspace keyword gs_pop_get_data
 #' @importFrom flowCore exprs
-#' @importFrom patchwork wrap_plots
-#' @importFrom patchwork plot_spacer
+#' @importFrom patchwork wrap_plots plot_spacer
 #' @importFrom purrr map
-#' @importFrom dplyr select
-#' @importFrom dplyr pull
-#' @importFrom dplyr mutate
+#' @importFrom dplyr select pull mutate
 #' @importFrom ggplot2 ggplot
 #'
 #' @return An internal value

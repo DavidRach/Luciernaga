@@ -2,8 +2,8 @@
 % Please edit documentation in R/Luciernaga_FCSToReport.R
 \name{Luciernaga_FCSToReport}
 \alias{Luciernaga_FCSToReport}
-\title{Visualize cosine similarity of raw .fcs files to evaluate single color
-controls.}
+\title{Visualize cosine similarity of raw .fcs files to evaluate
+ single color controls.}
 \usage{
 Luciernaga_FCSToReport(
   path,
@@ -20,9 +20,11 @@ Luciernaga_FCSToReport(
 )
 }
 \arguments{
-\item{path}{The location to the folder where the Luciernaga .fcs files are stored}
+\item{path}{The location to the folder where the Luciernaga
+.fcs files are stored}
 
-\item{reference}{A path to a .csv file or a dataframe containing Fluorophore and
+\item{reference}{A path to a .csv file or a dataframe containing
+ Fluorophore and
 Detector column information for the panel.}
 
 \item{stats}{Whether to use the median or mean for fluorescent intensity.}
@@ -35,7 +37,8 @@ Detector column information for the panel.}
 
 \item{HeatmapPlots}{Return this kind of plot, default is set to TRUE}
 
-\item{RetainedType}{Whether the data.frame contains "raw" or "normalized" values}
+\item{RetainedType}{Whether the data.frame contains "raw" or
+"normalized" values}
 
 \item{experiment}{Provide directly experiment name (ex. "JAN2024")}
 
@@ -47,8 +50,8 @@ Detector column information for the panel.}
 A data.frame compatible with LuciernagaReport()
 }
 \description{
-Visualize cosine similarity of raw .fcs files to evaluate single color
-controls.
+Visualize cosine similarity of raw .fcs files to evaluate
+ single color controls.
 }
 \examples{
 
@@ -67,7 +70,8 @@ File_Location <- system.file("extdata", package = "Luciernaga")
 FCS_Files <- list.files(path = File_Location, pattern = ".fcs",
   full.names = TRUE)
 CellSingleColorFiles <- FCS_Files[grep("Cells", FCS_Files)]
-CellSingleColors <- CellSingleColorFiles[!str_detect("Unstained", CellSingleColorFiles)]
+CellSingleColors <- CellSingleColorFiles[!str_detect("Unstained",
+ CellSingleColorFiles)]
 MyCytoSet <- load_cytoset_from_fcs(CellSingleColors[1:2],
   truncate_max_range = FALSE,transformation = FALSE)
 MyGatingSet <- GatingSet(MyCytoSet)
@@ -78,7 +82,8 @@ removestrings <-  c(".fcs", "(", ")", "Cells")
 
 FileLocation <- system.file("extdata", package = "Luciernaga")
 pattern = "AutofluorescentOverlaps.csv"
-AFOverlap <- list.files(path=FileLocation, pattern=pattern, full.names = TRUE)
+AFOverlap <- list.files(path=FileLocation, pattern=pattern,
+ full.names = TRUE)
 
 SingleColor_Data <- map(.x=MyGatingSet[1:2], .f=Luciernaga_QC,
  subsets="lymphocytes", removestrings=removestrings, sample.name="GUID",
@@ -89,11 +94,14 @@ SingleColor_Data <- map(.x=MyGatingSet[1:2], .f=Luciernaga_QC,
  condition = "ILTPanel", Subtraction = "Internal", CellAF=TheCellAF,
   SCData="subtracted",NegativeType="default")
 
-TheLuciernagaOutputs_FCS <- list.files(StorageLocation, pattern="fcs", full.names = TRUE)
-TheLuciernagaOutputs_CSV <- list.files(StorageLocation, pattern="csv", full.names = TRUE)
+TheLuciernagaOutputs_FCS <- list.files(StorageLocation, pattern="fcs",
+ full.names = TRUE)
+TheLuciernagaOutputs_CSV <- list.files(StorageLocation, pattern="csv",
+ full.names = TRUE)
 PanelPath <- file.path(File_Location, "Panel.csv")
 
-ReportOutput <- Luciernaga_FCSToReport(path=StorageLocation, reference=PanelPath,
+ReportOutput <- Luciernaga_FCSToReport(path=StorageLocation,
+ reference=PanelPath,
  stats="median", RetainedType = "normalized", experiment="FirstExperiment",
  condition="ILTExperiment", TheSummary = TRUE)
 

@@ -1,8 +1,11 @@
 #' A group version of the heatmap option from Luciernaga_Plots
 #'
-#' @param reports A data.frame or a list of Luciernaga_QC report data objects
-#' @param nameColumn The name of the column that differentiates between the reports
-#' @param cutoff Proportion of cells that at least 1 report needs to exceed for retention.
+#' @param reports A data.frame or a list of Luciernaga_QC report
+#'  data objects
+#' @param nameColumn The name of the column that differentiates
+#'  between the reports
+#' @param cutoff Proportion of cells that at least 1 report needs
+#'  to exceed for retention.
 #' @param returntype Either "plot" or underlying "data"
 #' @param legend Default is "right", use "none" to remove
 #' @param transpose Default is FALSE, flips orientation

@@ -4,10 +4,8 @@
 #' @param x A passed single cytoset object
 #' @param Fluorophore The detector
 #'
-#' @importFrom flowCore keyword
-#' @importFrom flowCore exprs
-#' @importFrom dplyr mutate
-#' @importFrom dplyr relocate
+#' @importFrom flowCore keyword exprs
+#' @importFrom dplyr mutate relocate
 #'
 #' @return An internal value
 #'
@@ -25,7 +23,7 @@ FCSImportFile <- function(x, Fluorophore, sample.name = "FILENAME"){
   TheDF <- data.frame(df, check.names = FALSE)
   TheDF <- TheDF[,-grep("Time|FS|SC|SS|Original|W$|H$", names(TheDF))]
   colnames(TheDF) <- gsub("-A$", "", colnames(TheDF))
-  DFNames <- TheDF %>% mutate(Cluster = filename) %>% relocate(Cluster,
-                                                               .before = 1)
+  DFNames <- TheDF |> mutate(Cluster = filename) |>
+    relocate(Cluster, .before = 1)
   return(DFNames)
 }

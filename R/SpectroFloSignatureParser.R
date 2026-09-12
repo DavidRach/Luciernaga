@@ -4,9 +4,7 @@
 #' @param ColumnNames Default is "detector", else X1 numbers
 #' @param returnType Either "data" or "plot"
 #'
-#' @importFrom xml2 read_xml
-#' @importFrom xml2 xml_children
-#' @importFrom xml2 xml_name
+#' @importFrom xml2 read_xml xml_children xml_name
 #' @importFrom purrr map
 #' @importFrom dplyr bind_rows
 #'

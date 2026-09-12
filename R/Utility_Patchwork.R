@@ -13,8 +13,7 @@
 #'
 #' @importFrom purrr map
 #' @importFrom patchwork wrap_plots
-#' @importFrom grDevices dev.off
-#' @importFrom grDevices pdf
+#' @importFrom grDevices dev.off pdf
 #'
 #' @return Some additional value to edit
 #' @export

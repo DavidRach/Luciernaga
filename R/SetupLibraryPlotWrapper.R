@@ -10,11 +10,9 @@
 #' @param valuecolumn A
 #' @param Normalize A
 #' @param TheFormat A
-#' 
-#' @importFrom dplyr filter
-#' @importFrom dplyr pull
-#' @importFrom purrr map
-#' @importFrom purrr flatten
+#'  
+#' @importFrom dplyr filter pull
+#' @importFrom purrr flatten map
 #' 
 #' @return A ggplot2 object
 #' 
