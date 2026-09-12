@@ -61,6 +61,5 @@ Check the transformation settings to visualize .fcs files
 }
 \examples{
 path <- system.file("extdata", package = "Luciernaga")
-files <- list.files(path, pattern=".fcs", full.names=TRUE)
-
+files <- list.files(path, pattern = ".fcs", full.names = TRUE)
 }

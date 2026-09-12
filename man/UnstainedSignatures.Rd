@@ -22,6 +22,8 @@ UnstainedSignatures(
 
 \item{WorkAround1}{A passed data.frame}
 
+\item{alternatename}{Alternate name descriptor}
+
 \item{ColsN}{Indicated end of Raw Value Columns}
 
 \item{StartNormalizedMergedCol}{Indicated Start Normalized Columns}

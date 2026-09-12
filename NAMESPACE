@@ -155,6 +155,7 @@ importFrom(flowWorkspace,
   keyword,
   load_cytoset_from_fcs,
   pData,
+  realize_view,
   sampleNames,
   transform,
   transformerList
@@ -298,6 +299,7 @@ importFrom(reshape2,melt)
 importFrom(rlang,
   "!!",
   ":=",
+  .data,
   sym,
   syms
 )
@@ -307,7 +309,6 @@ importFrom(scales,
   trans_format
 )
 importFrom(stats,
-  alias,
   as.dist,
   hclust,
   loess,

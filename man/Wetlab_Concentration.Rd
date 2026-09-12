@@ -2,7 +2,8 @@
 % Please edit documentation in R/Wetlab_Concentration.R
 \name{Wetlab_Concentration}
 \alias{Wetlab_Concentration}
-\title{Takes gated .fcs files and returns concentration and other info useful for Wetlab users.}
+\title{Takes gated .fcs files and returns concentration and other info useful for
+Wetlab users.}
 \usage{
 Wetlab_Concentration(x, subset, nameKeyword, DilutionMultiplier, TotalVolume)
 }
@@ -11,7 +12,8 @@ Wetlab_Concentration(x, subset, nameKeyword, DilutionMultiplier, TotalVolume)
 
 \item{subset}{Desired population node to derrive counts from}
 
-\item{nameKeyword}{Keyword containing samples name (ex. "GROUPNAME" or c("GROUPNAME", "TUBENAME"))}
+\item{nameKeyword}{Keyword containing samples name (ex. "GROUPNAME" or
+c("GROUPNAME", "TUBENAME"))}
 
 \item{DilutionMultiplier}{The dilution multiplier for the sample}
 
@@ -21,7 +23,8 @@ Wetlab_Concentration(x, subset, nameKeyword, DilutionMultiplier, TotalVolume)
 A data.frame of useful information
 }
 \description{
-Takes gated .fcs files and returns concentration and other info useful for Wetlab users.
+Takes gated .fcs files and returns concentration and other info useful for
+Wetlab users.
 }
 \examples{
 
@@ -38,7 +41,7 @@ gs <- flowjo_to_gatingset(ws, name=1, path = File_Location)
 nameKeyword <- c("GROUPNAME", "TUBENAME")
 
 TheData <- map(.x=gs, Wetlab_Concentration, subset = "CD45+",
-  nameKeyword=nameKeyword, DilutionMultiplier=100, TotalVolume=1) \%>\%
+  nameKeyword=nameKeyword, DilutionMultiplier=100, TotalVolume=1) |>
    bind_rows()
 
 }

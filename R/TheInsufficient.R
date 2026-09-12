@@ -1,4 +1,3 @@
-
 #' Internal for Wetlab_Decisions
 #'
 #' @param x The condition insufficient
@@ -7,10 +6,12 @@
 #' @param TotalCells The passed Total Cells
 #' @param RestConcentration The passed rest concentration
 #'
+#' @importFrom stats setNames
+#'
 #' @return An internal value
 #'
 #' @noRd
-TheInsufficient <- function(x, name, Date, TotalCells, RestConcentration){
+TheInsufficient <- function(x, name, Date, TotalCells, RestConcentration) {
 
   Condition <- x
   FinalConcentration <- NA
@@ -19,9 +20,11 @@ TheInsufficient <- function(x, name, Date, TotalCells, RestConcentration){
   CellsPerTube <- NA
   FinalVolumeML <- NA
 
-  PreliminaryData <- cbind(name, Date, Condition, TotalCells, RestConcentration, FinalConcentration,
-                           RestVolToAddML, MediaVolToAddML, CellsPerTube, FinalVolumeML)
+  PreliminaryData <- cbind(
+    name, Date, Condition, TotalCells, RestConcentration, FinalConcentration,
+    RestVolToAddML, MediaVolToAddML, CellsPerTube, FinalVolumeML
+  )
 
-  PreliminaryData <- data.frame(PreliminaryData, check.names=FALSE)
+  PreliminaryData <- data.frame(PreliminaryData, check.names = FALSE)
   return(PreliminaryData)
 }

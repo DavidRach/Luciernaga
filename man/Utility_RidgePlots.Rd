@@ -93,5 +93,4 @@ SinglePlot <- Utility_RidgePlots(gs=UnmixedGatingSet, subset="live",
   TheFill="Condition",TheX = "APC-Fire 810-A", TheY="name",
   returntype="plots", outpath=StorageLocation, filename="RidgePlot_Condition")
 
-
 }

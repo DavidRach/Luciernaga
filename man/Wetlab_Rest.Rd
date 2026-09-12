@@ -53,10 +53,10 @@ gs <- flowjo_to_gatingset(ws, name=1, path = File_Location)
 nameKeyword <- c("GROUPNAME", "TUBENAME")
 
 TheData <- map(.x=gs, Wetlab_Concentration, subset = "CD45+",
-  nameKeyword=nameKeyword, DilutionMultiplier=100, TotalVolume=1) \%>\%
+  nameKeyword=nameKeyword, DilutionMultiplier=100, TotalVolume=1) |>
    bind_rows()
 
-UpdatedData <- TheData \%>\% select(-TotalScientific, -TimeSeconds)
+UpdatedData <- TheData |> select(-TotalScientific, -TimeSeconds)
 
 Results <- Wetlab_Rest(data=UpdatedData, DesiredConcentration_MillionperML=3,
  MaxMLperTube=1, returntype="data", outpath=path)

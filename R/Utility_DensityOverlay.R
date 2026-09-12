@@ -2,17 +2,18 @@
 #'
 #' @param gs A GatingSet object
 #' @param subset The desired Gating Hierarchy node (ex. "lymphocytes")
-#' @param inverse.transform Default is FALSE, reverses transformation applied to
-#' GatingSet as its converted to a CytoSet
+#' @param inverse.transform Default is FALSE, reverses transformation applied
+#'   to GatingSet as its converted to a CytoSet
 #' @param TheX A desired marker to plot, leave NULL for all markers
-#' @param TheFill A desired marker to color individual specimens by (as named in pData)
-#' @param outpath Desired storage location
+#' @param TheFill A desired marker to color individual specimens by (as named
+#'   in pData)
 #' @param returntype Whether to return a "pdf", "patchwork" or "plots"
+#' @param outpath Desired storage location
+#' @param filename The file name for the new .pdf
 #' @param therows The desired number of rows per page
 #' @param thecolumns The desired number of columns per page
 #' @param width The desired page width
 #' @param height The desired page height
-#' @param filename The file name for the new .pdf
 #'
 #' @importFrom flowWorkspace gs_pop_get_data
 #' @importFrom BiocGenerics colnames
@@ -30,58 +31,77 @@
 #' library(data.table)
 #'
 #' File_Location <- system.file("extdata", package = "Luciernaga")
-#' FCS_Files <- list.files(path = File_Location, pattern = ".fcs",
-#'   full.names = TRUE)
+#' FCS_Files <- list.files(
+#'   path = File_Location, pattern = ".fcs",
+#'   full.names = TRUE
+#' )
 #' Unmixed_FullStained <- FCS_Files[grep("Unmixed", FCS_Files)]
 #' UnmixedFCSFiles <- Unmixed_FullStained[1:2]
-#' UnmixedCytoSet <- load_cytoset_from_fcs(UnmixedFCSFiles[1:2],
-#'   truncate_max_range = FALSE,transformation = FALSE)
+#' UnmixedCytoSet <- load_cytoset_from_fcs(
+#'   UnmixedFCSFiles[1:2],
+#'   truncate_max_range = FALSE, transformation = FALSE
+#' )
 #' UnmixedGatingSet <- GatingSet(UnmixedCytoSet)
 #' Markers <- colnames(UnmixedCytoSet)
 #' KeptMarkers <- Markers[-grep("Time|FS|SC|SS|Original|-W$|-H$|AF", Markers)]
-#' MyBiexponentialTransform <- flowjo_biexp_trans(channelRange = 256,
-#'   maxValue = 1000000,pos = 4.5, neg = 0, widthBasis = -1000)
+#' MyBiexponentialTransform <- flowjo_biexp_trans(
+#'   channelRange = 256,
+#'   maxValue = 1000000, pos = 4.5, neg = 0, widthBasis = -1000
+#' )
 #' TransformList <- transformerList(KeptMarkers, MyBiexponentialTransform)
-#' UnmixedGatingSet <- flowWorkspace::transform(UnmixedGatingSet, TransformList)
+#' UnmixedGatingSet <- flowWorkspace::transform(
+#'   UnmixedGatingSet, TransformList
+#' )
 #' FileLocation <- system.file("extdata", package = "Luciernaga")
-#' UnmixedGates <- fread(file.path(path = FileLocation, pattern = 'GatesUnmixed.csv'))
+#' UnmixedGates <- fread(
+#'   file.path(path = FileLocation, pattern = "GatesUnmixed.csv")
+#' )
 #' UnmixedGating <- gatingTemplate(UnmixedGates)
 #' gt_gating(UnmixedGating, UnmixedGatingSet)
 #'
-#' removestrings <-  c("DTR_", ".fcs")
+#' removestrings <- c("DTR_", ".fcs")
 #' StorageLocation <- file.path("C:", "Users", "JohnDoe", "Desktop")
 #'
-#' Condition <- data.frame(Condition=c("Ctrl", "Ctrl"))
+#' Condition <- data.frame(Condition = c("Ctrl", "Ctrl"))
 #' pd <- pData(UnmixedGatingSet)
 #' new_pd <- cbind(pd, Condition)
 #' pData(UnmixedGatingSet) <- new_pd
 #'
-#' Plot <- Utility_DensityOverlay(gs=UnmixedGatingSet, subset="lymphocytes",
-#'   TheX="APC-Fire 810-A",TheFill="Condition", returntype="plots",
-#'   outpath="C:/Users/JohnDoe/Desktop/", filename="CD38_Expression")
+#' Plot <- Utility_DensityOverlay(
+#'   gs = UnmixedGatingSet, subset = "lymphocytes",
+#'   TheX = "APC-Fire 810-A", TheFill = "Condition", returntype = "plots",
+#'   outpath = "C:/Users/JohnDoe/Desktop/", filename = "CD38_Expression"
+#' )
 #'
-Utility_DensityOverlay <- function(gs, subset, inverse.transform = FALSE, TheX=NULL, TheFill,
-                                   returntype, outpath, filename, therows=3,
-                                   thecolumns=3, width = 7, height=9){
+Utility_DensityOverlay <- function(gs, subset, inverse.transform = FALSE,
+                                   TheX = NULL, TheFill, returntype,
+                                   outpath, filename, therows = 3,
+                                   thecolumns = 3, width = 7, height = 9) {
 
   cs <- gs_pop_get_data(gs, subset, inverse.transform = inverse.transform)
   markers <- colnames(cs)
   DFNames <- markers[-grep("Time|FS|SC|SS|Original|-W$|-H$|AF", markers)]
 
-  if(!is.null(TheX)){DFNames <- TheX}
+  if (!is.null(TheX)) {
+    DFNames <- TheX
+  }
 
-  ThePlots <- map(.x=DFNames, .f=InternalDensity, cs=cs, TheFill=TheFill)
+  ThePlots <- map(.x = DFNames, .f = InternalDensity, cs = cs, TheFill = TheFill)
 
-  if (returntype == "pdf"){
-    AssembledPlots <- Utility_Patchwork(x=ThePlots, filename=filename, outfolder=outpath,
-    returntype = "pdf", therows=therows, thecolumns=thecolumns, width = width, height=height)
-  } else if (returntype == "patchwork"){
-    AssembledPlots <- Utility_Patchwork(x=ThePlots, filename=filename, outfolder=outpath,
-    returntype = "patchwork", therows=therows, thecolumns=thecolumns, width = width,
-    height=height)
+  if (returntype == "pdf") {
+    AssembledPlots <- Utility_Patchwork(
+      x = ThePlots, filename = filename, outfolder = outpath,
+      returntype = "pdf", therows = therows, thecolumns = thecolumns,
+      width = width, height = height
+    )
+  } else if (returntype == "patchwork") {
+    AssembledPlots <- Utility_Patchwork(
+      x = ThePlots, filename = filename, outfolder = outpath,
+      returntype = "patchwork", therows = therows, thecolumns = thecolumns,
+      width = width, height = height
+    )
     return(AssembledPlots)
-  } else if (returntype == "plots"){return(ThePlots)}
+  } else if (returntype == "plots") {
+    return(ThePlots)
+  }
 }
-
-
-

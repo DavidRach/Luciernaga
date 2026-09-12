@@ -24,6 +24,8 @@ from which x is filtered from}
 
 \item{data}{A template data.frame containing the fluorophore signature}
 
+\item{characterColumns}{TBD}
+
 \item{Normalize}{Whether to normalize the data based on peak
 detector value, default is TRUE}
 

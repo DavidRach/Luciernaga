@@ -29,11 +29,11 @@ Utility_Concatinate(
 
 \item{subsets}{The gating hierarchy subset you want to include}
 
-\item{subsample}{Default is set to NULL. If down-sample is desired, Total number of
-events to subsample from each specimen}
+\item{subsample}{Default is set to NULL. If down-sample is desired, Total
+number of events to subsample from each specimen}
 
-\item{ReturnType}{Whether to return as a "data.frame", a "flow.frame", or export
-to an "fcs" file to the outpath location}
+\item{ReturnType}{Whether to return as a "data.frame", a "flow.frame", or
+export to an "fcs" file to the outpath location}
 
 \item{newName}{File Name for the Concatenate File}
 
@@ -41,18 +41,19 @@ to an "fcs" file to the outpath location}
 
 \item{export}{Whether to export as a .fcs file.}
 
-\item{inverse.transform}{Whether to reverse the GatingSet Transform on the data,
-default is set to FALSE.}
+\item{inverse.transform}{Whether to reverse the GatingSet Transform on the
+data, default is set to FALSE.}
 
-\item{metadataCols}{column names from pData to append as metadata for the .fcs, default NULL}
+\item{metadataCols}{column names from pData to append as metadata for the
+.fcs, default NULL}
 
 \item{Override}{Testing purposes default FALSE}
 
 \item{DataOverride}{Testing Purpose default NULL}
 }
 \value{
-A concatenated data.frame, flow.frame or fcs file, with reference .csv for
-the specimen information
+A concatenated data.frame, flow.frame or fcs file, with reference
+  .csv for the specimen information
 }
 \description{
 Concatenate a gs based on subset and optional subsample
@@ -66,31 +67,43 @@ library(openCyto)
 library(data.table)
 
 File_Location <- system.file("extdata", package = "Luciernaga")
-FCS_Files <- list.files(path = File_Location, pattern = ".fcs",
-  full.names = TRUE)
+FCS_Files <- list.files(
+  path = File_Location, pattern = ".fcs",
+  full.names = TRUE
+)
 Unmixed_FullStained <- FCS_Files[grep("Unmixed", FCS_Files)]
 UnmixedFCSFiles <- Unmixed_FullStained[1:2]
-UnmixedCytoSet <- load_cytoset_from_fcs(UnmixedFCSFiles[1:2],
-  truncate_max_range = FALSE,transformation = FALSE)
+UnmixedCytoSet <- load_cytoset_from_fcs(
+  UnmixedFCSFiles[1:2],
+  truncate_max_range = FALSE, transformation = FALSE
+)
 UnmixedGatingSet <- GatingSet(UnmixedCytoSet)
 Markers <- colnames(UnmixedCytoSet)
 KeptMarkers <- Markers[-grep("Time|FS|SC|SS|Original|-W$|-H$|AF", Markers)]
-MyBiexponentialTransform <- flowjo_biexp_trans(channelRange = 256,
-  maxValue = 1000000,pos = 4.5, neg = 0, widthBasis = -1000)
+MyBiexponentialTransform <- flowjo_biexp_trans(
+  channelRange = 256,
+  maxValue = 1000000, pos = 4.5, neg = 0, widthBasis = -1000
+)
 TransformList <- transformerList(KeptMarkers, MyBiexponentialTransform)
-UnmixedGatingSet <- flowWorkspace::transform(UnmixedGatingSet, TransformList)
+UnmixedGatingSet <- flowWorkspace::transform(
+  UnmixedGatingSet, TransformList
+)
 FileLocation <- system.file("extdata", package = "Luciernaga")
-UnmixedGates <- fread(file.path(path = FileLocation, pattern = 'GatesUnmixed.csv'))
+UnmixedGates <- fread(
+  file.path(path = FileLocation, pattern = "GatesUnmixed.csv")
+)
 UnmixedGating <- gatingTemplate(UnmixedGates)
 gt_gating(UnmixedGating, UnmixedGatingSet)
 
-removestrings <-  c("DTR_", ".fcs")
+removestrings <- c("DTR_", ".fcs")
 StorageLocation <- file.path("C:", "Users", "JohnDoe", "Desktop")
 
-ConcatinatedReturn <- Utility_Concatinate(gs=UnmixedGatingSet,
-  sample.name = "GROUPNAME", removestrings=removestrings,
-  subsets="live", subsample = 2000, ReturnType = "flow.frame",
+ConcatinatedReturn <- Utility_Concatinate(
+  gs = UnmixedGatingSet,
+  sample.name = "GROUPNAME", removestrings = removestrings,
+  subsets = "live", subsample = 2000, ReturnType = "flow.frame",
   newName = "MyConcatinatedFile", outpath = StorageLocation,
-   export = FALSE, inverse.transform=TRUE)
+  export = FALSE, inverse.transform = TRUE
+)
 
 }

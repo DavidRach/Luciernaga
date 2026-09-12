@@ -2,8 +2,8 @@
 % Please edit documentation in R/Utility_ThirdColorPlots.R
 \name{Utility_ThirdColorPlots}
 \alias{Utility_ThirdColorPlots}
-\title{Highlight the location of a particular cell population on a given bi-exponential
-axis.}
+\title{Highlight the location of a particular cell population on a given
+bi-exponential axis.}
 \usage{
 Utility_ThirdColorPlots(
   x,
@@ -39,18 +39,20 @@ Utility_ThirdColorPlots(
 
 \item{removestrings}{A list of string characters to remove from the name}
 
-\item{tilesize}{Equivalent of bin, determines the height and width of the tile dots.}
+\item{tilesize}{Equivalent of bin, determines the height and width of the
+tile dots.}
 
 \item{FactorNames}{Provide factor names when splitpoint equals categorical}
 
-\item{reference}{Provide Coereba reference when splitpoint equals crossreference}
+\item{reference}{Provide Coereba reference when splitpoint equals
+crossreference}
 }
 \value{
 A ggplot object with z-axis cells highlighted from background cells
 }
 \description{
-Highlight the location of a particular cell population on a given bi-exponential
-axis.
+Highlight the location of a particular cell population on a given
+bi-exponential axis.
 }
 \examples{
 
