@@ -31,46 +31,63 @@
 #' nameKeyword <- c("GROUPNAME", "TUBENAME")
 #'
 #' TheData <- map(.x=gs, Wetlab_Concentration, subset = "CD45+",
-#'   nameKeyword=nameKeyword, DilutionMultiplier=100, TotalVolume=1) %>%
+#'   nameKeyword=nameKeyword, DilutionMultiplier=100, TotalVolume=1) |>
 #'    bind_rows()
 #'
-#' UpdatedData <- TheData %>% select(-TotalScientific, -TimeSeconds)
+#' UpdatedData <- TheData |> select(-TotalScientific, -TimeSeconds)
 #'
 #' Results <- Wetlab_Rest(data=UpdatedData, DesiredConcentration_MillionperML=3,
 #'  MaxMLperTube=1, returntype="data", outpath=path)
 #'
-Wetlab_Rest <- function(data, DesiredConcentration_MillionperML, MaxMLperTube, returntype,
-                        outpath=NULL, filename="CellResuspensions",
-                        ColorSelection=NULL, outputType="png"){
+Wetlab_Rest <- function(data,
+                         DesiredConcentration_MillionperML,
+                         MaxMLperTube,
+                         returntype,
+                         outpath = NULL,
+                         filename = "CellResuspensions",
+                         ColorSelection = NULL,
+                         outputType = "png") {
 
   TheColNames <- colnames(data)
   RemoveThese <- c("TimeSeconds", "TotalScientific")
-  if (any(RemoveThese %in% TheColNames)) {data <- data |> select(-any_of(RemoveThese))}
+  if (any(RemoveThese %in% TheColNames)) {
+    data <- data |> select(-any_of(RemoveThese))
+  }
 
   data$Cells <- as.numeric(data$Cells)
   data$Volume <- as.numeric(data$Volume)
   data$ConcentrationScientific <- as.numeric(data$ConcentrationScientific)
 
-  Updated <- data |> mutate(TotalCells=ConcentrationScientific*TotalVolume) |>
-    relocate(TotalCells, .before=Instrument)
+  Updated <- data |>
+    mutate(TotalCells = ConcentrationScientific * TotalVolume) |>
+    relocate(TotalCells, .before = Instrument)
   Updated$TotalCells <- format(Updated$TotalCells, scientific = TRUE, digits = 2)
   Specimens <- Updated$name
 
-  DesiredConcentration <- DesiredConcentration_MillionperML*1000000
-  DesiredConcentration <- format(DesiredConcentration, scientific = TRUE, digits = 2)
+  DesiredConcentration <- DesiredConcentration_MillionperML * 1000000
+  DesiredConcentration <- format(DesiredConcentration, scientific = TRUE,
+                                  digits = 2)
   TubeMaxML <- MaxMLperTube
 
-  Instructions <- map(.x=Specimens, .f=RestInternal, Updated=Updated,
-                      DesiredConcentration_MillionperML=DesiredConcentration_MillionperML,
-                      TubeMaxML=TubeMaxML, DesiredConcentration=DesiredConcentration) |> bind_rows()
+  Instructions <- map(
+    .x = Specimens,
+    .f = RestInternal,
+    Updated = Updated,
+    DesiredConcentration_MillionperML = DesiredConcentration_MillionperML,
+    TubeMaxML = TubeMaxML,
+    DesiredConcentration = DesiredConcentration
+  ) |>
+    bind_rows()
 
-  if (returntype == "data"){return(Instructions)
-  } else if (returntype == "plot"){
-    plot <- RestTable(data=Instructions, outpath=outpath, filename=filename,
-       ColorSelection=ColorSelection, outputType=outputType)
-  } else if (returntype == "both"){
-    plot <- RestTable(data=Instructions, outpath=outpath, filename=filename,
-    outputType=outputType)
+  if (returntype == "data") {
+    return(Instructions)
+  } else if (returntype == "plot") {
+    plot <- RestTable(data = Instructions, outpath = outpath,
+                       filename = filename, ColorSelection = ColorSelection,
+                       outputType = outputType)
+  } else if (returntype == "both") {
+    plot <- RestTable(data = Instructions, outpath = outpath,
+                       filename = filename, outputType = outputType)
     return(Instructions)
   }
 }

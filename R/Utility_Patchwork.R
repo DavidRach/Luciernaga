@@ -11,7 +11,7 @@
 #' @param NotListofList Internal default is True, don't touch.
 #' @param patches Whether NotListofList is patchwork objects
 #'
-#' @importFrom purrr map
+#' @importFrom purrr map flatten
 #' @importFrom patchwork wrap_plots
 #' @importFrom grDevices dev.off pdf
 #'
@@ -48,42 +48,47 @@
 #'  outfolder=StorageLocation, thecolumns=2, therows=2,
 #'   width = 7, height = 9, returntype="patchwork")
 #'
-Utility_Patchwork <- function(x, filename, outfolder, thecolumns=2, therows=3,
-  width = 7, height = 9, returntype="pdf", NotListofList = TRUE, patches=FALSE){
+Utility_Patchwork <- function(x,
+                               filename,
+                               outfolder,
+                               thecolumns = 2,
+                               therows = 3,
+                               width = 7,
+                               height = 9,
+                               returntype = "pdf",
+                               NotListofList = TRUE,
+                               patches = FALSE) {
 
-  if (NotListofList == TRUE){
-  theList <- x
-  theList <- Filter(Negate(is.null), theList)
-  theListLength <- length(theList)
+  if (NotListofList == TRUE) {
+    theList <- x
+    theList <- Filter(Negate(is.null), theList)
+    theListLength <- length(theList)
 
-  theoreticalitems <- therows*thecolumns
+    theoreticalitems <- therows * thecolumns
 
-  sublists <- split_list(theList, theoreticalitems)
-  #length(sublists)
-  } else{
+    sublists <- split_list(theList, theoreticalitems)
+    # length(sublists)
+  } else {
     sublists <- x
 
-    if (patches == TRUE){sublists <- flatten(sublists)}
-
+    if (patches == TRUE) {
+      sublists <- flatten(sublists)
+    }
   }
-  
 
-  if (returntype == "pdf"){
+  if (returntype == "pdf") {
 
     MergedName <- paste(outfolder, filename, sep = "/")
-    pdf(file = paste(MergedName, ".pdf", sep = "", collapse = NULL), width = width,
-        height = height)
-    p <- map(sublists, .f=sublist_plots, thecolumns=thecolumns, therows=therows)
+    pdf(file = paste(MergedName, ".pdf", sep = "", collapse = NULL),
+        width = width, height = height)
+    p <- map(sublists, .f = sublist_plots, thecolumns = thecolumns,
+             therows = therows)
     print(p)
     dev.off()
 
-  } else if (returntype == "patchwork"){
-      p <- map(sublists, .f=sublist_plots, thecolumns=thecolumns, therows=therows)
-      return(p)}
+  } else if (returntype == "patchwork") {
+    p <- map(sublists, .f = sublist_plots, thecolumns = thecolumns,
+             therows = therows)
+    return(p)
+  }
 }
-
-
-
-
-
-

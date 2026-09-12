@@ -16,9 +16,10 @@
 #' @param ... Other arguments to pass to umap()
 #'
 #' @importFrom uwot umap
-#' @importFrom flowWorkspace keyword gs_pop_get_data
+#' @importFrom flowWorkspace keyword gs_pop_get_data realize_view
 #' @importFrom flowCore exprs write.FCS
 #' @importFrom dplyr slice_sample mutate select
+#' @importFrom tidyselect all_of
 #'
 #' @return UMAP axes bound to a flowframe or fcs file
 #' @export
@@ -62,14 +63,24 @@
 #'   removestrings=c("_Cells", ".fcs"), subset="nonDebris",
 #'   columns=KeptMarkers, export=FALSE)
 #'
-Utility_UMAP <- function(x, sample.name, removestrings, subset, columns=NULL,
-  notcolumns=NULL, subsample=NULL, export=FALSE, outpath=NULL, metric = "euclidean",
-  n_neighbors = 15, min_dist = 0.5, ...){
+Utility_UMAP <- function(x,
+                          sample.name,
+                          removestrings,
+                          subset,
+                          columns = NULL,
+                          notcolumns = NULL,
+                          subsample = NULL,
+                          export = FALSE,
+                          outpath = NULL,
+                          metric = "euclidean",
+                          n_neighbors = 15,
+                          min_dist = 0.5,
+                          ...) {
   # Retrieving the metadata # the abbreviated version
   name <- keyword(x, sample.name)
   alternatename <- NameCleanUp(name, removestrings)
 
-  #Retrieving the exprs data for my subset population of interest
+  # Retrieving the exprs data for my subset population of interest
   ff <- gs_pop_get_data(x, subset)
   newff <- realize_view(ff)
 
@@ -78,53 +89,69 @@ Utility_UMAP <- function(x, sample.name, removestrings, subset, columns=NULL,
   DF <- as.data.frame(df, check.names = FALSE)
 
   # If down-sampling is specified
-  if(!is.null(subsample)){DF <- slice_sample(DF, n = subsample,
-                                             replace = FALSE)
-  } else{DF <- DF}
+  if (!is.null(subsample)) {
+    DF <- slice_sample(DF, n = subsample, replace = FALSE)
+  } else {
+    DF <- DF
+  }
 
   # Saving Columns for future column reordering
   OriginalColumnsVector <- colnames(DF)
   OriginalColumns <- colnames(DF)
   OriginalColumns <- data.frame(OriginalColumns)
-  OriginalColumnsIndex <- OriginalColumns %>% mutate(IndexLocation = 1:nrow(.))
+  OriginalColumnsIndex <- OriginalColumns %>%
+    mutate(IndexLocation = 1:nrow(.)) # TODO: `.` refers to lhs (magrittr-only)
 
   # Adding Backups for future row reordering
-  Backups <- DF %>% mutate(Backups = 1:nrow(DF)) %>% select(Backups)
+  Backups <- DF |>
+    mutate(Backups = 1:nrow(DF)) |>
+    select(Backups)
 
-  #Stashing Away Time FSC SSC For Later Use
-  StashedDF <- DF[,grep("Time|FS|SC|SS|Original|W$|H$", names(DF))]
+  # Stashing Away Time FSC SSC For Later Use
+  StashedDF <- DF[, grep("Time|FS|SC|SS|Original|W$|H$", names(DF))]
   StashedDF <- cbind(Backups, StashedDF)
 
-  #Consolidating Columns Going Forward
-  CleanedDF <- DF[,-grep("Time|FS|SC|SS|Original|W$|H$", names(DF))]
+  # Consolidating Columns Going Forward
+  CleanedDF <- DF[, -grep("Time|FS|SC|SS|Original|W$|H$", names(DF))]
   BackupNames <- colnames(CleanedDF)
 
- if (!is.null(columns) && !is.null(notcolumns)) {
-   stop("Columns and notcolumns are not currently combinable. Pick one")}
+  if (!is.null(columns) && !is.null(notcolumns)) {
+    stop("Columns and notcolumns are not currently combinable. Pick one")
+  }
 
   # If external columns interest specified
-  if (!is.null(columns)){CleanedDF1 <- CleanedDF %>% select(all_of(columns))
-  } else {CleanedDF1 <- CleanedDF}
+  if (!is.null(columns)) {
+    CleanedDF1 <- CleanedDF |> select(all_of(columns))
+  } else {
+    CleanedDF1 <- CleanedDF
+  }
 
-  if (!is.null(notcolumns)){CleanedDF1 <- CleanedDF1 %>% select(-all_of(columns))
-  } else {CleanedDF1 <- CleanedDF1}
+  if (!is.null(notcolumns)) {
+    CleanedDF1 <- CleanedDF1 |> select(-all_of(columns))
+  } else {
+    CleanedDF1 <- CleanedDF1
+  }
 
   X <- CleanedDF1
 
-  TheUMAP <- umap(X, metric=metric, n_components=2, n_neighbors=n_neighbors,
-                  min_dist=min_dist, ...)
+  TheUMAP <- umap(X, metric = metric, n_components = 2,
+                   n_neighbors = n_neighbors, min_dist = min_dist, ...)
 
   colnames(TheUMAP) <- c("UMAP_1", "UMAP_2")
   TheUMAP <- data.frame(TheUMAP)
 
-  new_fcs <- Utility_ColAppend(ff=newff, DF=DF, columnframe=TheUMAP, shift = TRUE)
+  new_fcs <- Utility_ColAppend(ff = newff, DF = DF, columnframe = TheUMAP,
+                                shift = TRUE)
 
   TheFileName <- paste0(alternatename, "_Dimensionality.fcs")
 
-  if (!is.null(outpath)) {fileSpot <- file.path(outpath, TheFileName)}
+  if (!is.null(outpath)) {
+    fileSpot <- file.path(outpath, TheFileName)
+  }
 
-  if (export == TRUE) {write.FCS(new_fcs, filename = fileSpot, delimiter="#")
-  } else {return(new_fcs)}
+  if (export == TRUE) {
+    write.FCS(new_fcs, filename = fileSpot, delimiter = "#")
+  } else {
+    return(new_fcs)
+  }
 }
-
-

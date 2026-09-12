@@ -10,7 +10,7 @@
 #' @return Nothing, just transfers the file. 
 #' 
 #' @noRd
-ZippedFileTransfer <- function(x, ZippedFolder, outpath){
+ZippedFileTransfer <- function(x, ZippedFolder, outpath) {
   Tempd <- tempfile()
   dir.create(Tempd)
   #list.files(Tempd)

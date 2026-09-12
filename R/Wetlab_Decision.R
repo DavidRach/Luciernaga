@@ -15,34 +15,42 @@
 #' @export
 #'
 #' @examples NULL
-Wetlab_Decision <- function(data, FinalConcentration_MillionperML, MillionCellsPerTube, TheConditions,
-                            ReturnLeftover=TRUE){
+Wetlab_Decision <- function(data,
+                             FinalConcentration_MillionperML,
+                             MillionCellsPerTube,
+                             TheConditions,
+                             ReturnLeftover = TRUE) {
 
-  if(!is.data.frame(TheConditions)){TheConditions <- read.csv(TheConditions, check.names = FALSE)}
+  if (!is.data.frame(TheConditions)) {
+    TheConditions <- read.csv(TheConditions, check.names = FALSE)
+  }
 
-  data <- data %>% select(-c(CurrentConcentration, TotalVolume, IncreaseVolumeML))
+  data <- data |>
+    select(-c(CurrentConcentration, TotalVolume, IncreaseVolumeML))
 
-  SingleColorStash <- data %>% filter(Specimen == FALSE)
-  NotSingle <- data %>% filter(!Specimen == FALSE)
+  SingleColorStash <- data |> filter(Specimen == FALSE)
+  NotSingle <- data |> filter(!Specimen == FALSE)
 
-  Internal <- NotSingle %>% filter(!SpinDown %in% TRUE) %>% mutate(
-    name = case_when(str_detect(name, "Spin") ~ gsub("Spin_", "", name), TRUE ~ name))
+  Internal <- NotSingle |>
+    filter(!SpinDown %in% TRUE) |>
+    mutate(name = case_when(
+      str_detect(name, "Spin") ~ gsub("Spin_", "", name),
+      TRUE ~ name
+    ))
 
   Specimens <- Internal$name
 
-  #Remove the single specimen select below when done
-  TheReturn <- map(.x=Specimens, .f=DecisionInternal, data=Internal,
-                   FinalConcentration_MillionperML=FinalConcentration_MillionperML,
-                   MillionCellsPerTube=MillionCellsPerTube,
-                   TheConditions=TheConditions, ReturnLeftover=ReturnLeftover) %>% bind_rows()
+  # Remove the single specimen select below when done
+  TheReturn <- map(
+    .x = Specimens,
+    .f = DecisionInternal,
+    data = Internal,
+    FinalConcentration_MillionperML = FinalConcentration_MillionperML,
+    MillionCellsPerTube = MillionCellsPerTube,
+    TheConditions = TheConditions,
+    ReturnLeftover = ReturnLeftover
+  ) |>
+    bind_rows()
 
   return(TheReturn)
 }
-
-
-
-
-
-
-
-

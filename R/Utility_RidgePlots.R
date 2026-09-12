@@ -1,4 +1,3 @@
-
 #' Draw Ridge Plots for comparison
 #'
 #' @param gs A Gating Set Object
@@ -62,33 +61,53 @@
 #'   TheFill="Condition",TheX = "APC-Fire 810-A", TheY="name",
 #'   returntype="plots", outpath=StorageLocation, filename="RidgePlot_Condition")
 #'
-#'
-Utility_RidgePlots <- function(gs, subset, TheX=NULL, TheY, TheFill, inverse.transform = FALSE,
-                               outpath, returntype, therows=2,
-                               thecolumns=1, width=7, height=9, filename){
-  
-  if (inherits(gs, "flowSet")){
+Utility_RidgePlots <- function(gs,
+                                subset,
+                                TheX = NULL,
+                                TheY,
+                                TheFill,
+                                inverse.transform = FALSE,
+                                outpath,
+                                returntype,
+                                therows = 2,
+                                thecolumns = 1,
+                                width = 7,
+                                height = 9,
+                                filename) {
+
+  if (inherits(gs, "flowSet")) {
     cs <- gs
-  } else {cs <- gs_pop_get_data(gs, subset, inverse.transform = inverse.transform)}
-  
+  } else {
+    cs <- gs_pop_get_data(gs, subset, inverse.transform = inverse.transform)
+  }
+
   markers <- colnames(cs)
   DFNames <- markers[-grep("Time|FS|SC|SS|Original|-W$|-H$|AF", markers)]
 
-  if(!is.null(TheX)){DFNames <- TheX}
+  if (!is.null(TheX)) {
+    DFNames <- TheX
+  }
 
-  ThePlots <- map(.x=DFNames, .f=RidgePlots, cs=cs, TheY=TheY, TheFill=TheFill)
+  ThePlots <- map(.x = DFNames, .f = RidgePlots, cs = cs, TheY = TheY,
+                   TheFill = TheFill)
 
-  if (returntype == "pdf"){
-    AssembledPlots <- Utility_Patchwork(x=ThePlots, filename=filename, outfolder=outpath,
-       returntype = "pdf", therows=therows, thecolumns=thecolumns, width = width,
-       height=height)
+  if (returntype == "pdf") {
+    AssembledPlots <- Utility_Patchwork(x = ThePlots, filename = filename,
+                                         outfolder = outpath,
+                                         returntype = "pdf",
+                                         therows = therows,
+                                         thecolumns = thecolumns,
+                                         width = width, height = height)
 
-  } else if (returntype == "patchwork"){
-    AssembledPlots <- Utility_Patchwork(x=ThePlots, filename=filename, outfolder=outpath,
-        returntype = "patchwork", therows=therows, thecolumns=thecolumns, width = width,
-        height=height)
+  } else if (returntype == "patchwork") {
+    AssembledPlots <- Utility_Patchwork(x = ThePlots, filename = filename,
+                                         outfolder = outpath,
+                                         returntype = "patchwork",
+                                         therows = therows,
+                                         thecolumns = thecolumns,
+                                         width = width, height = height)
     return(AssembledPlots)
-  } else if (returntype == "plots"){return(ThePlots)}
+  } else if (returntype == "plots") {
+    return(ThePlots)
+  }
 }
-
-

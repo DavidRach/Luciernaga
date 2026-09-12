@@ -24,9 +24,10 @@
 #' @importFrom flowWorkspace keyword gs_pop_get_data
 #' @importFrom flowCore exprs
 #' @importFrom dplyr select
-#' @importFrom tidyr all_of
+#' @importFrom tidyselect all_of
 #' @importFrom ggcyto as.ggplot ggcyto
 #' @importFrom ggplot2 geom_hex
+#' @importFrom utils read.csv
 #'
 #' @return The ggplots for all the specimens, as well as the optional .pdf
 #' @export
@@ -61,46 +62,63 @@
 #' removestrings <-  c("DTR_", ".fcs")
 #' StorageLocation <- file.path("C:", "Users", "JohnDoe", "Desktop")
 #'
-#'SingleUnityPlot <- Utility_UnityPlot(x="Spark Blue 550-A", y="BUV805-A",
+#' SingleUnityPlot <- Utility_UnityPlot(x="Spark Blue 550-A", y="BUV805-A",
 #' GatingSet=UnmixedGatingSet, sample.name="GROUPNAME", bins=100, clearance=0.2,
 #' removestrings=removestrings, marginsubset="lymphocytes", gatesubset="live",
 #' gatelines=FALSE, reference=NULL, returntype="patchwork",outpath=StorageLocation)
 #'
-Utility_UnityPlot <- function(x, y, GatingSet, marginsubset, gatesubset,
-  sample.name, removestrings, clearance, bins, gatelines, reference, returntype,
-  outpath, filename=NULL, cartesian=TRUE){
-  
-  if (!is.null(reference)){
-      if (is.data.frame(reference)){reference <- reference
-      } else {reference <- read.csv(file=reference, check.names = FALSE)
-      }
-  }  
+Utility_UnityPlot <- function(x,
+                               y,
+                               GatingSet,
+                               marginsubset,
+                               gatesubset,
+                               sample.name,
+                               removestrings,
+                               clearance,
+                               bins,
+                               gatelines,
+                               reference,
+                               returntype,
+                               outpath,
+                               filename = NULL,
+                               cartesian = TRUE) {
+
+  if (!is.null(reference)) {
+    if (is.data.frame(reference)) {
+      reference <- reference
+    } else {
+      reference <- read.csv(file = reference, check.names = FALSE)
+    }
+  }
 
   TheX <- x
   TheY <- y
   FileName <- NameCleanUp(TheX, removestrings)
 
-  #x <- GatingSet[[1]]
- Plots <- map(GatingSet, .f=Unity, TheX=TheX, TheY=TheY, marginsubset=marginsubset,
-      gatesubset=gatesubset, sample.name=sample.name, removestrings=removestrings,
-      clearance=clearance, bins=bins, gatelines=gatelines, reference=reference,
-      cartesian=cartesian)
+  # x <- GatingSet[[1]]
+  Plots <- map(GatingSet, .f = Unity, TheX = TheX, TheY = TheY,
+               marginsubset = marginsubset, gatesubset = gatesubset,
+               sample.name = sample.name, removestrings = removestrings,
+               clearance = clearance, bins = bins, gatelines = gatelines,
+               reference = reference, cartesian = cartesian)
 
- if (!is.null(filename)){FileName <- filename} 
-  
- if (returntype == "plots"){
-   return(Plots)
- }
+  if (!is.null(filename)) {
+    FileName <- filename
+  }
 
- if (returntype == "pdf"){
-   AssembledPlots <- Utility_Patchwork(x=Plots, filename=FileName,
-                                       outfolder=outpath, returntype = "pdf")
- }
+  if (returntype == "plots") {
+    return(Plots)
+  }
 
- if (returntype == "patchwork"){
-   AssembledPlots <- Utility_Patchwork(x=Plots, filename=FileName,
-                                       outfolder=outpath, returntype = "patchwork")
- }
+  if (returntype == "pdf") {
+    AssembledPlots <- Utility_Patchwork(x = Plots, filename = FileName,
+                                         outfolder = outpath,
+                                         returntype = "pdf")
+  }
+
+  if (returntype == "patchwork") {
+    AssembledPlots <- Utility_Patchwork(x = Plots, filename = FileName,
+                                         outfolder = outpath,
+                                         returntype = "patchwork")
+  }
 }
-
-
