@@ -9,7 +9,7 @@
 #' 
 #' @importFrom purrr map
 #' @importFrom dplyr bind_rows group_by summarize left_join mutate
-#' relocate select pull rename
+#'  relocate select pull rename
 #'
 #' @return Either a plot or underlying data
 #' @export
@@ -106,80 +106,3 @@ Luciernaga_GroupHeatmap <- function(reports, nameColumn, cutoff=0.01,
 
   } else {return(UpdatedDataset)}
   }
-
-
-#' Internal for StackedReport
-#'
-#' @param data The data intermediate of Stacked Report
-#' @param legend Default is "right", use "none"
-#' @param transpose Default is FALSE, flips orientation
-#'
-#' @importFrom ggplot2 ggplot
-#' @importFrom ggplot2 aes
-#' @importFrom ggplot2 geom_tile
-#' @importFrom ggplot2 geom_text
-#' @importFrom ggplot2 theme_bw
-#' @importFrom ggplot2 scale_fill_gradient
-#' @importFrom ggplot2 theme
-#' @importFrom ggplot2 element_text
-#' @importFrom ggplot2 element_line
-#' @importFrom ggplot2 element_blank
-#' @importFrom ggplot2 coord_fixed
-#'
-#' @noRd
-StackedReportHeatmap <- function(data, nameColumn, legend, transpose){
-  data$Ratio <- round(data$Ratio, 2)
-
-  if (transpose == FALSE){
-  plot <- ggplot(data, aes(x=.data[[nameColumn]], y = Cluster, fill = Ratio)) +
-    geom_tile() + geom_text(aes(label = Ratio)) + theme_bw() +
-    scale_fill_gradient(name = "Ratio", low = "#FFFFFF", high = "#FF0000",
-   limits = c(0, NA)) + theme(legend.position = legend,
-   plot.title = element_text(hjust = 0.5), panel.grid.minor = element_line(
-      linetype = "blank"), axis.title = element_text(size = 10), axis.title.y = element_blank(),
-      axis.title.x = element_blank(), axis.line = element_blank(), axis.ticks = element_blank(),
-      axis.text.x = element_text(angle = 40, hjust = 1), legend.key.size = unit(0.4, "cm"))  +
-    coord_fixed(ratio = 1.1)
-   } else{
-    plot <- ggplot(data, aes(y=.data[[nameColumn]], x = Cluster, fill = Ratio)) +
-      geom_tile() + geom_text(aes(label = Ratio)) + theme_bw() +
-      scale_fill_gradient(name = "Ratio", low = "#FFFFFF", high = "#FF0000",
-     limits = c(0, NA)) + theme(legend.position = legend,
-     plot.title = element_text(hjust = 0.5), panel.grid.minor = element_line(
-        linetype = "blank"), axis.title = element_text(size = 10), axis.title.y = element_blank(),
-        axis.title.x = element_blank(), axis.line = element_blank(), axis.ticks = element_blank(),
-        axis.text.x = element_text(angle = 40, hjust = 1), legend.key.size = unit(0.4, "cm"))  +
-      coord_fixed(ratio = 1.1)
-   }
-
-  return(plot)
-  }
-
-#' Internal for Stacked Reports
-#'
-#' @importFrom dplyr filter
-#' @importFrom dplyr pull
-#'
-#' @noRd
-ClusterAbundance <- function(x, data){
-  #x <- TheClusters[1]
-
-  Subset <- data |> dplyr::filter(Cluster %in% x)
-  TheValues <- Subset |> pull(cutoff) |> unique()
-
-  if(length(TheValues) == 1 && TheValues== TRUE){Value <- x
-  } else if(length(TheValues) == 2 && any(TheValues==TRUE)){Value <- x
-  } else {Value <- NULL}
-
- return(Value)
-}
-
-#' Internal for Stacked Report
-#' @importFrom dplyr select
-#' @importFrom tidyselect all_of
-#'
-#' @noRd
-ReportProcess <- function(x, columns){
-  # x <- reports[[1]]
-  data <- x %>% dplyr::select(all_of(columns))
-}

@@ -1,0 +1,53 @@
+#' Dashboard Internal, loads updated data
+#'
+#' @param x The Cytometer Folder Name
+#' @param MainFolder The file.path to the main folder
+#' @param type Whether to return "MFI" or "Gain" plots
+#'
+#' @importFrom utils read.csv
+#' @importFrom lubridate ymd_hms
+#' @importFrom lubridate ymd
+#' @importFrom lubridate hms
+#' @importFrom stringr str_detect
+#' @importFrom lubridate mdy_hm
+#' @importFrom dplyr arrange
+#' @importFrom dplyr desc
+#'
+#' @return Updated Tracking Data CSV for specified type
+#' @noRd
+CurrentData <- function(x, MainFolder, type){
+
+  ArchiveLocation <- file.path(MainFolder, x, "Archive")
+
+  if (type == "MFI"){
+    BeadData <- list.files(ArchiveLocation, pattern="Bead",
+                           full.names=TRUE)
+    Data <- read.csv(BeadData, check.names=FALSE)
+    Data$DateTime <- lubridate::ymd_hms(Data$DateTime)
+    Data$DATE <- lubridate::ymd(Data$DATE)
+    Data$TIME <- lubridate::hms(Data$TIME)
+  }
+
+  if (type == "Gain"){
+    ArchiveData <- list.files(ArchiveLocation, pattern="Archived",
+                              full.names=TRUE)
+    Data <- read.csv(ArchiveData, check.names=FALSE)
+    #lubridate::ymd_hms(Data$DateTime)
+
+    if (any(str_detect(Data$DateTime, ":.*:"))){
+      Data$DateTime <- lubridate::ymd_hms(Data$DateTime)
+    } else {Data$DateTime <- lubridate::mdy_hm(Data$DateTime)}
+  }
+
+  if (type == "Both"){
+    BothData <- list.files(ArchiveLocation, pattern="Holistic",
+                           full.names=TRUE)
+    Data <- read.csv(BothData, check.names=FALSE)
+    Data$DateTime <- lubridate::ymd_hms(Data$DateTime)
+    Data$DATE <- lubridate::ymd(Data$DATE)
+    Data$TIME <- lubridate::hms(Data$TIME)
+  }
+
+  Data <- Data %>% arrange(desc(DateTime))
+  return(Data)
+}

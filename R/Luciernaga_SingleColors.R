@@ -19,7 +19,7 @@
 #' @importFrom dplyr filter arrange select pull rename mutate relocate
 #' @importFrom tidyr pivot_longer
 #' @importFrom ggplot2 ggplot aes geom_line theme_bw labs theme element_text
-#' element_blank scale_color_manual
+#'  element_blank scale_color_manual
 #' @importFrom tidyselect all_of
 #' @importFrom stats quantile
 #' @importFrom utils read.csv

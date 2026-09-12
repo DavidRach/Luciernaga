@@ -13,7 +13,7 @@
 #' @importFrom flowWorkspace gs_pop_get_data
 #' @importFrom BiocGenerics nrow
 #' @importFrom dplyr mutate select across arrange desc pull
-#' relocate bind_rows left_join
+#'  relocate bind_rows left_join
 #' @importFrom tidyselect all_of where
 #' @importFrom purrr map
 #' 

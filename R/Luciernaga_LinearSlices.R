@@ -23,13 +23,13 @@
 #' @importFrom flowWorkspace gs_pop_get_data
 #' @importFrom BiocGenerics nrow
 #' @importFrom dplyr arrange desc filter slice pull mutate group_by select ungroup
-#' across everything cur_column
+#'  across everything cur_column
 #' @importFrom stats quantile
 #' @importFrom tidyr nest unnest pivot_longer
 #' @importFrom tidyselect all_of
 #' @importFrom ggplot2 ggplot aes theme_bw labs geom_density geom_rect scale_fill_manual
-#' geom_line scale_color_hue theme_linedraw element_text element_blank theme scale_x_log10
-#' annotation_logticks
+#'  geom_line scale_color_hue theme_linedraw element_text element_blank theme scale_x_log10
+#'  annotation_logticks
 #' @importFrom scales trans_format math_format 
 #' 
 #' @return Either ggplots or the summarized data.frame object preceding

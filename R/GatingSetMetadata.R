@@ -1,0 +1,15 @@
+#' Internal Luciernaga_FolderGroupHeatmap, parses GatingSet metadata
+#' 
+#' @param x An iterated GatingSet object
+#' 
+#' @importFrom flowCore keyword
+#' 
+#' @noRd
+GatingSetMetadata <- function(x){
+  GUID <- keyword(x, "GUID")
+  TUBENAME <- keyword(x, "TUBENAME")
+  Date <- keyword(x, "$DATE")
+  Count <- unname(nrow(x))[[1]]
+  Data <- data.frame(GUID, TUBENAME, Date, Count)
+  return(Data) 
+}

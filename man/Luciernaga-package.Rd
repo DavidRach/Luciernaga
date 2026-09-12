@@ -20,5 +20,10 @@ Useful links:
 \author{
 \strong{Maintainer}: David Rach \email{drach@som.umaryland.edu} (\href{https://orcid.org/0000-0003-2235-5585}{ORCID})
 
+Authors:
+\itemize{
+  \item David Rach \email{drach@som.umaryland.edu} (\href{https://orcid.org/0000-0003-2235-5585}{ORCID})
+}
+
 }
 \keyword{internal}

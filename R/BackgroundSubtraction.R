@@ -8,7 +8,7 @@
 #' to subtract back to their original rows
 #' 
 #' @importFrom dplyr select rename_with left_join mutate across cur_column
-#' pull rows_update filter bind_cols
+#'  pull rows_update filter bind_cols
 #' @importFrom tidyselect all_of ends_with
 #' 
 #' @return A data.frame with fluorophore signatures
