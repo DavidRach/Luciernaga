@@ -3,62 +3,75 @@
 #' @param x The iterated date
 #' @param Intermediate The original instrument data
 #'
-#' @importFrom dplyr filter select left_join pull bind_rows
-#' @importFrom lubridate weeks
+#' @importFrom dplyr filter select left_join pull bind_rows slice mutate
+#'  relocate
 #' @importFrom tidyselect starts_with contains all_of
 #' @importFrom tidyr pivot_longer
 #' @importFrom purrr map
 #'
 #' @return Data frame of passing status for respective parameters
 #' @noRd
-ShinyQCSummaryParser <- function(x, Intermediate){
+ShinyQCSummaryParser <- function(x, Intermediate) {
   Date <- x
 
-  x <- Intermediate %>% filter(Date %in% x)
+  x <- Intermediate |> filter(Date %in% x)
 
-  if (nrow(x) > 1){
-    #Data <- x %>% filter(DateTime > WindowOfInterest)
-    Data <- x %>% slice(1)
-  } else {Data <- x}
+  if (nrow(x) > 1) {
+    # Data <- x |> filter(DateTime > WindowOfInterest)
+    Data <- x |> slice(1)
+  } else {
+    Data <- x
+  }
 
-  Flags <- Data %>% select(starts_with("Flag"))
+  Flags <- Data |> select(starts_with("Flag"))
   colnames(Flags) <- gsub("Flag-", "", colnames(Flags))
-  Gains <- Flags %>% select(contains("Gain"))
+  Gains <- Flags |> select(contains("Gain"))
   TheGains <- colnames(Gains)
-  rCV <- Flags %>% select(contains("rCV"))
+  rCV <- Flags |> select(contains("rCV"))
   TherCV <- colnames(rCV)
 
-  TheGainData <- Data %>% select(all_of(c("DateTime", TheGains)))
-  colnames(Gains) <- gsub("-Gain", "", fixed=TRUE, colnames(Gains))
-  colnames(TheGainData) <- gsub("-Gain", "", fixed=TRUE, colnames(TheGainData))
+  TheGainData <- Data |> select(all_of(c("DateTime", TheGains)))
+  colnames(Gains) <- gsub("-Gain", "", fixed = TRUE, colnames(Gains))
+  colnames(TheGainData) <- gsub("-Gain", "", fixed = TRUE,
+                                 colnames(TheGainData))
 
-  TheGainData <- TheGainData %>%
+  TheGainData <- TheGainData |>
     pivot_longer(!DateTime, names_to = "Detector", values_to = "Gain")
 
-  Gains <- Gains %>% mutate(DateTime=Data$DateTime) %>% relocate(DateTime, .before=1)
+  Gains <- Gains |>
+    mutate(DateTime = Data$DateTime) |>
+    relocate(DateTime, .before = 1)
 
-  Gains <- Gains %>%
+  Gains <- Gains |>
     pivot_longer(!DateTime, names_to = "Detector", values_to = "Gain_Logical")
 
-  TherCVData <- Data %>% select(all_of(c("DateTime", TherCV)))
-  colnames(rCV) <- gsub("-% rCV", "", fixed=TRUE, colnames(rCV))
-  colnames(TherCVData) <- gsub("-% rCV", "", fixed=TRUE, colnames(TherCVData))
+  TherCVData <- Data |> select(all_of(c("DateTime", TherCV)))
+  colnames(rCV) <- gsub("-% rCV", "", fixed = TRUE, colnames(rCV))
+  colnames(TherCVData) <- gsub("-% rCV", "", fixed = TRUE,
+                                colnames(TherCVData))
 
-  TherCVData <- TherCVData %>% pivot_longer(!DateTime, names_to = "Detector", values_to = "rCV")
+  TherCVData <- TherCVData |>
+    pivot_longer(!DateTime, names_to = "Detector", values_to = "rCV")
 
-  rCV <- rCV %>% mutate(DateTime=Data$DateTime) %>% relocate(DateTime, .before=1)
+  rCV <- rCV |>
+    mutate(DateTime = Data$DateTime) |>
+    relocate(DateTime, .before = 1)
 
-  rCV <- rCV %>% pivot_longer(!DateTime, names_to = "Detector", values_to = "rCV_Logical")
+  rCV <- rCV |>
+    pivot_longer(!DateTime, names_to = "Detector", values_to = "rCV_Logical")
 
-  Tidy <- TheGainData %>%
-    left_join(Gains, by = c("Detector", "DateTime")) %>%
-    left_join(TherCVData, by = c("Detector", "DateTime")) %>%
+  Tidy <- TheGainData |>
+    left_join(Gains, by = c("Detector", "DateTime")) |>
+    left_join(TherCVData, by = c("Detector", "DateTime")) |>
     left_join(rCV, by = c("Detector", "DateTime"))
 
-  TheDetectors <- Tidy %>% pull(Detector) %>% unique()
+  TheDetectors <- Tidy |> pull(Detector) |> unique()
 
-  Summary <- map(.x=TheDetectors, .f=QCSummaryCheck, data=Tidy) %>% bind_rows()
+  Summary <- map(.x = TheDetectors, .f = QCSummaryCheck, data = Tidy) |>
+    bind_rows()
 
-  Summary <- Summary %>% mutate(Date=Date) %>% relocate(Date, .before=1)
+  Summary <- Summary |>
+    mutate(Date = Date) |>
+    relocate(Date, .before = 1)
   return(Summary)
 }

@@ -10,7 +10,7 @@
 #' @param sample.name Keyword(s) to grab from the cytoset for renaming
 #' 
 #' @importFrom flowWorkspace pData
-#' @importFrom dplyr select pull mutate row_number
+#' @importFrom dplyr select pull mutate row_number filter
 #' @importFrom tidyselect all_of
 #' @importFrom purrr walk
 #' 
@@ -20,36 +20,52 @@
 #' 
 #' @examples A <- 2 + 2
 #' 
-SingleUnmix <- function(matrix, matrix_columnname="Fluorophore", gs, subset="root",
- outpath, inverse.transform=TRUE, sample.name="TUBENAME"){
+SingleUnmix <- function(matrix,
+                         matrix_columnname = "Fluorophore",
+                         gs,
+                         subset = "root",
+                         outpath,
+                         inverse.transform = TRUE,
+                         sample.name = "TUBENAME") {
 
-    # Metadata Fluors
-    pd <- pData(gs)
-    Location <- pd |> select(all_of(matrix_columnname)) |> mutate(Row=row_number())
-    TheseFluorophores <- Location |> pull(matrix_columnname)
+  # Metadata Fluors
+  pd <- pData(gs)
+  Location <- pd |>
+    select(all_of(matrix_columnname)) |>
+    mutate(Row = row_number())
+  TheseFluorophores <- Location |> pull(matrix_columnname)
 
-    # Corrected Matrix Order
-    RetainedMatrix <- matrix |> filter(Fluorophore %in% TheseFluorophores)
-    new_order <- match(TheseFluorophores, RetainedMatrix$Fluorophore)
-    RetainedMatrix <- RetainedMatrix[new_order,]
+  # Corrected Matrix Order
+  RetainedMatrix <- matrix |> filter(Fluorophore %in% TheseFluorophores)
+  new_order <- match(TheseFluorophores, RetainedMatrix$Fluorophore)
+  RetainedMatrix <- RetainedMatrix[new_order, ]
 
-    FolderName <- file.path(outpath, "SingleUnmix")
-    if(!dir.exists(FolderName)){dir.create(FolderName)}
+  FolderName <- file.path(outpath, "SingleUnmix")
+  if (!dir.exists(FolderName)) {
+    dir.create(FolderName)
+  }
 
-    walk(.x=TheseFluorophores, .f=SingleUnmixIterator, gs=gs, matrix=RetainedMatrix, outpath=FolderName,
-    subset=subset, inverse.transform=inverse.transform, sample.name=sample.name)
+  walk(.x = TheseFluorophores, .f = SingleUnmixIterator, gs = gs,
+       matrix = RetainedMatrix, outpath = FolderName, subset = subset,
+       inverse.transform = inverse.transform, sample.name = sample.name)
 
-    FolderName2 <- file.path(outpath, "AllUnmix")
-    if(!dir.exists(FolderName2)){dir.create(FolderName2)}  
+  FolderName2 <- file.path(outpath, "AllUnmix")
+  if (!dir.exists(FolderName2)) {
+    dir.create(FolderName2)
+  }
 
-    walk(.x=TheseFluorophores, .f=AllUnmixIterator, gs=gs, matrix=RetainedMatrix, outpath=FolderName2,
-    subset=subset, inverse.transform=inverse.transform, sample.name=sample.name)
+  walk(.x = TheseFluorophores, .f = AllUnmixIterator, gs = gs,
+       matrix = RetainedMatrix, outpath = FolderName2, subset = subset,
+       inverse.transform = inverse.transform, sample.name = sample.name)
 
-    FolderName3 <- file.path(outpath, "FMO")
-    if(!dir.exists(FolderName3)){dir.create(FolderName3)}  
+  FolderName3 <- file.path(outpath, "FMO")
+  if (!dir.exists(FolderName3)) {
+    dir.create(FolderName3)
+  }
 
-    walk(.x=TheseFluorophores, .f=FMOUnmixIterator, gs=gs, matrix=RetainedMatrix, outpath=FolderName3,
-    subset=subset, inverse.transform=inverse.transform, sample.name=sample.name)
-    
-    message("Done!")
+  walk(.x = TheseFluorophores, .f = FMOUnmixIterator, gs = gs,
+       matrix = RetainedMatrix, outpath = FolderName3, subset = subset,
+       inverse.transform = inverse.transform, sample.name = sample.name)
+
+  message("Done!")
 }

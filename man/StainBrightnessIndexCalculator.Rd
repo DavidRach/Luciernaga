@@ -2,8 +2,8 @@
 % Please edit documentation in R/StainBrightnessIndexCalculator.R
 \name{StainBrightnessIndexCalculator}
 \alias{StainBrightnessIndexCalculator}
-\title{Takes the folder outputs from , parses the stain index for all the combinations,
-returning as a large long data.frame}
+\title{Takes the folder outputs from, parses the stain index for all the
+combinations, returning as a large long data.frame}
 \usage{
 StainBrightnessIndexCalculator(
   folder_location,
@@ -44,11 +44,10 @@ the variant .fcs files were stored}
 A data.frame containing staining index for all the FMO folders fcs files.
 }
 \description{
-Takes the folder outputs from , parses the stain index for all the combinations,
-returning as a large long data.frame
+Takes the folder outputs from, parses the stain index for all the
+combinations, returning as a large long data.frame
 }
 \examples{
-A <- 2+2
-
+A <- 2 + 2
 
 }

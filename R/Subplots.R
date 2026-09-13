@@ -1,4 +1,3 @@
-
 #' Internal for Luciernaga_Lists
 #'
 #' @param i Passed Indicies
@@ -6,7 +5,7 @@
 #'
 #' @importFrom purrr flatten
 #' @importFrom plotly ggplotly
-#' @importFrom htmltools tagList div
+#' @importFrom htmltools tagList div tags
 #'
 #' @return An internal value
 #'

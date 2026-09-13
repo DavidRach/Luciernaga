@@ -223,6 +223,7 @@ importFrom(grDevices,
   dev.off,
   pdf
 )
+importFrom(grid,unit)
 importFrom(gt,
   cell_fill,
   cell_text,
@@ -247,7 +248,8 @@ importFrom(htmltools,
   div,
   h1,
   save_html,
-  tagList
+  tagList,
+  tags
 )
 importFrom(lsa,cosine)
 importFrom(lubridate,

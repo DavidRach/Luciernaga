@@ -1,4 +1,3 @@
-
 #' Internal for Wetlab_Decisions
 #'
 #' @param x The remaining conditions
@@ -13,33 +12,47 @@
 #' @return An internal value
 #'
 #' @noRd
-SliderConditionWrap <- function(x, y, name, Date, TotalCells, RestConcentration, FinalConcentration,
-                                TheConditions){
+SliderConditionWrap <- function(x,
+                                 y,
+                                 name,
+                                 Date,
+                                 TotalCells,
+                                 RestConcentration,
+                                 FinalConcentration,
+                                 TheConditions) {
 
   Condition <- x
   CellsPerTube <- y
 
-  #if (!FinalConcentration==CellsPerTube){message("Cells are scarce resource for ", name)}
+  # if (!FinalConcentration==CellsPerTube){
+  #   message("Cells are scarce resource for ", name)
+  # }
 
-  FinalVolumeML <- (CellsPerTube*1)/FinalConcentration
+  FinalVolumeML <- (CellsPerTube * 1) / FinalConcentration
   FinalVolumeML <- round(FinalVolumeML, 2)
 
-  RestVolToAddML <- CellsPerTube/RestConcentration
+  RestVolToAddML <- CellsPerTube / RestConcentration
   RestVolToAddML <- round(RestVolToAddML, 2)
 
-  MediaVolToAddML <- FinalVolumeML-RestVolToAddML
+  MediaVolToAddML <- FinalVolumeML - RestVolToAddML
   MediaVolToAddML <- round(MediaVolToAddML, 2)
 
-  if (MediaVolToAddML < 0){SpinDown <- FALSE
-  } else {SpinDown <- TRUE}
+  if (MediaVolToAddML < 0) {
+    SpinDown <- FALSE
+  } else {
+    SpinDown <- TRUE
+  }
 
-  TotalCells <- format(TotalCells, scientific=TRUE, digits=2)
-  CellsPerTube <- format(CellsPerTube, scientific=TRUE, digits=2)
-  FinalConcentration <- format(FinalConcentration, scientific=TRUE, digits=2)
+  TotalCells <- format(TotalCells, scientific = TRUE, digits = 2)
+  CellsPerTube <- format(CellsPerTube, scientific = TRUE, digits = 2)
+  FinalConcentration <- format(FinalConcentration, scientific = TRUE,
+                                digits = 2)
 
-  PreliminaryData <- cbind(name, Date, Condition, TotalCells, RestConcentration, FinalConcentration,
-                           RestVolToAddML, MediaVolToAddML, CellsPerTube, FinalVolumeML)
+  PreliminaryData <- cbind(name, Date, Condition, TotalCells,
+                            RestConcentration, FinalConcentration,
+                            RestVolToAddML, MediaVolToAddML, CellsPerTube,
+                            FinalVolumeML)
 
-  PreliminaryData <- data.frame(PreliminaryData, check.names=FALSE)
+  PreliminaryData <- data.frame(PreliminaryData, check.names = FALSE)
   return(PreliminaryData)
 }

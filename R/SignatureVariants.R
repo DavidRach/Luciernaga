@@ -1,4 +1,3 @@
-
 #' Internal for AutofluorescenceShop, filters down AF signatures to show
 #' main variants as plots for later compiling via Patchwork
 #' 
@@ -16,25 +15,26 @@
 #' @return ggplot or plotly object
 #' 
 #' @noRd
-SignatureVariants <- function(x, data, returnType, legend, plotname){
+SignatureVariants <- function(x, data, returnType, legend, plotname) {
   x <- as.character(x)
 
   UnstainedSignature1 <- data |>
-     dplyr::select(-Sample, -Experiment, -Condition, -Count)
+    select(-Sample, -Experiment, -Condition, -Count)
 
-  These <- UnstainedSignature1  |>
-    dplyr::filter(stringr::str_detect(Cluster, paste0("^", x))) |>
-    dplyr::pull(Cluster) |> unique()
+  These <- UnstainedSignature1 |>
+    filter(str_detect(Cluster, paste0("^", x))) |>
+    pull(Cluster) |>
+    unique()
 
-  Plots <- Luciernaga::QC_ViewSignature(x=These,
-     columnname="Cluster", data=UnstainedSignature1,
-      Normalize=TRUE,TheFormat="wider", legend=legend,
-  plotname=plotname)
+  Plots <- Luciernaga::QC_ViewSignature(x = These, columnname = "Cluster",
+                                        data = UnstainedSignature1,
+                                        Normalize = TRUE, TheFormat = "wider",
+                                        legend = legend, plotname = plotname)
 
-  if (returnType == "plots"){
+  if (returnType == "plots") {
     return(Plots)
-    } else {
-      Plots <- plotly::ggplotly(Plots)
-      return(Plots)
-    }
+  } else {
+    Plots <- ggplotly(Plots)
+    return(Plots)
+  }
 }

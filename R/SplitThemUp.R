@@ -1,4 +1,3 @@
-
 #' Internal for Chorizo, determines the Parameter row name order
 #'
 #' @param TheIntegers The iterated number of row names
@@ -12,7 +11,8 @@
 #' @noRd
 SplitThemUp <- function(TheIntegers, RangeStart, RangeSize) {
   TheIntegers <- TheIntegers[TheIntegers >= RangeStart]
-  RangesList <- split(TheIntegers, (TheIntegers - RangeStart) %/% RangeSize + 1)
+  RangesList <- split(TheIntegers,
+                       (TheIntegers - RangeStart) %/% RangeSize + 1)
   RangesLength <- length(RangesList)
   InitialAppend <- 1:RangesLength
   Remainder <- 1:9
