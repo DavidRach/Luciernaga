@@ -2,50 +2,27 @@
 % Please edit documentation in R/CartoonSignatures.R
 \name{CartoonSignatures}
 \alias{CartoonSignatures}
-\title{Visualizes the provided fluorophore signatures from a template data.frame}
+\title{Visualizes fluorophore signatures with smooth density-colored ribbons}
 \usage{
 CartoonSignatures(
   x = NULL,
   columnname = "Sample",
   data,
   characterColumns = NULL,
+  Expand = NULL,
+  variance = "medium",
   Normalize = TRUE,
   legend = TRUE,
   plotname = NULL,
   plotlinecolor = NULL,
-  ylim = NULL
+  ylim = NULL,
+  returnType = "Cartoon",
+  ribbon_ci = 0.95,
+  theme = "viridis",
+  bins = 100,
+  logScale = TRUE
 )
 }
-\arguments{
-\item{x}{Default NULL, otherwise name for a value in the columnname column
-that you want to individually visualize}
-
-\item{columnname}{Default is Flurophore, specifies column name
-from which x is filtered from}
-
-\item{data}{A template data.frame containing the fluorophore signature}
-
-\item{Normalize}{Whether to normalize the data based on peak
-detector value, default is TRUE}
-
-\item{legend}{Default TRUE, alternately removes plot legend}
-
-\item{plotname}{Default NULL, alternately specifies the plot
-title}
-
-\item{plotlinecolor}{Default NULL, alternatively provide color
-when only a single line}
-
-\item{ylim}{Numeric vector of length 2 specifying y-axis bounds (e.g. c(0, 100000)).
-Default NULL scales y-axis automatically to fit data.}
-}
-\value{
-Visualized plot
-}
 \description{
-Visualizes the provided fluorophore signatures from a template data.frame
-}
-\examples{
-A <- 2 + 2
-
+Visualizes fluorophore signatures with smooth density-colored ribbons
 }
