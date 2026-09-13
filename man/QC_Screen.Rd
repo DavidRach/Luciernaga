@@ -22,13 +22,13 @@ QC_Screen(
 \arguments{
 \item{data}{The LuciernagaQC data output}
 
-\item{groupColumns}{Names of columns you want to combine to make the 
+\item{groupColumns}{Names of columns you want to combine to make the
 name being used for comparison, ex: c("Sample", "Condition")}
 
 \item{clusterColumn}{Default is "Cluster"}
 
-\item{filterDate}{Used to quickly return a screened plot, use the plot title
-name in it's entirety and set returnType to "plot"}
+\item{filterDate}{Used to quickly return a screened plot, use the plot
+title name in it's entirety and set returnType to "plot"}
 
 \item{cutoff}{Default is 0.005}
 

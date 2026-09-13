@@ -92,10 +92,8 @@ importFrom(MASS,ginv)
 importFrom(Rtsne,Rtsne)
 importFrom(data.table,fread)
 importFrom(dplyr,
-  "%>%",
   across,
   add_row,
-  all_of,
   anti_join,
   arrange,
   bind_cols,

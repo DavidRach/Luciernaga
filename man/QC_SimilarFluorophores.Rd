@@ -14,19 +14,21 @@ QC_SimilarFluorophores(
 )
 }
 \arguments{
-\item{TheFluorophore}{The name of the Fluorophore compare, see QC_ReferenceLibrary}
+\item{TheFluorophore}{The name of the Fluorophore compare, see
+QC_ReferenceLibrary}
 
 \item{NumberDetectors}{Number of detectors of the instrument}
 
-\item{returnSynonyms}{Something}
+\item{returnSynonyms}{Returns only fluorophores > 0.98 cosine value,
+default FALSE}
 
 \item{NumberHits}{Number of most similar fluorophores by cosine}
 
-\item{returnPlots}{Whether to also return signature plots, default is set FALSE}
+\item{returnPlots}{Whether to also return signature plots, default is set
+FALSE}
 
-\item{plotlinecolor}{Default NULL, otherwise if single line provide desired color}
-
-\item{returnSynonymns}{Returns only fluorophores > 0.98 cosine value, default FALSE}
+\item{plotlinecolor}{Default NULL, otherwise if single line provide
+desired color}
 }
 \value{
 A dataframe of similar fluorophores
@@ -35,6 +37,7 @@ A dataframe of similar fluorophores
 Queries fluorophore and returns similar fluorophores.
 }
 \examples{
-Results <- QC_SimilarFluorophores(TheFluorophore="Spark Blue 550",
- NumberDetectors=64, returnSynonymns=FALSE, NumberHits = 10, returnPlots=FALSE)
+Results <- QC_SimilarFluorophores(TheFluorophore = "Spark Blue 550",
+  NumberDetectors = 64, returnSynonyms = FALSE, NumberHits = 10,
+  returnPlots = FALSE)
 }

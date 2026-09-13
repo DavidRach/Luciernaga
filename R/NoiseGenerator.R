@@ -6,6 +6,6 @@
 #'
 #' @return A vector of noise values
 #' @noRd
-NoiseGenerator <- function(x){
-  rnorm(nrow(x), mean=0, sd=6)
+NoiseGenerator <- function(x) {
+  rnorm(nrow(x), mean = 0, sd = 6)
 }

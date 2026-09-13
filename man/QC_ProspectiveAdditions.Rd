@@ -16,9 +16,11 @@ QC_ProspectiveAdditions(
 )
 }
 \arguments{
-\item{path}{Filepath to the panel .csv, or a data.frame with column Fluorophore}
+\item{path}{Filepath to the panel .csv, or a data.frame with column
+Fluorophore}
 
-\item{NumberDetectors}{Number of detectors for the instrument to pull references}
+\item{NumberDetectors}{Number of detectors for the instrument to pull
+references}
 
 \item{TheCutoff}{Default is 0.9, determines HighOverlap count threshold}
 
@@ -28,7 +30,8 @@ QC_ProspectiveAdditions(
 
 \item{outpath}{Path Location to store the the output .csv}
 
-\item{returnCSV}{Whether to return as a csv to designated outpath and filename, a TRUE/FALSE}
+\item{returnCSV}{Whether to return as a csv to designated outpath and
+filename, a TRUE/FALSE}
 }
 \value{
 A csv containing selected fluorophores
@@ -39,12 +42,12 @@ From existing panel, figures out open detectors, and returns potential
 }
 \examples{
 Folder_Location <- system.file("extdata", package = "Luciernaga")
-ThePanelLocation <- list.files(Folder_Location, pattern="^Panel.csv",
- full.names=TRUE)
+ThePanelLocation <- list.files(Folder_Location, pattern = "^Panel.csv",
+ full.names = TRUE)
 OutPath <- file.path("C:", "Users", "JohnDoe", "Desktop")
 
-ProspectiveAdditions <- QC_ProspectiveAdditions(path=ThePanelLocation, NumberDetectors=64,
-TheCutoff=0.9, returnAll=FALSE, returnCSV=FALSE,
-filename="ProspectiveAdditions", outpath=OutPath)
+ProspectiveAdditions <- QC_ProspectiveAdditions(path = ThePanelLocation,
+NumberDetectors = 64, TheCutoff = 0.9, returnAll = FALSE,
+returnCSV = FALSE, filename = "ProspectiveAdditions", outpath = OutPath)
 
 }

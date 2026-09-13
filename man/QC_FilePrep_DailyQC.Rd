@@ -7,8 +7,8 @@
 QC_FilePrep_DailyQC(x)
 }
 \arguments{
-\item{x}{Takes a Daily QC CSV file, and converts into a "tidyed" dataframe for plotting.
-Currently works on our 3L, 4L, 5L Auroras.}
+\item{x}{Takes a Daily QC CSV file, and converts into a "tidyed"
+dataframe for plotting. Currently works on our 3L, 4L, 5L Auroras.}
 }
 \value{
 A dataframe.
@@ -19,7 +19,7 @@ Converts Cytek Aurora Daily QC report into a data frame.
 \examples{
 File_Location <- system.file("extdata", package = "Luciernaga")
 CSV_Pattern <- ".CSV$"
-CSV_Files <- list.files(path=File_Location, pattern=CSV_Pattern,
-                       full.names=TRUE)
+CSV_Files <- list.files(path = File_Location, pattern = CSV_Pattern,
+                       full.names = TRUE)
 TidyData <- QC_FilePrep_DailyQC(CSV_Files)
 }

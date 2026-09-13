@@ -2,7 +2,8 @@
 % Please edit documentation in R/QC_ReferenceLibrary.R
 \name{QC_ReferenceLibrary}
 \alias{QC_ReferenceLibrary}
-\title{Queries the available reference library for available fluorophores (and their naming conventions)}
+\title{Queries the available reference library for available fluorophores (and
+their naming conventions)}
 \usage{
 QC_ReferenceLibrary(
   FluorNameContains,
@@ -16,31 +17,40 @@ QC_ReferenceLibrary(
 )
 }
 \arguments{
-\item{FluorNameContains}{A character string pattern to match, example "APC"}
+\item{FluorNameContains}{A character string pattern to match, example
+"APC"}
 
 \item{NumberDetectors}{The number of detectors the instrument contains.
 For Cytek Instruments 5L = 64, 4L_UV = 54, 4L_YG = 48, 3L=38, 2L_VB=30,
 2L_BR=22, 1L=14
 For BD S8=78, S6="48_S", A5="48_A"
 For Sony ID7000 7L=184, 6L_DUV="182_DUV", 5L=147, 4L=112, 3L=86
-For ThermoFisher BigFoot 7L_488-561=55, 7L_532-594="52_7L", 6L_445="52_6L", 6L_785=51}
+For ThermoFisher BigFoot 7L_488-561=55, 7L_532-594="52_7L",
+6L_445="52_6L", 6L_785=51}
 
-\item{returnPlots}{Whether to return signature plot as well. Default FALSE.}
+\item{returnPlots}{Whether to return signature plot as well. Default
+FALSE.}
 
-\item{plotlinecolor}{Default NULL, otherwise if single line provide desired color}
+\item{plotlinecolor}{Default NULL, otherwise if single line provide
+desired color}
+
+\item{legend}{TBD}
 
 \item{plotname}{Default NULL, alternatively specify a title.}
 
 \item{exact}{Default FALSE, else returns exact fluorophore name match.}
 
-\item{unstained}{Default NULL, alternatively provide corresponding unstained signature}
+\item{unstained}{Default NULL, alternatively provide corresponding
+unstained signature}
 }
 \value{
-A dataframe column containing matching Fluorophores from your querry
+A dataframe column containing matching Fluorophores from your
+  querry
 }
 \description{
-Queries the available reference library for available fluorophores (and their naming conventions)
+Queries the available reference library for available fluorophores (and
+their naming conventions)
 }
 \examples{
-QC_ReferenceLibrary(FluorNameContains = "FITC", NumberDetectors=64)
+QC_ReferenceLibrary(FluorNameContains = "FITC", NumberDetectors = 64)
 }

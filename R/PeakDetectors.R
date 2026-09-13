@@ -6,10 +6,10 @@
 #'
 #' @return A data.frame of detectors and respective counts
 #' @noRd
-PeakDetectors <- function(NewData){
+PeakDetectors <- function(NewData) {
   NewData[NewData < 0] <- 0
   A <- do.call(pmax, NewData)
-  Normalized <- NewData/A
+  Normalized <- NewData / A
   colnames(Normalized) <- gsub("-A", "", colnames(Normalized))
 
   ColsN <- ncol(NewData)
@@ -24,7 +24,7 @@ PeakDetectors <- function(NewData){
   Counts <- colSums(Normalized == 1)
   PeakDetectorCounts <- data.frame(Fluors = names(Counts), Counts = Counts)
   rownames(PeakDetectorCounts) <- NULL
-  PeakDetectorCounts <- PeakDetectorCounts %>% arrange(desc(Counts))
+  PeakDetectorCounts <- PeakDetectorCounts |> arrange(desc(Counts))
   PeakList <- list(WorkAround, PeakDetectorCounts)
   return(PeakList)
 }

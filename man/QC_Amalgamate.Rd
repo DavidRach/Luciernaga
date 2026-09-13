@@ -2,9 +2,10 @@
 % Please edit documentation in R/QC_Amalgamate.R
 \name{QC_Amalgamate}
 \alias{QC_Amalgamate}
-\title{Taking a Luciernaga_Slices (or similar data.frame) with an added Counts column, 
-expands each row by the count, takes the median, and then returns either data
-or a plot showing how different the average signature is from the individual ones}
+\title{Taking a Luciernaga_Slices (or similar data.frame) with an added Counts
+column, expands each row by the count, takes the median, and then
+returns either data or a plot showing how different the average
+signature is from the individual ones}
 \usage{
 QC_Amalgamate(
   data,
@@ -24,6 +25,8 @@ all the normalized detector columns}
 \item{samplecolumn}{The column name correspondoing to the sample column,
 default is Percentiles}
 
+\item{normalize}{TBD}
+
 \item{countcolumn}{The column name corresponding to the count column,
 default Count}
 
@@ -31,7 +34,8 @@ default Count}
 
 \item{titlename}{Default is NULL, specify a title if desired}
 
-\item{linecolor}{Default is red, specify alternate color for the Average signature}
+\item{linecolor}{Default is red, specify alternate color for the
+Average signature}
 
 \item{legend}{Whether to return legend, default is TRUE}
 }
@@ -39,9 +43,10 @@ default Count}
 Either a plot or the underlying data
 }
 \description{
-Taking a Luciernaga_Slices (or similar data.frame) with an added Counts column, 
-expands each row by the count, takes the median, and then returns either data
-or a plot showing how different the average signature is from the individual ones
+Taking a Luciernaga_Slices (or similar data.frame) with an added Counts
+column, expands each row by the count, takes the median, and then
+returns either data or a plot showing how different the average
+signature is from the individual ones
 }
 \examples{
 

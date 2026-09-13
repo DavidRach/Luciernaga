@@ -19,7 +19,8 @@ QC_LibraryParse(
 
 \item{references}{Plot argument, adds red reference signature}
 
-\item{myfactor}{Plot argument, data column to group by for plotting. Default "Fluorophore".}
+\item{myfactor}{Plot argument, data column to group by for plotting.
+Default "Fluorophore".}
 
 \item{namefactor}{Plot argument, data column name added to Plot Title.}
 }
@@ -34,5 +35,6 @@ Folder_Location <- system.file("extdata", package = "Luciernaga")
 XML_Pattern <- ".XML$"
 XML_Files <- list.files(path = Folder_Location, pattern = XML_Pattern,
                         full.names = TRUE, recursive = FALSE)
-SinglePlot <- QC_LibraryParse(XML_Files[2], returntype="plots", references=FALSE)
+SinglePlot <- QC_LibraryParse(XML_Files[2], returntype = "plots",
+  references = FALSE)
 }
