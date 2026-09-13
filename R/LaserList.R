@@ -8,7 +8,8 @@
 #' @return The list of laser parameters for the Description list
 #'
 #' @noRd
-LaserList <- function(x, data){
+LaserList <- function(x, data) {
+
   Subset <- data |> filter(LaserOrder %in% x)
   Number <- Subset |> pull(LaserNumber)
 

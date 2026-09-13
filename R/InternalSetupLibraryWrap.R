@@ -1,6 +1,5 @@
-
 #' Internal for SetupLibraryPlotWrapper
-#' 
+#'
 #' @param x A
 #' @param distinguish A
 #' @param data A
@@ -9,15 +8,16 @@
 #' @param valuecolumn A
 #' @param Normalize A
 #' @param TheFormat A
-#' 
+#'
 #' @importFrom dplyr filter pull
 #' @importFrom purrr map
-#' 
+#' @importFrom rlang .data
+#'
 #' @return A ggplot2 object
-#' 
+#'
 #' @noRd
 InternalSetupLibraryWrap <- function(x, distinguish, data, columnname,
- detectorcolumn, valuecolumn, Normalize, TheFormat){
+ detectorcolumn, valuecolumn, Normalize, TheFormat) {
 
   SubsetData <- data |> filter(.data[[distinguish]] %in% x)
   TheTarget <- SubsetData |> pull(columnname) |> unique()
@@ -26,5 +26,5 @@ InternalSetupLibraryWrap <- function(x, distinguish, data, columnname,
    columnname = columnname, detectorcolumn=detectorcolumn,
     valuecolumn=valuecolumn, Normalize=Normalize, TheFormat=TheFormat)
 
-   return(InnerPlots)
+  return(InnerPlots)
 }

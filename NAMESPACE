@@ -212,7 +212,6 @@ importFrom(ggplot2,
   theme_bw,
   theme_linedraw,
   theme_minimal,
-  unit,
   ylim
 )
 importFrom(ggridges,geom_density_ridges)

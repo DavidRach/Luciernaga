@@ -1,30 +1,28 @@
 #' Internal LuciernagaQC detects Fluorophore Peak Detectors by
-#'  Local Maxima
+#' Local Maxima
 #'
 #' @param theX A vector of detectors from 1:n
 #' @param theY The corresponding y values corresponding to the
-#'  measurements of theX
+#'   measurements of theX
 #' @param therepeats Additional values to temporarily add to the
-#'  edges to allow for peak detection
+#'   edges to allow for peak detection
 #' @param w The span around which rolling will happen
 #' @param alternatename The cleaned up name passed to the plots
-#'  (internal)
+#'   (internal)
 #' @param Verbose Whether to print line plot outputs
 #' @param ... Additional arguments passed to zoo package
 #'
 #' @importFrom stats loess
 #' @importFrom zoo rollapply zoo
-#' @importFrom dplyr filter
+#' @importFrom dplyr filter select
 #' @importFrom ggplot2 ggplot geom_segment geom_point geom_line
-#'  aes labs theme theme_bw element_blank
-#' @importFrom dplyr select
-
+#'   aes labs theme theme_bw element_blank element_text
 #'
 #' @return A value to be determined later
 #'
 #' @noRd
 LocalMaxima <- function(theX, theY, therepeats, w,
-   alternatename, Verbose = FALSE, ...){
+   alternatename, Verbose = FALSE, ...) {
 
   #Adding Margins
   repeats <- therepeats*2
@@ -68,9 +66,10 @@ LocalMaxima <- function(theX, theY, therepeats, w,
       axis.title.x = element_blank(), axis.title.y = element_blank(),
       panel.grid.major = element_blank(), panel.grid.minor = element_blank())
 
-  if (Verbose == TRUE) {#YNW(Views)
-                        Views
-    }
+  if (Verbose == TRUE) {
+    #YNW(Views)
+    Views
+  }
 
   PointData <- PointData |> select(-y)
 

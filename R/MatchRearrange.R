@@ -9,7 +9,8 @@
 #' @return Rearranged data.frame with laser ordered rows
 #'
 #' @noRd
-MatchRearrange <- function(x, thematch, data){
+MatchRearrange <- function(x, thematch, data) {
+
   Subset <- data |> filter(Instrument %in% x)
   MatchedReferences <- match(thematch, Subset$Fluorophore)
   MatchedReferences <- Subset[MatchedReferences, ]

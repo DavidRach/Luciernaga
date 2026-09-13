@@ -7,6 +7,7 @@
 #'
 #' @noRd
 ItemSelect <- function(ListOfList, n) {
+
   result <- lapply(ListOfList, function(innerList) innerList[[n]])
   return(result)
 }
