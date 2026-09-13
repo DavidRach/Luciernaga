@@ -9,11 +9,13 @@
 #' @return An RCV for the individual marker
 #' 
 #' @noRd
-InternalRCV <- function(x, data){
+InternalRCV <- function(x, data) {
   Name <- x
   TheCol <- data |> select(x)
   TheCol <- TheCol[!is.na(TheCol)]
-  if(length(TheCol) == 0) return(NULL)
+  if (length(TheCol) == 0) {
+    return(NULL)
+  }
   RCV <- mad(TheCol) / median(TheCol)
   RCV <- data.frame(RCV)
   colnames(RCV) <- Name

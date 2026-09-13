@@ -5,6 +5,8 @@
 \title{Internal for Utility_DensityOverlay}
 \usage{
 InternalDensity(x, cs, TheFill)
+
+InternalDensity(x, cs, TheFill)
 }
 \arguments{
 \item{x}{A passed x-axis name}
@@ -15,8 +17,12 @@ InternalDensity(x, cs, TheFill)
 }
 \value{
 An internal value
+
+An internal value
 }
 \description{
+Internal for Utility_DensityOverlay
+
 Internal for Utility_DensityOverlay
 }
 \keyword{internal}

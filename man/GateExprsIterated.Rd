@@ -17,14 +17,16 @@ GateExprsIterated(
 \arguments{
 \item{gs}{A gating set}
 
+\item{sample}{The iterated specimen index within the GatingSet}
+
+\item{gate}{The gate to retrieve the population from}
+
 \item{inverse.transform}{Whether to inverse.transform, default
 is set to TRUE}
 
 \item{excludeThese}{Removes columns whose name contain these
  values via str_detect, default set for "FSC|SSC|Time|-H" 
 which is typical for Cytek Aurora raw .fcs files}
-
-\item{template}{The template data.frame}
 }
 \value{
 A data.frame row containing the fluorophore name and
@@ -37,6 +39,6 @@ Internal for RetrieveAveragedSignature, iterates on per gate
  contained within
 }
 \examples{
-A <- 2+2
+A <- 2 + 2
 
 }

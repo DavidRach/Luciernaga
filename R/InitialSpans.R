@@ -1,4 +1,3 @@
-
 #' Internal for InitialUnmixingGates, creates gates for designated
 #'  fluorophores at the corresponding dimension, using the assigned
 #'  percentiles to draw the initial span gates
@@ -20,45 +19,50 @@
 #' 
 #' @return Nothing, but creates the gate
 #' 
-#' @examples A <- 2+2
+#' @examples A <- 2 + 2
 #' 
 #' @noRd
 #' 
-InitialSpans <- function(x, gs, subset, data, inverse.transform,
- minpercentile, maxpercentile){
+InitialSpans <- function(x,
+                          gs,
+                          subset,
+                          data,
+                          inverse.transform,
+                          minpercentile,
+                          maxpercentile) {
 
-    Internal <- data |> filter(Fluorophore %in% x)
-    filterId <- Internal |> pull(Fluorophore)
-    dims <- Internal |> pull(Detector)
-    theIndex <- Internal |> pull(gs_index)
+  Internal <- data |> filter(Fluorophore %in% x)
+  filterId <- Internal |> pull(Fluorophore)
+  dims <- Internal |> pull(Detector)
+  theIndex <- Internal |> pull(gs_index)
 
-    InternalData <- gs_pop_get_data(gs[theIndex], subset=subset,
-         inverse.transform=inverse.transform)
-    TheExprs <- data.frame(exprs(InternalData[[1]]), check.names=FALSE)
-    ExprDim <- paste0(dims, "-A")
-    TheValues <- TheExprs[[ExprDim]]
-    MinBoundary <- quantile(TheValues, minpercentile) |> unname()
-    MaxBoundary <- quantile(TheValues, maxpercentile) |> unname()
-    Values <- paste(c(MinBoundary, MaxBoundary), collapse=",")
+  InternalData <- gs_pop_get_data(gs[theIndex], subset = subset,
+                                   inverse.transform = inverse.transform)
+  TheExprs <- data.frame(exprs(InternalData[[1]]), check.names = FALSE)
+  ExprDim <- paste0(dims, "-A")
+  TheValues <- TheExprs[[ExprDim]]
+  MinBoundary <- quantile(TheValues, minpercentile) |> unname()
+  MaxBoundary <- quantile(TheValues, maxpercentile) |> unname()
+  Values <- paste(c(MinBoundary, MaxBoundary), collapse = ",")
 
-    ExistingGates <- gs_get_pop_paths(gs, path="auto")
+  ExistingGates <- gs_get_pop_paths(gs, path = "auto")
 
-    if(!any(str_equal(ExistingGates, filterId))){
+  if (!any(str_equal(ExistingGates, filterId))) {
 
-        suppressMessages(
-            gs_add_gating_method(gs, alias = filterId, pop = "+",
-             parent = subset,  dims = ExprDim,
-              gating_method = "span_gate", gating_args = Values)
-        )
+    suppressMessages(
+      gs_add_gating_method(gs, alias = filterId, pop = "+", parent = subset,
+                            dims = ExprDim, gating_method = "span_gate",
+                            gating_args = Values)
+    )
 
-    } else {
-        gs_pop_remove(gs, filterId, recompute = TRUE, recursive = TRUE) 
+  } else {
+    gs_pop_remove(gs, filterId, recompute = TRUE, recursive = TRUE)
 
-        suppressMessages(
-        gs_add_gating_method(gs, alias = filterId, pop = "+", 
-        parent = subset, dims = ExprDim, gating_method = "span_gate",
-        gating_args = Values)
-        )
+    suppressMessages(
+      gs_add_gating_method(gs, alias = filterId, pop = "+", parent = subset,
+                            dims = ExprDim, gating_method = "span_gate",
+                            gating_args = Values)
+    )
 
-    }
+  }
 }

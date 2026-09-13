@@ -6,10 +6,10 @@
 #'
 #' @return An equivalent data.frame of noise values
 #' @noRd
-HouseParty <- function(x){
+HouseParty <- function(x) {
   TheNames <- colnames(x)
   TheParticipants <- list()
-  for (i in seq_along(x)){
+  for (i in seq_along(x)) {
     TheParticipants[[i]] <- NoiseGenerator(x)
   }
   names(TheParticipants) <- TheNames

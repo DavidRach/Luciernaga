@@ -12,7 +12,8 @@ CartoonSignatures(
   Normalize = TRUE,
   legend = TRUE,
   plotname = NULL,
-  plotlinecolor = NULL
+  plotlinecolor = NULL,
+  ylim = NULL
 )
 }
 \arguments{
@@ -34,6 +35,9 @@ title}
 
 \item{plotlinecolor}{Default NULL, alternatively provide color
 when only a single line}
+
+\item{ylim}{Numeric vector of length 2 specifying y-axis bounds (e.g. c(0, 100000)).
+Default NULL scales y-axis automatically to fit data.}
 }
 \value{
 Visualized plot

@@ -8,10 +8,11 @@
 #' 
 #' @noRd
 InstrumentColor <- function(x) {
-  dplyr::case_when(
+  case_when(
     x == "Green" ~ "success",
     x == "Yellow" ~ "caution",
     x == "Orange" ~ "warning",
     x == "Red" ~ "danger",
-    TRUE ~ NA_character_)
+    TRUE ~ NA_character_
+  )
 }

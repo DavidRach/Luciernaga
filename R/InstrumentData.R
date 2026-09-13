@@ -9,8 +9,8 @@
 #' @return Data for the fluorophores
 #'
 #' @noRd
-InstrumentData <- function(x, fluorophores){
-  Data <- InstrumentReferences(NumberDetectors=x)
+InstrumentData <- function(x, fluorophores) {
+  Data <- InstrumentReferences(NumberDetectors = x)
   Data <- Data |> filter(Fluorophore %in% fluorophores)
   return(Data)
 }

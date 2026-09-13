@@ -8,8 +8,8 @@
 #' @return The reference fluorophores for that instrument
 #'
 #' @noRd
-InstrumentReturn <- function(x){
-  Data <- InstrumentReferences(NumberDetectors=x)
-  Fluorophores <- Data |> dplyr::pull(Fluorophore) |> unique()
+InstrumentReturn <- function(x) {
+  Data <- InstrumentReferences(NumberDetectors = x)
+  Fluorophores <- Data |> pull(Fluorophore) |> unique()
   return(Fluorophores)
 }

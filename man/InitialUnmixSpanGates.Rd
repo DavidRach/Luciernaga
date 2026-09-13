@@ -41,6 +41,6 @@ Based on a template, creates the initial gates for use in
 Fluorophore and Detector
 }
 \examples{
-A <- 2+2
+A <- 2 + 2
 
 }

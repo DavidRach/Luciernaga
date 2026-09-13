@@ -20,47 +20,59 @@
 #' @param Samples When Negative type = "Internal", the data.frame of averaged
 #' fluorescence per detector
 #' @param ExportType Passed from above, set to "fcs" for fcs.file return
+#' @param Consolidate TBD
 #'
 #' @importFrom flowCore parameters
 #' @importFrom flowWorkspace keyword
 #' @importFrom dplyr arrange filter pull bind_rows
+#' @importFrom stringr str_detect
 #' @importFrom purrr map
 #' @importFrom utils write.csv
 #'
 #' @return An internal value
 #'
 #' @noRd
-Genesis <- function(x, ff, minimalfcscutoff, AggregateName,
-  Brightness, outpath=NULL, OriginalStart, OriginalEnd,
-  stats = "median", NegativeType="default", TotalNegatives=500,
-  Samples=NULL, ExportType, Consolidate){
+Genesis <- function(x,
+                     ff,
+                     minimalfcscutoff,
+                     AggregateName,
+                     Brightness,
+                     outpath = NULL,
+                     OriginalStart,
+                     OriginalEnd,
+                     stats = "median",
+                     NegativeType = "default",
+                     TotalNegatives = 500,
+                     Samples = NULL,
+                     ExportType,
+                     Consolidate) {
 
   # Replicate the Original FCS Parameters
   FlowFrameTest <- ff[[1, returnType = "flowFrame"]]
   original_p <- parameters(FlowFrameTest)
   original_d <- keyword(FlowFrameTest)
 
-  if(!is.null(Consolidate)){
+  if (!is.null(Consolidate)) {
 
-    ConsolidatePaa <- function(x, data){
-      Testing <- data |> dplyr::filter(str_detect(Cluster, x))
-      x <- gsub("^", "", fixed=TRUE, x)
-      x <- gsub("|", "and", fixed=TRUE, x)
+    ConsolidatePaa <- function(x, data) {
+      Testing <- data |> filter(str_detect(Cluster, x))
+      x <- gsub("^", "", fixed = TRUE, x)
+      x <- gsub("|", "and", fixed = TRUE, x)
       Testing$Cluster <- x
       Testing$Cluster <- factor(Testing$Cluster)
       return(Testing)
     }
 
-    if (length(Consolidate) > 1){
+    if (length(Consolidate) > 1) {
       data <- x
-       TheConsolidated <- map(
-        .x=Consolidate, data=data, .f=ConsolidatePaa) |>
-         bind_rows()
-       x <- TheConsolidated
+      TheConsolidated <- map(.x = Consolidate, data = data,
+                              .f = ConsolidatePaa) |>
+        bind_rows()
+      x <- TheConsolidated
     } else {
       data <- x
-      TheConsolidated <- ConsolidatePaa(x=Consolidate, data=data)
-      x <- TheConsolidated 
+      TheConsolidated <- ConsolidatePaa(x = Consolidate, data = data)
+      x <- TheConsolidated
     }
     x$Cluster <- factor(x$Cluster)
   } else {
@@ -73,21 +85,24 @@ Genesis <- function(x, ff, minimalfcscutoff, AggregateName,
   ZZZ <- ZZZ |> arrange(desc(Freq))
   colnames(ZZZ)[1] <- "Cluster"
   colnames(ZZZ)[2] <- "Count"
-  fcs_cutoff <- nrow(x)*minimalfcscutoff
+  fcs_cutoff <- nrow(x) * minimalfcscutoff
   fcs_clusters <- ZZZ |> filter(Count > fcs_cutoff) |> pull(Cluster)
 
   Data <- x
 
-  TheBrightness <- map(.x=fcs_clusters, .f=Luciernaga:::InternalGenesis,
-     Data=Data,
-    AggregateName=AggregateName, outpath=outpath, OriginalStart=OriginalStart,
-    OriginalEnd=OriginalEnd, stats=stats, NegativeType=NegativeType,
-    TotalNegatives=TotalNegatives, Samples=Samples, ExportType=ExportType,
-    parameters=original_p, description=original_d) |> bind_rows()
+  TheBrightness <- map(.x = fcs_clusters, .f = Luciernaga:::InternalGenesis,
+                        Data = Data, AggregateName = AggregateName,
+                        outpath = outpath, OriginalStart = OriginalStart,
+                        OriginalEnd = OriginalEnd, stats = stats,
+                        NegativeType = NegativeType,
+                        TotalNegatives = TotalNegatives, Samples = Samples,
+                        ExportType = ExportType, parameters = original_p,
+                        description = original_d) |>
+    bind_rows()
 
-  #message("TargetReached")
+  # message("TargetReached")
 
-  if (Brightness == TRUE){
+  if (Brightness == TRUE) {
     RelativeBrightness <- RelativeBrightness(TheBrightness)
     CSVName <- paste0("RelativeBrightness", AggregateName, ".csv")
     CSVSpot <- file.path(outpath, CSVName)

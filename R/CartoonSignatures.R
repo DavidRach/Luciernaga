@@ -12,7 +12,9 @@
 #'  title
 #' @param plotlinecolor Default NULL, alternatively provide color
 #'  when only a single line
-#'
+#' @param ylim Numeric vector of length 2 specifying y-axis bounds (e.g. c(0, 100000)).
+#'  Default NULL scales y-axis automatically to fit data.
+#' 
 #' @importFrom dplyr filter select rename mutate pull
 #' @importFrom tidyselect everything where
 #' @importFrom tidyr unite pivot_longer
@@ -25,7 +27,7 @@
 #'
 CartoonSignatures <- function(x=NULL, columnname="Sample",
  data, characterColumns=NULL, Normalize = TRUE, legend=TRUE,
- plotname=NULL, plotlinecolor=NULL) {
+ plotname=NULL, plotlinecolor=NULL, ylim = NULL) {
 
   if (is.null(x)){x <- data |> pull(columnname)}
 
@@ -73,7 +75,7 @@ CartoonSignatures <- function(x=NULL, columnname="Sample",
   ThePlot <- CartoonInternal(TheseFluorophores=TheseFluorophores,
                                 TheFluorophore=NULL, data=WhoseThis1,
                                 legend=legend, plotname=plotname,
-                                plotlinecolor=plotlinecolor)
+                                plotlinecolor=plotlinecolor, ylim=ylim)
 
   return(ThePlot)
   }
