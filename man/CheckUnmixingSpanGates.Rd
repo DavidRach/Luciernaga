@@ -3,8 +3,8 @@
 \name{CheckUnmixingSpanGates}
 \alias{CheckUnmixingSpanGates}
 \title{Iterates through the InitialUnmixingSpanGates, allowing
- for their manual adjustment without needing to search for
- the corresponding specimen by gate combination}
+for their manual adjustment without needing to search for
+the corresponding specimen by gate combination}
 \usage{
 CheckUnmixingSpanGates(template, gs, AdjustAll = TRUE)
 }
@@ -15,15 +15,15 @@ and Detector columns}
 \item{gs}{The GatingSet}
 
 \item{AdjustAll}{Whether to adjust all specimens in the gating
-set to the updated gate,  default is TRUE}
+set to the updated gate, default is TRUE}
 }
 \value{
 No object returned, but updates existing GatingSet gates
 }
 \description{
 Iterates through the InitialUnmixingSpanGates, allowing
- for their manual adjustment without needing to search for
- the corresponding specimen by gate combination
+for their manual adjustment without needing to search for
+the corresponding specimen by gate combination
 }
 \examples{
 A <- 2+2

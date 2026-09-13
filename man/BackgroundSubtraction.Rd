@@ -3,7 +3,7 @@
 \name{BackgroundSubtraction}
 \alias{BackgroundSubtraction}
 \title{Working from a completed template, subtracts the respective negative for
- each fluorophore}
+each fluorophore}
 \usage{
 BackgroundSubtraction(data, Normalize = TRUE, keepNegatives = FALSE)
 }
@@ -13,17 +13,16 @@ BackgroundSubtraction(data, Normalize = TRUE, keepNegatives = FALSE)
 \item{Normalize}{Default is TRUE, will normalize the subtracted data so
 that scale is from 0 to 100.}
 
-\item{keepNegatives}{Default is FALSE, when TRUE, returns the negatives used
-to subtract back to their original rows}
+\item{keepNegatives}{Default is FALSE, when TRUE, returns the negatives
+used to subtract back to their original rows}
 }
 \value{
 A data.frame with fluorophore signatures
 }
 \description{
 Working from a completed template, subtracts the respective negative for
- each fluorophore
+each fluorophore
 }
 \examples{
 A <- 2 + 2
-
 }

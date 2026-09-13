@@ -2,7 +2,7 @@
 % Please edit documentation in R/CytosetScreen.R
 \name{CytosetScreen}
 \alias{CytosetScreen}
-\title{Checks and filters .fcs files into compatible sublist to 
+\title{Checks and filters .fcs files into compatible sublist to
 pass on to CytoSet without crashing out due to mismatch}
 \usage{
 CytosetScreen(files)
@@ -14,6 +14,6 @@ CytosetScreen(files)
 A list containing lists of compatible fcs file paths
 }
 \description{
-Checks and filters .fcs files into compatible sublist to 
+Checks and filters .fcs files into compatible sublist to
 pass on to CytoSet without crashing out due to mismatch
 }

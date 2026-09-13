@@ -23,6 +23,55 @@ CartoonSignatures(
   logScale = TRUE
 )
 }
+\arguments{
+\item{x}{Default NULL, the identities to filter for in columnname.
+When NULL, all unique values of columnname are used.}
+
+\item{columnname}{Default "Sample", the column identifying each
+fluorophore/sample row.}
+
+\item{data}{The data.frame containing the signature data.}
+
+\item{characterColumns}{Default NULL, character columns to combine
+into a single Fluorophore identity when more than one is present.}
+
+\item{Expand}{Default NULL, number of simulated replicate rows to
+generate per original row when adding variance.}
+
+\item{variance}{Default "medium", either a preset string ("none",
+"low", "medium", "high") or a numeric vector of length 1 or 2
+controlling simulated row-to-row variance.}
+
+\item{Normalize}{Default TRUE, whether to normalize detector values
+to a 0-1 scale when values exceed 1.}
+
+\item{legend}{Default TRUE, whether to display a plot legend.}
+
+\item{plotname}{Default NULL, title for the returned plot.}
+
+\item{plotlinecolor}{Default NULL, color override for the plotted
+line(s).}
+
+\item{ylim}{Default NULL, numeric vector of length 1 or 2 setting
+the y-axis limits.}
+
+\item{returnType}{Default "Cartoon", one of "Cartoon", "Amalgamated",
+"Density", or "Ribbon", selecting the plot style returned.}
+
+\item{ribbon_ci}{TBD}
+
+\item{theme}{Default "viridis", the color palette/theme used for
+"Density" and "Ribbon" return types.}
+
+\item{bins}{Default 100, number of bins used for "Density" return
+type.}
+
+\item{logScale}{Default TRUE, whether to plot the y-axis on a log
+scale.}
+}
+\value{
+A ggplot2 object of the selected returnType
+}
 \description{
 Visualizes fluorophore signatures with smooth density-colored ribbons
 }

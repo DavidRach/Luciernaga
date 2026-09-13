@@ -3,8 +3,8 @@
 \name{CellPopExtract}
 \alias{CellPopExtract}
 \title{Extracts out a subset from a GatingSet, and returns as their
- respective .fcs files to a target folder. Additional option to
- downsample to a desired number.}
+respective .fcs files to a target folder. Additional option to
+downsample to a desired number.}
 \usage{
 CellPopExtract(
   x,
@@ -22,8 +22,8 @@ CellPopExtract(
 GatingSet object.}
 
 \item{path}{When using a FlowJo workspace for argument x,
- path to the folder containing
-the respective .fcs files contained within that workspace}
+path to the folder containing the respective .fcs files
+contained within that workspace}
 
 \item{keywords}{Default "GROUPNAME", can handle up to 3,
 ex. c("$PROJ", "GROUPNAME", "TUBENAME")}
@@ -44,12 +44,12 @@ cells}
 }
 \value{
 Returns .fcs files for the designated cell population to
- the designated folder.
+  the designated folder.
 }
 \description{
 Extracts out a subset from a GatingSet, and returns as their
- respective .fcs files to a target folder. Additional option to
- downsample to a desired number.
+respective .fcs files to a target folder. Additional option to
+downsample to a desired number.
 }
 \examples{
 A <- 2+2

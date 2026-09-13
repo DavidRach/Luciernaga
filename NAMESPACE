@@ -94,6 +94,7 @@ importFrom(data.table,fread)
 importFrom(dplyr,
   across,
   add_row,
+  all_of,
   anti_join,
   arrange,
   bind_cols,
@@ -125,8 +126,7 @@ importFrom(dplyr,
   summarise,
   summarize,
   summarize_all,
-  ungroup,
-  where
+  ungroup
 )
 importFrom(figpatch,fig)
 importFrom(flowCore,
@@ -192,6 +192,7 @@ importFrom(ggplot2,
   geom_line,
   geom_point,
   geom_rect,
+  geom_ribbon,
   geom_segment,
   geom_text,
   geom_tile,
@@ -214,6 +215,7 @@ importFrom(ggplot2,
   scale_x_discrete,
   scale_x_log10,
   scale_y_continuous,
+  scale_y_log10,
   theme,
   theme_bw,
   theme_linedraw,
@@ -316,6 +318,7 @@ importFrom(scales,
   trans_format
 )
 importFrom(stats,
+  approx,
   as.dist,
   hclust,
   loess,
@@ -326,6 +329,7 @@ importFrom(stats,
   quantile,
   rlnorm,
   rnorm,
+  runif,
   setNames
 )
 importFrom(stringr,
@@ -380,7 +384,8 @@ importFrom(utils,
 importFrom(uwot,umap)
 importFrom(viridis,
   scale_color_viridis,
-  scale_fill_viridis
+  scale_fill_viridis,
+  viridis
 )
 importFrom(xml2,
   read_xml,
