@@ -4,7 +4,8 @@
 #'
 #' @return Reordered vector according to light wavelength
 #' @noRd
-ColorPriority <- function(colors){
+ColorPriority <- function(colors) {
+
   Ordered <- colors[order(grepl("^Ultra", colors) * -1,
                           grepl("^UV", colors) * -1,
                           grepl("^Violet", colors) * -1,

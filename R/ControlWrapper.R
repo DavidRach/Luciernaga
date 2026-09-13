@@ -1,38 +1,37 @@
-
 #' Internal for Luciernaga_SignatureExternalUnstained
-#' 
+#'
 #' @param x The list of Dates
 #' @param UnstainedList The list of file.paths for the
-#'  unstained files
+#'   unstained files
 #' @param FluorophoreList The list of file.paths for
-#'  the fluorophore files
+#'   the fluorophore files
 #' @param Multiple Default FALSE, if expecting multiple
-#'  single color controls per unstained set TRUE
+#'   single color controls per unstained set TRUE
 #' @param GateTemplatePath File.path to the openCyto gating
-#'  template .csv
+#'   template .csv
 #' @param removestrings Default is ".fcs", removes from name
 #' @param AFOverlap File.path to LuciernagaQC AFOverlap .csv
-#'  to handle exceptions. 
+#'   to handle exceptions.
 #' @param controlType Either "beads" or "cells" (selects
-#'  respective external AF protocol)
+#'   respective external AF protocol)
 #' @param subsets The desired openCyto gating population to
-#'  extract signature from
-#' 
+#'   extract signature from
+#'
 #' @importFrom stringr str_detect
 #' @importFrom flowWorkspace load_cytoset_from_fcs GatingSet
 #' @importFrom data.table fread
 #' @importFrom openCyto gatingTemplate gt_gating
 #' @importFrom purrr map
-#' @importFrom Biobase pData exprs
+#' @importFrom Biobase pData
 #' @importFrom BiocGenerics subset
 #' @importFrom dplyr bind_rows
-#' 
+#'
 #' @return A list containing data and plots
-#' 
+#'
 #' @noRd
 ControlWrapper <- function(x, UnstainedList, FluorophoreList,
   Multiple=FALSE, GateTemplatePath, removestrings=".fcs",
-  AFOverlap, controlType, subsets){
+  AFOverlap, controlType, subsets) {
 
   Value <- paste0(x, "(?!\\d)")
   Unstained <- UnstainedList[str_detect(UnstainedList,
@@ -40,9 +39,10 @@ ControlWrapper <- function(x, UnstainedList, FluorophoreList,
   Fluorophore <- FluorophoreList[str_detect(FluorophoreList,
      Value, negate = FALSE)]
 
-  if (Multiple == FALSE){
-   if (length(Fluorophore) != length(Unstained)){
-      stop("Mismatch unstained vs stained")}
+  if (Multiple == FALSE) {
+    if (length(Fluorophore) != length(Unstained)) {
+      stop("Mismatch unstained vs stained")
+    }
   }
 
   files <- c(Unstained, Fluorophore)
@@ -50,7 +50,7 @@ ControlWrapper <- function(x, UnstainedList, FluorophoreList,
      transformation = FALSE)
   gs <- GatingSet(cs)
 
-  TheGates <- data.table::fread(GateTemplatePath)
+  TheGates <- fread(GateTemplatePath)
   TheGating <- gatingTemplate(TheGates)
   gt_gating(TheGating, gs)
 
@@ -70,41 +70,44 @@ ControlWrapper <- function(x, UnstainedList, FluorophoreList,
   TheUnstained <- subset(gs, Unstained == TRUE)
   TheFluorophore <- subset(gs, Unstained == FALSE)
 
-  if (controlType == "beads"){
+  if (controlType == "beads") {
 
-  UnstainedBeads <- Luciernaga_QC(x=TheUnstained[1], desiredAF = NULL,
-    subsets=subsets, removestrings=removestrings, sample.name="GUID",
-    unmixingcontroltype = "beads", Unstained = TRUE, ratiopopcutoff = 0.01,
-    Verbose = FALSE, AFOverlap = AFOverlap, stats = "median", 
-    ExportType = "data.frame", SignatureReturnNow = TRUE, outpath = NULL)
-  
-  FluorophoreSignature <- map(.x=TheFluorophore, .f=Luciernaga_QC,
-    subsets=subsets, removestrings=removestrings, sample.name="GUID",
-    unmixingcontroltype = "beads", Unstained = FALSE, ratiopopcutoff = 0.01,
-    Verbose = FALSE, AFOverlap = AFOverlap, stats = "median", 
-    ExportType = "data", SignatureReturnNow = FALSE,
-    outpath = NULL, Increments=0.1, SecondaryPeaks=2, experiment.name = "$DATE",
-    condition = x, SCData="subtracted", NegativeType="default",
-    BeadAF=UnstainedBeads, BeadMainAF="UV1-A") |> bind_rows()
+    UnstainedBeads <- Luciernaga_QC(x=TheUnstained[1], desiredAF = NULL,
+      subsets=subsets, removestrings=removestrings, sample.name="GUID",
+      unmixingcontroltype = "beads", Unstained = TRUE,
+      ratiopopcutoff = 0.01, Verbose = FALSE, AFOverlap = AFOverlap,
+      stats = "median", ExportType = "data.frame",
+      SignatureReturnNow = TRUE, outpath = NULL)
+
+    FluorophoreSignature <- map(.x=TheFluorophore, .f=Luciernaga_QC,
+      subsets=subsets, removestrings=removestrings, sample.name="GUID",
+      unmixingcontroltype = "beads", Unstained = FALSE,
+      ratiopopcutoff = 0.01, Verbose = FALSE, AFOverlap = AFOverlap,
+      stats = "median", ExportType = "data", SignatureReturnNow = FALSE,
+      outpath = NULL, Increments=0.1, SecondaryPeaks=2,
+      experiment.name = "$DATE", condition = x, SCData="subtracted",
+      NegativeType="default", BeadAF=UnstainedBeads,
+      BeadMainAF="UV1-A") |> bind_rows()
   } else {
-  UnstainedCells <- Luciernaga_QC(x=TheUnstained[1], desiredAF = NULL,
-    subsets=subsets, removestrings=removestrings,
-    sample.name="GUID", unmixingcontroltype = "cells",
-    Unstained = TRUE, ratiopopcutoff = 0.01, Verbose = FALSE,
-    AFOverlap = AFOverlap, stats = "median",
-    ExportType = "data.frame", SignatureReturnNow = TRUE,
-    outpath = NULL)
+    UnstainedCells <- Luciernaga_QC(x=TheUnstained[1], desiredAF = NULL,
+      subsets=subsets, removestrings=removestrings,
+      sample.name="GUID", unmixingcontroltype = "cells",
+      Unstained = TRUE, ratiopopcutoff = 0.01, Verbose = FALSE,
+      AFOverlap = AFOverlap, stats = "median",
+      ExportType = "data.frame", SignatureReturnNow = TRUE,
+      outpath = NULL)
 
-  FluorophoreSignature <- map(.x=TheFluorophore, .f=Luciernaga_QC,
-    subsets=subsets, removestrings=removestrings, sample.name="GUID",
-    unmixingcontroltype = "cells", Unstained = FALSE, ratiopopcutoff = 0.01,
-    Verbose = FALSE, AFOverlap = AFOverlap, stats = "median", 
-    ExportType = "data", SignatureReturnNow = FALSE,
-    outpath = NULL, Increments=0.1, SecondaryPeaks=2, experiment.name = "$DATE",
-    condition = x, SCData="subtracted", NegativeType="default",
-    CellAF=UnstainedCells, CellMainAF="UV1-A") |> bind_rows()
+    FluorophoreSignature <- map(.x=TheFluorophore, .f=Luciernaga_QC,
+      subsets=subsets, removestrings=removestrings, sample.name="GUID",
+      unmixingcontroltype = "cells", Unstained = FALSE,
+      ratiopopcutoff = 0.01, Verbose = FALSE, AFOverlap = AFOverlap,
+      stats = "median", ExportType = "data", SignatureReturnNow = FALSE,
+      outpath = NULL, Increments=0.1, SecondaryPeaks=2,
+      experiment.name = "$DATE", condition = x, SCData="subtracted",
+      NegativeType="default", CellAF=UnstainedCells,
+      CellMainAF="UV1-A") |> bind_rows()
   }
-  
+
   TheReturns <- list(Plot=Plot, data=FluorophoreSignature)
 
   return(TheReturns)

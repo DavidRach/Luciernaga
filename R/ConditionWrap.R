@@ -1,4 +1,3 @@
-
 #' Internal for Wetlab_Decisions
 #'
 #' @param x The passed conditions
@@ -15,7 +14,7 @@
 #' @noRd
 ConditionWrap <- function(x, name, Date, TotalCells,
   RestConcentration, FinalConcentration, CellsPerTube,
-  TheConditions){
+  TheConditions) {
 
   Condition <- x
 
@@ -28,8 +27,11 @@ ConditionWrap <- function(x, name, Date, TotalCells,
   MediaVolToAddML <- FinalVolumeML-RestVolToAddML
   MediaVolToAddML <- round(MediaVolToAddML, 2)
 
-  if (MediaVolToAddML < 0){SpinDown <- FALSE
-  } else {SpinDown <- TRUE}
+  if (MediaVolToAddML < 0) {
+    SpinDown <- FALSE
+  } else {
+    SpinDown <- TRUE
+  }
 
   FinalConcentration <- format(FinalConcentration,
      scientific=TRUE, digits=2)

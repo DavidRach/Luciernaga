@@ -11,37 +11,39 @@
 #'
 #' @return Updated Tracking Data CSV for specified type
 #' @noRd
-CurrentData <- function(x, MainFolder, type){
+CurrentData <- function(x, MainFolder, type) {
 
   ArchiveLocation <- file.path(MainFolder, x, "Archive")
 
-  if (type == "MFI"){
+  if (type == "MFI") {
     BeadData <- list.files(ArchiveLocation, pattern="Bead",
                            full.names=TRUE)
     Data <- read.csv(BeadData, check.names=FALSE)
-    Data$DateTime <- lubridate::ymd_hms(Data$DateTime)
-    Data$DATE <- lubridate::ymd(Data$DATE)
-    Data$TIME <- lubridate::hms(Data$TIME)
+    Data$DateTime <- ymd_hms(Data$DateTime)
+    Data$DATE <- ymd(Data$DATE)
+    Data$TIME <- hms(Data$TIME)
   }
 
-  if (type == "Gain"){
+  if (type == "Gain") {
     ArchiveData <- list.files(ArchiveLocation, pattern="Archived",
                               full.names=TRUE)
     Data <- read.csv(ArchiveData, check.names=FALSE)
     #lubridate::ymd_hms(Data$DateTime)
 
-    if (any(str_detect(Data$DateTime, ":.*:"))){
-      Data$DateTime <- lubridate::ymd_hms(Data$DateTime)
-    } else {Data$DateTime <- lubridate::mdy_hm(Data$DateTime)}
+    if (any(str_detect(Data$DateTime, ":.*:"))) {
+      Data$DateTime <- ymd_hms(Data$DateTime)
+    } else {
+      Data$DateTime <- mdy_hm(Data$DateTime)
+    }
   }
 
-  if (type == "Both"){
+  if (type == "Both") {
     BothData <- list.files(ArchiveLocation, pattern="Holistic",
                            full.names=TRUE)
     Data <- read.csv(BothData, check.names=FALSE)
-    Data$DateTime <- lubridate::ymd_hms(Data$DateTime)
-    Data$DATE <- lubridate::ymd(Data$DATE)
-    Data$TIME <- lubridate::hms(Data$TIME)
+    Data$DateTime <- ymd_hms(Data$DateTime)
+    Data$DATE <- ymd(Data$DATE)
+    Data$TIME <- hms(Data$TIME)
   }
 
   Data <- Data |> arrange(desc(DateTime))

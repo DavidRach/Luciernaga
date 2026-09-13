@@ -1,8 +1,8 @@
-
 #' Internal for LuciernagaQC SingleStainSignatures
 #'
 #' @param x A cluster identity in the cluster column
 #' @param data A data.frame
+#' @param TheDetector TBD
 #' @param StartNormalizedMergedCol Indicated Start Normalized Columns
 #' @param EndNormalizedMergedCol Indicated End Normalized Columns
 #' @param ColsN Indicated end of Raw Value Columns
@@ -12,7 +12,7 @@
 #' @param SecondaryPeaks Number of Secondary Peaks, default is set to 2.
 #'
 #' @importFrom dplyr filter select mutate relocate arrange
-#'  left_join pull case_when near
+#'   left_join pull case_when near
 #' @importFrom tidyselect all_of
 #' @importFrom utils head
 #'
@@ -22,9 +22,7 @@
 ClusterIteration <- function(x, data, TheDetector,
   StartNormalizedMergedCol, EndNormalizedMergedCol,
   ColsN, AggregateName, Verbose, LocalMaximaRatio = 0.15,
-  SecondaryPeaks){
-
-
+  SecondaryPeaks) {
 
   subset <- data |> filter(Cluster %in% x)
   StashedIDs <- subset |> select(Backups)
@@ -39,10 +37,13 @@ ClusterIteration <- function(x, data, TheDetector,
 
   #Preparing Detector Stand Ins for left_join
   Decoys <- Conversion |> select(Detectors)
-  Decoys <- Decoys |>  mutate(TheDetector = 1:nrow(Decoys)) |>
+  Decoys <- Decoys |> mutate(TheDetector = 1:nrow(Decoys)) |>
     relocate(TheDetector, .before = Detectors)
 
   #Deriving an average y-vector for local maxima
+  # TODO: keep as %>% — the `.` placeholders inside rowSums(.[2:ncol(.)])
+  #   are nested arguments, not in the first-argument position that |>
+  #   would substitute, so native pipe cannot resolve them here
   Conversion <- Conversion %>% mutate(TheSums = rowSums(.[2:ncol(.)],
     na.rm = TRUE) /(ncol(Conversion) - 1)) |>
     relocate(TheSums, .after = Detectors)
@@ -64,16 +65,23 @@ ClusterIteration <- function(x, data, TheDetector,
     filter(TheHeight > LocalMaximaRatio) |>
     arrange(desc(TheHeight))
   Assembled <- left_join(Newest2, Decoys, by = "TheDetector")
-  if(nrow(Assembled) == 0){
-    stop("Failed at Assembled, no local maxima greater than 0.15")}
+  if (nrow(Assembled) == 0) {
+    stop("Failed at Assembled, no local maxima greater than 0.15")
+  }
   These <- Assembled |> pull(Detectors)
 
-  if (any(These %in% TheDetector)) {These <- These[These != TheDetector]}
+  if (any(These %in% TheDetector)) {
+    These <- These[These != TheDetector]
+  }
 
-  if(length(These) == 0){if (Verbose == TRUE) {message("Solitary Peak")}
+  if (length(These) == 0) {
+    if (Verbose == TRUE) {
+      message("Solitary Peak")
+    }
   } else if (length(These) > SecondaryPeaks) {
     if (Verbose == TRUE) {
-      message("More than ", SecondaryPeaks+1, " peaks. Abbreviated.")}
+      message("More than ", SecondaryPeaks+1, " peaks. Abbreviated.")
+    }
     These <- head(These, SecondaryPeaks)
   }
 

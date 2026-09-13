@@ -2,13 +2,13 @@
 #'
 #' @param x An iterated path to a .csv to be read.
 #'
-#' @param utils read.csv
-#' @param dplyr mutate relocate
+#' @importFrom utils read.csv
+#' @importFrom dplyr mutate relocate
 #'
 #' @return An internal value
 #'
 #' @noRd
-CSVRead <- function(x){
+CSVRead <- function(x) {
 
   name <- basename(x)
   internalstrings <- c("RelativeBrightness", ".csv")

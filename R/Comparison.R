@@ -1,4 +1,3 @@
-
 #' Internal for QC_ProspectiveAdditions
 #'
 #' @param x Passed Argument
@@ -14,12 +13,12 @@
 #'
 #' @noRd
 Comparison <- function(x, TheOtherDetectors, TheList,
-   ReferenceData, TheCutoff){
+   ReferenceData, TheCutoff) {
 
   TheDetector <- x
 
   TheComparisonList <- TheOtherDetectors |>
-    dplyr::filter(Detector %in% x) |> pull(Fluorophore)
+    filter(Detector %in% x) |> pull(Fluorophore)
 
   # x <- TheComparisonList[1]
   TheIndividualDetector <- map(.x=TheComparisonList,

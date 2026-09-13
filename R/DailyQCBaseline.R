@@ -7,7 +7,8 @@
 #'
 #' @return A data.frame comparing the cutoffs for Gains
 #' @noRd
-DailyQCBaseline <- function(x){
+DailyQCBaseline <- function(x) {
+
   ReadInfo <- readLines(x)
   #ReadInfo
   index <- grep("^Laser Settings", ReadInfo)
@@ -25,9 +26,9 @@ DailyQCBaseline <- function(x){
   Time$Time <- sub("(\\d{2})(\\d{2})(\\d{2})", "\\1:\\2:\\3", Time$Time)
   Time$Time <- lubridate::hms(Time$Time)
   Intro <- cbind(Date, Time, Instrument)
-  Intro <- Intro %>%
-    mutate(DateTime=Date+Time) %>%
-    relocate(DateTime, .before=1) %>%
+  Intro <- Intro |>
+    mutate(DateTime=Date+Time) |>
+    relocate(DateTime, .before=1) |>
     select(-Date, -Time)
 
   # Detector Section
@@ -55,10 +56,10 @@ DailyQCBaseline <- function(x){
 
   #TheData[2,7] <- 7
 
-  Updated <- TheData %>%
-    mutate(Baseline=Gain-DeltaGain) %>%
+  Updated <- TheData |>
+    mutate(Baseline=Gain-DeltaGain) |>
     mutate(Comparison=Baseline*2)
 
-  Cutoff <- Updated %>% select(Detector, Comparison)
+  Cutoff <- Updated |> select(Detector, Comparison)
   return(Cutoff)
 }

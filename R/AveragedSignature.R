@@ -36,9 +36,9 @@
 #'
 #' Signature <- AveragedSignature(TheDataValues, stats="median")
 #'
-AveragedSignature <- function(x, stats, normalize=FALSE){
+AveragedSignature <- function(x, stats, normalize=FALSE) {
 
-  if (normalize == TRUE){
+  if (normalize == TRUE) {
     x[x < 0] <- 0
     A <- do.call(pmax, x)
     x <- x/A
@@ -46,8 +46,8 @@ AveragedSignature <- function(x, stats, normalize=FALSE){
 
   Signature <- x |> summarize_all(stats)
 
-  if (normalize == TRUE){
-  Signature <- round(Signature, 3)
+  if (normalize == TRUE) {
+    Signature <- round(Signature, 3)
   }
 
   return(Signature)

@@ -9,13 +9,14 @@
 #' @importFrom tidyselect where
 #'
 #' @return A single column renamed for the instrument with
-#'  comparisons as rows
+#'   comparisons as rows
 #'
 #' @noRd
-CosineReturn <- function(x, MainFluorophore, data){
+CosineReturn <- function(x, MainFluorophore, data) {
+
   Subset <- data |> dplyr::filter(Instrument %in% x)
   Poised <- Subset |> select(-Instrument)
-  Poised2 <- Poised %>% select(where(~ !all(is.na(.))))
+  Poised2 <- Poised |> select(where(~ !all(is.na(.))))
   CosineReturn <- Luciernaga_Cosine(data=Poised2,
    returntype="data", rearrange = FALSE)
   CosineReturn <- round(CosineReturn, 2)
