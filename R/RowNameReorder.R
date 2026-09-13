@@ -4,15 +4,15 @@
 #'
 #' @return The rearranged parameter data.frame according to wacky order.
 #' @noRd
-RowNameReorder <- function(x){
+RowNameReorder <- function(x) {
   TheRowNames <- rownames(x)
   LastElement <- TheRowNames[length(TheRowNames)]
-  LastElement <- gsub("$P", "", fixed=TRUE, LastElement)
+  LastElement <- gsub("$P", "", fixed = TRUE, LastElement)
   LastNumber <- as.numeric(LastElement)
 
   TheIntegers <- 1:LastNumber
 
-  TheOrder <- SplitThemUp(TheIntegers, RangeStart=10, RangeSize=10)
+  TheOrder <- SplitThemUp(TheIntegers, RangeStart = 10, RangeSize = 10)
 
   Rearranged <- x[TheOrder, ]
 

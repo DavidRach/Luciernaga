@@ -59,9 +59,9 @@ XML_Pattern <- ".XML$"
 XML_Files <- list.files(path = Folder_Location, pattern = XML_Pattern,
                         full.names = TRUE, recursive = FALSE)
 Data <- map(.x=XML_Files[1:4], .f=QC_LibraryParse,
-  returntype="dataframe", references=FALSE) \%>\% bind_rows()
+  returntype="dataframe", references=FALSE) |> bind_rows()
 
-TheIndividuals <- Data \%>\% pull(Creator) \%>\% unique()
+TheIndividuals <- Data |> pull(Creator) |> unique()
 
 JohnDoesLibrary <- walk(.x=TheIndividuals[1], .f=QC_UserLibraries, Data=Data,
   NameAppend="_LibraryQC", outpath=StorageLocation, references = TRUE,

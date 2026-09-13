@@ -14,10 +14,11 @@
 #'
 #' @importFrom dplyr filter slice select rename mutate bind_rows
 #'  ungroup group_by pull arrange desc slice_head
-#' @importFrom tidyselect where starts_with  
+#' @importFrom tidyselect where starts_with
 #' @importFrom tidyr pivot_longer pivot_wider
 #' @importFrom lsa cosine
 #' @importFrom tibble rownames_to_column
+#' @importFrom rlang .data
 #'
 #' @returns A dataframe of similar fluorophores or a ggplot2 object
 #' @export
@@ -33,72 +34,94 @@
 #'
 #' Results <- QC_WhatsThis(x=TheFluorophore, columnname="Sample", data=Data, NumberHits = 10, returnPlots=FALSE)
 
-QC_WhatsThis <- function(x, columnname="Sample", data, NumberHits,
- NumberDetectors=NULL, Normalize=TRUE, returnPlots=FALSE,
- TheFormat="wider", detectorcolumn=NULL, valuecolumn=NULL,
- plotlinecolor=NULL) {
+QC_WhatsThis <- function(x,
+                          columnname = "Sample",
+                          data,
+                          NumberHits,
+                          NumberDetectors = NULL,
+                          Normalize = TRUE,
+                          returnPlots = FALSE,
+                          TheFormat = "wider",
+                          detectorcolumn = NULL,
+                          valuecolumn = NULL,
+                          plotlinecolor = NULL) {
 
   StartingData <- data |> filter(.data[[columnname]] %in% x)
 
-  if(nrow(StartingData) > 1){message("Selecting the first row for comparisons")
-                             StartingData <- StartingData |> slice(1)}
+  if (nrow(StartingData) > 1) {
+    message("Selecting the first row for comparisons")
+    StartingData <- StartingData |> slice(1)
+  }
 
-  CharacterLength <- StartingData |> select(!where(is.numeric))|> length()
+  CharacterLength <- StartingData |> select(!where(is.numeric)) |> length()
 
-  if (CharacterLength == 0){
-    stop("Please add a non-numeric column, and provide its columnname")}
-  if (CharacterLength > 1){message("Combining character columns")
-    Identity <- StartingData |> select(!where(is.numeric)) |>
+  if (CharacterLength == 0) {
+    stop("Please add a non-numeric column, and provide its columnname")
+  }
+  if (CharacterLength > 1) {
+    message("Combining character columns")
+    Identity <- StartingData |>
+      select(!where(is.numeric)) |>
       paste0(collapse = "_")
-    Identity <- data.frame(Fluorophore=Identity)
-    Identity <- Identity |> rename("Fluorophore"=1)
-    Identity <- Identity |> mutate(Fluorophore=paste0("ID_", Fluorophore))
+    Identity <- data.frame(Fluorophore = Identity)
+    Identity <- Identity |> rename("Fluorophore" = 1)
+    Identity <- Identity |> mutate(Fluorophore = paste0("ID_", Fluorophore))
   } else {
-    Identity <- StartingData |> select(!where(is.numeric)) |> rename("Fluorophore"=1)
-    Identity <- Identity |> mutate(Fluorophore=paste0("ID_", Fluorophore))
+    Identity <- StartingData |>
+      select(!where(is.numeric)) |>
+      rename("Fluorophore" = 1)
+    Identity <- Identity |> mutate(Fluorophore = paste0("ID_", Fluorophore))
   }
 
   DetectorCols <- StartingData |> select(where(is.numeric))
 
-  if (Normalize == TRUE){
-    if (any(DetectorCols > 1)){
+  if (Normalize == TRUE) {
+    if (any(DetectorCols > 1)) {
       message("Normalizing Data for Signature Comparison")
       n <- DetectorCols
       n[n < 0] <- 0
       A <- do.call(pmax, n)
-      Normalized <- n/A
+      Normalized <- n / A
       DetectorCols <- Normalized
     }
   }
-  
+
   WhoseThis <- cbind(Identity, DetectorCols)
 
-  if (is.null(NumberDetectors)){NumberDetectors <- length(DetectorCols)
-  } else {NumberDetectors <- NumberDetectors}
+  if (is.null(NumberDetectors)) {
+    NumberDetectors <- length(DetectorCols)
+  } else {
+    NumberDetectors <- NumberDetectors
+  }
 
-
-  ReferenceData <- Luciernaga:::InstrumentReferences(NumberDetectors=NumberDetectors)
+  ReferenceData <- Luciernaga:::InstrumentReferences(
+    NumberDetectors = NumberDetectors)
 
   # Longer-format
-  if (returnPlots == TRUE){
+  if (returnPlots == TRUE) {
     ReferenceData1 <- ReferenceData |> select(-Instrument)
-    WhoseThis1 <- WhoseThis |> pivot_longer(
-      cols= where(is.numeric), names_to = "Detector", values_to = "AdjustedY")
+    WhoseThis1 <- WhoseThis |>
+      pivot_longer(cols = where(is.numeric), names_to = "Detector",
+                   values_to = "AdjustedY")
     ReferenceData1 <- bind_rows(WhoseThis1, ReferenceData1)
   }
 
   # Wider-format
-  ReferenceData <- ReferenceData |> select(-Instrument) |>
-    group_by(Fluorophore)|> pivot_wider(
-      names_from = Detector, values_from = AdjustedY)|> ungroup()
-  if (length(colnames(ReferenceData)) == length(colnames(WhoseThis))){
-      colnames(ReferenceData) <- colnames(WhoseThis)
-  } else {warning("ReferenceData and WhoseThis have differing dimensions")}
+  ReferenceData <- ReferenceData |>
+    select(-Instrument) |>
+    group_by(Fluorophore) |>
+    pivot_wider(names_from = Detector, values_from = AdjustedY) |>
+    ungroup()
+  if (length(colnames(ReferenceData)) == length(colnames(WhoseThis))) {
+    colnames(ReferenceData) <- colnames(WhoseThis)
+  } else {
+    warning("ReferenceData and WhoseThis have differing dimensions")
+  }
   CombinedView <- bind_rows(WhoseThis, ReferenceData)
 
   # Generating Cosine Matrix
   Names <- CombinedView |> select(Fluorophore) |> pull()
-  Numbers <- CombinedView |> select(where(is.numeric)) 
+  Numbers <- CombinedView |> select(where(is.numeric))
   NumericsT <- t(Numbers)
   rownames(NumericsT) <- NULL
   colnames(NumericsT) <- Names
@@ -106,20 +129,25 @@ QC_WhatsThis <- function(x, columnname="Sample", data, NumberHits,
   CosineMatrix <- round(CosineMatrix, 2)
   CosineFrame <- data.frame(CosineMatrix, check.names = FALSE)
 
-  #CosineFrame <- CosineFrame[1,] #If Want To Work With Cols
+  # CosineFrame <- CosineFrame[1,] #If Want To Work With Cols
   CosineFrame <- CosineFrame |> select(starts_with("ID_"))
-  TheData <- rownames_to_column(CosineFrame, var="Fluorophore")
+  TheData <- rownames_to_column(CosineFrame, var = "Fluorophore")
   TheID <- TheData |> select(starts_with("ID_")) |> colnames()
-  TheHits <- TheData |> filter(!Fluorophore %in% TheID) |>
-    arrange(desc(.data[[TheID]])) |> slice_head(n=NumberHits)
+  TheHits <- TheData |>
+    filter(!Fluorophore %in% TheID) |>
+    arrange(desc(.data[[TheID]])) |>
+    slice_head(n = NumberHits)
 
-  if (returnPlots==TRUE){
+  if (returnPlots == TRUE) {
     TheseFluorophores <- TheHits |> pull(Fluorophore)
     TheFluorophore <- TheID
-    ThePlot <- Luciernaga:::SimilarFluorPlots(TheseFluorophores=TheseFluorophores,
-                                 TheFluorophore=TheFluorophore, data=ReferenceData1,
-                                 plotlinecolor=plotlinecolor)
+    ThePlot <- Luciernaga:::SimilarFluorPlots(
+      TheseFluorophores = TheseFluorophores,
+      TheFluorophore = TheFluorophore, data = ReferenceData1,
+      plotlinecolor = plotlinecolor)
     ReturnThese <- list(TheHits, ThePlot)
     return(ReturnThese)
-  } else {return(TheHits)}
+  } else {
+    return(TheHits)
+  }
 }

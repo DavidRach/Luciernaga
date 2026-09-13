@@ -22,8 +22,9 @@
 #'  when only a single line
 #'
 #' @importFrom dplyr filter select rename mutate pull
-#' @importFrom tidyselect everything where
+#' @importFrom tidyselect everything where all_of
 #' @importFrom tidyr unite pivot_longer
+#' @importFrom rlang .data
 #'
 #' @returns A dataframe of similar fluorophores
 #' @export
@@ -60,77 +61,92 @@
 #'
 #' Plot <- QC_ViewSignature(x="TestSignature", data=TheData, Normalize=TRUE)
 #'
-QC_ViewSignature <- function(x, columnname="Sample", data, Normalize = TRUE,
- TheFormat="wider", detectorcolumn=NULL, valuecolumn=NULL,
- legend=TRUE, plotname=NULL, plotlinecolor=NULL) {
+QC_ViewSignature <- function(x,
+                              columnname = "Sample",
+                              data,
+                              Normalize = TRUE,
+                              TheFormat = "wider",
+                              detectorcolumn = NULL,
+                              valuecolumn = NULL,
+                              legend = TRUE,
+                              plotname = NULL,
+                              plotlinecolor = NULL) {
 
-  if (is.null(x)){x <- data |> dplyr::pull(columnname)
+  if (is.null(x)) {
+    x <- data |> pull(columnname)
   }
 
-  if (TheFormat=="wider"){
+  if (TheFormat == "wider") {
 
-    if (x == "all"){
-    StartingData <- data
+    if (x == "all") {
+      StartingData <- data
     } else {
-    StartingData <- data |> filter(.data[[columnname]] %in% x)
+      StartingData <- data |> filter(.data[[columnname]] %in% x)
     }
-  
-  CharacterLength <- StartingData |> select(!where(is.numeric)) |> length()
-  if (CharacterLength == 0){
-    stop("Please add a non-numeric column, and provide its columnname")}
-  if (CharacterLength > 1){message("Combining character columns")
-    Identity <- StartingData |> select(!where(is.numeric)) |>
-      unite("combined", everything(), sep = "_") |> pull()
-    Identity <- data.frame(Fluorophore=Identity)
-    Identity <- Identity |> rename("Fluorophore"=1)
-    Identity <- Identity |> mutate(Fluorophore=paste0("ID_", Fluorophore))
-  } else {
-    Identity <- StartingData |> select(!where(is.numeric)) |> rename("Fluorophore"=1)
-    Identity <- Identity |> mutate(Fluorophore=paste0("ID_", Fluorophore))
-  }
 
-  DetectorCols <- StartingData |> select(where(is.numeric))
-
-  if (Normalize == TRUE){
-    if (any(DetectorCols > 1)){
-      message("Normalizing Data for Signature Comparison")
-      n <- DetectorCols
-      n[n < 0] <- 0
-      A <- do.call(pmax, n)
-      Normalized <- n/A
-      DetectorCols <- Normalized
+    CharacterLength <- StartingData |> select(!where(is.numeric)) |> length()
+    if (CharacterLength == 0) {
+      stop("Please add a non-numeric column, and provide its columnname")
     }
-  }
-    
-  WhoseThis <- cbind(Identity, DetectorCols)
-  TotalDetectors <- length(DetectorCols)
-  TheseFluorophores <- WhoseThis |> pull(Fluorophore)
-    
-  WhoseThis1 <- WhoseThis |>
-    pivot_longer(cols= where(is.numeric), names_to = "Detector",
-                 values_to = "AdjustedY")
-    
-  } else {
-
-    if (x == "all"){
-    StartingData <- data
+    if (CharacterLength > 1) {
+      message("Combining character columns")
+      Identity <- StartingData |>
+        select(!where(is.numeric)) |>
+        unite("combined", everything(), sep = "_") |>
+        pull()
+      Identity <- data.frame(Fluorophore = Identity)
+      Identity <- Identity |> rename("Fluorophore" = 1)
+      Identity <- Identity |> mutate(Fluorophore = paste0("ID_", Fluorophore))
     } else {
-    StartingData <- data |> filter(.data[[columnname]] %in% x)
+      Identity <- StartingData |>
+        select(!where(is.numeric)) |>
+        rename("Fluorophore" = 1)
+      Identity <- Identity |> mutate(Fluorophore = paste0("ID_", Fluorophore))
     }
 
-    StartingData <- StartingData |> rename(Fluorophore=columnname)
-    StartingData <- StartingData |> mutate(Fluorophore=paste0("ID_", Fluorophore))
+    DetectorCols <- StartingData |> select(where(is.numeric))
+
+    if (Normalize == TRUE) {
+      if (any(DetectorCols > 1)) {
+        message("Normalizing Data for Signature Comparison")
+        n <- DetectorCols
+        n[n < 0] <- 0
+        A <- do.call(pmax, n)
+        Normalized <- n / A
+        DetectorCols <- Normalized
+      }
+    }
+
+    WhoseThis <- cbind(Identity, DetectorCols)
+    TotalDetectors <- length(DetectorCols)
+    TheseFluorophores <- WhoseThis |> pull(Fluorophore)
+
+    WhoseThis1 <- WhoseThis |>
+      pivot_longer(cols = where(is.numeric), names_to = "Detector",
+                   values_to = "AdjustedY")
+
+  } else {
+
+    if (x == "all") {
+      StartingData <- data
+    } else {
+      StartingData <- data |> filter(.data[[columnname]] %in% x)
+    }
+
+    StartingData <- StartingData |> rename(Fluorophore = columnname)
+    StartingData <- StartingData |>
+      mutate(Fluorophore = paste0("ID_", Fluorophore))
     TheseFluorophores <- StartingData |> pull(Fluorophore) |> unique()
-    StartingData <- StartingData |> rename(Detector=detectorcolumn)
-    StartingData <- StartingData |> rename(AdjustedY=valuecolumn)
+    StartingData <- StartingData |> rename(Detector = detectorcolumn)
+    StartingData <- StartingData |> rename(AdjustedY = valuecolumn)
     WhoseThis1 <- StartingData
-  
-  } 
 
-  ThePlot <- SimilarFluorPlots(TheseFluorophores=TheseFluorophores,
-                                TheFluorophore=NULL, data=WhoseThis1,
-                                legend=legend, plotname=plotname,
-                                plotlinecolor=plotlinecolor)
+  }
+
+  ThePlot <- SimilarFluorPlots(TheseFluorophores = TheseFluorophores,
+                                TheFluorophore = NULL, data = WhoseThis1,
+                                legend = legend, plotname = plotname,
+                                plotlinecolor = plotlinecolor)
 
   return(ThePlot)
-  }
+}

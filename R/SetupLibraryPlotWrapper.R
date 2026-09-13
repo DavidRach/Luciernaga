@@ -1,4 +1,3 @@
-
 #' A wrapper for taking Reference Library Signatures derrived from SetupLog and generate
 #' plots for each of them
 #' 
@@ -13,19 +12,28 @@
 #'  
 #' @importFrom dplyr filter pull
 #' @importFrom purrr flatten map
+#' @importFrom rlang .data
 #' 
 #' @return A ggplot2 object
 #' 
 #' @noRd 
-SetupLibraryPlotWrapper <- function(x, distinguish, data, columnname, detectorcolumn, 
-  valuecolumn, Normalize, TheFormat){
-  
+SetupLibraryPlotWrapper <- function(x,
+                                     distinguish,
+                                     data,
+                                     columnname,
+                                     detectorcolumn,
+                                     valuecolumn,
+                                     Normalize,
+                                     TheFormat) {
+
   SubsetData <- data |> filter(.data[[columnname]] %in% x)
   Distinguisher <- SubsetData |> pull(distinguish) |> unique()
 
-  ThePlots <- map(.x=Distinguisher, .f=InternalSetupLibraryWrap, distinguish=distinguish,
-   data=SubsetData, columnname = columnname, detectorcolumn=detectorcolumn,
-    valuecolumn=valuecolumn, Normalize=Normalize, TheFormat=TheFormat)
+  ThePlots <- map(.x = Distinguisher, .f = InternalSetupLibraryWrap,
+                   distinguish = distinguish, data = SubsetData,
+                   columnname = columnname, detectorcolumn = detectorcolumn,
+                   valuecolumn = valuecolumn, Normalize = Normalize,
+                   TheFormat = TheFormat)
 
   ThePlots <- flatten(ThePlots)
 

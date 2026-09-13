@@ -16,7 +16,7 @@
 #' @importFrom tidyr gather
 #' @importFrom tidyselect all_of
 #' @importFrom purrr map
-#' @importFrom utils read.csv
+#' @importFrom utils read.csv write.csv
 #'
 #' @return A pdf of the plots and maybe a csv
 #' @export
@@ -34,9 +34,9 @@
 #' XML_Files <- list.files(path = Folder_Location, pattern = XML_Pattern,
 #'                         full.names = TRUE, recursive = FALSE)
 #' Data <- map(.x=XML_Files[1:4], .f=QC_LibraryParse,
-#'   returntype="dataframe", references=FALSE) %>% bind_rows()
+#'   returntype="dataframe", references=FALSE) |> bind_rows()
 #'
-#' TheIndividuals <- Data %>% pull(Creator) %>% unique()
+#' TheIndividuals <- Data |> pull(Creator) |> unique()
 #'
 #' JohnDoesLibrary <- walk(.x=TheIndividuals[1], .f=QC_UserLibraries, Data=Data,
 #'   NameAppend="_LibraryQC", outpath=StorageLocation, references = TRUE,
@@ -44,59 +44,64 @@
 #'
 #' ThePDF <- list.files(StorageLocation, pattern="_LibraryQC.pdf")
 #'
-QC_UserLibraries <- function(x, Data, NameAppend, outpath, references=TRUE,
-                             thecolumns=3, therows=4, width=7, height=9,
-                             saveCSV = TRUE){
-  TheUserData <- Data %>% filter(Creator %in% x)
-  TheUser <- TheUserData %>% select(Creator) %>% pull() %>% unique()
-  TheUserData <- TheUserData %>% arrange(Fluorochrome)
+QC_UserLibraries <- function(x,
+                              Data,
+                              NameAppend,
+                              outpath,
+                              references = TRUE,
+                              thecolumns = 3,
+                              therows = 4,
+                              width = 7,
+                              height = 9,
+                              saveCSV = TRUE) {
+  TheUserData <- Data |> filter(Creator %in% x)
+  TheUser <- TheUserData |> select(Creator) |> pull() |> unique()
+  TheUserData <- TheUserData |> arrange(Fluorochrome)
   columnLength <- ncol(TheUserData)
-  TheGatheredData <- gather(TheUserData, key="Detector", value="value", all_of(
-    5:columnLength))
+  TheGatheredData <- gather(TheUserData, key = "Detector", value = "value",
+                             all_of(5:columnLength))
 
-  #Re-leveling the factor
-  Iterations <- columnLength-4
+  # Re-leveling the factor
+  Iterations <- columnLength - 4
   MyVector <- seq_len(Iterations)
-  TheGatheredData$Detector <- factor(TheGatheredData$Detector, levels=MyVector)
+  TheGatheredData$Detector <- factor(TheGatheredData$Detector,
+                                      levels = MyVector)
 
-  #Identifying the iterator samples
-  TheGatheredData <- TheGatheredData %>% mutate(TheSamples=paste0(
-    Fluorochrome, "_", Sample, " ", Date)) %>%
-    relocate(TheSamples, .before=Fluorochrome)
-  TheSamples <- TheGatheredData %>% select(TheSamples) %>% unique() %>% pull()
+  # Identifying the iterator samples
+  TheGatheredData <- TheGatheredData |>
+    mutate(TheSamples = paste0(Fluorochrome, "_", Sample, " ", Date)) |>
+    relocate(TheSamples, .before = Fluorochrome)
+  TheSamples <- TheGatheredData |> select(TheSamples) |> unique() |> pull()
 
-  if(references==TRUE){
+  if (references == TRUE) {
     TotalDetectors <- Iterations
 
-    ReferenceData <- InstrumentReferences(NumberDetectors=TotalDetectors)
+    ReferenceData <- InstrumentReferences(NumberDetectors = TotalDetectors)
 
-    ReferenceData <- ReferenceData %>% rename(TheValue = "AdjustedY")
+    ReferenceData <- ReferenceData |> rename(TheValue = "AdjustedY")
     ReferenceData$Fluorophore <- gsub(" ", "", gsub("-", "", gsub(
-      ".", "", fixed=TRUE, ReferenceData$Fluorophore)))
-    #ReferenceFluorList <- ReferenceData %>% select(Fluorophore) %>%
-    #unique() %>% pull()
+      ".", "", fixed = TRUE, ReferenceData$Fluorophore)))
+    # ReferenceFluorList <- ReferenceData |> select(Fluorophore) |>
+    # unique() |> pull()
   }
 
-  if (references == TRUE){
-    ThePlots <- map(.x=TheSamples, .f=QC_RefPlots, Data=TheGatheredData,
-                    references=TRUE, refData=ReferenceData)
-  } else {ThePlots <- map(.x=TheSamples, .f=QC_RefPlots,
-                          Data=TheGatheredData, references=FALSE, refData=NULL)
+  if (references == TRUE) {
+    ThePlots <- map(.x = TheSamples, .f = QC_RefPlots, Data = TheGatheredData,
+                     references = TRUE, refData = ReferenceData)
+  } else {
+    ThePlots <- map(.x = TheSamples, .f = QC_RefPlots, Data = TheGatheredData,
+                     references = FALSE, refData = NULL)
   }
 
-  fileName <- paste(TheUser, NameAppend, sep="_")
+  fileName <- paste(TheUser, NameAppend, sep = "_")
   StorageLocation <- file.path(outpath, fileName)
 
-  Utility_Patchwork(x=ThePlots, filename=fileName, outfolder=outpath,
-                      thecolumns=thecolumns, therows=therows)
+  Utility_Patchwork(x = ThePlots, filename = fileName, outfolder = outpath,
+                     thecolumns = thecolumns, therows = therows)
 
-  if (saveCSV == TRUE){
+  if (saveCSV == TRUE) {
     CSVName <- paste0(StorageLocation, ".csv")
-    write.csv(TheUserData, file=CSVName, row.names = FALSE)
+    write.csv(TheUserData, file = CSVName, row.names = FALSE)
   }
 
 }
-
-
-
-

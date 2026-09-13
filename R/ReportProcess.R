@@ -1,9 +1,14 @@
 #' Internal for Stacked Report
+#'
+#' @param x TBD
+#' @param columns TBD
+#'
 #' @importFrom dplyr select
 #' @importFrom tidyselect all_of
 #'
+#' @return A data.frame containing only the specified columns
 #' @noRd
-ReportProcess <- function(x, columns){
+ReportProcess <- function(x, columns) {
   # x <- reports[[1]]
-  data <- x %>% dplyr::select(all_of(columns))
+  data <- x |> select(all_of(columns))
 }

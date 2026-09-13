@@ -11,11 +11,11 @@
 #' @return A pdf to the desired location
 #' 
 #' @noRd 
-SendPDF <- function(x, outpath, filename, width = 7, height = 9){
-TheName <- paste0(filename, ".pdf")
-StorageLocation <- file.path(outpath, TheName)
+SendPDF <- function(x, outpath, filename, width = 7, height = 9) {
+  TheName <- paste0(filename, ".pdf")
+  StorageLocation <- file.path(outpath, TheName)
 
-pdf(file = StorageLocation, width = width, height = height)
-print(x)
-dev.off()
+  pdf(file = StorageLocation, width = width, height = height)
+  print(x)
+  dev.off()
 }

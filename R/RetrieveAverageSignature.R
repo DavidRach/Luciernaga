@@ -15,10 +15,12 @@
 #' 
 #' @export
 #' 
-#' @examples  A <- 2+2
+#' @examples A <- 2 + 2
 #' 
-RetrieveAverageSignature <- function(template, gs, inverse.transform=TRUE,
- excludeThese="FSC|SSC|Time|-H"){
+RetrieveAverageSignature <- function(template,
+                                      gs,
+                                      inverse.transform = TRUE,
+                                      excludeThese = "FSC|SSC|Time|-H") {
 
   These <- template |> select(name, Fluorophore, Detector)
   DetectorsPresent <- These |> filter(!is.na(Detector) & Detector != "")
@@ -29,7 +31,7 @@ RetrieveAverageSignature <- function(template, gs, inverse.transform=TRUE,
   GatesToAdd <- DetectorsPresent |> pull(Fluorophore)
   SpecimenIndeces <- DetectorsPresent |> pull(gs_index)
 
-  Signatures <- purrr::map2(
+  Signatures <- map2(
     .x = SpecimenIndeces,
     .y = GatesToAdd,
     .f = \(x, y) GateExprsIterated(
@@ -43,7 +45,6 @@ RetrieveAverageSignature <- function(template, gs, inverse.transform=TRUE,
 
   TheSignatureMatrix <- Signatures |> bind_rows()
 
-  UpdatedTemplate <- left_join(template, TheSignatureMatrix, by="Fluorophore")
+  UpdatedTemplate <- left_join(template, TheSignatureMatrix, by = "Fluorophore")
   return(UpdatedTemplate)
 }
-

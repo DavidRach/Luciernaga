@@ -6,12 +6,13 @@
 #'
 #' @importFrom dplyr select slice
 #' @importFrom tidyselect all_of
+#' @importFrom tidyr pivot_wider
 #'
 #' @return An internal value
 #'
 #' @keywords internal
-RetrievalMerge <- function(x, y, TheData){
-  Individual <- TheData %>% select(all_of(c(x, y))) %>% slice(1)
-  Cell <- Individual %>% pivot_wider(names_from = 1, values_from = 2)
+RetrievalMerge <- function(x, y, TheData) {
+  Individual <- TheData |> select(all_of(c(x, y))) |> slice(1)
+  Cell <- Individual |> pivot_wider(names_from = 1, values_from = 2)
   return(Cell)
 }

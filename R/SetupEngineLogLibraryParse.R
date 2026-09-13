@@ -16,8 +16,10 @@
 #' @return A data.frame object
 #' 
 #' @noRd 
-SetupEngineLogLibraryParse <- function(x, returnArg="Ref",
- returnType="data", NumberDetectors=64){
+SetupEngineLogLibraryParse <- function(x,
+                                        returnArg = "Ref",
+                                        returnType = "data",
+                                        NumberDetectors = 64) {
 
   ReadInfo <- readLines(x)
   HashLines <- grep("^#", ReadInfo)
@@ -29,35 +31,45 @@ SetupEngineLogLibraryParse <- function(x, returnArg="Ref",
 
   Split <- strsplit(NotEmpty, "\t")
   Data <- do.call(rbind, lapply(Split, function(x) {
-    data.frame(DateTime = x[1], Comment = x[2], stringsAsFactors = FALSE)}))
+    data.frame(DateTime = x[1], Comment = x[2], stringsAsFactors = FALSE)
+  }))
   Data$DateTime <- mdy_hms(Data$DateTime)
   MissedASpot <- is.na(Data$DateTime)
   Data <- Data[!MissedASpot, ]
 
-  if(returnType == "List"){
-  Hmm <- Data |> filter(str_starts(Comment, returnArg))
-  return(Hmm)
+  if (returnType == "List") {
+    Hmm <- Data |> filter(str_starts(Comment, returnArg))
+    return(Hmm)
   } else {
     Hmm <- which(str_starts(Data$Comment, returnArg))
-    UpTo <- (NumberDetectors*2)+3
+    UpTo <- (NumberDetectors * 2) + 3
 
-    Ranges <- lapply(Hmm, function(start){
+    Ranges <- lapply(Hmm, function(start) {
       end <- start + UpTo - 1
-      if (end > nrow(Data)) {return(NULL)}
+      if (end > nrow(Data)) {
+        return(NULL)
+      }
       seq(start, end)
     })
-    #Handles any overshooting at end
-    Ranges <- Filter(Negate(is.null), Ranges) 
+    # Handles any overshooting at end
+    Ranges <- Filter(Negate(is.null), Ranges)
 
     # Conventional Modes don't contain "Measurement A values"
-    RealRanges <- Ranges[sapply(Ranges, function(Verify) {RowCheck <- Verify[2]
-      if (RowCheck <= nrow(Data)) {return(Data$Comment[RowCheck] == "Measurement A")
-        } else {return(FALSE)}})]
-    
-    Intermediate <- map(.x=RealRanges, .f=SetupLogInternal, data=Data) |> bind_rows()
-    
+    RealRanges <- Ranges[sapply(Ranges, function(Verify) {
+      RowCheck <- Verify[2]
+      if (RowCheck <= nrow(Data)) {
+        return(Data$Comment[RowCheck] == "Measurement A")
+      } else {
+        return(FALSE)
+      }
+    })]
+
+    Intermediate <- map(.x = RealRanges, .f = SetupLogInternal, data = Data) |>
+      bind_rows()
+
     # Attempt to facilitate duplicate removal subsequently
-    Final <- Intermediate |> mutate(Date = floor_date(ymd_hms(Date), unit = "5 minutes"))
+    Final <- Intermediate |>
+      mutate(Date = floor_date(ymd_hms(Date), unit = "5 minutes"))
     return(Final)
   }
 }

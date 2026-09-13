@@ -30,6 +30,6 @@ Helper function, retrieves the average signature for each gate specified in
 the template
 }
 \examples{
- A <- 2+2
+A <- 2 + 2
 
 }

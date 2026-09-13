@@ -15,19 +15,18 @@
 #' @return A data.frame row with the marker RCVs as a proportion. 
 #' 
 #' @export
-RCVfromFCS <- function(x, subset, sample.name, experiment.name, condition.name){
+RCVfromFCS <- function(x, subset, sample.name, experiment.name, condition.name) {
   Name <- keyword(x, sample.name)
   Condition <- keyword(x, condition.name)
   Experiment <- keyword(x, experiment.name)
   Internal <- gs_pop_get_data(x, subset)
   Internal <- exprs(Internal[[1]])
-  Internal <- data.frame(Internal, check.names=FALSE)
+  Internal <- data.frame(Internal, check.names = FALSE)
   These <- colnames(Internal)
-  TheRCVs <- map(.x=These, .f=InternalRCV, data=Internal) |>
-        bind_cols()
-  TheRCVs <- TheRCVs |> mutate(Sample=Name, Condition=Condition,
-     Experiment=Experiment) |> relocate(Sample, Condition, Experiment, .before=1)
+  TheRCVs <- map(.x = These, .f = InternalRCV, data = Internal) |>
+    bind_cols()
+  TheRCVs <- TheRCVs |>
+    mutate(Sample = Name, Condition = Condition, Experiment = Experiment) |>
+    relocate(Sample, Condition, Experiment, .before = 1)
   return(TheRCVs)
 }
-
-
