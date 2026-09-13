@@ -1,4 +1,3 @@
-
 #' Internal for Utility_Concatinate
 #'
 #' @param x The iterated metadata column name
@@ -10,13 +9,12 @@
 #' @importFrom rlang !! :=
 #'
 #' @noRd
-ExecuteCharacters <- function(x, data, conversion){
-
+ExecuteCharacters <- function(x, data, conversion) {
   Numbers <- conversion |>
     dplyr::filter(Column %in% x) |> pull(Numbers)
-  Letters <- conversion |> 
+  Letters <- conversion |>
     dplyr::filter(Column %in% x) |> pull(Letters)
-  if (Numbers == FALSE && Letters==TRUE){
+  if (Numbers == FALSE && Letters == TRUE) {
     newName <- paste0("New_", x)
     Internal <- data |> select(all_of(x))
     SpecimenNames <- data.frame(table(Internal))
@@ -27,5 +25,7 @@ ExecuteCharacters <- function(x, data, conversion){
     SpecimenNames <- SpecimenNames |>
       mutate(!!newName := as.numeric(factor(x)))
     return(SpecimenNames)
-  } else {SpecimenNames <- NULL}
+  } else {
+    SpecimenNames <- NULL
+  }
 }

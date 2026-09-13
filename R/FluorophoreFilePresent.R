@@ -8,14 +8,16 @@
 #' @return An internal value
 #'
 #' @noRd
-FluorophoreFilePresent <- function(x, inputfiles){
+FluorophoreFilePresent <- function(x, inputfiles) {
   fcs_files <- inputfiles[str_detect(basename(inputfiles), x) &
-                            str_detect(basename(inputfiles), ".fcs$")]
-  if (x %in% c("PE", "APC")){
-      x <- paste0(x, "-")
-      fcs_files <- fcs_files[!str_detect(basename(fcs_files), x)]
-      x <- gsub("-", "", x)
-    } #ExceptionHandling
+    str_detect(basename(inputfiles), ".fcs$")]
+  if (x %in% c("PE", "APC")) {
+    x <- paste0(x, "-")
+    fcs_files <- fcs_files[!str_detect(basename(fcs_files), x)]
+    x <- gsub("-", "", x)
+  } #ExceptionHandling
 
-  if (length(fcs_files) > 0){return(x)}
+  if (length(fcs_files) > 0) {
+    return(x)
+  }
 }

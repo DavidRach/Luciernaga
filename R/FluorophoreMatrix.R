@@ -1,11 +1,11 @@
 #' Takes a .csv with Fluorophore and Antigen columns, and generates
 #' a corresponding Cytek Aurora matrix for inter/intra comparisons
-#' 
+#'
 #' @param data A path to the .csv or a data.frame object
 #' @param NumberDetectors The corresponding number of detectors
 #'  for the Cytek Aurora
 #' @param returnType Default is plot
-#' 
+#'
 #' @importFrom utils read.csv
 #' @importFrom dplyr pull filter group_by arrange desc slice
 #'  select ungroup mutate left_join across rename_with full_join
@@ -14,20 +14,22 @@
 #' @importFrom tidyr replace_na
 #' @importFrom purrr imap reduce
 #' @importFrom stats setNames
-#' @importFrom gt gt tab_style cell_text cells_body cols_width
-#'  cols_label px
-#' 
+#' @importFrom gt gt tab_style cell_text cells_body cols_label
+#'
 #' @return An assembled plot object for visualization
-#' 
+#'
 #' @export
-#' 
+#'
 #' @examples
 #' A <- 2 + 2
-FluorophoreMatrix <- function(data, NumberDetectors, returnType = "plot"){
+FluorophoreMatrix <- function(data, NumberDetectors, returnType = "plot") {
   Vaiya <- InstrumentReferences(NumberDetectors = NumberDetectors)
 
-  if (!is.data.frame(data)){Data <- read.csv(data, check.names=FALSE)
-  } else {Data <- data}
+  if (!is.data.frame(data)) {
+    Data <- read.csv(data, check.names = FALSE)
+  } else {
+    Data <- data
+  }
 
   Fluorophores <- Data |> pull(Fluorophore)
 
@@ -47,67 +49,76 @@ FluorophoreMatrix <- function(data, NumberDetectors, returnType = "plot"){
 
   Lasers <- Sequence |> pull(prefix) |> unique()
 
-  Dataset <- left_join(Sequence, Data, by="Fluorophore")
+  Dataset <- left_join(Sequence, Data, by = "Fluorophore")
 
-  if (returnType == "data"){return(Dataset)}
+  if (returnType == "data") {
+    return(Dataset)
+  }
 
   TheList <- list()
 
-  if(any(Lasers %in% "UV")){
+  if (any(Lasers %in% "UV")) {
     TheUV <- UVLaser()
     Selection <- Dataset |> filter(prefix %in% "UV") |>
       select(Fluorophore, Detector, Antigen)
-    New <- left_join(TheUV, Selection, by="Detector")
-    NewUV <- New %>% mutate(across(everything(), ~ replace_na(., "")))
+    New <- left_join(TheUV, Selection, by = "Detector")
+    NewUV <- New |> mutate(across(everything(), ~ replace_na(., "")))
     TheList <- append(TheList, list(NewUV))
   }
-  if(any(Lasers %in% "V")){
+  if (any(Lasers %in% "V")) {
     TheV <- VLaser()
     Selection <- Dataset |> filter(prefix %in% "V") |>
       select(Fluorophore, Detector, Antigen)
-    New <- left_join(TheV, Selection, by="Detector")
-    NewV <- New %>% mutate(across(everything(), ~ replace_na(., "")))
+    New <- left_join(TheV, Selection, by = "Detector")
+    NewV <- New |> mutate(across(everything(), ~ replace_na(., "")))
     TheList <- append(TheList, list(NewV))
   }
-  if(any(Lasers %in% "B")){
+  if (any(Lasers %in% "B")) {
     TheB <- BLaser()
     Selection <- Dataset |> filter(prefix %in% "B") |>
       select(Fluorophore, Detector, Antigen)
-    New <- left_join(TheB, Selection, by="Detector")
-    NewB <- New %>% mutate(across(everything(), ~ replace_na(., "")))
+    New <- left_join(TheB, Selection, by = "Detector")
+    NewB <- New |> mutate(across(everything(), ~ replace_na(., "")))
     TheList <- append(TheList, list(NewB))
   }
-  if(any(Lasers %in% "YG")){
+  if (any(Lasers %in% "YG")) {
     TheYG <- YGLaser()
     Selection <- Dataset |> filter(prefix %in% "YG") |>
       select(Fluorophore, Detector, Antigen)
-    New <- left_join(TheYG, Selection, by="Detector")
-    NewYG <- New %>% mutate(across(everything(), ~ replace_na(., "")))
+    New <- left_join(TheYG, Selection, by = "Detector")
+    NewYG <- New |> mutate(across(everything(), ~ replace_na(., "")))
     TheList <- append(TheList, list(NewYG))
   }
-  if(any(Lasers %in% "R")){
+  if (any(Lasers %in% "R")) {
     TheR <- RLaser()
     Selection <- Dataset |> filter(prefix %in% "R") |>
       select(Fluorophore, Detector, Antigen)
-    New <- left_join(TheR, Selection, by="Detector")
-    NewR <- New %>% mutate(across(everything(), ~ replace_na(., "")))
+    New <- left_join(TheR, Selection, by = "Detector")
+    NewR <- New |> mutate(across(everything(), ~ replace_na(., "")))
     TheList <- append(TheList, list(NewR))
   }
 
   NamedList <- imap(TheList, function(df, name) {
-    df %>% rename_with(~ paste0(., "_", name), .cols = -Wavelength)
+    df |> rename_with(~ paste0(., "_", name), .cols = -Wavelength)
   })
 
   Combined <- reduce(NamedList, full_join, by = "Wavelength") |>
-  arrange(Wavelength)
-  
-  Combined1 <- Combined %>% mutate(across(everything(), ~ replace_na(., "")))
+    arrange(Wavelength)
 
-  Bolded <- names(Combined1)[grepl("^Fluorophore|^Antigen", names(Combined1))]
+  Combined1 <- Combined |> mutate(across(everything(), ~ replace_na(., "")))
+
+  Bolded <- names(Combined1)[grepl("^Fluorophore|^Antigen",
+    names(Combined1))]
   colnames(Combined1) <- gsub("Detector", "D", colnames(Combined1))
   colnames(Combined1) <- gsub("Wavelength", "WV", colnames(Combined1))
-  Narrow <- names(Combined1)[grepl("^(D|W)", names(Combined1), ignore.case = TRUE)]
+  Narrow <- names(Combined1)[grepl("^(D|W)", names(Combined1),
+    ignore.case = TRUE)]
 
+  # TODO: `.` is used twice here - once as the explicit first argument to
+  # setNames(), and again nested inside str_replace() as its second
+  # argument. The native pipe's `_` placeholder can only fill one slot per
+  # call, so this can't be rewritten without repeating the full piped
+  # expression; left as `%>%` to preserve the shared `.` reference.
   Cleaned <- names(Combined1) %>%
     setNames(., str_replace(., "_[1-5]$", ""))
 
@@ -115,8 +126,8 @@ FluorophoreMatrix <- function(data, NumberDetectors, returnType = "plot"){
     style = cell_text(weight = "bold"),
     locations = cells_body(columns = all_of(Bolded))
   )
-  
-  #GTed <- GTed |> cols_width(all_of(Narrow) ~ px(30)) 
+
+  #GTed <- GTed |> cols_width(all_of(Narrow) ~ px(30))
 
   Clean <- str_replace(names(Combined1), "_[0-9]+$", "")
   Labels <- setNames(Clean, names(Combined1))

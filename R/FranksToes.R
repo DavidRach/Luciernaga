@@ -1,12 +1,12 @@
 #' Internal FrankensteinsConfig, generates detector outputs
-#' 
+#'
 #' @param x The iterated Detector
 #' @param detector The Detector data.frame
-#' 
+#'
 #' @importFrom dplyr filter mutate pull
-#' 
+#'
 #' @noRd
-FranksToes <- function(x, detector){
+FranksToes <- function(x, detector) {
   Target <- detector |> filter(Detectors %in% x)
 
   NameValue <- Target |> mutate(Name = Detectors) |> pull(Name)
@@ -24,8 +24,11 @@ FranksToes <- function(x, detector){
   breakdown <- Target |> pull(breakdown)
 
   Output <- sprintf(
-  '  <Detector Name="%s" Number="%s" ChannelNumber="%s" GainChannel="%s" Max="%s" centerWaveLength="%s" bandWidth="%s" breakdown="%s"/>'
-  , Name, Number, ChannelNumber, GainChannel, Max, centerWaveLength, bandWidth, breakdown)
-  
+    '  <Detector Name="%s" Number="%s" ChannelNumber="%s" ',
+    'GainChannel="%s" Max="%s" centerWaveLength="%s" bandWidth="%s" ',
+    'breakdown="%s"/>',
+    Name, Number, ChannelNumber, GainChannel, Max, centerWaveLength,
+    bandWidth, breakdown)
+
   return(Output)
 }

@@ -1,9 +1,8 @@
-
 #' Internal for SimulatedData, generates total variant events
 #'  and multiplies by signature
 #'
 #' @param x Iterated in Fluorophore
-#' @param LocalNumber Iterated in number of events (derrived 
+#' @param LocalNumber Iterated in number of events (derrived
 #' from pop and abundance)
 #' @param ScaledData The Scaled signature data
 #' @param distribution The desired distribution for the
@@ -17,29 +16,29 @@
 #'
 #' @noRd
 FluorophoreVariance <- function(x, LocalNumber, ScaledData,
-   distribution){
-  
-LocalData <- ScaledData |>
-  filter(Fluorophore %in% x) |> pull(AdjustedY)
-LocalDist <- distribution |>
-  filter(Markers %in% x) |> pull(Distribution)
+                                 distribution) {
+  LocalData <- ScaledData |>
+    filter(Fluorophore %in% x) |> pull(AdjustedY)
+  LocalDist <- distribution |>
+    filter(Markers %in% x) |> pull(Distribution)
 
-if (LocalDist == 1){
-mu <- 0 # Mean
-sigma <- 0.05 #SD
-Values <- rlnorm(LocalNumber, meanlog = mu, sdlog=sigma)
-#mean(Values)
-#hist(Values, main = "Log-normal Distribution", xlab = "Value", breaks = 50)
-#LocalData
+  if (LocalDist == 1) {
+    mu <- 0 # Mean
+    sigma <- 0.05 #SD
+    Values <- rlnorm(LocalNumber, meanlog = mu, sdlog = sigma)
+    #mean(Values)
+    #hist(Values, main = "Log-normal Distribution", xlab = "Value",
+    #  breaks = 50)
+    #LocalData
 
-ResultMatrix <- sapply(Values, function(value) LocalData * value)
-ResultMatrix <- t(ResultMatrix)
+    ResultMatrix <- sapply(Values, function(value) LocalData * value)
+    ResultMatrix <- t(ResultMatrix)
 
-#Results <- data.frame(ResultMatrix)
-#A <- do.call(pmax, Results)
-#Normalized <- Results/A
-#View(Normalized)
+    #Results <- data.frame(ResultMatrix)
+    #A <- do.call(pmax, Results)
+    #Normalized <- Results/A
+    #View(Normalized)
 
-return(ResultMatrix)
-}
+    return(ResultMatrix)
+  }
 }

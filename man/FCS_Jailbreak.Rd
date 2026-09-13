@@ -2,14 +2,14 @@
 % Please edit documentation in R/FCS_Jailbreak.R
 \name{FCS_Jailbreak}
 \alias{FCS_Jailbreak}
-\title{Helpful function for extracting .fcs files from SpectroFlo 
+\title{Helpful function for extracting .fcs files from SpectroFlo
 .Zip folders.}
 \usage{
 FCS_Jailbreak(x, Type = "Raw", FileType = "Reference", outpath)
 }
 \arguments{
 \item{x}{Provide either the Zip folder path, or a folder
- containing a single Zip folder within. I have not yet 
+ containing a single Zip folder within. I have not yet
 implemented a handling condition for when two zipped folders
  are present!}
 
@@ -26,7 +26,7 @@ implemented a handling condition for when two zipped folders
 Files transferred to the desired folder
 }
 \description{
-Helpful function for extracting .fcs files from SpectroFlo 
+Helpful function for extracting .fcs files from SpectroFlo
 .Zip folders.
 }
 \examples{

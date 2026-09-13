@@ -1,4 +1,3 @@
-
 #' Internal for Utility_Concatinate
 #'
 #' @param x Iterated metadata column name to edit on
@@ -9,20 +8,18 @@
 #' @importFrom tidyselect all_of
 #'
 #' @noRd
-ExecuteNumerics <- function(x, data, conversion){
-
-
+ExecuteNumerics <- function(x, data, conversion) {
   Numbers <- conversion |>
     dplyr::filter(Column %in% x) |> pull(Numbers)
   Letters <- conversion |>
     dplyr::filter(Column %in% x) |> pull(Letters)
-  if (Numbers == TRUE && Letters==FALSE){
-    data <- data %>% mutate(across(all_of(x), ~ as.numeric(.)))
+  if (Numbers == TRUE && Letters == FALSE) {
+    data <- data |> mutate(across(all_of(x), ~ as.numeric(.)))
   }
 
-  if (Numbers == TRUE && Letters==TRUE){
-    data <- data %>%
-      mutate(across(all_of(x), ~ gsub("[A-Za-z]", "", .))) %>%
+  if (Numbers == TRUE && Letters == TRUE) {
+    data <- data |>
+      mutate(across(all_of(x), ~ gsub("[A-Za-z]", "", .))) |>
       mutate(across(all_of(x), ~ as.numeric(.)))
   }
   return(data)

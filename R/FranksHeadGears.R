@@ -1,10 +1,10 @@
 #' Internal FrankensteinsConfig,returns overall .xml config
-#' 
+#'
 #' @param NumberDetectors Number detectors of alternate instrument
-#' 
+#'
 #' @noRd
-FranksHeadGears <- function(NumberDetectors){
-  InstrumentAndDetectors <- paste("Frankenstein", NumberDetectors, sep=" ")
+FranksHeadGears <- function(NumberDetectors) {
+  InstrumentAndDetectors <- paste("Frankenstein", NumberDetectors, sep = " ")
 
   Metadata <- sprintf('<?xml version="1.0" encoding="utf-8"?>
 <InstrumentConfiguration
@@ -17,6 +17,6 @@ FranksHeadGears <- function(NumberDetectors){
   HeaderSize="20">
   #PlaceLasersHere
 </InstrumentConfiguration>', InstrumentAndDetectors)
-  
+
   return(Metadata)
 }

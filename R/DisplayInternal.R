@@ -7,15 +7,15 @@
 #'
 #' @return The list of display parameters for the detector
 #' @noRd
-DisplayInternal <- function(x, data){
-  Subset <- data[x,]
+DisplayInternal <- function(x, data) {
+  Subset <- data[x, ]
 
-  TheX <- gsub("$", "", fixed=TRUE, x)
+  TheX <- gsub("$", "", fixed = TRUE, x)
 
   Display <- paste0(TheX, "DISPLAY")
   DisplayVal <- Subset |> pull(Display)
 
-  DisplayList <- list(Display=DisplayVal)
+  DisplayList <- list(Display = DisplayVal)
   names(DisplayList) <- Display
   return(DisplayList)
 }

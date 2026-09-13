@@ -22,7 +22,7 @@ Small helper function, attempts to guess the correct max
  fluorophore for a given instrument.
 }
 \examples{
-PeakDetector <- DetectorGuess(x="APC-Fire 810",
- NumberDetectors=64)
+PeakDetector <- DetectorGuess(x = "APC-Fire 810",
+ NumberDetectors = 64)
 
 }

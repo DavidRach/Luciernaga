@@ -2,22 +2,23 @@
 #'
 #' @param data Selected metadata columns
 #'
+#' @return TBD
+#'
 #' @noRd
 DoWeConvert <- function(data) {
+  results <- data.frame(Column = character(), Numbers = logical(),
+    Letters = logical(), stringsAsFactors = FALSE)
 
-results <- data.frame(Column=character(), Numbers=logical(),
-                        Letters=logical(), stringsAsFactors = FALSE)
+  for (i in names(data)) {
+    if (is.character(data[[i]])) {
+      NumbersPaa <- any(grepl("\\d", data[[i]]))
+      LettersPaa <- any(grepl("[A-Za-z]", data[[i]]))
 
-for (i in names(data)) {
-  if (is.character(data[[i]])) {
-    NumbersPaa <- any(grepl("\\d", data[[i]]))
-    LettersPaa <- any(grepl("[A-Za-z]", data[[i]]))
-
-    results <- rbind(results, data.frame(Column=i, Numbers=NumbersPaa,
-                                     Letters=LettersPaa,
-                                     stringsAsFactors = FALSE))
+      results <- rbind(results, data.frame(Column = i, Numbers = NumbersPaa,
+        Letters = LettersPaa,
+        stringsAsFactors = FALSE))
+    }
   }
-}
 
-return(results)
+  return(results)
 }

@@ -1,56 +1,70 @@
 #' Internal, processes individual files for signature
-#' 
+#'
+#' @param x TBD
+#' @param sample.name TBD
+#' @param StringRemoval TBD
+#' @param fluorophore.name TBD
+#' @param Verbose TBD
+#' @param stats TBD
+#' @param PanelCuts TBD
+#' @param normalize TBD
+#' @param returnType TBD
+#'
 #' @importFrom flowCore keyword exprs
 #' @importFrom flowWorkspace gs_pop_get_data
 #' @importFrom BiocGenerics nrow
-#' @importFrom dplyr filter arrange desc pull select bind_cols
+#' @importFrom dplyr filter arrange desc pull select bind_cols mutate
+#'   relocate
 #' @importFrom tidyselect all_of
+#' @importFrom rlang .data
 #' @importFrom stats quantile
-#' 
+#'
 #' @return A data.frame row of raw or normalized data
-#' 
+#'
 #' @noRd
 FolderSignatureIterator <- function(x, sample.name, StringRemoval,
-  fluorophore.name, Verbose, stats, PanelCuts, normalize, returnType){
-  
-  if (is.null(fluorophore.name)){
+                                     fluorophore.name, Verbose, stats,
+                                     PanelCuts, normalize, returnType) {
+  if (is.null(fluorophore.name)) {
     FluorophoreName <- keyword(x, "TUBENAME")
     DefaultStrings <- c("DR_", " (Cells)")
     AbbreviatedFluorophore <- NameCleanUp(FluorophoreName,
-       removestrings=DefaultStrings)
+      removestrings = DefaultStrings)
     fluorophore.name <- sub("^[^ ]+ ", "", AbbreviatedFluorophore)
   }
-  
-  if (length(sample.name) == 2){
+
+  if (length(sample.name) == 2) {
     first <- sample.name[[1]]
     second <- sample.name[[2]]
     first <- keyword(x, first)
     second <- keyword(x, second)
-    name <- paste(first, second, sep="_")
-  } else {name <- keyword(x, sample.name)}
+    name <- paste(first, second, sep = "_")
+  } else {
+    name <- keyword(x, sample.name)
+  }
 
-  if (!is.null(StringRemoval)){
-    sampleName <- NameCleanUp(name, removestrings=StringRemoval)
+  if (!is.null(StringRemoval)) {
+    sampleName <- NameCleanUp(name, removestrings = StringRemoval)
   } else {
     DefaultStrings <- c("DR_", " (Cells)")
-    sampleName <- NameCleanUp(name, removestrings=DefaultStrings)
+    sampleName <- NameCleanUp(name, removestrings = DefaultStrings)
   }
 
-  if (Verbose == TRUE){
+  if (Verbose == TRUE) {
     message("After String Removal, sample.name is ", sampleName)
   }
-  
+
   cs <- gs_pop_get_data(x, "root")
   Data <- exprs(cs[[1]])
   Data <- data.frame(Data, check.names = FALSE)
   Data <- Data |> unique() #Precaution Zero Style Leftovers from Artificial
-  TheColumns <- Data[,-grep("Time|FS|SC|SS|Original|W$|H$", names(Data))]
+  TheColumns <- Data[, -grep("Time|FS|SC|SS|Original|W$|H$", names(Data))]
   DetectorOrder <- colnames(TheColumns)
   startingcells <- BiocGenerics::nrow(cs)[[1]]
   n <- TheColumns
   n[n < 0] <- 0
   A <- do.call(pmax, n)
-  Normalized <- n/A
+  Normalized <- n / A
   Normalized <- round(Normalized, 1)
   na_counts <- colSums(is.na(Normalized))
   Normalized[is.na(Normalized)] <- 0
@@ -60,16 +74,18 @@ FolderSignatureIterator <- function(x, sample.name, StringRemoval,
   Normalized[is.na(Normalized)] <- 0
   Counts <- colSums(Normalized == 1)
   PeakDetectorCounts <- data.frame(Fluors = names(Counts),
-   Counts = Counts)
+    Counts = Counts)
   rownames(PeakDetectorCounts) <- NULL
-  cutoff <- startingcells*0.0075
+  cutoff <- startingcells * 0.0075
   Detectors <- PeakDetectorCounts |> filter(Counts > cutoff) |>
     arrange(desc(Counts))
-  TheDetector <- Detectors[1,1]
+  TheDetector <- Detectors[1, 1]
 
-  if(!is.null(PanelCuts)){
+  if (!is.null(PanelCuts)) {
     PanelCuts <- PanelCuts
-  } else {PanelCuts <- c(0,1)}
+  } else {
+    PanelCuts <- c(0, 1)
+  }
 
   LowerBound <- PanelCuts[1]
   UpperBound <- PanelCuts[2]
@@ -88,31 +104,32 @@ FolderSignatureIterator <- function(x, sample.name, StringRemoval,
 
   QuantileData <- TheColumns |> select(all_of(TheDetector)) |>
     pull()
-  LowerBoundMFI <- QuantileData %>% quantile(., LowerBound)
-  UpperBoundMFI <- QuantileData %>% quantile(., UpperBound)
+  LowerBoundMFI <- QuantileData |> quantile(LowerBound)
+  UpperBoundMFI <- QuantileData |> quantile(UpperBound)
 
   ValuesInterest <- TheColumns |>
-    filter(.data[[TheDetector]]  >= LowerBoundMFI &
+    filter(.data[[TheDetector]] >= LowerBoundMFI &
       .data[[TheDetector]] <= UpperBoundMFI)
 
-  if (returnType == "Signatures"){
-  if (normalize == TRUE){
-    Samples <- AveragedSignature(x=ValuesInterest, stats=stats,
-      normalize = TRUE)
-  } else {
-    Samples <- AveragedSignature(x=ValuesInterest, stats=stats,
-      normalize = FALSE)
-  }
+  if (returnType == "Signatures") {
+    if (normalize == TRUE) {
+      Samples <- AveragedSignature(x = ValuesInterest, stats = stats,
+        normalize = TRUE)
+    } else {
+      Samples <- AveragedSignature(x = ValuesInterest, stats = stats,
+        normalize = FALSE)
+    }
 
-  Metadata <-data.frame(Fluorophore=fluorophore.name,
-     Sample=sampleName, check.names=FALSE)
-  Data <- bind_cols(Metadata, Samples)
-  return(Data)
+    Metadata <- data.frame(Fluorophore = fluorophore.name,
+      Sample = sampleName, check.names = FALSE)
+    Data <- bind_cols(Metadata, Samples)
+    return(Data)
   } else {
     Dataset <- ValuesInterest |>
       mutate(Fluorophore = fluorophore.name) |>
-      mutate(Sample=sampleName) |> 
-      relocate(Fluorophore, Sample, .before=1)
-    
-    return(Dataset)}
+      mutate(Sample = sampleName) |>
+      relocate(Fluorophore, Sample, .before = 1)
+
+    return(Dataset)
+  }
 }

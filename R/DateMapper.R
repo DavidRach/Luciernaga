@@ -8,11 +8,11 @@
 #'
 #' @return Individual date QC summary
 #' @noRd
-DateMapper <- function(x, data, Instrument){
+DateMapper <- function(x, data, Instrument) {
   DateTime <- x
   TheDateData <- data |> dplyr::filter(DateTime %in% x)
-  TheDateSummary <- VisualQCSummary(x=TheDateData)
-  InstrumentStatus <- ColorCodeStatus(x=Instrument, y=TheDateSummary)
+  TheDateSummary <- VisualQCSummary(x = TheDateData)
+  InstrumentStatus <- ColorCodeStatus(x = Instrument, y = TheDateSummary)
   Snapshot <- cbind(DateTime, InstrumentStatus)
   Snapshot$DateTime <- as.Date(Snapshot$DateTime)
   return(Snapshot)
