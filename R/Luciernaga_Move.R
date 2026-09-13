@@ -8,8 +8,8 @@
 #'  selected
 #' files.
 #'
-#' @importFrom dplyr filter  pull
-#' @importFrom stringr str_detect
+#' @importFrom dplyr filter pull
+#' @importFrom stringr str_detect fixed
 #'
 #' @return No return, .fcs files are moved desired folder.
 #' @export
@@ -94,7 +94,7 @@
 #'  input=StorageLocation, output=SortedStorageLocation)
 #' MovedFiles <- list.files(SortedStorageLocation, pattern="fcs", full.names=TRUE)
 #'
-Luciernaga_Move <- function(x, data, input, output){
+Luciernaga_Move <- function(x, data, input, output) {
   OriginalX <- x
   x <- gsub("-A", "", x)
   ### x <- gsub(" ", "", x)
@@ -102,27 +102,23 @@ Luciernaga_Move <- function(x, data, input, output){
   Internal <- data |>
     dplyr::filter(str_detect(sample, fixed(x, ignore_case = TRUE)))
 
-  if (x %in% c("PE", "APC")){
-
-    Internal <- Internal |> dplyr::filter(!str_detect(sample, "PE-|APC-|Per"))
-
-    } #ExceptionHandling
-
+  if (x %in% c("PE", "APC")) {
+    Internal <- Internal |>
+      dplyr::filter(!str_detect(sample, "PE-|APC-|Per"))
+  } #ExceptionHandling
 
   Fluor <- Internal |> pull(sample) |> unique()
   Clusterlet <- Internal |> pull(Cluster) |> unique()
 
-  internalstrings <- c("_","-")
+  internalstrings <- c("_", "-")
   Clusterlet <- Luciernaga::NameCleanUp(Clusterlet,
-     removestrings = internalstrings)
+    removestrings = internalstrings)
 
   inputfiles <- list.files(input, full.names = TRUE)
 
   files_to_move <- inputfiles[
     str_detect(basename(inputfiles), fixed(Fluor, ignore_case = TRUE)) &
-    str_detect(basename(inputfiles), paste0("_", Clusterlet, "\\."))]
+      str_detect(basename(inputfiles), paste0("_", Clusterlet, "\\."))]
 
   file.copy(files_to_move, output)
-
 }
-

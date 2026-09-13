@@ -17,7 +17,7 @@ Luciernaga_Lists(
 )
 }
 \arguments{
-\item{ListOfList}{A list containing the returns from Luciernaga_Plots 
+\item{ListOfList}{A list containing the returns from Luciernaga_Plots
 plot option.}
 
 \item{SecondaryList}{Default NULL, if given a list will incorporate

@@ -7,8 +7,7 @@
 #' the fluorophores captured by the BrightnessFiles
 #'
 #' @importFrom purrr map
-#' @importFrom dplyr bind_rows pull filter arrange mutate pull
-#'  row_number relocate
+#' @importFrom dplyr bind_rows pull filter arrange mutate row_number relocate
 #' @importFrom utils read.csv
 #'
 #' @return A data.frame listing the candidate .fcs files for future
@@ -74,30 +73,29 @@
 #' MoveThese <- Luciernaga_Tree(BrightnessFilePath = StorageLocation,
 #'  PanelPath = PanelPath)
 #'
-Luciernaga_Tree <- function(BrightnessFilePath, PanelPath){
+Luciernaga_Tree <- function(BrightnessFilePath, PanelPath) {
 
-  TheCSVs <- list.files(BrightnessFilePath,
-     pattern="RelativeBrightness", full.names = TRUE)
-  TheData <- map(.x=TheCSVs, .f=CSVRead) |> bind_rows()
+  TheCSVs <- list.files(BrightnessFilePath, pattern = "RelativeBrightness",
+                         full.names = TRUE)
+  TheData <- map(.x = TheCSVs, .f = CSVRead) |> bind_rows()
 
-  if(!is.data.frame(PanelPath)){
+  if (!is.data.frame(PanelPath)) {
     Panel <- read.csv(PanelPath, check.names = FALSE)
-  } else {Panel <- PanelPath}
+  } else {
+    Panel <- PanelPath
+  }
 
   OriginalPanel <- Panel
-  #Panel$Fluorophore <- gsub(" ", "", Panel$Fluorophore)
+  # Panel$Fluorophore <- gsub(" ", "", Panel$Fluorophore)
 
-  TheFluorophores <- Panel %>% pull(Fluorophore)
-  #TheFluorophores <- TheFluorophores[c(4, 16, 25)]
+  TheFluorophores <- Panel |> pull(Fluorophore)
+  # TheFluorophores <- TheFluorophores[c(4, 16, 25)]
   TheFluorophores <- gsub("-A", "", TheFluorophores)
 
-  #x <- TheFluorophores[19]
+  # x <- TheFluorophores[19]
 
-  NewData <- map(.x=TheFluorophores,
-     .f=InternalTree, TheData=TheData) |> bind_rows()
+  NewData <- map(.x = TheFluorophores, .f = InternalTree, TheData = TheData) |>
+    bind_rows()
 
   return(NewData)
 }
-
-
-

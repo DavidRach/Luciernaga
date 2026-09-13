@@ -34,6 +34,6 @@ A ggplot2 object
 Visualizes Cluster MFI over time, uses Luciernaga_QC output
 }
 \examples{
-library(Luciernaga) 
+library(Luciernaga)
 
 }

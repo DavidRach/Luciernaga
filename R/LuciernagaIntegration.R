@@ -42,45 +42,58 @@
 #' 
 #' @examples A <- 2 + 2
 #' 
-LuciernagaIntegration <- function(template, gs, AFOverlap=NULL,
- externalAF_gs = NULL, externalAF_gs_index=NULL, externalAF_gs_gate=NULL,
- excludeThese="FSC|SSC|Time|-H|-W", inverse.transform=TRUE,
- GuessSimilar=FALSE, Unstained=FALSE, NumberDetectors=64){
+LuciernagaIntegration <- function(template,
+                                   gs,
+                                   AFOverlap = NULL,
+                                   externalAF_gs = NULL,
+                                   externalAF_gs_index = NULL,
+                                   externalAF_gs_gate = NULL,
+                                   excludeThese = "FSC|SSC|Time|-H|-W",
+                                   inverse.transform = TRUE,
+                                   GuessSimilar = FALSE,
+                                   Unstained = FALSE,
+                                   NumberDetectors = 64) {
 
-  if (is.null(AFOverlap)){
+  if (is.null(AFOverlap)) {
     FileLocation <- system.file("extdata", package = "Luciernaga")
-    pattern = "AutofluorescentOverlaps.csv"
-    AFOverlap <- list.files(path=FileLocation, pattern=pattern,
-     full.names = TRUE)
-    AFOverlap <- read.csv(AFOverlap, check.names=FALSE)
+    pattern <- "AutofluorescentOverlaps.csv"
+    AFOverlap <- list.files(path = FileLocation, pattern = pattern,
+                             full.names = TRUE)
+    AFOverlap <- read.csv(AFOverlap, check.names = FALSE)
   } else {
-    if(!is.data.frame(AFOverlap)){
-      AFOverlap <- read.csv(AFOVerlap, check.names=FALSE)
-      } else { # No Intervention needed
-      }
+    if (!is.data.frame(AFOverlap)) {
+      AFOverlap <- read.csv(AFOverlap, check.names = FALSE)
+    } else {
+      # No Intervention needed
+    }
   }
 
-  These <- template |> dplyr::select(name, Fluorophore, Detector)
-  DetectorsPresent <- These |> dplyr::filter(!is.na(Detector) & Detector != "")
+  These <- template |> select(name, Fluorophore, Detector)
+  DetectorsPresent <- These |> filter(!is.na(Detector) & Detector != "")
 
   gs_index <- match(DetectorsPresent$name, sampleNames(gs))
   DetectorsPresent$gs_index <- gs_index
 
-  GatesToAdd <- DetectorsPresent |> dplyr::pull(Fluorophore)
-  SpecimenIndeces <- DetectorsPresent |> dplyr::pull(gs_index)
+  GatesToAdd <- DetectorsPresent |> pull(Fluorophore)
+  SpecimenIndeces <- DetectorsPresent |> pull(gs_index)
 
   # sampleNames(gs)
   # sampleNames(gs[SpecimenIndeces[14]])
   # x <- GatesToAdd[1]
   # y <- SpecimenIndeces[1]
 
-  ListOfLists <- map2(.x=GatesToAdd, .y=SpecimenIndeces, .f=Luciernaga_Summary,
-  gs=gs, externalAF_gs=externalAF_gs, externalAF_gs_index=externalAF_gs_index,
-  externalAF_gs_gate=externalAF_gs_gate, GuessSimilar=GuessSimilar,
-  NumberDetectors=NumberDetectors, excludeThese=excludeThese, 
-  Unstained=Unstained,
-  inverse.transform=inverse.transform, AFOverlap=AFOverlap)
+  ListOfLists <- map2(.x = GatesToAdd, .y = SpecimenIndeces,
+                       .f = Luciernaga_Summary,
+                       gs = gs,
+                       externalAF_gs = externalAF_gs,
+                       externalAF_gs_index = externalAF_gs_index,
+                       externalAF_gs_gate = externalAF_gs_gate,
+                       GuessSimilar = GuessSimilar,
+                       NumberDetectors = NumberDetectors,
+                       excludeThese = excludeThese,
+                       Unstained = Unstained,
+                       inverse.transform = inverse.transform,
+                       AFOverlap = AFOverlap)
 
   return(ListOfLists)
 }
-

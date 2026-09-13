@@ -41,6 +41,9 @@ take over the entire y-axis.}
 cluster to  keep. The default NULL will select the number of cells
 found in the smallest cluster}
 
+\item{detector}{Default NULL, when reference is NULL sets the detector
+to plot on the x-axis}
+
 \item{reference}{A .csv path or data.frame containing Fluorophore
 and Detector information from which to retrieve the x-axis detector,
  use same naming as with the passed fluorophore argument in x}
@@ -54,9 +57,6 @@ data, FALSE will return raw MFI.}
 \item{maxtik}{Default is 1e6}
 
 \item{legend}{Default is "right"}
-
-\item{Detector}{Default NULL, when reference is NULL sets the detector
-to plot on the x-axis}
 }
 \value{
 ggplot objects for each fluorophore containing the various

@@ -1,4 +1,4 @@
-#' Generates cosine comparison from a data.frame of fluorescent 
+#' Generates cosine comparison from a data.frame of fluorescent
 #' signatures
 #'
 #' @param data A data.frame with a single name column and rest
@@ -12,13 +12,14 @@
 #' @param limitlow Default 0.4
 #' @param limithigh Default 1
 #' @param legend Default TRUE
-#' 
+#'
 #' @importFrom dplyr select
 #' @importFrom tidyselect where
 #' @importFrom lsa cosine
 #' @importFrom reshape2 melt
-#' @importFrom ggplot2 ggplot geom_tile  scale_fill_gradient aes
+#' @importFrom ggplot2 ggplot geom_tile scale_fill_gradient aes
 #'  theme_bw geom_text coord_fixed theme element_blank element_text
+#' @importFrom grid unit
 #'
 #' @return Either a ggplot or matrix object
 #' @export
@@ -65,71 +66,77 @@
 #'
 #' Plot <- Luciernaga_Cosine(data=FinalData, returntype="plot")
 #'
-Luciernaga_Cosine <- function(data, returntype="plot", rearrange=TRUE,
-  colorlow="lightblue", colorhigh="red", limitlow=0.4,
-  limithigh=1, legend=TRUE){
+Luciernaga_Cosine <- function(data, returntype = "plot", rearrange = TRUE,
+                               colorlow = "lightblue", colorhigh = "red",
+                               limitlow = 0.4, limithigh = 1,
+                               legend = TRUE) {
+  Names <- data |> select(!where(is.numeric))
+  if (ncol(Names) > 1) {
+    stop("Please use single column for names")
+  }
+  Names <- Names[[1]]
 
-    Names <- data %>% select(!where(is.numeric))
-    if (ncol(Names) > 1){stop("Please use single column for names")}
-    Names <- Names[[1]]
+  Numbers <- data |> select(where(is.numeric))
+  NumericsT <- t(Numbers)
+  rownames(NumericsT) <- NULL
+  colnames(NumericsT) <- Names
+  NumericsT <- data.matrix(NumericsT)
 
-    Numbers <- data %>% select(where(is.numeric))
-    NumericsT <- t(Numbers)
-    rownames(NumericsT) <- NULL
-    colnames(NumericsT) <- Names
-    NumericsT <- data.matrix(NumericsT)
+  data <- as.matrix(data)
+  CosineMatrix <- cosine(NumericsT)
+  CosineMatrix <- round(CosineMatrix, 2)
 
-    data <- as.matrix(data)
-    CosineMatrix <- cosine(NumericsT)
-    CosineMatrix <- round(CosineMatrix, 2)
-  
-    if (rearrange==TRUE){
+  if (rearrange == TRUE) {
     Reordered <- ReorderedCosine(CosineMatrix)
-    } else {Reordered <- CosineMatrix}
-    MeltedCosine <- melt(Reordered)
+  } else {
+    Reordered <- CosineMatrix
+  }
+  MeltedCosine <- melt(Reordered)
 
-    if (legend == TRUE){
+  if (legend == TRUE) {
     CosinePlot <- ggplot(MeltedCosine, aes(Var2, Var1, fill = value)) +
       geom_tile(color = "white") +
       scale_fill_gradient(low = colorlow, high = colorhigh,
-         limit = c(limitlow,limithigh),
-        space = "Lab", name="Cosine\nSimilarity") +
+        limit = c(limitlow, limithigh),
+        space = "Lab", name = "Cosine\nSimilarity") +
       theme_bw() + geom_text(aes(Var2, Var1, label = value), color = "black",
-                             size = 2) + coord_fixed(ratio = 1.3) +
+        size = 2) + coord_fixed(ratio = 1.3) +
       theme(axis.title.x = element_blank(), axis.title.y = element_blank(),
-            panel.grid.major = element_blank(), panel.border = element_blank(),
-            panel.background = element_blank(), axis.ticks = element_blank(),
-            legend.position.inside = c(1.2, 0.5),
-            legend.direction = "vertical", axis.text.x = element_text(
-              angle = 45, vjust = 1, hjust = 1, size = 6),
-            axis.text.y = element_text(size = 6),
-            legend.key.size = unit(0.4, "cm"))
-    } else {
-      CosinePlot <- ggplot(MeltedCosine, aes(Var2, Var1, fill = value)) +
-        geom_tile(color = "white") +
-        scale_fill_gradient(low = colorlow,
-           high = colorhigh,
-            limit = c(limitlow,limithigh),
-                             space = "Lab", name="Cosine\nSimilarity") +
-        theme_bw() + geom_text(
-          aes(Var2, Var1, label = value), color = "black",
-                               size = 2) +
-        coord_fixed(ratio = 1.3) +
-        theme(axis.title.x = element_blank(),
-       axis.title.y = element_blank(),
-              panel.grid.major = element_blank(),
-               panel.border = element_blank(),
-              panel.background = element_blank(),
-               axis.ticks = element_blank(),
-              legend.position= "none",
-               axis.text.x = element_text(
-                angle = 45, vjust = 1,
-                 hjust = 1, size = 6),
-              axis.text.y = element_text(size = 6),
-              legend.key.size = unit(0.4, "cm"))
-    }
+        panel.grid.major = element_blank(), panel.border = element_blank(),
+        panel.background = element_blank(), axis.ticks = element_blank(),
+        legend.position.inside = c(1.2, 0.5),
+        legend.direction = "vertical", axis.text.x = element_text(
+          angle = 45, vjust = 1, hjust = 1, size = 6),
+        axis.text.y = element_text(size = 6),
+        legend.key.size = unit(0.4, "cm"))
+  } else {
+    CosinePlot <- ggplot(MeltedCosine, aes(Var2, Var1, fill = value)) +
+      geom_tile(color = "white") +
+      scale_fill_gradient(low = colorlow,
+        high = colorhigh,
+        limit = c(limitlow, limithigh),
+        space = "Lab", name = "Cosine\nSimilarity") +
+      theme_bw() + geom_text(
+        aes(Var2, Var1, label = value), color = "black",
+        size = 2) +
+      coord_fixed(ratio = 1.3) +
+      theme(axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.border = element_blank(),
+        panel.background = element_blank(),
+        axis.ticks = element_blank(),
+        legend.position = "none",
+        axis.text.x = element_text(
+          angle = 45, vjust = 1,
+          hjust = 1, size = 6),
+        axis.text.y = element_text(size = 6),
+        legend.key.size = unit(0.4, "cm"))
+  }
 
-    if (returntype == "plot"){
-      return(CosinePlot)
-    } else {return(Reordered)}
-    }
+  if (returntype == "plot") {
+    return(CosinePlot)
+  } else {
+    return(Reordered)
+  }
+}

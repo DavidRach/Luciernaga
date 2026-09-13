@@ -20,7 +20,8 @@
 #'
 #' @importFrom flowWorkspace gs_pop_get_data
 #' @importFrom flowCore exprs keyword write.FCS
-#' @importFrom dplyr mutate select pull arrange
+#' @importFrom dplyr mutate select pull arrange bind_cols
+#' @importFrom tidyselect where
 #' @importFrom utils read.csv
 #' @importFrom stats lsfit
 #'
@@ -28,22 +29,34 @@
 #' 
 #' @export
 #'
-#' @examples A <- 2+2
+#' @examples A <- 2 + 2
 #' 
-Luciernaga_Unmix <- function(x, controlData, sample.name, removestrings,
-   Verbose, addon, subset="root", outpath, PanelPath, returnType="fcs", 
-   inverse.transform=FALSE){
+Luciernaga_Unmix <- function(x,
+                              controlData,
+                              sample.name,
+                              removestrings,
+                              Verbose,
+                              addon,
+                              subset = "root",
+                              outpath,
+                              PanelPath,
+                              returnType = "fcs",
+                              inverse.transform = FALSE) {
 
-  if (length(sample.name) == 2){
+  if (length(sample.name) == 2) {
     first <- sample.name[[1]]
     second <- sample.name[[2]]
     first <- keyword(x, first)
     second <- keyword(x, second)
-    name <- paste(first, second, sep="_")
-  } else {name <- keyword(x, sample.name)}
+    name <- paste(first, second, sep = "_")
+  } else {
+    name <- keyword(x, sample.name)
+  }
 
-  name <- NameCleanUp(name, removestrings=removestrings)
-  if (Verbose == TRUE){message("After removestrings, name is ", name)}
+  name <- NameCleanUp(name, removestrings = removestrings)
+  if (Verbose == TRUE) {
+    message("After removestrings, name is ", name)
+  }
 
   cs <- gs_pop_get_data(x, subset, inverse.transform = inverse.transform)
   Data <- exprs(cs[[1]])
@@ -52,38 +65,43 @@ Luciernaga_Unmix <- function(x, controlData, sample.name, removestrings,
   OriginalColumnsVector <- colnames(Data)
   OriginalColumns <- colnames(Data)
   OriginalColumns <- data.frame(OriginalColumns, check.names = FALSE)
-  OriginalColumnsIndex <- OriginalColumns %>% mutate(IndexLocation = 1:nrow(.))
+  OriginalColumnsIndex <- OriginalColumns %>%
+    mutate(IndexLocation = 1:nrow(.)) # TODO: `.` refers to lhs (magrittr-only)
 
   Backups <- Data |> mutate(Backups = 1:nrow(Data)) |> select(Backups)
 
-  StashedDF <- Data[,grep("Time|FS|SC|SS|Original|W$|H$", names(Data))]
+  StashedDF <- Data[, grep("Time|FS|SC|SS|Original|W$|H$", names(Data))]
   StashedDF <- cbind(Backups, StashedDF)
 
-  TheSampleData <- Data[,-grep("Time|FS|SC|SS|Original|W$|H$", names(Data))]
+  TheSampleData <- Data[, -grep("Time|FS|SC|SS|Original|W$|H$", names(Data))]
   BackupNames <- colnames(TheSampleData)
 
-  if (!is.data.frame(PanelPath)){Panel <- read.csv(PanelPath, check.names=FALSE)
-  } else {Panel <- PanelPath}
+  if (!is.data.frame(PanelPath)) {
+    Panel <- read.csv(PanelPath, check.names = FALSE)
+  } else {
+    Panel <- PanelPath
+  }
 
-  CorrectColumnOrder <- Panel |>  pull(Fluorophore)
+  CorrectColumnOrder <- Panel |> pull(Fluorophore)
   CorrectColumnOrder <- gsub("-A$", "", CorrectColumnOrder)
 
-  if (any(controlData |> select(where(is.numeric)) > 1)){
+  if (any(controlData |> select(where(is.numeric)) > 1)) {
     Metadata <- controlData |> select(!where(is.numeric))
     Numerics <- controlData |> select(where(is.numeric))
     n <- Numerics
     n[n < 0] <- 0
     A <- do.call(pmax, n)
-    Normalized <- n/A
+    Normalized <- n / A
     controlData <- bind_cols(Metadata, Normalized)
- }
+  }
 
   controlData$Fluorophore <- gsub("-A$", "", controlData$Fluorophore)
 
-  NewControlData <- controlData |> arrange(match(Fluorophore, CorrectColumnOrder))
+  NewControlData <- controlData |>
+    arrange(match(Fluorophore, CorrectColumnOrder))
   Newest <- NewControlData |> pull(Fluorophore)
 
-  if (!identical(CorrectColumnOrder, Newest)){
+  if (!identical(CorrectColumnOrder, Newest)) {
     message(Newest)
     stop("Column Reordering Failed, printed order output for troubleshooting:")
   }
@@ -94,7 +112,8 @@ Luciernaga_Unmix <- function(x, controlData, sample.name, removestrings,
   NewNames <- NewNames |> pull(Fluorophore)
   Ligands <- NewControlData |> pull(Ligand)
 
-  LeastSquares <- lsfit(x = t(TheControlData), y = t(TheSampleData), intercept = FALSE)
+  LeastSquares <- lsfit(x = t(TheControlData), y = t(TheSampleData),
+                         intercept = FALSE)
   UnmixedData <- t(LeastSquares$coefficients)
   UnmixedData2 <- UnmixedData
 
@@ -103,24 +122,28 @@ Luciernaga_Unmix <- function(x, controlData, sample.name, removestrings,
   TheData <- TheData |> select(-Backups)
   rownames(TheData) <- NULL
 
-  new_fcs <- InternalUnmix(cs=cs, StashedDF=StashedDF, TheData=TheData,
-                           Ligands=Ligands)
-  #View(new_fcs@description)
+  new_fcs <- InternalUnmix(cs = cs, StashedDF = StashedDF, TheData = TheData,
+                            Ligands = Ligands)
+  # View(new_fcs@description)
 
-  if (!is.null(addon)){name <- paste0(name, addon)}
+  if (!is.null(addon)) {
+    name <- paste0(name, addon)
+  }
 
   AssembledName <- paste0(name, ".fcs")
 
   new_fcs@description$GUID <- AssembledName
   new_fcs@description$`$FIL` <- AssembledName
 
-  if (is.null(outpath)) {outpath <- getwd()}
+  if (is.null(outpath)) {
+    outpath <- getwd()
+  }
 
   fileSpot <- file.path(outpath, AssembledName)
 
   if (returnType == "fcs") {
-    write.FCS(new_fcs, filename = fileSpot, delimiter="#")
-  } else {return(new_fcs)}
+    write.FCS(new_fcs, filename = fileSpot, delimiter = "#")
+  } else {
+    return(new_fcs)
+  }
 }
-
-

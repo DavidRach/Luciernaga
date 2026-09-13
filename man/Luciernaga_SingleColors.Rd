@@ -35,7 +35,7 @@ From and To Fluorophore name should match sample.name style}
 
 \item{Verbose}{Provides debugging for removestrings}
 
-\item{returntype}{Allows to modify default "data" to instead return 
+\item{returntype}{Allows to modify default "data" to instead return
 the "plots"}
 }
 \value{

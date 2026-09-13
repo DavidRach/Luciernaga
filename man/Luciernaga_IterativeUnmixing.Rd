@@ -2,7 +2,7 @@
 % Please edit documentation in R/Luciernaga_IterativeUnmixing.R
 \name{Luciernaga_IterativeUnmixing}
 \alias{Luciernaga_IterativeUnmixing}
-\title{Iterates over single color variant .fcs files, passing the 
+\title{Iterates over single color variant .fcs files, passing the
 generated signature to unmix full-stain sample}
 \usage{
 Luciernaga_IterativeUnmixing(
@@ -27,47 +27,48 @@ Luciernaga_IterativeUnmixing(
 \item{IterativePath}{File path to folder containing the variant
 single color .fcs files}
 
-\item{PanelCuts}{A data.frame containing the cuts, 
+\item{IterativeSampleName}{TBD}
+
+\item{Iterativeremovestrings}{TBD}
+
+\item{fluorophore.name}{TBD}
+
+\item{PanelCuts}{A data.frame containing the cuts,
 see Luciernaga_Unmixing.}
 
-\item{stats}{Whether to use "median" or "mean" to derrive 
+\item{stats}{Whether to use "median" or "mean" to derrive
 average signatures}
 
-\item{controlData}{The Luciernaga_SingleColors output that will 
+\item{samplecolumn}{TBD}
+
+\item{controlData}{The Luciernaga_SingleColors output that will
 be used in combination with the iterated variant}
 
-\item{FullStainedGS}{The GatingSet containing the full-stained 
+\item{FullStainedGS}{The GatingSet containing the full-stained
 samples you want to see effect of unmixing on}
 
 \item{sample.name}{Keyword storage name}
 
-\item{removestrings}{Regular string values to remove to match 
+\item{removestrings}{Regular string values to remove to match
 single color name in controlData}
 
-\item{subset}{What population to pass from GatingSet, default 
+\item{subset}{What population to pass from GatingSet, default
 is root.}
+
+\item{returnType}{TBD}
 
 \item{outpath}{Desired storage location}
 
-\item{PanelPath}{Path to a reference panel for ordering of 
+\item{PanelPath}{Path to a reference panel for ordering of
 column markers in unmixed file}
-
-\item{iterate_removestrings}{String values to remove from the 
-variant .fcs files name}
-
-\item{Verbose}{If TRUE returns steps}
-
-\item{SignatureView}{Whether to visualize the SCs}
-
-\item{returntype}{Default is set to "fcs" for iteration arguments}
 }
 \value{
 Iterated versions of the full-stained sample
 }
 \description{
-Iterates over single color variant .fcs files, passing the 
+Iterates over single color variant .fcs files, passing the
 generated signature to unmix full-stain sample
 }
 \examples{
-NULL
+A <- 2 + 2
 }

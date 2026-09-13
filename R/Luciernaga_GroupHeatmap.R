@@ -9,10 +9,11 @@
 #' @param returntype Either "plot" or underlying "data"
 #' @param legend Default is "right", use "none" to remove
 #' @param transpose Default is FALSE, flips orientation
-#' 
+#'
 #' @importFrom purrr map
 #' @importFrom dplyr bind_rows group_by summarize left_join mutate
-#'  relocate select pull rename
+#'  relocate select pull rename filter
+#' @importFrom rlang .data
 #'
 #' @return Either a plot or underlying data
 #' @export
@@ -25,7 +26,6 @@
 #' library(data.table)
 #' library(dplyr)
 #' library(purrr)
-
 #' File_Location <- system.file("extdata", package = "Luciernaga")
 #' FCS_Files <- list.files(path = File_Location, pattern = ".fcs", full.names = TRUE)
 #' UnstainedFCSFiles <- FCS_Files[grep("Unstained", FCS_Files)]
@@ -56,34 +56,38 @@
 #' plot <- Luciernaga_GroupHeatmap(reports=reports, nameColumn="Sample",
 #'  cutoff=0.02, returntype = "plot")
 #'
-Luciernaga_GroupHeatmap <- function(reports, nameColumn, cutoff=0.01,
-   returntype="plot", legend="right", transpose=FALSE){
+Luciernaga_GroupHeatmap <- function(reports, nameColumn, cutoff = 0.01,
+                                     returntype = "plot", legend = "right",
+                                     transpose = FALSE) {
   #nameColumn <- "Experiment"
   Columns <- c(nameColumn, "Cluster", "Count")
 
-  if (!is.data.frame(reports)){
-  Processed <- map(.x=reports, .f=Luciernaga:::ReportProcess,
-                   columns=Columns) |> bind_rows()
-  } else {Processed <- Luciernaga:::ReportProcess(x=reports, columns=Columns)}
+  if (!is.data.frame(reports)) {
+    Processed <- map(.x = reports, .f = Luciernaga:::ReportProcess,
+      columns = Columns) |> bind_rows()
+  } else {
+    Processed <- Luciernaga:::ReportProcess(x = reports, columns = Columns)
+  }
   #nrow(Processed)
-  
+
   Processed <- Processed |> unique()
 
   TheCounts <- Processed |> group_by(.data[[nameColumn]]) |>
-    summarize(TotalCells = sum(Count, na.rm = TRUE), .groups = 'drop')
+    summarize(TotalCells = sum(Count, na.rm = TRUE), .groups = "drop")
 
   Processed <- Processed |> left_join(TheCounts, by = c(
     nameColumn))
 
-  TheData <- Processed |> mutate(Ratio = round(Count/TotalCells, 3)) |>
-    relocate(Ratio, .after=Count) |> select(-TotalCells)
+  TheData <- Processed |> mutate(Ratio = round(Count / TotalCells, 3)) |>
+    relocate(Ratio, .after = Count) |> select(-TotalCells)
 
   TheClusters <- TheData |> pull(Cluster) |> unique()
 
   Values <- TheData |> group_by(.data[[nameColumn]], Cluster) |>
     mutate(cutoff = Ratio > cutoff) #Set as cutoff value
 
-  Clusters <- map(.x=TheClusters, .f=Luciernaga:::ClusterAbundance, data=Values)
+  Clusters <- map(.x = TheClusters, .f = Luciernaga:::ClusterAbundance,
+    data = Values)
   Clusters <- Filter(Negate(is.null), Clusters)
   Clusters <- unlist(Clusters)
   ExcludedClusters <- setdiff(TheClusters, Clusters)
@@ -91,21 +95,21 @@ Luciernaga_GroupHeatmap <- function(reports, nameColumn, cutoff=0.01,
   FilteredData <- TheData |> filter(Cluster %in% Clusters)
 
   OtherData <- FilteredData |> group_by(.data[[nameColumn]]) |>
-    summarize(LostRatio = 1 - sum(Ratio, na.rm = TRUE), .groups = 'drop')
+    summarize(LostRatio = 1 - sum(Ratio, na.rm = TRUE), .groups = "drop")
 
   Other <- TheCounts |> left_join(OtherData, by = nameColumn) |>
-  mutate(Count = round(TotalCells*LostRatio, 0)) |> select(-TotalCells) |>
-  relocate(Count, .before=LostRatio) |> rename(Ratio=LostRatio) |>
-    mutate(Cluster="Other") |> relocate(Cluster, .before="Count")
+    mutate(Count = round(TotalCells * LostRatio, 0)) |> select(-TotalCells) |>
+    relocate(Count, .before = LostRatio) |> rename(Ratio = LostRatio) |>
+    mutate(Cluster = "Other") |> relocate(Cluster, .before = "Count")
 
   UpdatedDataset <- bind_rows(FilteredData, Other)
 
-  if (returntype == "plot"){
-
-    plot <- Luciernaga:::StackedReportHeatmap(data=UpdatedDataset,
-       nameColumn=nameColumn, legend=legend, transpose=transpose)
+  if (returntype == "plot") {
+    plot <- Luciernaga:::StackedReportHeatmap(data = UpdatedDataset,
+      nameColumn = nameColumn, legend = legend, transpose = transpose)
 
     return(plot)
-
-  } else {return(UpdatedDataset)}
+  } else {
+    return(UpdatedDataset)
   }
+}

@@ -15,7 +15,7 @@
 #' @param subsample When downsample is true, number of cells from each
 #'  cluster to  keep. The default NULL will select the number of cells
 #'  found in the smallest cluster
-#' @param Detector Default NULL, when reference is NULL sets the detector
+#' @param detector Default NULL, when reference is NULL sets the detector
 #'  to plot on the x-axis
 #' @param reference A .csv path or data.frame containing Fluorophore
 #' and Detector information from which to retrieve the x-axis detector,
@@ -28,12 +28,12 @@
 #' @param legend Default is "right"
 #'
 #' @importFrom dplyr filter arrange pull group_by slice slice_sample
-#'  pull select ungroup
-#' @importFrom utils head read.csv
-#' @importFrom tidyselect where
+#'  select ungroup
+#' @importFrom utils head tail read.csv
+#' @importFrom rlang .data
 #' @importFrom stats quantile
 #' @importFrom ggplot2 ggplot aes geom_density theme theme_bw
-#'  labs element_text scale_x_log10
+#'  labs element_text scale_x_log10 xlim
 #' @importFrom scales trans_format math_format
 #'
 #' @return ggplot objects for each fluorophore containing the various
@@ -42,83 +42,98 @@
 #'
 #' @examples NULL
 Luciernaga_Brightness <- function(fluorophore.name, data,
-  fluorophore.column, cluster.column, downsample=TRUE,
-  subsample = NULL, detector=NULL, reference=NULL, 
-  clearance=0.02, Scaled = TRUE, maxtik=1e6, legend="right"){
-  
-    TheFluorophore <- fluorophore.name
-    TheData <- data |>
-      filter(.data[[fluorophore.column]] %in% TheFluorophore)
-    TheTable <- data.frame(table(
-      TheData[[cluster.column]]), check.names = FALSE)
-    colnames(TheTable)[1] <- "Cluster"
-    colnames(TheTable)[2] <- "Count"
-    TheSlice <- TheTable |> arrange(Count) |> slice(1) |> pull(Count)
+                                   fluorophore.column, cluster.column,
+                                   downsample = TRUE, subsample = NULL,
+                                   detector = NULL, reference = NULL,
+                                   clearance = 0.02, Scaled = TRUE,
+                                   maxtik = 1e6, legend = "right") {
+  TheFluorophore <- fluorophore.name
+  TheData <- data |>
+    filter(.data[[fluorophore.column]] %in% TheFluorophore)
+  TheTable <- data.frame(table(
+    TheData[[cluster.column]]), check.names = FALSE)
+  colnames(TheTable)[1] <- "Cluster"
+  colnames(TheTable)[2] <- "Count"
+  TheSlice <- TheTable |> arrange(Count) |> slice(1) |> pull(Count)
 
-    if (downsample == TRUE) {
-      if (is.null(subsample)){
-       TheData <- TheData |> group_by(.data[[cluster.column]]) |>
-         slice_sample(n=TheSlice, replace = FALSE) |> ungroup()
-      } else {TheData <- TheData |> group_by(.data[[cluster.column]]) |>
-        slice_sample(n=subsample, replace = FALSE) |> ungroup()
-      }
-    }
-
-    if (is.null(reference)){TheDetector <- detector
+  if (downsample == TRUE) {
+    if (is.null(subsample)) {
+      TheData <- TheData |> group_by(.data[[cluster.column]]) |>
+        slice_sample(n = TheSlice, replace = FALSE) |> ungroup()
     } else {
-      if(!is.data.frame(reference)){
-        CSV <- read.csv(reference, check.names = FALSE)
-      } else {CSV <- reference}
+      TheData <- TheData |> group_by(.data[[cluster.column]]) |>
+        slice_sample(n = subsample, replace = FALSE) |> ungroup()
+    }
+  }
+
+  if (is.null(reference)) {
+    TheDetector <- detector
+  } else {
+    if (!is.data.frame(reference)) {
+      CSV <- read.csv(reference, check.names = FALSE)
+    } else {
+      CSV <- reference
+    }
     internalstrings <- c(" ", ".", "_", "-A")
     CSV$Fluorophore <- NameCleanUp(CSV$Fluorophore,
-       removestrings=internalstrings)
-    CSV$Detector <- NameCleanUp(CSV$Detector, removestrings=internalstrings)
+      removestrings = internalstrings)
+    CSV$Detector <- NameCleanUp(CSV$Detector, removestrings = internalstrings)
     TheDetector <- CSV |>
       dplyr::filter(Fluorophore %in% TheFluorophore) |>
       pull(Detector)
+  }
+
+  Values <- TheData |> select(TheDetector) |> as.matrix()
+  theXmin <- Values |> quantile(0.00)
+  theXmax <- Values |> quantile(1.00)
+  theXmin <- theXmin - abs((clearance * theXmin))
+  theXmax <- theXmax + (clearance * theXmax)
+
+  if (Scaled == TRUE) {
+    if (theXmax > 1000000) {
+      custom_breaks <- c(1e3, 1e4, 1e5, 1e6, 1e7, 1e8)
+    } else if (theXmax > 100000) {
+      custom_breaks <- c(1e3, 1e4, 1e5, 1e6, 1e7)
+    } else if (theXmax > 10000) {
+      custom_breaks <- c(1e3, 1e4, 1e5, 1e6)
+    } else {
+      custom_breaks <- c(1e3, 1e4, 1e5)
     }
 
-    Values <- TheData |> select(TheDetector) |> as.matrix()
-    theXmin <- Values %>% quantile(., 0.00)
-    theXmax <- Values %>% quantile(., 1.00)
-    theXmin <- theXmin - abs((clearance*theXmin))
-    theXmax <- theXmax + (clearance*theXmax)
-
-    if (Scaled == TRUE){
-      if (theXmax > 1000000){custom_breaks <- c(1e3, 1e4, 1e5, 1e6, 1e7, 1e8)
-      } else if (theXmax > 100000){custom_breaks <- c(1e3, 1e4, 1e5, 1e6, 1e7)
-      } else if (theXmax > 10000){custom_breaks <- c(1e3, 1e4, 1e5, 1e6)
-      } else {custom_breaks <- c(1e3, 1e4, 1e5)}
-
-      if (theXmin < -100000){lower_breaks <- c(-1e6, -1e5, -1e4, -1e3, 0.1)
-      } else if (theXmin < -10000){lower_breaks <- c(-1e5, -1e4, -1e3, 0.1)
-      } else if (theXmin < -1000){lower_breaks <- c(-1e4, -1e3, 0.1)
-      } else if (theXmin < 0){lower_breaks <- c(-1e3, 0.1)
-      } else {lower_breaks <- c(1)}
-
-      custom_breaks <- c(lower_breaks, custom_breaks)
-      HighEnd <- tail(custom_breaks, 1)
-      LowEnd <- head(custom_breaks, 1)     
-
-      plot <- ggplot(TheData, aes(x=.data[[TheDetector]],
-        fill=.data[[cluster.column]])) + geom_density(alpha=0.5) +
-        scale_x_log10(limits = c(LowEnd, HighEnd), breaks = custom_breaks, 
-        labels = scales:::trans_format("log10", scales::math_format(10^.x)))  +
-        labs(title=TheFluorophore, x=TheDetector, y="Frequency") + theme_bw() +
-        theme(axis.title.x=element_text(face="plain"),
-             axis.title.y=element_text(
-            face="plain"), legend.position=legend)
-      } else {
-        plot <- ggplot(TheData, aes(x=.data[[TheDetector]], fill=Cluster)) +
-          geom_density(alpha=0.5) + xlim(theXmin, theXmax) +
-          labs(title=TheFluorophore, x=TheDetector, y="Frequency") +
-          theme_bw() +
-          theme(axis.title.x=element_text(face="plain"),
-           axis.title.y=element_text(
-           face="plain"), legend.position=legend)
+    if (theXmin < -100000) {
+      lower_breaks <- c(-1e6, -1e5, -1e4, -1e3, 0.1)
+    } else if (theXmin < -10000) {
+      lower_breaks <- c(-1e5, -1e4, -1e3, 0.1)
+    } else if (theXmin < -1000) {
+      lower_breaks <- c(-1e4, -1e3, 0.1)
+    } else if (theXmin < 0) {
+      lower_breaks <- c(-1e3, 0.1)
+    } else {
+      lower_breaks <- c(1)
     }
 
- return(plot)
+    custom_breaks <- c(lower_breaks, custom_breaks)
+    HighEnd <- tail(custom_breaks, 1)
+    LowEnd <- head(custom_breaks, 1)
+
+    plot <- ggplot(TheData, aes(x = .data[[TheDetector]],
+      fill = .data[[cluster.column]])) + geom_density(alpha = 0.5) +
+      scale_x_log10(limits = c(LowEnd, HighEnd), breaks = custom_breaks,
+        labels = scales::trans_format("log10", scales::math_format(10^.x))) +
+      labs(title = TheFluorophore, x = TheDetector, y = "Frequency") +
+      theme_bw() +
+      theme(axis.title.x = element_text(face = "plain"),
+        axis.title.y = element_text(
+          face = "plain"), legend.position = legend)
+  } else {
+    plot <- ggplot(TheData, aes(x = .data[[TheDetector]], fill = Cluster)) +
+      geom_density(alpha = 0.5) + xlim(theXmin, theXmax) +
+      labs(title = TheFluorophore, x = TheDetector, y = "Frequency") +
+      theme_bw() +
+      theme(axis.title.x = element_text(face = "plain"),
+        axis.title.y = element_text(
+          face = "plain"), legend.position = legend)
+  }
+
+  return(plot)
 }
-
-

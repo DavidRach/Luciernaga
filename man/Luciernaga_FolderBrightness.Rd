@@ -41,7 +41,7 @@ outputs are stored}
 \item{detector}{The detector corresponding to the fluorophore,
 sets the x-axis}
 
-\item{returnType}{Default data, providing plot returns a 
+\item{returnType}{Default data, providing plot returns a
 Luciernaga_Brightness plot}
 
 \item{maxtik}{Default 1e6, for plot return}

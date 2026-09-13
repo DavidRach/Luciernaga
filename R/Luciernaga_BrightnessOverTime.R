@@ -1,7 +1,7 @@
-#' Visualizes Cluster MFI over time, uses Luciernaga_QC output 
-#' 
+#' Visualizes Cluster MFI over time, uses Luciernaga_QC output
+#'
 #' @param data The LuciernagaQC data.frame style output with raw
-#'  detector values. 
+#'  detector values.
 #' @param columnname The columnname for Cluster, becomes the
 #'  categorical defining lines and dots
 #' @param datename The column name for Experiment/Dates, becomes
@@ -9,63 +9,66 @@
 #' @param Detector Default NULL, specify a detector, overrides
 #'  the y-axis
 #' @param plotType Something
-#' 
+#'
 #' @importFrom stringr str_detect
 #' @importFrom dplyr pull arrange desc slice select
 #' @importFrom purrr map_chr
 #' @importFrom tidyselect all_of
-#' @importFrom ggplot2 ggplot aes geom_line geom_point
-#'  labs theme_bw theme
+#' @importFrom rlang .data
+#' @importFrom ggplot2 ggplot aes geom_line geom_point geom_boxplot
+#'  labs theme_bw theme element_text
 #' @importFrom viridis scale_color_viridis scale_fill_viridis
-#' 
+#'
 #' @return A ggplot2 object
-#' 
+#'
 #' @export
-#' 
+#'
 #' @examples
-#' library(Luciernaga) 
-#' 
-Luciernaga_BrigtnessOverTime <- function(data, columnname="Cluster",
- datename="Experiment", Detector=NULL, plotType="line"){
-
+#' library(Luciernaga)
+#'
+Luciernaga_BrigtnessOverTime <- function(data, columnname = "Cluster",
+                                          datename = "Experiment",
+                                          Detector = NULL,
+                                          plotType = "line") {
   PeakDetectors <- data |> pull(columnname)
   PeakDetectors <- as.character(PeakDetectors)
   PeakDetectors <- PeakDetectors |> strsplit("_") |> map_chr(1)
   Peaks <- as.data.frame(table(PeakDetectors))
   Peaks <- Peaks |> arrange(desc(Freq))
 
-  if (is.null(Detector)){
-  colnames(Peaks)[1] <- "Detector"
-  Detector <- Peaks |> slice(1) |> pull(Detector)
-  Detector <- paste0(Detector, "-A")
-  } else {Detector <- Detector
-    if(!str_detect(Detector, "-A")){
+  if (is.null(Detector)) {
+    colnames(Peaks)[1] <- "Detector"
+    Detector <- Peaks |> slice(1) |> pull(Detector)
+    Detector <- paste0(Detector, "-A")
+  } else {
+    Detector <- Detector
+    if (!str_detect(Detector, "-A")) {
       Detector <- paste0(Detector, "-A")
     }
-
-
   }
 
   TheData <- data |> select(all_of(c(columnname, datename, Detector)))
 
-  if (plotType == "line"){
-  Plot <- ggplot(TheData, aes(x = .data[[datename]], y = .data[[Detector]],
-   group = .data[[columnname]], color = .data[[columnname]],
-   fill = .data[[columnname]])) + geom_line(linewidth = 1) +
-   geom_point(shape = 21, size = 3, stroke = 0.5) +
-   labs(title = NULL, x = NULL, y = paste0("MFI: ", Detector)) + 
-   theme_bw() + theme(axis.text.x = element_text(angle = 50, hjust = 1)) +
-   scale_color_viridis(discrete = TRUE) + scale_fill_viridis(discrete = TRUE)
+  if (plotType == "line") {
+    Plot <- ggplot(TheData, aes(x = .data[[datename]], y = .data[[Detector]],
+      group = .data[[columnname]], color = .data[[columnname]],
+      fill = .data[[columnname]])) + geom_line(linewidth = 1) +
+      geom_point(shape = 21, size = 3, stroke = 0.5) +
+      labs(title = NULL, x = NULL, y = paste0("MFI: ", Detector)) +
+      theme_bw() + theme(axis.text.x = element_text(angle = 50, hjust = 1)) +
+      scale_color_viridis(discrete = TRUE) +
+      scale_fill_viridis(discrete = TRUE)
   } else {
-  Plot <- ggplot(TheData, aes(x = .data[[datename]], y = .data[[Detector]],
+    Plot <- ggplot(TheData, aes(x = .data[[datename]], y = .data[[Detector]],
       group = .data[[columnname]], color = .data[[columnname]],
       fill = .data[[columnname]])) +
       geom_boxplot(alpha = 0.3, width = 0.6, outlier.shape = NA) +
       geom_point(shape = 21, size = 3, stroke = 0.5) +
-      labs(title = NULL, x = NULL, y = paste0("MFI: ", Detector)) + 
+      labs(title = NULL, x = NULL, y = paste0("MFI: ", Detector)) +
       theme_bw() + theme(axis.text.x = element_text(angle = 50, hjust = 1)) +
-      scale_color_viridis(discrete = TRUE) + scale_fill_viridis(discrete = TRUE)
+      scale_color_viridis(discrete = TRUE) +
+      scale_fill_viridis(discrete = TRUE)
   }
 
   return(Plot)
-  }
+}

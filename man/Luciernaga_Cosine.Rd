@@ -2,7 +2,7 @@
 % Please edit documentation in R/Luciernaga_Cosine.R
 \name{Luciernaga_Cosine}
 \alias{Luciernaga_Cosine}
-\title{Generates cosine comparison from a data.frame of fluorescent 
+\title{Generates cosine comparison from a data.frame of fluorescent
 signatures}
 \usage{
 Luciernaga_Cosine(
@@ -40,7 +40,7 @@ signatures}
 Either a ggplot or matrix object
 }
 \description{
-Generates cosine comparison from a data.frame of fluorescent 
+Generates cosine comparison from a data.frame of fluorescent
 signatures
 }
 \examples{

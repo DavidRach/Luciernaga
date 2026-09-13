@@ -160,6 +160,6 @@ SingleColor_Data <- map(.x=MyGatingSet[1:2], .f=Luciernaga_QC, subsets="lymphocy
  stats = "median", ExportType = "data", SignatureReturnNow = FALSE,
  outpath = TemporaryFolder, Increments=0.1, SecondaryPeaks=2,
  experiment = "FirstExperiment", condition = "ILTPanel", Subtraction = "Internal",
- CellAF=TheCellAF, SCData="subtracted", NegativeType="default") \%>\% bind_rows()
+ CellAF=TheCellAF, SCData="subtracted", NegativeType="default") |> bind_rows()
 
 }

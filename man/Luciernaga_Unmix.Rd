@@ -54,6 +54,6 @@ A new .fcs file with the new columns appended
 OLS unmixing of a Gating Set object
 }
 \examples{
-A <- 2+2
+A <- 2 + 2
 
 }

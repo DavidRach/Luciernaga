@@ -20,10 +20,10 @@
 #' @param height Desired page height
 #'
 #' @importFrom dplyr group_by summarize left_join relocate
-#'  filter mutate rename across select bind_rows bind_cols ungroup
+#'  filter mutate rename across select bind_rows bind_cols ungroup pull
 #' @importFrom tidyselect all_of everything
-#' @importFrom purrr map flatten
-#' @importFrom utils head tail
+#' @importFrom purrr map
+#' @importFrom utils head tail read.csv
 #'
 #' @return A value to be determined later
 #' @export
@@ -73,42 +73,45 @@
 #'  LinePlots=FALSE, CosinePlots=FALSE, StackedBarPlots = FALSE, HeatmapPlots = TRUE,
 #'  reference = TheFluorophoreOrder)
 #'
-Luciernaga_Plots <- function(data, RetainedType, CellPopRatio, outfolder, filename,
-                             LinePlots=TRUE, CosinePlots=TRUE,
-                             StackedBarPlots=TRUE, HeatmapPlots=TRUE,
-                             returntype = "patchwork", reference=NULL,
-                             thecolumns=2, therows=2, width=9, height=7){
+Luciernaga_Plots <- function(data, RetainedType, CellPopRatio, outfolder,
+                              filename, LinePlots = TRUE, CosinePlots = TRUE,
+                              StackedBarPlots = TRUE, HeatmapPlots = TRUE,
+                              returntype = "patchwork", reference = NULL,
+                              thecolumns = 2, therows = 2, width = 9,
+                              height = 7) {
+  if (!is.null(reference)) {
+    if (!is.data.frame(reference)) {
+      reference <- read.csv(reference, check.names = FALSE)
+    }
 
-  if(!is.null(reference)){
-
-  if (!is.data.frame(reference)){reference <- read.csv(reference, check.names=FALSE)}
-  
-  PreferredOrder <- reference %>% pull(Fluorophore)
-  PreferredOrder <- gsub("-A", "", PreferredOrder)
-  } else {PreferredOrder <- NULL}
+    PreferredOrder <- reference |> pull(Fluorophore)
+    PreferredOrder <- gsub("-A", "", PreferredOrder)
+  } else {
+    PreferredOrder <- NULL
+  }
 
   #################################################
   # Filtered by CellPopRatio, and creating other  #
   #################################################
 
   TheCounts <- data |> group_by(Sample, Experiment, Condition) |>
-    summarize(TotalCells = sum(Count, na.rm = TRUE), .groups = 'drop')
+    summarize(TotalCells = sum(Count, na.rm = TRUE), .groups = "drop")
 
   TheData <- data |>
     left_join(TheCounts, by = c("Sample", "Experiment", "Condition"))
 
-  TheData <- TheData |>  mutate(Ratio = round(Count/TotalCells, 3)) |>
-    relocate(Ratio, .after=Count) |> select(-TotalCells)
+  TheData <- TheData |> mutate(Ratio = round(Count / TotalCells, 3)) |>
+    relocate(Ratio, .after = Count) |> select(-TotalCells)
 
   FilteredData <- TheData |> filter(Ratio > CellPopRatio)
 
   OtherData <- FilteredData |> group_by(Sample, Experiment, Condition) |>
-    summarize(LostRatio = 1 - sum(Ratio, na.rm = TRUE), .groups = 'drop')
+    summarize(LostRatio = 1 - sum(Ratio, na.rm = TRUE), .groups = "drop")
 
   Other <- TheCounts |> left_join(OtherData, by = c("Sample", "Experiment",
-    "Condition")) |> mutate(Count = round(TotalCells*LostRatio, 0)) |>
-    select(-TotalCells) |> relocate(Count, .before=LostRatio) |>
-    rename(Ratio=LostRatio) |> mutate(Cluster="Other")
+    "Condition")) |> mutate(Count = round(TotalCells * LostRatio, 0)) |>
+    select(-TotalCells) |> relocate(Count, .before = LostRatio) |>
+    rename(Ratio = LostRatio) |> mutate(Cluster = "Other")
 
   OtherN <- nrow(Other)
   FirstDetectorColumn <- which(grepl("\\d", colnames(data)))[1]
@@ -116,7 +119,7 @@ Luciernaga_Plots <- function(data, RetainedType, CellPopRatio, outfolder, filena
 
   Replacement <- data |>
     select(all_of(FirstDetectorColumn:LastDetectorColumn)) |>
-    head(OtherN) %>% mutate(across(everything(), ~0))
+    head(OtherN) |> mutate(across(everything(), ~0))
 
   Replacements <- bind_cols(Other, Replacement) |> ungroup()
   Replaced <- bind_rows(FilteredData, Replacements)
@@ -125,45 +128,41 @@ Luciernaga_Plots <- function(data, RetainedType, CellPopRatio, outfolder, filena
   # Lets Begin #
   ##############
 
-  Items <- data.frame(table(data$Sample)) |>  pull(Var1) %>% as.character(.)
+  Items <- data.frame(table(data$Sample)) |> pull(Var1) |> as.character()
 
-  if (!is.null(PreferredOrder)){
-  if (all(Items %in% PreferredOrder)){
-    Items <- PreferredOrder
-  } else {message("names not matching, no reorderring according to panel order")}
+  if (!is.null(PreferredOrder)) {
+    if (all(Items %in% PreferredOrder)) {
+      Items <- PreferredOrder
+    } else {
+      message("names not matching, no reorderring according to panel order")
+    }
   }
 
   #x <- Items[1]
   #data <- Replaced
 
-  ThePlots <- map(.x=Items, .f=Luciernaga:::InternalReport, data=Replaced,
-    FirstDetectorColumn=FirstDetectorColumn, 
-    LastDetectorColumn=LastDetectorColumn,
-    RetainedType=RetainedType, CellPopRatio=CellPopRatio,
-    LinePlots=LinePlots, CosinePlots=CosinePlots,
-    StackedBarPlots=StackedBarPlots, HeatmapPlots=HeatmapPlots)
+  ThePlots <- map(.x = Items, .f = Luciernaga:::InternalReport, data = Replaced,
+    FirstDetectorColumn = FirstDetectorColumn,
+    LastDetectorColumn = LastDetectorColumn,
+    RetainedType = RetainedType, CellPopRatio = CellPopRatio,
+    LinePlots = LinePlots, CosinePlots = CosinePlots,
+    StackedBarPlots = StackedBarPlots, HeatmapPlots = HeatmapPlots)
 
-  if (returntype == "pdf"){
-  Utility_Patchwork(x=ThePlots, filename = filename, outfolder = outfolder,
-    thecolumns = thecolumns, therows = therows, width = width,
-    height = height, returntype = "pdf", NotListofList = FALSE)
+  if (returntype == "pdf") {
+    Utility_Patchwork(x = ThePlots, filename = filename, outfolder = outfolder,
+      thecolumns = thecolumns, therows = therows, width = width,
+      height = height, returntype = "pdf", NotListofList = FALSE)
   }
 
-  if (returntype == "patchwork"){
-  Hey <-Utility_Patchwork(x=ThePlots, filename = filename, outfolder = outfolder,
-    thecolumns = thecolumns, therows = therows, width = width,
-    height = height, returntype = "patchwork", NotListofList = FALSE)
-  return(Hey)
+  if (returntype == "patchwork") {
+    Hey <- Utility_Patchwork(x = ThePlots, filename = filename,
+      outfolder = outfolder, thecolumns = thecolumns, therows = therows,
+      width = width, height = height, returntype = "patchwork",
+      NotListofList = FALSE)
+    return(Hey)
   }
 
-  if (returntype == "plots"){
+  if (returntype == "plots") {
     return(ThePlots)
   }
-
-  }
-
-
-
-
-
-
+}

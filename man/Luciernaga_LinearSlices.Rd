@@ -42,7 +42,7 @@ to 0.1.}
 
 \item{output}{Whether to return "plot" or "data"}
 
-\item{desiredAF}{Peak detector(ex. "V7-A") want to filter cells by before 
+\item{desiredAF}{Peak detector(ex. "V7-A") want to filter cells by before
 slicing, argument
 only used to override the main peak detector when a .fcs file has more than
  a single peak
@@ -61,6 +61,8 @@ where percentile slice occured.}
 \item{titleplot}{Default NULL, sets the returncutplot title}
 
 \item{inverse.transform}{Default TRUE, whether to inverse.transform.}
+
+\item{parentSignature}{TBD}
 }
 \value{
 Either ggplots or the summarized data.frame object preceding

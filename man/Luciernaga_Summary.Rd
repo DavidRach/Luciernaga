@@ -26,6 +26,12 @@ Luciernaga_Summary(
 
 \item{gs}{The GatingSet}
 
+\item{externalAF_gs}{TBD}
+
+\item{externalAF_gs_index}{TBD}
+
+\item{externalAF_gs_gate}{TBD}
+
 \item{GuessSimilar}{Default FALSE, will attempt to match to
 similar fluorophores in the library}
 
