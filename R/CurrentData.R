@@ -5,7 +5,7 @@
 #' @param type Whether to return "MFI" or "Gain" plots
 #'
 #' @importFrom utils read.csv
-#' @importFrom lubridate ymd_hms ymd hms mdy_hm
+#' @importFrom lubridate ymd_hms ymd mdy hms mdy_hm parse_date_time
 #' @importFrom stringr str_detect
 #' @importFrom dplyr arrange desc
 #'
@@ -19,10 +19,16 @@ CurrentData <- function(x, MainFolder, type) {
     BeadData <- list.files(ArchiveLocation, pattern="Bead",
                            full.names=TRUE)
     Data <- read.csv(BeadData, check.names=FALSE)
+
     Data$DateTime <- ymd_hms(Data$DateTime)
-    Data$DATE <- ymd(Data$DATE)
+    if (grepl("^\\d{4}[-/]\\d{1,2}[-/]\\d{1,2}$", x)) {Data$DATE <- ymd(Data$DATE)
+    } else if (grepl("^\\d{1,2}[-/]\\d{1,2}[-/]\\d{4}$", x)) {Data$DATE <- mdy(Data$DATE)}
     Data$TIME <- hms(Data$TIME)
   }
+
+  if (all(is.na(Data$DateTime))){Data <- Data |>
+    mutate(DateTime = parse_date_time(paste(DATE, TIME),
+                                      orders = c("mdy HMS", "ymd HMS")))}
 
   if (type == "Gain") {
     ArchiveData <- list.files(ArchiveLocation, pattern="Archived",
