@@ -78,7 +78,7 @@ LuciernagaIntegration <- function(template,
   SpecimenIndeces <- DetectorsPresent |> pull(gs_index)
 
   # sampleNames(gs)
-  # sampleNames(gs[SpecimenIndeces[14]])
+  # sampleNames(gs[SpecimenIndeces[1]])
   # x <- GatesToAdd[1]
   # y <- SpecimenIndeces[1]
 

@@ -484,7 +484,7 @@ Luciernaga_QC <- function(x,
     relocate(Backups, .before = 1) # This will change the start/end count
 
   if (Type == "Cells_Unstained" | Type == "Unknown_Unstained") {
-    # x <- Retained[3]
+    # x <- Retained[1]
     RetainedDF <- map(.x = Retained, .f = UnstainedSignatures,
                        WorkAround1 = WorkAround1,
                        alternatename = AggregateName,
