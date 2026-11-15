@@ -19,7 +19,9 @@ Utility_UnityPlot(
   returntype,
   outpath,
   filename = NULL,
-  cartesian = TRUE
+  cartesian = TRUE,
+  thecolumns = 2,
+  therows = 3
 )
 }
 \arguments{

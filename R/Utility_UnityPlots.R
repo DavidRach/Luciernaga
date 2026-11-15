@@ -81,7 +81,9 @@ Utility_UnityPlot <- function(x,
                                returntype,
                                outpath,
                                filename = NULL,
-                               cartesian = TRUE) {
+                               cartesian = TRUE,
+                               thecolumns=2,
+                               therows=3) {
 
   if (!is.null(reference)) {
     if (is.data.frame(reference)) {
@@ -113,12 +115,16 @@ Utility_UnityPlot <- function(x,
   if (returntype == "pdf") {
     AssembledPlots <- Utility_Patchwork(x = Plots, filename = FileName,
                                          outfolder = outpath,
-                                         returntype = "pdf")
+                                         returntype = "pdf",
+                                         therows=therows, 
+                                         thecolumns=thecolumns)
   }
 
   if (returntype == "patchwork") {
     AssembledPlots <- Utility_Patchwork(x = Plots, filename = FileName,
                                          outfolder = outpath,
-                                         returntype = "patchwork")
+                                         returntype = "patchwork",
+                                         therows=therows, 
+                                         thecolumns=thecolumns)
   }
 }
