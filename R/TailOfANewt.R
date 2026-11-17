@@ -23,27 +23,23 @@ TailOfANewt <- function(HotspotBrighter, HotspotDimmer, savePlot = FALSE,
                         outpath = NULL, filename = NULL, device = "png",
                         width = 15, height = 15) {
 
-  TheseFluorophores <- HotspotBrighter |> row.names()
+  TheseFluorophores <- HotspotBrighter[[1]]
 
   residuals <- HotspotBrighter[, -1] - HotspotDimmer[, -1]
-  final_matrix <- residuals
-  lower_tri <- residuals
-  lower_tri[upper.tri(final_matrix)] <- NA
+  lower_tri <- as.matrix(residuals)
+  lower_tri[upper.tri(lower_tri)] <- NA
+  rownames(lower_tri) <- TheseFluorophores
 
   Longer <- as.data.frame(lower_tri) |>
-    rownames_to_column("row") |>
-    pivot_longer(
-      cols = -row, names_to = "col_num", names_prefix = "V",
-      values_to = "value"
-    ) |>
-    mutate(
-      row = factor(row, levels = rev(TheseFluorophores)),
-      col = as.numeric(col_num),
-      col_label = factor(
-        TheseFluorophores[col], levels = TheseFluorophores
-      )
-    ) |>
-    filter(!is.na(value)) |>
+  tibble::rownames_to_column("row") |>
+  tidyr::pivot_longer(
+    cols = -row, names_to = "col_label", values_to = "value"
+  ) |>
+  dplyr::mutate(
+    row       = factor(row, levels = rev(TheseFluorophores)),
+    col_label = factor(col_label, levels = TheseFluorophores)
+  ) |>
+    dplyr::filter(!is.na(value)) |>
     arrange(row)
 
   Plot <- ggplot(Longer, aes(x = col_label, y = row, fill = value)) +
